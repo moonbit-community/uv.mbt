@@ -1,4 +1,4 @@
 {
   "is-main": true,
-  "import": ["tonyfettes/uv"]
+  "import": ["tonyfettes/uv", "tonyfettes/uv/async"]
 }

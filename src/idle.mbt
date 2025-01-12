@@ -17,4 +17,4 @@ pub extern "c" fn idle_start(idle : Idle, cb : (Idle) -> Unit) -> Int = "moonbit
 pub extern "c" fn idle_stop(idle : Idle) -> Int = "moonbit_uv_idle_stop"
 
 ///|
-pub extern "c" fn idle_free(idle : Idle) -> Int = "moonbit_uv_idle_free"
+pub extern "c" fn idle_free(idle : Idle) -> Unit = "moonbit_uv_idle_free"

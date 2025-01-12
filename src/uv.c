@@ -276,3 +276,9 @@ int moonbit_uv_write(uv_write_t *req, uv_stream_t *handle,
   req->data = cb;
   return uv_write(req, handle, bufs_val, bufs_len, moonbit_uv_write_cb);
 }
+
+void moonbit_uv_strerror_r(int err, struct moonbit_bytes *bytes) {
+  size_t bytes_len = Moonbit_array_length(bytes);
+  char *bytes_ptr = (char *)bytes->data;
+  uv_strerror_r(err, bytes_ptr, bytes_len);
+}

@@ -1,7 +1,6 @@
-add_custom_command(
-  OUTPUT
-    ${CMAKE_CURRENT_SOURCE_DIR}/target/native/release/build/uvcat.c
-  COMMAND moon build --directory ${CMAKE_CURRENT_SOURCE_DIR} --target=native)
+add_custom_target(uvcat-moon
+  COMMAND moon build --directory ${CMAKE_CURRENT_SOURCE_DIR} --target=native
+  BYPRODUCTS ${CMAKE_CURRENT_SOURCE_DIR}/target/native/release/build/uvcat.c)
 
 add_executable(
   uvcat
