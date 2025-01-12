@@ -1,14 +1,15 @@
 {
   "name": "tonyfettes/auv/test/uvcat",
   "version": "0.1.0",
+  "deps": {
+    "tonyfettes/uv": {
+      "path": "../.."
+    },
+    "moonbitlang/x": "0.4.16"
+  },
   "readme": "README.md",
   "repository": "",
   "license": "Apache-2.0",
   "keywords": [],
-  "description": "",
-  "deps": {
-    "tonyfettes/uv": {
-      "path": "../.."
-    }
-  }
+  "description": ""
 }

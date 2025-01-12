@@ -1,4 +1,8 @@
 {
   "is-main": true,
-  "import": ["tonyfettes/uv", "tonyfettes/uv/async"]
+  "import": [
+    "tonyfettes/uv",
+    "tonyfettes/uv/async",
+    "moonbitlang/x/encoding"
+  ]
 }

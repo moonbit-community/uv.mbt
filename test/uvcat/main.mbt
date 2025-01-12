@@ -2,21 +2,26 @@
 fn main {
   try {
     @async.run!(fn(loop_) {
-      let file = loop_.open!!("main.mbt", @uv.O_RDONLY, 0)
-      read~: loop file.read!!()[:] {
+      let args = @async.args()
+      if args.length() != 2 {
+        let name = args[0]
+        let name = @encoding.decode_strict(UTF8, name).to_string!()
+        println("Usage: \{name} <file>")
+      }
+      let source = loop_.open!!(args[1], @async.ReadOnly, 0)
+      let target = loop_.stdout()
+      read~: loop source.read!!() {
         [] => break
         result =>
-          write~: loop file.write!!(result) {
-            [] => continue read~ file.read!!()[:] 
-            remain => continue write~ file.write!!(remain)
+          write~: loop target.write!!(result) {
+            [] => continue read~ source.read!!()
+            remain => continue write~ target.write!!(remain)
           }
       }
-      file.close!!()
+      source.close!!()
     })
   } catch {
-    @async.Errno(_) as errno => {
-      println("Error: \{errno}")
-    }
+    @async.Errno(_) as errno => println("Error: \{errno}")
     error => println("Unknown error: \{error}")
   }
 }

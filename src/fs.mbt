@@ -54,4 +54,17 @@ pub extern "c" fn fs_write(
 ) -> Int = "moonbit_uv_fs_write"
 
 ///|
-pub const O_RDONLY : Int = 0x0000
+pub const FS_O_RDONLY : Int = 0x0000
+
+pub const FS_O_WRONLY : Int = 0x0001
+
+pub const FS_O_RDWR : Int = 0x0002
+
+///|
+pub const STDIN = 0
+
+///|
+pub const STDOUT = 1
+
+///|
+pub const STDERR = 2
