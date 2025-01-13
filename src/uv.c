@@ -4,6 +4,9 @@
 #include <string.h>
 #include <uv.h>
 
+#define container_of(ptr, type, member)                                        \
+  (type *)((char *)(ptr)-offsetof(type, member));
+
 uv_loop_t *moonbit_uv_default_loop() { return uv_default_loop(); }
 
 uv_loop_t *moonbit_uv_loop_alloc() { return malloc(sizeof(uv_loop_t)); };
@@ -71,11 +74,17 @@ uv_buf_t *moonbit_uv_buf_alloc() {
   return ((uv_buf_t *)malloc(sizeof(uv_buf_t)));
 }
 
-void moonbit_uv_buf_init(uv_buf_t *buf, struct moonbit_bytes *bytes) {
-  *buf = uv_buf_init((char *)bytes->data, Moonbit_array_length(bytes));
+void moonbit_uv_buf_init(uv_buf_t *buf, struct moonbit_bytes *bytes,
+                         size_t offset, size_t length) {
+  char *data = (char *)bytes->data;
+  *buf = uv_buf_init(data + offset, length);
 }
 
 void moonbit_uv_buf_set_len(uv_buf_t *buf, size_t len) { buf->len = len; }
+
+struct moonbit_bytes *moonbit_uv_buf_get(uv_buf_t *buf) {
+  return container_of(buf->base, struct moonbit_bytes, data);
+}
 
 void moonbit_uv_buf_free(uv_buf_t *buf) { free(buf); }
 
@@ -244,15 +253,17 @@ static inline void moonbit_uv_read_start_read_cb(uv_stream_t *stream,
   read_cb->code(read_cb, stream, nread, buf);
 }
 
-void moonbit_uv_read_start(uv_stream_t *stream, moonbit_uv_alloc_cb_t *alloc_cb,
-                           moonbit_uv_read_cb_t *read_cb) {
+int moonbit_uv_read_start(uv_stream_t *stream, moonbit_uv_alloc_cb_t *alloc_cb,
+                          moonbit_uv_read_cb_t *read_cb) {
   moonbit_uv_read_start_cb_t *cb = malloc(sizeof(moonbit_uv_read_start_cb_t));
   cb->read_cb = read_cb;
   cb->alloc_cb = alloc_cb;
   stream->data = cb;
-  uv_read_start(stream, moonbit_uv_read_start_alloc_cb,
-                moonbit_uv_read_start_read_cb);
+  return uv_read_start(stream, moonbit_uv_read_start_alloc_cb,
+                       moonbit_uv_read_start_read_cb);
 }
+
+int moonbit_uv_read_stop(uv_stream_t *stream) { return uv_read_stop(stream); }
 
 uv_write_t *moonbit_uv_write_alloc() { return malloc(sizeof(uv_write_t)); }
 
