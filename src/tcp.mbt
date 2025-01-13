@@ -11,7 +11,14 @@ type SockaddrIn6
 type Tcp
 
 ///|
-pub impl ToStream for Tcp with to_stream(self : Tcp) -> Stream { identity(self) }
+pub impl ToStream for Tcp with to_stream(self : Tcp) -> Stream {
+  identity(self)
+}
+
+///|
+pub impl ToHandle for Tcp with to_handle(self : Tcp) -> Handle {
+  identity(self)
+}
 
 ///|
 pub extern "c" fn tcp_alloc() -> Tcp = "moonbit_uv_tcp_alloc"

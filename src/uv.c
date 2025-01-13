@@ -21,6 +21,8 @@ int moonbit_uv_run(uv_loop_t *loop, uv_run_mode mode) {
   return uv_run(loop, mode);
 }
 
+int moonbit_uv_loop_alive(uv_loop_t *loop) { return uv_loop_alive(loop); }
+
 typedef struct moonbit_ffi_closure {
   struct moonbit_object header;
   int32_t (*code)(struct moonbit_ffi_closure *);
@@ -193,6 +195,10 @@ static inline void moonbit_uv_close_cb(uv_handle_t *handle) {
 void moonbit_uv_close(uv_handle_t *handle, moonbit_uv_close_cb_t *close_cb) {
   handle->data = close_cb;
   uv_close(handle, moonbit_uv_close_cb);
+}
+
+uv_loop_t *moonbit_uv_handle_get_loop(uv_handle_t *handle) {
+  return handle->loop;
 }
 
 struct sockaddr_in *moonbit_uv_sockaddr_in_alloc() {

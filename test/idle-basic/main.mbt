@@ -2,37 +2,20 @@
 let counter : Ref[Int] = @ref.new(0)
 
 ///|
-fn wait_for_a_while(handle : @uv.Idle) -> Unit {
+fn wait_for_a_while(idle : @uv.Idle) -> Unit {
   counter.val += 1
   if counter.val >= 1000 {
-    @uv.idle_stop(handle) |> ignore
+    @uv.idle_stop(idle) |> ignore
   }
 }
 
 ///|
-fn run_async(f :  async() -> Unit) -> Unit = "%async.run"
-
-///|
 fn main {
-  try {
-    let loop_ = @uv.Loop::default()
-    let idler = @uv.Idle::new!(loop_)
-    run_async(fn() {
-      try {
-        while counter.val < 1000 {
-          idler.start!!()
-          counter.val += 1
-          println("Counter: " + Show::to_string(counter.val))
-          idler.stop!()
-        }
-      } catch {
-        err => println("Error: " + Show::to_string(err))
-      }
-    })
-    println("Idling...")
-    loop_.run!(Default) |> ignore
-    loop_.drop!()
-  } catch {
-    err => println("Error: " + Show::to_string(err))
-  }
+  let loop_ = @uv.default_loop()
+  let idle = @uv.idle_alloc()
+  @uv.idle_init(loop_, idle) |> ignore
+  @uv.idle_start(idle, wait_for_a_while) |> ignore
+  println("Idling...\n")
+  @uv.run(loop_, @uv.UV_RUN_DEFAULT) |> ignore
+  @uv.loop_close(loop_) |> ignore
 }

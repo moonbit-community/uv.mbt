@@ -27,3 +27,6 @@ pub const UV_RUN_ONCE = 1
 
 ///|
 pub const UV_RUN_NOWAIT = 2
+
+///|
+pub extern "c" fn loop_alive(loop_ : Loop) -> Int = "moonbit_uv_loop_alive"
