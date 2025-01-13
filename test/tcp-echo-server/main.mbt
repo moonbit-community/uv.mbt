@@ -107,44 +107,31 @@ fn identity[T, U](x : T) -> U = "%identity"
 
 ///|
 fn main {
-  let loop_ = @uv.loop_alloc()
-  @uv.loop_init(loop_) |> ignore
-  run_async(fn() {
-    let server = tcp_init(loop_)
-    let addr = ip4_addr!!(b"0.0.0.0", 12345)
-    let r = @uv.tcp_bind(server, addr, 0)
-    if r != 0 {
-      println("bind error: \{r}")
-      return
-    }
-    println("bind succeed: \{r}")
-    println("listening")
-    let status = listen!!(server.to_stream(), 128)
-    println("listen status: \{status}")
-    if status < 0 {
-      println("listen error: \{status}")
-    }
-    while true {
-      let client = tcp_init(loop_)
-      if @uv.accept(server.to_stream(), client.to_stream()) != 0 {
-        @uv.close(client.to_stream().to_handle(), fn(_) {  }) |> ignore
-        break
-      }
-      println("accept succeed")
-      loop read_start!!(client.to_stream()) {
-        (nread, buf) => {
-          println("nread: \{nread}")
-          @uv.buf_set_len(buf, nread.reinterpret_as_uint64())
-          let bufs : FixedArray[@uv.Buf] = FixedArray::make(1, 0L) |> identity
-          bufs[0] = buf
-          write!!(client.to_stream(), bufs) |> ignore
-          continue read_start!!(client.to_stream())
+  try {
+    @async.run!(fn(loop_) {
+      let server = loop_.tcp!()
+      let addr = ip4_addr!!(b"0.0.0.0", 12345)
+      server.bind!(addr, 0)
+      println("listening")
+      let status = server.listen!!(128)
+      println("listen status: \{status}")
+      while true {
+        let client = server.accept!()
+        println("accept succeed")
+        loop read_start!!(client.to_stream()) {
+          (nread, buf) => {
+            println("nread: \{nread}")
+            @uv.buf_set_len(buf, nread.reinterpret_as_uint64())
+            let bufs : FixedArray[@uv.Buf] = FixedArray::make(1, 0L) |> identity
+            bufs[0] = buf
+            write!!(client.to_stream(), bufs) |> ignore
+            continue read_start!!(client.to_stream())
+          }
         }
       }
-    }
-  })
-  |> ignore
-  @uv.run(loop_, 0) |> ignore
-  @uv.loop_close(loop_) |> ignore
-  @uv.loop_free(loop_) |> ignore
+    })
+  } catch {
+    @async.Errno(_) as errno => println("Error: \{errno}")
+    error => println("Errno: \{error}")
+  }
 }
