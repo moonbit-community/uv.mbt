@@ -10,6 +10,8 @@ include(CMakePrintHelpers)
 set(MOON_HOME "$ENV{MOON_HOME}")
 cmake_print_variables(MOON_HOME)
 
+include(cmake/Moon.cmake)
+
 add_library(moonbit INTERFACE)
 target_include_directories(moonbit INTERFACE "${MOON_HOME}/include")
 
