@@ -19,14 +19,16 @@ pub extern "c" fn loop_close(loop_ : Loop) -> Int = "moonbit_uv_loop_close"
 ///|
 pub extern "c" fn run(loop_ : Loop, mode : Int) -> Int = "moonbit_uv_run"
 
-///|
-pub const UV_RUN_DEFAULT = 0
+pub extern "c" fn stop(loop_ : Loop) -> Unit = "moonbit_uv_stop"
 
 ///|
-pub const UV_RUN_ONCE = 1
+pub const RUN_DEFAULT = 0
 
 ///|
-pub const UV_RUN_NOWAIT = 2
+pub const RUN_ONCE = 1
+
+///|
+pub const RUN_NOWAIT = 2
 
 ///|
 pub extern "c" fn loop_alive(loop_ : Loop) -> Int = "moonbit_uv_loop_alive"

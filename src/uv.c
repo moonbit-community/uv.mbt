@@ -17,6 +17,8 @@ int moonbit_uv_loop_init(uv_loop_t *loop) { return uv_loop_init(loop); }
 
 int moonbit_uv_loop_close(uv_loop_t *loop) { return uv_loop_close(loop); }
 
+void moonbit_uv_stop(uv_loop_t *loop) { return uv_stop(loop); }
+
 int moonbit_uv_run(uv_loop_t *loop, uv_run_mode mode) {
   return uv_run(loop, mode);
 }
@@ -298,4 +300,25 @@ void moonbit_uv_strerror_r(int err, struct moonbit_bytes *bytes) {
   size_t bytes_len = Moonbit_array_length(bytes);
   char *bytes_ptr = (char *)bytes->data;
   uv_strerror_r(err, bytes_ptr, bytes_len);
+}
+
+typedef struct moonbit_uv_timer_cb {
+  struct moonbit_object header;
+  int32_t (*code)(struct moonbit_uv_timer_cb *, uv_timer_t *timer);
+} moonbit_uv_timer_cb_t;
+
+uv_timer_t *moonbit_uv_timer_alloc() {
+  return ((uv_timer_t *)malloc(sizeof(uv_timer_t)));
+}
+
+static inline void moonbit_uv_timer_cb(uv_timer_t *timer) {
+  moonbit_uv_timer_cb_t *cb = timer->data;
+  moonbit_incref(cb);
+  cb->code(cb, timer);
+}
+
+int moonbit_uv_timer_start(uv_timer_t *handle, moonbit_uv_timer_cb_t *cb,
+                           uint64_t timeout, uint64_t repeat) {
+  handle->data = cb;
+  return uv_timer_start(handle, moonbit_uv_timer_cb, timeout, repeat);
 }
