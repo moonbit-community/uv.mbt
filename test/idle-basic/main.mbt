@@ -16,6 +16,6 @@ fn main {
   @uv.idle_init(loop_, idle) |> ignore
   @uv.idle_start(idle, wait_for_a_while) |> ignore
   println("Idling...\n")
-  @uv.run(loop_, @uv.UV_RUN_DEFAULT) |> ignore
+  @uv.run(loop_, @uv.RUN_DEFAULT) |> ignore
   @uv.loop_close(loop_) |> ignore
 }
