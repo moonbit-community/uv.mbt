@@ -5,7 +5,7 @@ fn main {
       let args = @async.args()
       if args.length() != 2 {
         let name = args[0]
-        let name = @encoding.decode_strict(UTF8, name).to_string!()
+        let name = @encoding.decoder(UTF8).decode!(name)
         println("Usage: \{name} <file>")
       }
       let source = loop_.open!!(args[1], @async.ReadOnly, 0)

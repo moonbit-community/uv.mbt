@@ -1,5 +1,11 @@
 {
   "import": [
     "tonyfettes/c"
-  ]
+  ],
+  "link": {
+    "native": {
+      "cc-flags": "-I../lib/uv/include -c"
+    }
+  },
+  "native-stub": ["uv.c"]
 }

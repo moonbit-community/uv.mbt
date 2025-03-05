@@ -1,11 +1,7 @@
 #include "moonbit.h"
 #include <netinet/in.h>
 #include <stdlib.h>
-#include <string.h>
 #include <uv.h>
-
-#define container_of(ptr, type, member)                                        \
-  (type *)((char *)(ptr)-offsetof(type, member));
 
 uv_loop_t *moonbit_uv_default_loop() { return uv_default_loop(); }
 
@@ -78,16 +74,16 @@ uv_buf_t *moonbit_uv_buf_alloc() {
   return ((uv_buf_t *)malloc(sizeof(uv_buf_t)));
 }
 
-void moonbit_uv_buf_init(uv_buf_t *buf, struct moonbit_bytes *bytes,
-                         size_t offset, size_t length) {
-  char *data = (char *)bytes->data;
+void moonbit_uv_buf_init(uv_buf_t *buf, moonbit_bytes_t bytes, size_t offset,
+                         size_t length) {
+  char *data = (char *)bytes;
   *buf = uv_buf_init(data + offset, length);
 }
 
 void moonbit_uv_buf_set_len(uv_buf_t *buf, size_t len) { buf->len = len; }
 
-struct moonbit_bytes *moonbit_uv_buf_get(uv_buf_t *buf) {
-  return container_of(buf->base, struct moonbit_bytes, data);
+moonbit_bytes_t moonbit_uv_buf_get(uv_buf_t *buf) {
+  return (moonbit_bytes_t)buf->base;
 }
 
 void moonbit_uv_buf_free(uv_buf_t *buf) { free(buf); }
@@ -116,13 +112,12 @@ uv_fs_t *moonbit_uv_fs_alloc() { return malloc(sizeof(uv_fs_t)); }
 
 ssize_t moonbit_uv_fs_get_result(uv_fs_t *fs) { return fs->result; }
 
-static inline const char *
-moonbit_uv__bytes_to_str(struct moonbit_bytes *bytes) {
+static inline const char *moonbit_uv__bytes_to_str(moonbit_bytes_t bytes) {
   int len = Moonbit_array_length(bytes);
-  return strndup((char *)bytes->data, len);
+  return strndup((char *)bytes, len);
 }
 
-int moonbit_uv_fs_open(uv_loop_t *loop, uv_fs_t *fs, struct moonbit_bytes *path,
+int moonbit_uv_fs_open(uv_loop_t *loop, uv_fs_t *fs, moonbit_bytes_t path,
                        int flags, int mode, moonbit_uv_fs_cb_t *cb) {
   const char *path_str = moonbit_uv__bytes_to_str(path);
   fs->data = cb;
@@ -136,11 +131,10 @@ int moonbit_uv_fs_close(uv_loop_t *loop, uv_fs_t *fs, uv_file file,
 }
 
 int moonbit_uv_fs_read(uv_loop_t *loop, uv_fs_t *fs, uv_file file,
-                       struct moonbit_ref_array *bufs, int64_t offset,
+                       uv_buf_t **bufs, int64_t offset,
                        moonbit_uv_fs_cb_t *cb) {
   uint32_t bufs_len = Moonbit_array_length(bufs);
-  uv_buf_t *bufs_val =
-      moonbit_uv__refs_to_bufs((uv_buf_t **)bufs->data, bufs_len);
+  uv_buf_t *bufs_val = moonbit_uv__refs_to_bufs(bufs, bufs_len);
   fs->data = cb;
   int rc =
       uv_fs_read(loop, fs, file, bufs_val, bufs_len, offset, moonbit_uv_fs_cb);
@@ -149,11 +143,10 @@ int moonbit_uv_fs_read(uv_loop_t *loop, uv_fs_t *fs, uv_file file,
 }
 
 int moonbit_uv_fs_write(uv_loop_t *loop, uv_fs_t *fs, uv_file file,
-                        struct moonbit_ref_array *bufs, int64_t offset,
+                        uv_buf_t **bufs, int64_t offset,
                         moonbit_uv_fs_cb_t *cb) {
   uint32_t bufs_len = Moonbit_array_length(bufs);
-  uv_buf_t *bufs_val =
-      moonbit_uv__refs_to_bufs((uv_buf_t **)bufs->data, bufs_len);
+  uv_buf_t *bufs_val = moonbit_uv__refs_to_bufs(bufs, bufs_len);
   fs->data = cb;
   int rc =
       uv_fs_write(loop, fs, file, bufs_val, bufs_len, offset, moonbit_uv_fs_cb);
@@ -207,7 +200,7 @@ struct sockaddr_in *moonbit_uv_sockaddr_in_alloc() {
   return malloc(sizeof(struct sockaddr_in));
 }
 
-void moonbit_uv_ip4_addr(struct moonbit_bytes *ip, int port,
+void moonbit_uv_ip4_addr(moonbit_bytes_t ip, int port,
                          struct sockaddr_in *addr) {
   const char *ip_str = moonbit_uv__bytes_to_str(ip);
   uv_ip4_addr(ip_str, port, addr);
@@ -286,19 +279,17 @@ static inline void moonbit_uv_write_cb(uv_write_t *req, int status) {
   moonbit_uv_cb->code(moonbit_uv_cb, req, status);
 }
 
-int moonbit_uv_write(uv_write_t *req, uv_stream_t *handle,
-                     struct moonbit_ref_array *bufs,
+int moonbit_uv_write(uv_write_t *req, uv_stream_t *handle, uv_buf_t **bufs,
                      moonbit_uv_write_cb_t *cb) {
   uint32_t bufs_len = Moonbit_array_length(bufs);
-  uv_buf_t *bufs_val =
-      moonbit_uv__refs_to_bufs((uv_buf_t **)bufs->data, bufs_len);
+  uv_buf_t *bufs_val = moonbit_uv__refs_to_bufs(bufs, bufs_len);
   req->data = cb;
   return uv_write(req, handle, bufs_val, bufs_len, moonbit_uv_write_cb);
 }
 
-void moonbit_uv_strerror_r(int err, struct moonbit_bytes *bytes) {
+void moonbit_uv_strerror_r(int err, moonbit_bytes_t bytes) {
   size_t bytes_len = Moonbit_array_length(bytes);
-  char *bytes_ptr = (char *)bytes->data;
+  char *bytes_ptr = (char *)bytes;
   uv_strerror_r(err, bytes_ptr, bytes_len);
 }
 

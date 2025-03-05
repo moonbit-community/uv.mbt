@@ -4,14 +4,16 @@ fn main {
     @async.run!(fn(loop_) {
       let args = @async.args()
       if args.length() != 3 {
-        let exec_name = @encoding.decode_strict(UTF8, args[0]).to_string!()
+        let exec_name = @encoding.decoder(UTF8).decode!(args[0])
         println("Usage: \{exec_name} <host> <port>")
         return
       }
       let host_bytes = args[1]
       let port_bytes = args[2]
-      let host = @encoding.decode_strict(UTF8, host_bytes).to_string!()
-      let port = @strconv.parse_int!(@encoding.decode_strict(UTF8, port_bytes).to_string!())
+      let host = @encoding.decoder(UTF8).decode!(host_bytes)
+      let port = @strconv.parse_int!(
+        @encoding.decoder(UTF8).decode!(port_bytes),
+      )
       let server = loop_.tcp!()
       let addr = @async.ip4_addr(host_bytes, port)
       server.bind!(addr, 0)
