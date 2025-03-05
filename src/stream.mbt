@@ -1,5 +1,5 @@
 ///|
-type Stream
+extern type Stream
 
 ///|
 pub trait ToStream {
@@ -22,7 +22,7 @@ pub extern "c" fn read_start(
 pub extern "c" fn read_stop(stream : Stream) -> Int = "moonbit_uv_read_stop"
 
 ///|
-type Write
+extern type Write
 
 ///|
 pub extern "c" fn write_alloc() -> Write = "moonbit_uv_write_alloc"

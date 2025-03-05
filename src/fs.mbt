@@ -1,5 +1,5 @@
 ///|
-type Fs
+extern type Fs
 
 ///|
 impl ToReq for Fs with to_req(self : Fs) -> Req { identity(self) }

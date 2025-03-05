@@ -1,14 +1,14 @@
 ///|
-type SockaddrIn
+extern type SockaddrIn
 
 ///|
 pub extern "c" fn sockaddr_in_alloc() -> SockaddrIn = "moonbit_uv_sockaddr_in_alloc"
 
 ///|
-type SockaddrIn6
+extern type SockaddrIn6
 
 ///|
-type Tcp
+extern type Tcp
 
 ///|
 pub impl ToStream for Tcp with to_stream(self : Tcp) -> Stream {

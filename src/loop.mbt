@@ -1,5 +1,5 @@
 ///|
-type Loop
+extern type Loop
 
 ///|
 pub extern "c" fn default_loop() -> Loop = "moonbit_uv_default_loop"

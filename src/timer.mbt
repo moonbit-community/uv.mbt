@@ -1,5 +1,5 @@
 ///|
-type Timer
+extern type Timer
 
 ///|
 pub extern "c" fn timer_alloc() -> Timer = "moonbit_uv_timer_alloc"

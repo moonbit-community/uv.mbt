@@ -1,5 +1,5 @@
 ///|
-type Handle
+extern type Handle
 
 ///|
 pub trait ToHandle {

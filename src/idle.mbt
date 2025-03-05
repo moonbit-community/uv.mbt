@@ -1,5 +1,5 @@
 ///|
-type Idle
+extern type Idle
 
 ///|
 impl ToHandle for Idle with to_handle(self : Idle) -> Handle { identity(self) }

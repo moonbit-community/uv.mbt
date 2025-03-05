@@ -1,5 +1,5 @@
 ///|
-type Req
+extern type Req
 
 ///|
 trait ToReq {

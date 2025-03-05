@@ -1,5 +1,5 @@
 ///|
-pub type Buf
+pub extern type Buf
 
 ///|
 pub extern "c" fn buf_alloc() -> Buf = "moonbit_uv_buf_alloc"

@@ -1,6 +1,9 @@
 {
   "name": "tonyfettes/uv",
   "version": "0.1.0",
+  "deps": {
+    "tonyfettes/c": "0.1.2"
+  },
   "readme": "README.md",
   "repository": "",
   "license": "Apache-2.0",
