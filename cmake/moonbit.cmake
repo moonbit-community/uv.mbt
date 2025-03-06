@@ -53,13 +53,21 @@ function(setup_moonbit_module directory)
           endif()
         else()
           string(JSON
-            MOON_MODULE_DEP_PATH
+            MOON_MODULE_DEP_PATH_RELATIVE
             ERROR_VARIABLE MOON_MODULE_DEP_PATH_ERROR
-            GET "${MOON_MODULE_DEP}" "path")
+            GET "${MOON_MODULE_DEPS}" "${MOON_MODULE_DEP}" "path")
+          cmake_print_variables(MOON_MODULE_DEP_PATH_RELATIVE)
+          cmake_path(ABSOLUTE_PATH
+            MOON_MODULE_DEP_PATH_RELATIVE
+            OUTPUT_VARIABLE MOON_MODULE_DEP_PATH)
           cmake_print_variables(MOON_MODULE_DEP_PATH)
           if(MOON_MODULE_DEP_PATH_ERROR STREQUAL NOTFOUND)
             if(EXISTS ${MOON_MODULE_DEP_PATH}/CMakeLists.txt)
-              add_subdirectory(${MOON_MODULE_DEP_PATH})
+              message("build directory: ${MOON_MODULE_DEP_PATH}/build")
+              message("binary directory: ${CMAKE_BINARY_DIR}")
+              if(NOT ${MOON_MODULE_DEP_PATH}/build STREQUAL ${CMAKE_BINARY_DIR})
+                add_subdirectory(${MOON_MODULE_DEP_PATH} ${MOON_MODULE_DEP_PATH}/build)
+              endif()
             endif()
           endif()
         endif()
