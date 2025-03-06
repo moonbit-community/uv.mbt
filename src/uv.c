@@ -1,7 +1,7 @@
-#include "moonbit.h"
+#include <moonbit.h>
 #include <netinet/in.h>
 #include <stdlib.h>
-#include <uv.h>
+#include "uv.h"
 
 uv_loop_t *moonbit_uv_default_loop() { return uv_default_loop(); }
 

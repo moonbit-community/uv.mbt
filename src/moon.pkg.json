@@ -1,11 +1,13 @@
 {
+  "pre-build": [
+    {
+      "input": ["uv.c"],
+      "output": ["uv-lib.c"],
+      "command": "python3 src/preprocess.py $input $output"
+    }
+  ],
   "import": [
     "tonyfettes/c"
   ],
-  "link": {
-    "native": {
-      "cc-flags": "-I../lib/uv/include -c"
-    }
-  },
-  "native-stub": ["uv.c"]
+  "native-stub": ["uv-lib.c"]
 }
