@@ -99,16 +99,10 @@ uv_fs_t *moonbit_uv_fs_alloc() { return malloc(sizeof(uv_fs_t)); }
 
 ssize_t moonbit_uv_fs_get_result(uv_fs_t *fs) { return fs->result; }
 
-static inline const char *moonbit_uv__bytes_to_str(moonbit_bytes_t bytes) {
-  int len = Moonbit_array_length(bytes);
-  return strndup((char *)bytes, len);
-}
-
 int moonbit_uv_fs_open(uv_loop_t *loop, uv_fs_t *fs, moonbit_bytes_t path,
                        int flags, int mode, moonbit_uv_fs_cb_t *cb) {
-  const char *path_str = moonbit_uv__bytes_to_str(path);
   fs->data = cb;
-  return uv_fs_open(loop, fs, path_str, flags, mode, moonbit_uv_fs_cb);
+  return uv_fs_open(loop, fs, (const char *)path, flags, mode, moonbit_uv_fs_cb);
 }
 
 int moonbit_uv_fs_close(uv_loop_t *loop, uv_fs_t *fs, uv_file file,
@@ -187,8 +181,7 @@ struct sockaddr_in *moonbit_uv_sockaddr_in_alloc() {
 
 void moonbit_uv_ip4_addr(moonbit_bytes_t ip, int port,
                          struct sockaddr_in *addr) {
-  const char *ip_str = moonbit_uv__bytes_to_str(ip);
-  uv_ip4_addr(ip_str, port, addr);
+  uv_ip4_addr((const char *)ip, port, addr);
 }
 
 uv_tcp_t *moonbit_uv_tcp_alloc() {
