@@ -11,6 +11,16 @@ pub extern "c" fn loop_alloc() -> Loop = "moonbit_uv_loop_alloc"
 pub extern "c" fn loop_init(loop_ : Loop) -> Int = "moonbit_uv_loop_init"
 
 ///|
+pub fn Loop::init() -> Loop!Errno {
+  let loop_ = loop_alloc()
+  let rc = loop_init(loop_)
+  if rc < 0 {
+    errno!(rc)
+  }
+  return loop_
+}
+
+///|
 pub extern "c" fn loop_free(loop_ : Loop) -> Unit = "moonbit_uv_loop_free"
 
 ///|

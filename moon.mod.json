@@ -2,7 +2,8 @@
   "name": "tonyfettes/uv",
   "version": "0.1.0",
   "deps": {
-    "tonyfettes/c": "0.1.2"
+    "tonyfettes/c": "0.1.2",
+    "moonbitlang/x": "0.4.21"
   },
   "readme": "README.md",
   "repository": "",
