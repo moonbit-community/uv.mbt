@@ -21,19 +21,7 @@ int moonbit_uv_run(uv_loop_t *loop, uv_run_mode mode) {
 
 int moonbit_uv_loop_alive(uv_loop_t *loop) { return uv_loop_alive(loop); }
 
-typedef struct moonbit_ffi_closure {
-  struct moonbit_object header;
-  int32_t (*code)(struct moonbit_ffi_closure *);
-} moonbit_ffi_closure_t;
-
-moonbit_ffi_closure_t *
-moonbit_ffi_make_closure(int32_t (*code)(moonbit_ffi_closure_t *),
-                         moonbit_ffi_closure_t *data) {
-  return data;
-}
-
 typedef struct moonbit_uv_idle_cb {
-  struct moonbit_object header;
   int32_t (*code)(struct moonbit_uv_idle_cb *, uv_idle_t *);
 } moonbit_uv_idle_cb_t;
 
@@ -98,7 +86,6 @@ static inline uv_buf_t *moonbit_uv__refs_to_bufs(uv_buf_t *refs[],
 }
 
 typedef struct moonbit_uv_fs_cb {
-  struct moonbit_object header;
   int32_t (*code)(struct moonbit_uv_fs_cb *, uv_fs_t *);
 } moonbit_uv_fs_cb_t;
 
@@ -159,7 +146,6 @@ int moonbit_uv_accept(uv_stream_t *server, uv_stream_t *client) {
 }
 
 typedef struct moonbit_uv_connection_cb {
-  struct moonbit_object header;
   int32_t (*code)(struct moonbit_uv_connection_cb *, uv_stream_t *server,
                   int status);
 } moonbit_uv_connection_cb_t;
@@ -177,7 +163,6 @@ int moonbit_uv_listen(uv_stream_t *stream, int backlog,
 }
 
 typedef struct moonbit_uv_close_cb {
-  struct moonbit_object header;
   int32_t (*code)(struct moonbit_uv_close_cb *, uv_handle_t *handle);
 } moonbit_uv_close_cb_t;
 
@@ -220,13 +205,11 @@ int moonbit_uv_tcp_bind(uv_tcp_t *tcp, const struct sockaddr *addr,
 }
 
 typedef struct moonbit_uv_alloc_cb {
-  struct moonbit_object header;
   int32_t (*code)(struct moonbit_uv_alloc_cb *, uv_handle_t *,
                   size_t suggested_size, uv_buf_t *buf);
 } moonbit_uv_alloc_cb_t;
 
 typedef struct moonbit_uv_read_cb {
-  struct moonbit_object header;
   int32_t (*code)(struct moonbit_uv_read_cb *, uv_stream_t *, ssize_t nread,
                   const uv_buf_t *buf);
 } moonbit_uv_read_cb_t;
@@ -269,7 +252,6 @@ int moonbit_uv_read_stop(uv_stream_t *stream) { return uv_read_stop(stream); }
 uv_write_t *moonbit_uv_write_alloc() { return malloc(sizeof(uv_write_t)); }
 
 typedef struct moonbit_uv_write_cb {
-  struct moonbit_object header;
   int32_t (*code)(struct moonbit_uv_write_cb *, uv_write_t *req, int status);
 } moonbit_uv_write_cb_t;
 
@@ -294,7 +276,6 @@ void moonbit_uv_strerror_r(int err, moonbit_bytes_t bytes) {
 }
 
 typedef struct moonbit_uv_timer_cb {
-  struct moonbit_object header;
   int32_t (*code)(struct moonbit_uv_timer_cb *, uv_timer_t *timer);
 } moonbit_uv_timer_cb_t;
 

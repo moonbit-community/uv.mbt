@@ -10,7 +10,7 @@ set(CMAKE_VERBOSE_MAKEFILE on)
 include(cmake/moonbit.cmake)
 
 add_library(uv.mbt STATIC src/uv.c)
-target_link_libraries(uv.mbt PRIVATE uv_a moonbit)
+target_link_libraries(uv.mbt PRIVATE uv_a c.mbt::c.mbt moonbit)
 
 install(TARGETS uv.mbt DESTINATION ${CMAKE_SOURCE_DIR}/lib)
 
