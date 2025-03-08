@@ -1,5 +1,5 @@
 ///|
-fn async_run(f : async () -> Unit) -> Unit = "%async.run"
+pub fn async_run(f : async () -> Unit) -> Unit = "%async.run"
 
 ///|
 async fn async_suspend[T](f : ((T) -> Unit) -> Unit) -> T = "%async.suspend"

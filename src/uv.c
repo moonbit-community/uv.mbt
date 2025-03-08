@@ -6,7 +6,7 @@
 uv_loop_t *moonbit_uv_default_loop() { return uv_default_loop(); }
 
 uv_loop_t *moonbit_uv_loop_alloc() {
-  return moonbit_make_bytes(sizeof(uv_loop_t), 0);
+  return (uv_loop_t *)moonbit_make_bytes(sizeof(uv_loop_t), 0);
 };
 
 int moonbit_uv_loop_init(uv_loop_t *loop) {

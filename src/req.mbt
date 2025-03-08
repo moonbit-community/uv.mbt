@@ -1,7 +1,7 @@
 ///|
-extern type Req
+priv extern type Req
 
 ///|
-trait ToReq {
+priv trait ToReq {
   to_req(Self) -> Req
 }

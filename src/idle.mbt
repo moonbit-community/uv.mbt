@@ -2,7 +2,7 @@
 extern type Idle
 
 ///|
-impl ToHandle for Idle with to_handle(self : Idle) -> Handle { identity(self) }
+impl ToHandle for Idle with to_handle(self : Idle) -> Handle = "%identity"
 
 ///|
 pub extern "c" fn idle_alloc() -> Idle = "moonbit_uv_idle_alloc"

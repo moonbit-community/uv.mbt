@@ -6,7 +6,7 @@ import re
 
 include_directories = [
     '.',
-    '../lib/uv/include',
+    'uv/include',
 ]
 
 

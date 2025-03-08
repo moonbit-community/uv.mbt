@@ -2,7 +2,7 @@
 extern type Fs
 
 ///|
-impl ToReq for Fs with to_req(self : Fs) -> Req { identity(self) }
+impl ToReq for Fs with to_req(self : Fs) -> Req = "%identity"
 
 ///|
 pub extern "c" fn fs_alloc() -> Fs = "moonbit_uv_fs_alloc"

@@ -1,51 +1,29 @@
 ///|
-extern type Loop
+type Loop Bytes
 
 ///|
-extern "c" fn Loop::default() -> Loop = "moonbit_uv_default_loop"
+pub extern "c" fn loop_alloc() -> Loop = "moonbit_uv_loop_alloc"
 
 ///|
-extern "c" fn Loop::alloc() -> Loop = "moonbit_uv_loop_alloc"
+pub extern "c" fn loop_init(self : Loop) -> Int = "moonbit_uv_loop_init"
 
 ///|
-extern "c" fn Loop::init(self : Loop) -> Int = "moonbit_uv_loop_init"
+pub extern "c" fn loop_close(loop_ : Loop) -> Int = "moonbit_uv_loop_close"
 
 ///|
-pub fn Loop::new() -> Loop!Errno {
-  let loop_ = Loop::alloc()
-  loop_.init() |> errno!()
-  return loop_
-}
+pub const RUN_DEFAULT : Int = 0
 
 ///|
-extern "c" fn Loop::_close(loop_ : Loop) -> Int = "moonbit_uv_loop_close"
+pub const RUN_ONCE : Int = 1
 
 ///|
-pub fn Loop::close(self : Loop) -> Unit!Errno {
-  self._close() |> errno!()
-}
+pub const RUN_NOWAIT : Int = 2
 
 ///|
-pub(all) enum RunMode {
-  Default = 0
-  Once = 1
-  NoWait = 2
-}
-
-///|
-extern "c" fn _run(loop_ : Loop, mode : RunMode) -> Int = "moonbit_uv_run"
-
-///|
-pub fn run(loop_ : Loop, mode : RunMode) -> Unit!Errno {
-  _run(loop_, mode) |> errno!()
-}
+pub extern "c" fn run(loop_ : Loop, mode : Int) -> Int = "moonbit_uv_run"
 
 ///|
 pub extern "c" fn stop(loop_ : Loop) -> Unit = "moonbit_uv_stop"
 
 ///|
-extern "c" fn Loop::_alive(self : Loop) -> Int = "moonbit_uv_loop_alive"
-
-pub fn Loop::alive(self : Loop) -> Bool {
-  self._alive() != 0
-}
+pub extern "c" fn loop_alive(self : Loop) -> Int = "moonbit_uv_loop_alive"

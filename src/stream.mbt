@@ -7,9 +7,7 @@ pub trait ToStream {
 }
 
 ///|
-pub impl ToHandle for Stream with to_handle(self : Stream) -> Handle {
-  identity(self)
-}
+pub impl ToHandle for Stream with to_handle(self : Stream) -> Handle = "%identity"
 
 ///|
 pub extern "c" fn read_start(
