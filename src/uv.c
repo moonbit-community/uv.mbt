@@ -1,34 +1,46 @@
+#include "uv.h"
 #include <moonbit.h>
 #include <netinet/in.h>
 #include <stdlib.h>
-#include "uv.h"
 
 uv_loop_t *moonbit_uv_default_loop() { return uv_default_loop(); }
 
-uv_loop_t *moonbit_uv_loop_alloc() { return malloc(sizeof(uv_loop_t)); };
+uv_loop_t *moonbit_uv_loop_alloc() {
+  return moonbit_make_bytes(sizeof(uv_loop_t), 0);
+};
 
-void moonbit_uv_loop_free(uv_loop_t *loop) { free(loop); }
-
-int moonbit_uv_loop_init(uv_loop_t *loop) { return uv_loop_init(loop); }
-
-int moonbit_uv_loop_close(uv_loop_t *loop) { return uv_loop_close(loop); }
-
-void moonbit_uv_stop(uv_loop_t *loop) { return uv_stop(loop); }
-
-int moonbit_uv_run(uv_loop_t *loop, uv_run_mode mode) {
-  return uv_run(loop, mode);
+int moonbit_uv_loop_init(uv_loop_t *loop) {
+  int rc = uv_loop_init(loop);
+  moonbit_decref(loop);
+  return rc;
 }
 
-int moonbit_uv_loop_alive(uv_loop_t *loop) { return uv_loop_alive(loop); }
+int moonbit_uv_loop_close(uv_loop_t *loop) {
+  int rc = uv_loop_close(loop);
+  moonbit_decref(loop);
+  return rc;
+}
+
+void moonbit_uv_stop(uv_loop_t *loop) {
+  uv_stop(loop);
+  moonbit_decref(loop);
+}
+
+int moonbit_uv_run(uv_loop_t *loop, uv_run_mode mode) {
+  int rc = uv_run(loop, mode);
+  moonbit_decref(loop);
+  return rc;
+}
+
+int moonbit_uv_loop_alive(uv_loop_t *loop) {
+  int alive = uv_loop_alive(loop);
+  moonbit_decref(loop);
+  return alive;
+}
 
 typedef struct moonbit_uv_idle_cb {
   int32_t (*code)(struct moonbit_uv_idle_cb *, uv_idle_t *);
 } moonbit_uv_idle_cb_t;
-
-struct moonbit_uv_idle {
-  uv_idle_t idle;
-  moonbit_uv_idle_cb_t *cb;
-};
 
 uv_idle_t *moonbit_uv_idle_alloc() {
   return ((uv_idle_t *)malloc(sizeof(uv_idle_t)));
@@ -102,7 +114,8 @@ ssize_t moonbit_uv_fs_get_result(uv_fs_t *fs) { return fs->result; }
 int moonbit_uv_fs_open(uv_loop_t *loop, uv_fs_t *fs, moonbit_bytes_t path,
                        int flags, int mode, moonbit_uv_fs_cb_t *cb) {
   fs->data = cb;
-  return uv_fs_open(loop, fs, (const char *)path, flags, mode, moonbit_uv_fs_cb);
+  return uv_fs_open(loop, fs, (const char *)path, flags, mode,
+                    moonbit_uv_fs_cb);
 }
 
 int moonbit_uv_fs_close(uv_loop_t *loop, uv_fs_t *fs, uv_file file,
