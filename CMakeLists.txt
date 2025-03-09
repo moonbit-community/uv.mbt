@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.19)
 project(uv.mbt LANGUAGES C)
 
+set(c.mbt_DIR ${CMAKE_SOURCE_DIR}/../c.mbt/install/lib/cmake/c.mbt)
+find_package(c.mbt REQUIRED)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_VERBOSE_MAKEFILE on)
 
