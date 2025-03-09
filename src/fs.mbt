@@ -18,6 +18,30 @@ pub extern "c" fn fs_open(
 ) -> Int = "moonbit_uv_fs_open"
 
 ///|
+pub async fn Loop::open(
+  self : Loop,
+  path : String,
+  flags : Int,
+  mode : Int
+) -> Fs!Errno {
+  async_suspend_with_error!!(fn(resolve, reject) {
+    let path : Bytes = [..@encoding.encode(UTF8, path), b'\x00']
+    let fs = fs_alloc()
+    let result = fs_open(self, fs, path, flags, mode, fn(fs) {
+      let result = fs_get_result(fs)
+      if result < 0 {
+        reject(Errno(result.to_int()))
+      } else {
+        resolve(fs)
+      }
+    })
+    if result < 0 {
+      reject(Errno(result))
+    }
+  })
+}
+
+///|
 pub extern "c" fn fs_close(
   loop_ : Loop,
   req : Fs,
@@ -56,8 +80,10 @@ pub extern "c" fn fs_write(
 ///|
 pub const FS_O_RDONLY : Int = 0x0000
 
+///|
 pub const FS_O_WRONLY : Int = 0x0001
 
+///|
 pub const FS_O_RDWR : Int = 0x0002
 
 ///|
