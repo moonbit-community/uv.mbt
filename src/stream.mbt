@@ -32,3 +32,7 @@ pub extern "c" fn write(
   bufs : FixedArray[Buf],
   cb : (Write, Int) -> Unit
 ) -> Int = "moonbit_uv_write"
+
+
+pub async fn ToStream::listen(self : Stream, backlog : Int) -> Unit!Errno {
+}

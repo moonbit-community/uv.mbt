@@ -30,21 +30,22 @@ pub(all) enum RunMode {
 }
 
 ///|
-extern "c" fn _run(loop_ : Loop, mode : RunMode) -> Int = "moonbit_uv_run"
+pub extern "c" fn uv_run(loop_ : Loop, mode : RunMode) -> Int = "moonbit_uv_run"
 
 ///|
-pub fn run(self : Loop, mode : RunMode, f : async () -> Unit) -> Unit!Errno {
-  async_run(f)
-  _run(self, mode) |> errno!()
+pub fn run(self : Loop, mode : RunMode) -> Unit!Errno {
+  uv_run(self, mode) |> errno!()
 }
 
 ///|
+pub extern "c" fn uv_stop(loop_ : Loop) -> Unit = "moonbit_uv_stop"
+
 pub extern "c" fn stop(loop_ : Loop) -> Unit = "moonbit_uv_stop"
 
 ///|
-pub extern "c" fn loop_alive(self : Loop) -> Int = "moonbit_uv_loop_alive"
+pub extern "c" fn uv_loop_alive(self : Loop) -> Int = "moonbit_uv_loop_alive"
 
 ///|
 pub fn Loop::alive(self : Loop) -> Bool {
-  loop_alive(self) != 0
+  uv_loop_alive(self) != 0
 }

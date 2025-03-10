@@ -58,15 +58,7 @@ pub async fn scope(f : async () -> Unit!) -> Unit! {
   async_suspend_with_error!!(fn(resolve, reject) {
     let scope = Scope::new(resolve, reject)
     scopes.push(scope)
-    async_run(fn() {
-      try {
-        scope.launch()
-        f!!()
-        scope.finish()
-      } catch {
-        error => scope.failed(error)
-      }
-    })
+    spawn(f)
   })
 }
 
@@ -82,4 +74,22 @@ pub fn spawn(f : async () -> Unit!) -> Unit {
       error => scope.failed(error)
     }
   })
+}
+
+pub fn start(f : async (Loop) -> Unit!) -> Unit! {
+  let loop_ = Loop::new!()
+  let mut error = None
+  async_run(fn() {
+    try {
+      f!!(loop_)
+    } catch {
+      e => {
+        error = Some(e)
+      }
+    }
+  })
+  loop_.close!()
+  if error is Some(error) {
+    raise error
+  }
 }

@@ -1,21 +1,15 @@
 ///|
 fn main {
   try {
-    @async.run!(fn(loop_) {
-      let args = @async.args()
-      if args.length() != 3 {
-        let exec_name = @encoding.decoder(UTF8).decode!(args[0])
-        println("Usage: \{exec_name} <host> <port>")
+    @uv.start!(fn(uv) {
+      let args = @sys.get_cli_args()
+      guard args is [_, host, port] else {
+        println("Usage: \{args[0]} <host> <port>")
         return
       }
-      let host_bytes = args[1]
-      let port_bytes = args[2]
-      let host = @encoding.decoder(UTF8).decode!(host_bytes)
-      let port = @strconv.parse_int!(
-        @encoding.decoder(UTF8).decode!(port_bytes),
-      )
-      let server = loop_.tcp!()
-      let addr = @async.ip4_addr(host_bytes, port)
+      let port = @strconv.parse_int!(port)
+      let server = uv.tcp!()
+      let addr = @uv.ip4_addr(host, port)
       server.bind!(addr, 0)
       println("listening at \{host}:\{port}")
       server.listen!!(128)
