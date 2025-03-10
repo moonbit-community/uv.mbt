@@ -111,10 +111,26 @@ uv_fs_t *moonbit_uv_fs_alloc() { return malloc(sizeof(uv_fs_t)); }
 
 ssize_t moonbit_uv_fs_get_result(uv_fs_t *fs) { return fs->result; }
 
+enum moonbit_uv_fs_open_flag_t {
+  MOONBIT_UV_FS_O_RDONLY = 0x0,
+  MOONBIT_UV_FS_O_WRONLY = 0x1,
+  MOONBIT_UV_FS_O_RDWR = 0x2,
+};
+
 int moonbit_uv_fs_open(uv_loop_t *loop, uv_fs_t *fs, moonbit_bytes_t path,
                        int flags, int mode, moonbit_uv_fs_cb_t *cb) {
   fs->data = cb;
-  return uv_fs_open(loop, fs, (const char *)path, flags, mode,
+  int uv_flags = 0;
+  if (flags & MOONBIT_UV_FS_O_RDONLY) {
+    uv_flags |= UV_FS_O_RDONLY;
+  }
+  if (flags & MOONBIT_UV_FS_O_WRONLY) {
+    uv_flags |= UV_FS_O_WRONLY;
+  }
+  if (flags & MOONBIT_UV_FS_O_RDWR) {
+    uv_flags |= UV_FS_O_RDWR;
+  }
+  return uv_fs_open(loop, fs, (const char *)path, uv_flags, mode,
                     moonbit_uv_fs_cb);
 }
 
