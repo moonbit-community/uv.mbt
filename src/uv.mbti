@@ -1,0 +1,166 @@
+package tonyfettes/uv
+
+alias @moonbitlang/core/bytes as @bytes
+
+// Values
+const RUN_DEFAULT : Int = 0
+
+const RUN_NOWAIT : Int = 2
+
+const RUN_ONCE : Int = 1
+
+const STDERR : Int = 2
+
+const STDIN : Int = 0
+
+const STDOUT : Int = 1
+
+fn accept(Stream, Stream) -> Int
+
+fn async_run(() -> Unit) -> Unit
+
+fn buf_alloc() -> Buf
+
+fn buf_free(Buf) -> Unit
+
+fn buf_get(Buf) -> Bytes
+
+fn buf_init(Buf, Bytes, Int, Int) -> Unit
+
+fn buf_set_len(Buf, UInt64) -> Unit
+
+fn close(Handle, (Handle) -> Unit) -> Unit
+
+fn errno(Int) -> Unit!Errno
+
+fn handle_get_loop(Handle) -> Loop
+
+fn idle_alloc() -> Idle
+
+fn idle_free(Idle) -> Unit
+
+fn idle_init(Loop, Idle) -> Int
+
+fn idle_start(Idle, (Idle) -> Unit) -> Int
+
+fn idle_stop(Idle) -> Int
+
+fn ip4_addr(Bytes, Int, SockaddrIn) -> Unit
+
+fn ip6_addr(Bytes, Int, SockaddrIn6) -> Unit
+
+fn listen(Stream, Int, (Stream, Int) -> Unit) -> Int
+
+fn loop_alloc() -> Loop
+
+fn loop_close(Loop) -> Int
+
+fn read_start(Stream, (Handle, UInt64, Buf) -> Unit, (Stream, Int64, Buf) -> Unit) -> Int
+
+fn read_stop(Stream) -> Int
+
+fn run(Loop, Int) -> Int
+
+fn scope(() -> Unit!) -> Unit!
+
+fn sockaddr_in_alloc() -> SockaddrIn
+
+fn spawn(() -> Unit!) -> Unit
+
+fn stop(Loop) -> Unit
+
+fn strerror_r(Int, Bytes) -> Unit
+
+fn tcp_alloc() -> Tcp
+
+fn tcp_bind(Tcp, SockaddrIn, Int) -> Int
+
+fn tcp_init(Loop, Tcp) -> Int
+
+fn timer_alloc() -> Timer
+
+fn timer_get_due_in(Timer) -> UInt64
+
+fn timer_get_repeat(Timer) -> UInt64
+
+fn timer_init(Loop, Timer) -> Int
+
+fn timer_set_repeat(Timer, UInt64) -> Unit
+
+fn timer_start(Timer, (Timer) -> Unit, UInt64, UInt64) -> Int
+
+fn timer_stop(Timer) -> Int
+
+fn write(Write, Stream, FixedArray[Buf], (Write, Int) -> Unit) -> Int
+
+fn write_alloc() -> Write
+
+// Types and methods
+pub extern type Buf
+
+type Channel[T]
+impl Channel {
+  pull[T](Self[T]) -> T
+  push[T](Self[T], T) -> Unit
+}
+
+pub type! Errno Int
+impl Show for Errno
+
+type File
+impl File {
+  close(Self) -> Unit!Errno
+  read(Self) -> @bytes.View!Errno
+  write(Self, @bytes.View) -> @bytes.View!Errno
+}
+
+type Fs
+
+type Handle
+
+type Idle
+
+type Loop
+impl Loop {
+  alive(Self) -> Bool
+  close(Self) -> Unit!Errno
+  loop_alive(Self) -> Int
+  loop_init(Self) -> Int
+  new() -> Unit!Errno
+  open(Self, String, OpenFlag, Int) -> File!Errno
+}
+
+pub(all) enum OpenFlag {
+  Read
+  Write
+  ReadWrite
+}
+
+type Scope
+
+type SockaddrIn
+
+type SockaddrIn6
+
+type Stream
+impl ToHandle for Stream
+
+type Tcp
+impl ToHandle for Tcp
+impl ToStream for Tcp
+
+type Timer
+
+type Write
+
+// Type aliases
+
+// Traits
+pub trait ToHandle {
+  to_handle(Self) -> Handle
+}
+
+pub trait ToStream {
+  to_stream(Self) -> Stream
+}
+

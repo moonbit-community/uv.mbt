@@ -15,8 +15,8 @@ extern "c" fn fs_alloc() -> Fs = "moonbit_uv_fs_alloc"
 
 ///|
 pub(all) enum OpenFlag {
-  Read = 0x0
-  Write = 0x1
+  ReadOnly = 0x0
+  WriteOnly = 0x1
   ReadWrite = 0x2
 }
 
@@ -171,10 +171,25 @@ pub async fn File::write(self : File, bytes : @bytes.View) -> @bytes.View!Errno 
 }
 
 ///|
-pub const STDIN = 0
+pub const STDIN : Int = 0
+
+///|
+pub fn Loop::stdin(self : Loop) -> File {
+  { self, file: STDIN.to_int64() }
+}
 
 ///|
 pub const STDOUT = 1
 
 ///|
+pub fn Loop::stdout(self : Loop) -> File {
+  { self, file: STDOUT.to_int64() }
+}
+
+///|
 pub const STDERR = 2
+
+///|
+pub fn Loop::stderr(self : Loop) -> File {
+  { self, file: STDERR.to_int64() }
+}
