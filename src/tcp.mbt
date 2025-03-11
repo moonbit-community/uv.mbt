@@ -37,11 +37,7 @@ pub fn Loop::tcp(self : Loop) -> Tcp!Errno {
 }
 
 ///|
-extern "c" fn ip4_addr_bytes(
-  ip : Bytes,
-  port : Int,
-  addr : SockaddrIn
-) -> Unit = "moonbit_uv_ip4_addr"
+extern "c" fn ip4_addr_bytes(ip : Bytes, port : Int, addr : SockaddrIn) -> Unit = "moonbit_uv_ip4_addr"
 
 ///|
 pub fn ip4_addr(ip : String, port : Int) -> SockaddrIn {
@@ -57,6 +53,7 @@ pub extern "c" fn ip6_addr(ip : Bytes, port : Int, addr : SockaddrIn6) -> Unit =
 ///|
 pub extern "c" fn tcp_bind(tcp : Tcp, addr : SockaddrIn, flags : Int) -> Int = "moonbit_uv_tcp_bind"
 
+///|
 pub fn Tcp::bind(self : Tcp, sockaddr : SockaddrIn, flags : Int) -> Unit!Errno {
   tcp_bind(self, sockaddr, flags) |> errno!()
 }
@@ -68,9 +65,27 @@ pub extern "c" fn listen(
   cb : (Stream, Int) -> Unit
 ) -> Int = "moonbit_uv_listen"
 
+///|
 pub async fn Tcp::listen(self : Tcp, backlog : Int) -> Unit!Errno {
   self.to_stream().listen!!(backlog)
 }
 
 ///|
-pub extern "c" fn accept(server : Stream, client : Stream) -> Int = "moonbit_uv_accept"
+pub extern "c" fn uv_accept(server : Stream, client : Stream) -> Int = "moonbit_uv_accept"
+
+///|
+pub fn accept(self : Tcp) -> Tcp!Errno {
+  let other = self.to_handle().get_loop().tcp!()
+  uv_accept(self.to_stream(), other.to_stream()) |> errno!()
+  return other
+}
+
+///|
+pub async fn Tcp::read(self : Tcp) -> @bytes.View!Errno {
+  self.to_stream().read!!()
+}
+
+///|
+pub async fn Tcp::write(self : Tcp, bytes : @bytes.View) -> @bytes.View!Errno {
+  self.to_stream().write!!(bytes)
+}

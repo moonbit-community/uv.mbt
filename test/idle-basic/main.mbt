@@ -2,18 +2,18 @@
 fn main {
   try {
     @uv.start!(fn(uv) {
-      let idle = uv.idle!()
-      let mut counter = 0
       @uv.spawn(fn() {
+        let mut counter = 0
         while true {
-          idle.start!!()
+          uv.idle!!()
           counter += 1
+          println("counter: \{counter}")
           if counter >= 1000 {
             break
           }
         }
       })
-      println("Idling...\n")
+      println("Idling...")
     })
   } catch {
     error => println("Error: \{error}")

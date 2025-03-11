@@ -11,3 +11,6 @@ pub extern "c" fn close(handle : Handle, cb : (Handle) -> Unit) -> Unit = "moonb
 
 ///|
 pub extern "c" fn handle_get_loop(handle : Handle) -> Loop = "moonbit_uv_handle_get_loop"
+
+///|
+pub extern "c" fn Handle::get_loop(self : Handle) -> Loop = "moonbit_uv_handle_get_loop"

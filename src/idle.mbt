@@ -1,14 +1,14 @@
 ///|
-extern type Idle
+type Idle Bytes
 
 ///|
 impl ToHandle for Idle with to_handle(self : Idle) -> Handle = "%identity"
 
 ///|
-pub extern "c" fn idle_alloc() -> Idle = "moonbit_uv_idle_alloc"
+extern "c" fn idle_alloc() -> Idle = "moonbit_uv_idle_alloc"
 
 ///|
-pub extern "c" fn idle_init(loop_ : Loop, idle : Idle) -> Int = "moonbit_uv_idle_init"
+extern "c" fn idle_init(loop_ : Loop, idle : Idle) -> Int = "moonbit_uv_idle_init"
 
 ///|
 pub fn Idle::new(loop_ : Loop) -> Idle!Errno {
@@ -18,33 +18,50 @@ pub fn Idle::new(loop_ : Loop) -> Idle!Errno {
 }
 
 ///|
-pub fn Loop::idle(self : Loop) -> Idle!Errno {
-  let idle = idle_alloc()
-  idle_init(self, idle) |> errno!()
-  idle
+pub fn Idle::spawn(loop_ : Loop, f : async (Idle) -> Unit!) -> Unit {
+  spawn(fn() {
+    let idle = Idle::new!(loop_)
+    scope!!(fn() { spawn(fn() { f!!(idle) }) }) |> ignore()
+    idle.close!!()
+  })
 }
 
 ///|
-pub extern "c" fn idle_start(idle : Idle, cb : (Idle) -> Unit) -> Int = "moonbit_uv_idle_start"
-
-pub async fn Idle::start(self : Idle) -> Unit!Errno {
+pub async fn Loop::idle(self : Loop) -> Unit!Errno {
   async_suspend_with_error!!(fn(resolve, reject) {
-    let result = idle_start(self, fn(_) {
-      let result = idle_stop(self)
-      if (result < 0) {
-        reject(Errno(result))
-      } else {
-        resolve(())
-      }
-    })
+    let idle = idle_alloc()
+    let result = idle_init(self, idle)
     if result < 0 {
       reject(Errno(result))
+    } else {
+      idle_start(idle, fn(_) {
+        idle_stop(idle) |> ignore()
+        close(idle.to_handle(), fn(_) {  })
+        resolve(())
+      })
+      |> ignore()
     }
   })
 }
 
 ///|
-pub extern "c" fn idle_stop(idle : Idle) -> Int = "moonbit_uv_idle_stop"
+extern "c" fn idle_start(idle : Idle, cb : (Idle) -> Unit) -> Int = "moonbit_uv_idle_start"
 
 ///|
-pub extern "c" fn idle_free(idle : Idle) -> Unit = "moonbit_uv_idle_free"
+extern "c" fn idle_stop(idle : Idle) -> Int = "moonbit_uv_idle_stop"
+
+///|
+pub async fn Idle::wait(self : Idle) -> Unit!Errno {
+  async_suspend!!(fn(resolve) {
+    idle_start(self, fn(_) {
+      idle_stop(self) |> ignore()
+      resolve(())
+    })
+    |> ignore()
+  })
+}
+
+///|
+pub async fn Idle::close(self : Idle) -> Unit {
+  async_suspend!!(fn(resolve) { close(self.to_handle(), fn(_) { resolve(()) }) })
+}

@@ -42,32 +42,33 @@ typedef struct moonbit_uv_idle_cb {
   int32_t (*code)(struct moonbit_uv_idle_cb *, uv_idle_t *);
 } moonbit_uv_idle_cb_t;
 
-uv_idle_t *moonbit_uv_idle_alloc() {
-  return ((uv_idle_t *)malloc(sizeof(uv_idle_t)));
-}
+uv_idle_t *moonbit_uv_idle_alloc() { return moonbit_malloc(sizeof(uv_idle_t)); }
 
 int moonbit_uv_idle_init(uv_loop_t *loop, uv_idle_t *idle) {
-  return uv_idle_init(loop, idle);
+  int rc = uv_idle_init(loop, idle);
+  moonbit_decref(loop);
+  moonbit_decref(idle);
+  return rc;
 }
 
 void moonbit_uv_idle_cb(uv_idle_t *idle) {
   moonbit_uv_idle_cb_t *cb = idle->data;
   moonbit_incref(cb);
+  moonbit_incref(idle);
   cb->code(cb, idle);
 }
 
 int moonbit_uv_idle_start(uv_idle_t *idle, moonbit_uv_idle_cb_t *cb) {
   idle->data = cb;
-  return uv_idle_start(idle, moonbit_uv_idle_cb);
+  int rc = uv_idle_start(idle, moonbit_uv_idle_cb);
+  moonbit_decref(idle);
+  return rc;
 }
 
-int moonbit_uv_idle_stop(uv_idle_t *idle) { return uv_idle_stop(idle); }
-
-void moonbit_uv_idle_free(uv_idle_t *idle) {
-  if (idle->data) {
-    moonbit_decref(idle->data);
-  }
-  free(idle);
+int moonbit_uv_idle_stop(uv_idle_t *idle) {
+  int rc = uv_idle_stop(idle);
+  moonbit_decref(idle);
+  return rc;
 }
 
 uv_buf_t *moonbit_uv_buf_alloc() {
