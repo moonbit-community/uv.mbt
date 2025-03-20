@@ -436,3 +436,115 @@ moonbit_uv_timer_start(
   handle->data = cb;
   return uv_timer_start(handle, moonbit_uv_timer_cb, timeout, repeat);
 }
+
+uv_process_t *
+moonbit_uv_process_t() {
+  return moonbit_malloc(sizeof(uv_process_t));
+}
+
+uv_process_options_t *
+moonbit_uv_process_options_t() {
+  uv_process_options_t *options = moonbit_malloc(sizeof(uv_process_options_t));
+  options->exit_cb = NULL;
+  options->file = NULL;
+  options->args = NULL;
+  options->env = NULL;
+  options->cwd = NULL;
+  options->flags = 0;
+  options->stdio = NULL;
+  options->stdio_count = 0;
+  return options;
+}
+
+void
+moonbit_uv_process_options_set_file(
+  uv_process_options_t *options,
+  moonbit_bytes_t file
+) {
+  options->file = (char *)file;
+  moonbit_decref(options);
+  moonbit_decref(file);
+}
+
+void
+moonbit_uv_process_options_set_args(
+  uv_process_options_t *options,
+  moonbit_bytes_t *args
+) {
+  options->args = (char **)args;
+  moonbit_decref(options);
+  moonbit_decref(args);
+}
+
+void
+moonbit_uv_process_options_set_env(
+  uv_process_options_t *options,
+  moonbit_bytes_t *env
+) {
+  options->env = (char **)env;
+  moonbit_decref(options);
+  moonbit_decref(env);
+}
+
+void
+moonbit_uv_process_options_set_cwd(
+  uv_process_options_t *options,
+  moonbit_bytes_t cwd
+) {
+  options->cwd = (char *)cwd;
+  moonbit_decref(options);
+  moonbit_decref(cwd);
+}
+
+void
+moonbit_uv_process_options_set_flags(
+  uv_process_options_t *options,
+  unsigned int flags
+) {
+  options->flags = flags;
+  moonbit_decref(options);
+}
+
+uv_stdio_container_t *
+uv_stdio_container_stream(uv_stdio_flags flags, uv_stream_t *stream) {
+  uv_stdio_container_t *container = malloc(sizeof(uv_stdio_container_t));
+  container->flags = flags;
+  container->data.stream = stream;
+  return container;
+}
+
+uv_stdio_container_t *
+uv_stdio_container_fd(uv_stdio_flags flags, int fd) {
+  uv_stdio_container_t *container = malloc(sizeof(uv_stdio_container_t));
+  container->flags = flags;
+  container->data.fd = fd;
+  return container;
+}
+
+void
+moonbit_uv_process_options_set_stdio(
+  uv_process_options_t *options,
+  uv_stdio_container_t **stdio
+) {
+  size_t stdio_count = Moonbit_array_length(stdio);
+  options->stdio_count = stdio_count;
+  options->stdio = malloc(sizeof(uv_stdio_container_t) * stdio_count);
+  for (int i = 0; i < stdio_count; i++) {
+    options->stdio[i] = *stdio[i];
+  }
+  moonbit_decref(options);
+  moonbit_decref(stdio);
+}
+
+int
+moonbit_uv_spawn(
+  uv_loop_t *loop,
+  uv_process_t *process,
+  uv_process_options_t *options
+) {
+  int result = uv_spawn(loop, process, options);
+  moonbit_decref(loop);
+  moonbit_decref(process);
+  moonbit_decref(options);
+  return result;
+}
