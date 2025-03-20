@@ -51,7 +51,7 @@ extern "c" fn idle_start(idle : Idle, cb : (Idle) -> Unit) -> Int = "moonbit_uv_
 extern "c" fn idle_stop(idle : Idle) -> Int = "moonbit_uv_idle_stop"
 
 ///|
-pub async fn Idle::wait(self : Idle) -> Unit!Errno {
+pub async fn Idle::wait(self : Idle) -> Unit {
   async_suspend!!(fn(resolve) {
     idle_start(self, fn(_) {
       idle_stop(self) |> ignore()
