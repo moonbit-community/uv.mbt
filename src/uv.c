@@ -438,12 +438,12 @@ moonbit_uv_timer_start(
 }
 
 uv_process_t *
-moonbit_uv_process_t() {
+moonbit_uv_process_alloc() {
   return moonbit_malloc(sizeof(uv_process_t));
 }
 
 uv_process_options_t *
-moonbit_uv_process_options_t() {
+moonbit_uv_process_options_alloc() {
   uv_process_options_t *options = moonbit_malloc(sizeof(uv_process_options_t));
   options->exit_cb = NULL;
   options->file = NULL;
@@ -501,24 +501,37 @@ moonbit_uv_process_options_set_flags(
   uv_process_options_t *options,
   unsigned int flags
 ) {
-  options->flags = flags;
+  options->flags |= flags;
   moonbit_decref(options);
 }
 
 uv_stdio_container_t *
-uv_stdio_container_stream(uv_stdio_flags flags, uv_stream_t *stream) {
-  uv_stdio_container_t *container = malloc(sizeof(uv_stdio_container_t));
-  container->flags = flags;
-  container->data.stream = stream;
-  return container;
+moonbit_uv_stdio_container_alloc() {
+  return malloc(sizeof(uv_stdio_container_t));
 }
 
-uv_stdio_container_t *
-uv_stdio_container_fd(uv_stdio_flags flags, int fd) {
-  uv_stdio_container_t *container = malloc(sizeof(uv_stdio_container_t));
-  container->flags = flags;
+void
+moonbit_uv_stdio_container_set_flags(
+  uv_stdio_container_t *container,
+  uv_stdio_flags flags
+) {
+  container->flags |= flags;
+  moonbit_decref(container);
+}
+
+void
+moonbit_uv_stdio_container_set_stream(
+  uv_stdio_container_t *container,
+  uv_stream_t *stream
+) {
+  container->data.stream = stream;
+  moonbit_decref(container);
+}
+
+void
+moonbit_uv_stdio_container_set_fd(uv_stdio_container_t *container, int fd) {
   container->data.fd = fd;
-  return container;
+  moonbit_decref(container);
 }
 
 void
