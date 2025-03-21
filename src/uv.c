@@ -2,6 +2,7 @@
 #include <moonbit.h>
 #include <netinet/in.h>
 #include <stdlib.h>
+#include <string.h>
 
 uv_loop_t *
 moonbit_uv_default_loop() {
@@ -10,7 +11,7 @@ moonbit_uv_default_loop() {
 
 uv_loop_t *
 moonbit_uv_loop_alloc() {
-  return (uv_loop_t *)moonbit_make_bytes(sizeof(uv_loop_t), 0);
+  return (uv_loop_t *)moonbit_malloc(sizeof(uv_loop_t));
 };
 
 int
@@ -437,63 +438,119 @@ moonbit_uv_timer_start(
   return uv_timer_start(handle, moonbit_uv_timer_cb, timeout, repeat);
 }
 
-uv_process_t *
-moonbit_uv_process_alloc() {
-  return moonbit_malloc(sizeof(uv_process_t));
+typedef struct moonbit_uv_process_s {
+  void (*finalize)(void *self);
+  uv_process_t process;
+} moonbit_uv_process_t;
+
+void
+moonbit_uv_process_finalize(void *object) {
+  moonbit_uv_process_t *process = object;
+  if (process->process.data) {
+    moonbit_decref(process->process.data);
+  }
 }
 
-uv_process_options_t *
+moonbit_uv_process_t *
+moonbit_uv_process_alloc() {
+  moonbit_uv_process_t *process =
+    (moonbit_uv_process_t *)moonbit_make_external_object(moonbit_uv_process_finalize, sizeof(uv_process_t));
+  memset(&process->process, 0, sizeof(uv_process_t));
+  return process;
+}
+
+int
+moonbit_uv_process_get_pid(uv_process_t *process) {
+  return process->pid;
+}
+
+typedef struct moonbit_uv_process_options_s {
+  void (*finalize)(void *self);
+  uv_process_options_t options;
+} moonbit_uv_process_options_t;
+
+void
+moonbit_uv_process_options_finalize(void *object) {
+  moonbit_uv_process_options_t *options = object;
+  if (options->options.file) {
+    moonbit_decref((void *)options->options.file);
+  }
+  if (options->options.cwd) {
+    moonbit_decref((void *)options->options.cwd);
+  }
+  if (options->options.args) {
+    moonbit_decref(options->options.args);
+  }
+  if (options->options.env) {
+    moonbit_decref(options->options.env);
+  }
+}
+
+moonbit_uv_process_options_t *
 moonbit_uv_process_options_alloc() {
-  uv_process_options_t *options = moonbit_malloc(sizeof(uv_process_options_t));
-  options->exit_cb = NULL;
-  options->file = NULL;
-  options->args = NULL;
-  options->env = NULL;
-  options->cwd = NULL;
-  options->flags = 0;
-  options->stdio = NULL;
-  options->stdio_count = 0;
+  moonbit_uv_process_options_t *options =
+    (moonbit_uv_process_options_t *)moonbit_make_external_object(moonbit_uv_process_options_finalize, sizeof(uv_process_options_t));
+  memset(&options->options, 0, sizeof(uv_process_options_t));
   return options;
+}
+
+typedef struct moonbit_uv_exit_cb_s {
+  int32_t (*code)(struct moonbit_uv_exit_cb_s *, uv_process_t *, int64_t, int);
+} moonbit_uv_exit_cb_t;
+
+static inline void
+moonbit_uv_exit_cb(uv_process_t *process, int64_t exit_status, int term_signal) {
+  moonbit_uv_exit_cb_t *cb = process->data;
+  moonbit_incref(cb);
+  cb->code(cb, process, exit_status, term_signal);
 }
 
 void
 moonbit_uv_process_options_set_file(
-  uv_process_options_t *options,
+  moonbit_uv_process_options_t *options,
   moonbit_bytes_t file
 ) {
-  options->file = (char *)file;
+  if (options->options.file) {
+    moonbit_decref((void *)options->options.file);
+  }
+  options->options.file = (char *)file;
   moonbit_decref(options);
-  moonbit_decref(file);
 }
 
 void
 moonbit_uv_process_options_set_args(
-  uv_process_options_t *options,
+  moonbit_uv_process_options_t *options,
   moonbit_bytes_t *args
 ) {
-  options->args = (char **)args;
+  if (options->options.args) {
+    moonbit_decref(options->options.args);
+  }
+  options->options.args = (char **)args;
   moonbit_decref(options);
-  moonbit_decref(args);
 }
 
 void
 moonbit_uv_process_options_set_env(
-  uv_process_options_t *options,
+  moonbit_uv_process_options_t *options,
   moonbit_bytes_t *env
 ) {
-  options->env = (char **)env;
+  if (options->options.env) {
+    moonbit_decref(options->options.env);
+  }
+  options->options.env = (char **)env;
   moonbit_decref(options);
-  moonbit_decref(env);
 }
 
 void
 moonbit_uv_process_options_set_cwd(
-  uv_process_options_t *options,
+  moonbit_uv_process_options_t *options,
   moonbit_bytes_t cwd
 ) {
-  options->cwd = (char *)cwd;
+  if (options->options.cwd) {
+    moonbit_decref((void *)options->options.cwd);
+  }
+  options->options.cwd = (char *)cwd;
   moonbit_decref(options);
-  moonbit_decref(cwd);
 }
 
 void
@@ -536,14 +593,14 @@ moonbit_uv_stdio_container_set_fd(uv_stdio_container_t *container, int fd) {
 
 void
 moonbit_uv_process_options_set_stdio(
-  uv_process_options_t *options,
+  moonbit_uv_process_options_t *options,
   uv_stdio_container_t **stdio
 ) {
   size_t stdio_count = Moonbit_array_length(stdio);
-  options->stdio_count = stdio_count;
-  options->stdio = malloc(sizeof(uv_stdio_container_t) * stdio_count);
+  options->options.stdio_count = stdio_count;
+  options->options.stdio = malloc(sizeof(uv_stdio_container_t) * stdio_count);
   for (int i = 0; i < stdio_count; i++) {
-    options->stdio[i] = *stdio[i];
+    options->options.stdio[i] = *stdio[i];
   }
   moonbit_decref(options);
   moonbit_decref(stdio);
@@ -553,9 +610,12 @@ int
 moonbit_uv_spawn(
   uv_loop_t *loop,
   uv_process_t *process,
-  uv_process_options_t *options
+  moonbit_uv_process_options_t *options,
+  moonbit_uv_exit_cb_t *exit_cb
 ) {
-  int result = uv_spawn(loop, process, options);
+  options->options.exit_cb = moonbit_uv_exit_cb;
+  int result = uv_spawn(loop, process, &options->options);
+  process->data = exit_cb;
   moonbit_decref(loop);
   moonbit_decref(process);
   moonbit_decref(options);

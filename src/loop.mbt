@@ -5,7 +5,7 @@ type Loop Bytes
 pub extern "c" fn loop_alloc() -> Loop = "moonbit_uv_loop_alloc"
 
 ///|
-pub extern "c" fn loop_init(self : Loop) -> Int = "moonbit_uv_loop_init"
+pub extern "c" fn loop_init(loop_ : Loop) -> Int = "moonbit_uv_loop_init"
 
 ///|
 pub extern "c" fn loop_close(loop_ : Loop) -> Int = "moonbit_uv_loop_close"
@@ -18,10 +18,10 @@ pub(all) enum RunMode {
 }
 
 ///|
-pub extern "c" fn uv_run(loop_ : Loop, mode : RunMode) -> Int = "moonbit_uv_run"
+pub extern "c" fn run(loop_ : Loop, mode : RunMode) -> Int = "moonbit_uv_run"
 
 ///|
 pub extern "c" fn stop(loop_ : Loop) -> Unit = "moonbit_uv_stop"
 
 ///|
-pub extern "c" fn loop_alive(self : Loop) -> Int = "moonbit_uv_loop_alive"
+pub extern "c" fn loop_alive(loop_ : Loop) -> Int = "moonbit_uv_loop_alive"

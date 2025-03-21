@@ -4,14 +4,18 @@ pub extern "c" fn uv_disable_stdio_inheritance() = "moonbit_uv_disable_stdio_inh
 ///|
 type Process Bytes
 
+pub fn process_to_handle(process : Process) -> Handle = "%identity"
+
+pub extern "c" fn process_get_pid(process : Process) -> Int = "moonbit_uv_process_get_pid"
+
 ///|
-pub extern "c" fn process_alloc() -> Process = "moonbit_uv_process_t"
+pub extern "c" fn process_alloc() -> Process = "moonbit_uv_process_alloc"
 
 ///|
 type ProcessOptions Bytes
 
 ///|
-pub extern "c" fn process_options_alloc() -> ProcessOptions = "moonbit_uv_process_options_t"
+pub extern "c" fn process_options_alloc() -> ProcessOptions = "moonbit_uv_process_options_alloc"
 
 ///|
 pub extern "c" fn process_options_set_file(
@@ -22,13 +26,13 @@ pub extern "c" fn process_options_set_file(
 ///|
 pub extern "c" fn process_options_set_args(
   options : ProcessOptions,
-  args : FixedArray[Bytes]
+  args : FixedArray[Bytes?]
 ) = "moonbit_uv_process_options_set_args"
 
 ///|
 pub extern "c" fn process_options_set_env(
   options : ProcessOptions,
-  env : FixedArray[Bytes]
+  env : FixedArray[Bytes?]
 ) = "moonbit_uv_process_options_set_env"
 
 ///|
@@ -100,5 +104,6 @@ pub extern "c" fn process_options_set_stdio(
 pub extern "c" fn spawn(
   self : Loop,
   handle : Process,
-  options : ProcessOptions
+  options : ProcessOptions,
+  exit_cb : (Process, Int, Int) -> Unit
 ) -> Int = "moonbit_uv_spawn"
