@@ -2,7 +2,7 @@
 extern type Fs
 
 ///|
-impl ToReq for Fs with to_req(self : Fs) -> Req = "%identity"
+pub fn fs_to_req(self : Fs) -> Req = "%identity"
 
 ///|
 pub extern "c" fn fs_alloc() -> Fs = "moonbit_uv_fs_alloc"
@@ -36,7 +36,7 @@ pub extern "c" fn fs_close(
 pub extern "c" fn fs_get_result(req : Fs) -> Int64 = "moonbit_uv_fs_get_result"
 
 ///|
-type File Int
+pub(all) type File Int
 
 ///|
 pub extern "c" fn fs_read(
@@ -57,6 +57,9 @@ pub extern "c" fn fs_write(
   offset : Int64,
   cb : (Fs) -> Unit
 ) -> Int = "moonbit_uv_fs_write"
+
+///|
+pub extern "c" fn fs_req_cleanup(req : Fs) = "moonbit_uv_fs_req_cleanup"
 
 ///|
 pub const STDIN : Int = 0

@@ -11,10 +11,10 @@ extern type SockaddrIn6
 extern type Tcp
 
 ///|
-pub fn tcp_to_stream(self : Tcp) -> Stream = "%identity"
+pub fn Tcp::to_stream(self : Tcp) -> Stream = "%identity"
 
 ///|
-pub fn tcp_to_handle(self : Tcp) -> Handle = "%identity"
+pub fn Tcp::to_handle(self : Tcp) -> Handle = "%identity"
 
 ///|
 pub extern "c" fn tcp_alloc() -> Tcp = "moonbit_uv_tcp_alloc"
@@ -29,7 +29,12 @@ pub extern "c" fn ip4_addr(ip : Bytes, port : Int, addr : SockaddrIn) -> Unit = 
 pub extern "c" fn ip6_addr(ip : Bytes, port : Int, addr : SockaddrIn6) -> Unit = "moonbit_uv_ip6_addr"
 
 ///|
-pub extern "c" fn tcp_bind(tcp : Tcp, addr : SockaddrIn, flags : Int) -> Int = "moonbit_uv_tcp_bind"
+extern type Sockaddr
+
+pub fn SockaddrIn::to_sockaddr(addr : SockaddrIn) -> Sockaddr = "%identity"
+
+///|
+pub extern "c" fn tcp_bind(tcp : Tcp, addr : Sockaddr, flags : Int) -> Int = "moonbit_uv_tcp_bind"
 
 ///|
 pub extern "c" fn listen(

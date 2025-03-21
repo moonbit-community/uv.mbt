@@ -9,6 +9,8 @@ const STDOUT : Int = 1
 
 fn accept(Stream, Stream) -> Int
 
+fn args() -> FixedArray[Bytes]
+
 fn buf_alloc() -> Buf
 
 fn buf_free(Buf) -> Unit

@@ -2,7 +2,7 @@
 extern type Stream
 
 ///|
-pub fn stream_to_handle(stream : Stream) -> Handle = "%identity"
+pub fn Stream::to_handle(self : Stream) -> Handle = "%identity"
 
 ///|
 pub extern "c" fn read_start(
