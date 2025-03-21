@@ -1,0 +1,13 @@
+{
+  "is-main": true,
+  "import": [
+    "tonyfettes/uv",
+    "moonbitlang/x/encoding",
+    "moonbitlang/x/sys"
+  ],
+  "link": {
+    "native": {
+      "cc": "echo"
+    }
+  }
+}
