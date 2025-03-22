@@ -6,7 +6,7 @@ find_package(c.mbt REQUIRED)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_VERBOSE_MAKEFILE on)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -fsanitize=address -Wmissing-field-initializers")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -fsanitize=address -Wpedantic -Wall -Wextra")
 
 include(cmake/moonbit.cmake)
 

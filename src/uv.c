@@ -2,18 +2,19 @@
 #include "uv/unix.h"
 #include <moonbit.h>
 #include <netinet/in.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
 uv_loop_t *
-moonbit_uv_default_loop() {
+moonbit_uv_default_loop(void) {
   return uv_default_loop();
 }
 
 uv_loop_t *
-moonbit_uv_loop_alloc() {
+moonbit_uv_loop_alloc(void) {
   return (uv_loop_t *)moonbit_malloc(sizeof(uv_loop_t));
-};
+}
 
 int
 moonbit_uv_loop_init(uv_loop_t *loop) {
@@ -54,7 +55,7 @@ typedef struct moonbit_uv_idle_cb {
 } moonbit_uv_idle_cb_t;
 
 uv_idle_t *
-moonbit_uv_idle_alloc() {
+moonbit_uv_idle_alloc(void) {
   return moonbit_malloc(sizeof(uv_idle_t));
 }
 
@@ -103,7 +104,7 @@ moonbit_uv_buf_finalize(void *object) {
 }
 
 moonbit_uv_buf_t *
-moonbit_uv_buf_alloc() {
+moonbit_uv_buf_alloc(void) {
   moonbit_uv_buf_t *buf = (moonbit_uv_buf_t *)moonbit_make_external_object(
     moonbit_uv_buf_finalize, sizeof(uv_buf_t)
   );
@@ -142,7 +143,7 @@ moonbit_uv_buf_get(moonbit_uv_buf_t *buf) {
 static inline uv_buf_t *
 moonbit_uv_bufs_to_uv_bufs(moonbit_uv_buf_t **moonbit_uv_bufs, size_t len) {
   uv_buf_t *uv_bufs = malloc(sizeof(uv_buf_t) * len);
-  for (int i = 0; i < len; i++) {
+  for (size_t i = 0; i < len; i++) {
     uv_bufs[i] = moonbit_uv_bufs[i]->buf;
   }
   return uv_bufs;
@@ -160,13 +161,15 @@ moonbit_uv_fs_cb(uv_fs_t *req) {
 }
 
 uv_fs_t *
-moonbit_uv_fs_alloc() {
-  return malloc(sizeof(uv_fs_t));
+moonbit_uv_fs_alloc(void) {
+  return moonbit_malloc(sizeof(uv_fs_t));
 }
 
 ssize_t
 moonbit_uv_fs_get_result(uv_fs_t *fs) {
-  return fs->result;
+  ssize_t result = fs->result;
+  moonbit_decref(fs);
+  return result;
 }
 
 enum moonbit_uv_fs_open_flag_t {
@@ -226,6 +229,9 @@ moonbit_uv_fs_read(
   int rc =
     uv_fs_read(loop, fs, file, uv_bufs, bufs_len, offset, moonbit_uv_fs_cb);
   free(uv_bufs);
+  moonbit_decref(bufs);
+  moonbit_decref(fs);
+  moonbit_decref(loop);
   return rc;
 }
 
@@ -244,6 +250,9 @@ moonbit_uv_fs_write(
   int rc =
     uv_fs_write(loop, fs, file, bufs_val, bufs_len, offset, moonbit_uv_fs_cb);
   free(bufs_val);
+  moonbit_decref(bufs);
+  moonbit_decref(fs);
+  moonbit_decref(loop);
   return rc;
 }
 
@@ -305,7 +314,7 @@ moonbit_uv_handle_get_loop(uv_handle_t *handle) {
 }
 
 struct sockaddr_in *
-moonbit_uv_sockaddr_in_alloc() {
+moonbit_uv_sockaddr_in_alloc(void) {
   return malloc(sizeof(struct sockaddr_in));
 }
 
@@ -315,7 +324,7 @@ moonbit_uv_ip4_addr(moonbit_bytes_t ip, int port, struct sockaddr_in *addr) {
 }
 
 uv_tcp_t *
-moonbit_uv_tcp_alloc() {
+moonbit_uv_tcp_alloc(void) {
   return ((uv_tcp_t *)malloc(sizeof(uv_tcp_t)));
 }
 
@@ -333,6 +342,40 @@ moonbit_uv_tcp_bind(
   unsigned int flags
 ) {
   return uv_tcp_bind(tcp, addr, flags);
+}
+
+uv_connect_t *
+moonbit_uv_connect_alloc(void) {
+  uv_connect_t *connect = moonbit_malloc(sizeof(uv_connect_t));
+  return connect;
+}
+
+typedef struct moonbit_uv_connect_cb_s {
+  int32_t (*code)(
+    struct moonbit_uv_connect_cb_s *,
+    uv_connect_t *req,
+    int status
+  );
+} moonbit_uv_connect_cb_t;
+
+static inline void
+moonbit_uv_connect_cb(uv_connect_t *req, int status) {
+  moonbit_uv_connect_cb_t *cb = req->data;
+  moonbit_incref(cb);
+  moonbit_incref(req);
+  cb->code(cb, req, status);
+}
+
+int
+moonbit_uv_tcp_connect(
+  uv_connect_t *connect,
+  uv_tcp_t *tcp,
+  const struct sockaddr *addr,
+  moonbit_uv_connection_cb_t *cb
+) {
+  connect->data = cb;
+  int result = uv_tcp_connect(connect, tcp, addr, moonbit_uv_connect_cb);
+  return result;
 }
 
 typedef struct moonbit_uv_alloc_cb_s {
@@ -428,7 +471,7 @@ moonbit_uv_write_finalize(void *object) {
 }
 
 moonbit_uv_write_t *
-moonbit_uv_write_alloc() {
+moonbit_uv_write_alloc(void) {
   moonbit_uv_write_t *write = (moonbit_uv_write_t *)
     moonbit_make_external_object(moonbit_uv_write_finalize, sizeof(uv_write_t));
   memset(&write->write, 0, sizeof(uv_write_t));
@@ -466,11 +509,7 @@ moonbit_uv_strerror_r(int err, moonbit_bytes_t bytes) {
   size_t bytes_len = Moonbit_array_length(bytes);
   char *bytes_ptr = (char *)bytes;
   uv_strerror_r(err, bytes_ptr, bytes_len);
-}
-
-int32_t
-moonbit_uv_EOF() {
-  return UV_EOF;
+  moonbit_decref(bytes);
 }
 
 typedef struct moonbit_uv_timer_cb {
@@ -478,7 +517,7 @@ typedef struct moonbit_uv_timer_cb {
 } moonbit_uv_timer_cb_t;
 
 uv_timer_t *
-moonbit_uv_timer_alloc() {
+moonbit_uv_timer_alloc(void) {
   return ((uv_timer_t *)malloc(sizeof(uv_timer_t)));
 }
 
@@ -514,7 +553,7 @@ moonbit_uv_process_finalize(void *object) {
 }
 
 moonbit_uv_process_t *
-moonbit_uv_process_alloc() {
+moonbit_uv_process_alloc(void) {
   moonbit_uv_process_t *process =
     (moonbit_uv_process_t *)moonbit_make_external_object(
       moonbit_uv_process_finalize, sizeof(uv_process_t)
@@ -551,7 +590,7 @@ moonbit_uv_process_options_finalize(void *object) {
 }
 
 moonbit_uv_process_options_t *
-moonbit_uv_process_options_alloc() {
+moonbit_uv_process_options_alloc(void) {
   moonbit_uv_process_options_t *options =
     (moonbit_uv_process_options_t *)moonbit_make_external_object(
       moonbit_uv_process_options_finalize, sizeof(uv_process_options_t)
@@ -633,7 +672,7 @@ moonbit_uv_process_options_set_flags(
 }
 
 uv_stdio_container_t *
-moonbit_uv_stdio_container_alloc() {
+moonbit_uv_stdio_container_alloc(void) {
   return malloc(sizeof(uv_stdio_container_t));
 }
 
@@ -669,7 +708,7 @@ moonbit_uv_process_options_set_stdio(
   size_t stdio_count = Moonbit_array_length(stdio);
   options->options.stdio_count = stdio_count;
   options->options.stdio = malloc(sizeof(uv_stdio_container_t) * stdio_count);
-  for (int i = 0; i < stdio_count; i++) {
+  for (size_t i = 0; i < stdio_count; i++) {
     options->options.stdio[i] = *stdio[i];
   }
   moonbit_decref(options);
@@ -689,5 +728,27 @@ moonbit_uv_spawn(
   moonbit_decref(loop);
   moonbit_decref(process);
   moonbit_decref(options);
+  return result;
+}
+
+uv_tty_t *
+moonbit_uv_tty_alloc(void) {
+  uv_tty_t *tty = (uv_tty_t *)moonbit_malloc(sizeof(uv_tty_t));
+  memset(tty, 0, sizeof(uv_tty_t));
+  return tty;
+}
+
+int
+moonbit_uv_tty_init(uv_loop_t *loop, uv_tty_t *handle, uv_file fd) {
+  int result = uv_tty_init(loop, handle, fd, 0);
+  moonbit_decref(loop);
+  moonbit_decref(handle);
+  return result;
+}
+
+int
+moonbit_uv_tty_set_mode(uv_tty_t *handle, uv_tty_mode_t mode) {
+  int result = uv_tty_set_mode(handle, mode);
+  moonbit_decref(handle);
   return result;
 }

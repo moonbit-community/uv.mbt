@@ -31,6 +31,7 @@ pub extern "c" fn ip6_addr(ip : Bytes, port : Int, addr : SockaddrIn6) -> Unit =
 ///|
 extern type Sockaddr
 
+///|
 pub fn SockaddrIn::to_sockaddr(addr : SockaddrIn) -> Sockaddr = "%identity"
 
 ///|
@@ -45,3 +46,19 @@ pub extern "c" fn listen(
 
 ///|
 pub extern "c" fn accept(server : Stream, client : Stream) -> Int = "moonbit_uv_accept"
+
+///|
+type Connect Bytes
+
+///|
+pub fn Connect::to_req(self : Connect) -> Req = "%identity"
+
+pub extern "c" fn connect_alloc() -> Connect = "moonbit_uv_connect_alloc"
+
+///|
+pub extern "c" fn tcp_connect(
+  req : Connect,
+  handle : Tcp,
+  addr : Sockaddr,
+  cb : (Connect, Int) -> Unit
+) -> Int = "moonbit_uv_tcp_connect"
