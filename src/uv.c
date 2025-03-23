@@ -214,6 +214,14 @@ moonbit_uv_fs_get_result(moonbit_uv_fs_t *fs) {
   return result;
 }
 
+static inline void
+moonbit_uv_fs_set_data(moonbit_uv_fs_t *fs, moonbit_uv_fs_cb_t *cb) {
+  if (fs->fs.data) {
+    moonbit_decref(fs->fs.data);
+  }
+  fs->fs.data = cb;
+}
+
 enum moonbit_uv_fs_open_flag_t {
   MOONBIT_UV_FS_O_RDONLY = 0x0,
   MOONBIT_UV_FS_O_WRONLY = 0x1,
@@ -229,10 +237,7 @@ moonbit_uv_fs_open(
   int mode,
   moonbit_uv_fs_cb_t *cb
 ) {
-  if (fs->fs.data) {
-    moonbit_decref(fs->fs.data);
-  }
-  fs->fs.data = cb;
+  moonbit_uv_fs_set_data(fs, cb);
   int uv_flags = 0;
   if (flags & MOONBIT_UV_FS_O_RDONLY) {
     uv_flags |= UV_FS_O_RDONLY;
@@ -258,10 +263,7 @@ moonbit_uv_fs_close(
   uv_file file,
   moonbit_uv_fs_cb_t *cb
 ) {
-  if (fs->fs.data) {
-    moonbit_decref(fs->fs.data);
-  }
-  fs->fs.data = cb;
+  moonbit_uv_fs_set_data(fs, cb);
   int result = uv_fs_close(loop, &fs->fs, file, moonbit_uv_fs_cb);
   moonbit_decref(loop);
   return result;
@@ -278,10 +280,7 @@ moonbit_uv_fs_read(
 ) {
   uint32_t bufs_len = Moonbit_array_length(bufs);
   uv_buf_t *uv_bufs = moonbit_uv_bufs_to_uv_bufs(bufs, bufs_len);
-  if (fs->fs.data) {
-    moonbit_decref(fs->fs.data);
-  }
-  fs->fs.data = cb;
+  moonbit_uv_fs_set_data(fs, cb);
   int rc = uv_fs_read(
     loop, &fs->fs, file, uv_bufs, bufs_len, offset, moonbit_uv_fs_cb
   );
@@ -302,10 +301,7 @@ moonbit_uv_fs_write(
 ) {
   uint32_t bufs_len = Moonbit_array_length(bufs);
   uv_buf_t *bufs_val = moonbit_uv_bufs_to_uv_bufs(bufs, bufs_len);
-  if (fs->fs.data) {
-    moonbit_decref(fs->fs.data);
-  }
-  fs->fs.data = cb;
+  moonbit_uv_fs_set_data(fs, cb);
   int rc = uv_fs_write(
     loop, &fs->fs, file, bufs_val, bufs_len, offset, moonbit_uv_fs_cb
   );
