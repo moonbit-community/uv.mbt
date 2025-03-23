@@ -2,10 +2,15 @@
 pub extern "c" fn uv_disable_stdio_inheritance() = "moonbit_uv_disable_stdio_inheritance"
 
 ///|
-type Process Bytes
+type Process
 
-pub fn process_to_handle(process : Process) -> Handle = "%identity"
+///|
+pub extern "c" fn process_close(
+  self : Process,
+  cb : (Process) -> Unit
+) -> Unit = "moonbit_uv_process_close"
 
+///|
 pub extern "c" fn process_get_pid(process : Process) -> Int = "moonbit_uv_process_get_pid"
 
 ///|
@@ -105,5 +110,5 @@ pub extern "c" fn spawn(
   self : Loop,
   handle : Process,
   options : ProcessOptions,
-  exit_cb : (Process, Int, Int) -> Unit
+  exit_cb : (Process, Int64, Int) -> Unit
 ) -> Int = "moonbit_uv_spawn"

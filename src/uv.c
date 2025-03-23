@@ -216,7 +216,11 @@ moonbit_uv_fs_set_data(moonbit_uv_fs_t *fs, moonbit_uv_fs_cb_t *cb) {
 }
 
 static inline void
-moonbit_uv_fs_set_bufs(moonbit_uv_fs_t *fs, uv_buf_t *bufs_data, size_t bufs_size) {
+moonbit_uv_fs_set_bufs(
+  moonbit_uv_fs_t *fs,
+  uv_buf_t *bufs_data,
+  size_t bufs_size
+) {
   if (fs->bufs_data) {
     for (size_t i = 0; i < fs->bufs_size; i++) {
       moonbit_decref(fs->bufs_data[i].base);
@@ -362,7 +366,6 @@ typedef struct moonbit_uv_close_cb {
 static inline void
 moonbit_uv_close_cb(uv_handle_t *handle) {
   moonbit_uv_close_cb_t *cb = handle->data;
-  moonbit_incref(cb);
   cb->code(cb, handle);
 }
 
@@ -550,10 +553,12 @@ moonbit_uv_write_finalize(void *object) {
 
 moonbit_uv_write_t *
 moonbit_uv_write_alloc(void) {
-  moonbit_uv_write_t *write =
-    (moonbit_uv_write_t *)moonbit_make_external_object(
-      moonbit_uv_write_finalize, sizeof(struct { uv_write_t write; uv_buf_t *bufs_data; size_t bufs_size; })
-    );
+  moonbit_uv_write_t *write = (moonbit_uv_write_t *)
+    moonbit_make_external_object(moonbit_uv_write_finalize, sizeof(struct {
+                                   uv_write_t write;
+                                   uv_buf_t *bufs_data;
+                                   size_t bufs_size;
+                                 }));
   memset(&write->write, 0, sizeof(uv_write_t));
   write->bufs_data = NULL;
   write->bufs_size = 0;
@@ -583,7 +588,11 @@ moonbit_uv_write_set_data(moonbit_uv_write_t *req, moonbit_uv_write_cb_t *cb) {
 }
 
 static inline void
-moonbit_uv_write_set_bufs(moonbit_uv_write_t *req, uv_buf_t *bufs_data, size_t bufs_size) {
+moonbit_uv_write_set_bufs(
+  moonbit_uv_write_t *req,
+  uv_buf_t *bufs_data,
+  size_t bufs_size
+) {
   if (req->bufs_data) {
     for (size_t i = 0; i < req->bufs_size; i++) {
       moonbit_decref(req->bufs_data[i].base);
@@ -668,9 +677,37 @@ moonbit_uv_process_alloc(void) {
   return process;
 }
 
+typedef struct moonbit_uv_process_close_cb_s {
+  int32_t (*code)(
+    struct moonbit_uv_process_close_cb_s *cb,
+    moonbit_uv_process_t *process
+  );
+} moonbit_uv_process_close_cb_t;
+
+static inline void
+moonbit_uv_process_close_cb(uv_handle_t *handle) {
+  moonbit_uv_process_close_cb_t *cb = handle->data;
+  handle->data = NULL;
+  moonbit_uv_process_t *process =
+    containerof(handle, moonbit_uv_process_t, process);
+  cb->code(cb, process);
+}
+
+void
+moonbit_uv_process_close(
+  moonbit_uv_process_t *process,
+  moonbit_uv_process_close_cb_t *close_cb
+) {
+  uv_handle_t *handle = (uv_handle_t *)&process->process;
+  handle->data = close_cb;
+  uv_close(handle, moonbit_uv_process_close_cb);
+}
+
 int
-moonbit_uv_process_get_pid(uv_process_t *process) {
-  return process->pid;
+moonbit_uv_process_get_pid(moonbit_uv_process_t *process) {
+  int pid = process->process.pid;
+  moonbit_decref(process);
+  return pid;
 }
 
 typedef struct moonbit_uv_process_options_s {
@@ -706,7 +743,12 @@ moonbit_uv_process_options_alloc(void) {
 }
 
 typedef struct moonbit_uv_exit_cb_s {
-  int32_t (*code)(struct moonbit_uv_exit_cb_s *, uv_process_t *, int64_t, int);
+  int32_t (*code)(
+    struct moonbit_uv_exit_cb_s *,
+    moonbit_uv_process_t *,
+    int64_t,
+    int
+  );
 } moonbit_uv_exit_cb_t;
 
 static inline void
@@ -716,8 +758,10 @@ moonbit_uv_exit_cb(
   int term_signal
 ) {
   moonbit_uv_exit_cb_t *cb = process->data;
-  moonbit_incref(cb);
-  cb->code(cb, process, exit_status, term_signal);
+  process->data = NULL;
+  moonbit_uv_process_t *moonbit_process =
+    containerof(process, moonbit_uv_process_t, process);
+  cb->code(cb, moonbit_process, exit_status, term_signal);
 }
 
 void
@@ -824,15 +868,15 @@ moonbit_uv_process_options_set_stdio(
 int
 moonbit_uv_spawn(
   uv_loop_t *loop,
-  uv_process_t *process,
+  moonbit_uv_process_t *process,
   moonbit_uv_process_options_t *options,
   moonbit_uv_exit_cb_t *exit_cb
 ) {
   options->options.exit_cb = moonbit_uv_exit_cb;
-  int result = uv_spawn(loop, process, &options->options);
-  process->data = exit_cb;
+  int result = uv_spawn(loop, &process->process, &options->options);
+  process->process.data = exit_cb;
   moonbit_decref(loop);
-  moonbit_decref(process);
+  // moonbit_decref(process);
   moonbit_decref(options);
   return result;
 }
