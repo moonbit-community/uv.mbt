@@ -15,7 +15,7 @@ pub extern "c" fn read_start(
 pub extern "c" fn read_stop(stream : Stream) -> Int = "moonbit_uv_read_stop"
 
 ///|
-extern type Write
+type Write
 
 ///|
 pub extern "c" fn write_alloc() -> Write = "moonbit_uv_write_alloc"
