@@ -8,19 +8,10 @@
 #define containerof(ptr, type, member)                                         \
   ((type *)((char *)(ptr)-offsetof(type, member)))
 
-typedef struct tty_write_req_s {
-  uv_write_t write;
-} tty_write_req_t;
-
 typedef struct stdin_tty_s {
   uv_tty_t tty;
   uv_stream_t *server;
 } stdin_tty_t;
-
-typedef struct tcp_write_s {
-  uv_write_t write;
-  stdin_tty_t *tty_read_req;
-} tcp_write_t;
 
 typedef struct tcp_server_s {
   uv_stream_t *server;
@@ -37,11 +28,10 @@ on_tcp_close(uv_handle_t *handle) {
 
 void
 on_tcp_write(uv_write_t *req, int status) {
-  tcp_write_t *write = containerof(req, tcp_write_t, write);
   if (status < 0) {
     fprintf(stderr, "Write error: %s\n", uv_strerror(status));
   }
-  free(write);
+  free(req);
 }
 
 void
@@ -61,10 +51,9 @@ void
 on_tty_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf) {
   stdin_tty_t *stdin_tty = containerof(stream, stdin_tty_t, tty);
   if (nread > 0) {
-    tcp_write_t *write = malloc(sizeof(tcp_write_t));
-    write->tty_read_req = stdin_tty;
+    uv_write_t *write = malloc(sizeof(uv_write_t));
     uv_buf_t write_buf = uv_buf_init(buf->base, nread);
-    uv_write(&write->write, stdin_tty->server, &write_buf, 1, on_tcp_write);
+    uv_write(write, stdin_tty->server, &write_buf, 1, on_tcp_write);
     return;
   }
   if (nread < 0) {
