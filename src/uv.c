@@ -280,13 +280,18 @@ moonbit_uv_fs_read(
 ) {
   uint32_t bufs_len = Moonbit_array_length(bufs);
   uv_buf_t *uv_bufs = moonbit_uv_bufs_to_uv_bufs(bufs, bufs_len);
+  // The ownership of `cb` is transferred into `fs`.
   moonbit_uv_fs_set_data(fs, cb);
+  // The ownership of `fs` is transferred into `loop`.
   int rc = uv_fs_read(
     loop, &fs->fs, file, uv_bufs, bufs_len, offset, moonbit_uv_fs_cb
   );
   free(uv_bufs);
   moonbit_decref(bufs);
   moonbit_decref(loop);
+  // No need to call `decref` on `cb` and `fs`, as it can be fused with
+  // the incref that would happen before when we transfer their ownerships
+  // and yield a no-op.
   return rc;
 }
 
