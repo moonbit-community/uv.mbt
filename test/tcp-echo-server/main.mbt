@@ -15,7 +15,7 @@ fn main {
   @uv.tcp_bind(server, addr.to_sockaddr(), 0) |> ignore()
   fn alloc_buffer(_ : @uv.Handle, suggested_size : UInt64, buf : @uv.Buf) {
     let suggested_size = suggested_size.to_int()
-    @uv.buf_init(buf, Bytes::make(suggested_size, 0), 0, suggested_size)
+    @uv.buf_init(buf, Bytes::make(suggested_size, 0), suggested_size)
   }
 
   fn on_close(_) {

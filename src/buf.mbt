@@ -8,7 +8,6 @@ pub extern "c" fn buf_alloc() -> Buf = "moonbit_uv_buf_alloc"
 pub extern "c" fn buf_init(
   buf : Buf,
   bytes : Bytes,
-  offset : Int,
   length : Int
 ) -> Unit = "moonbit_uv_buf_init"
 

@@ -56,7 +56,7 @@ fn main {
     let result = @uv.fs_get_result(req).to_int()
     if result >= 0 {
       let file : @uv.File = result
-      @uv.buf_init(iov, buffer, 0, buffer.length())
+      @uv.buf_init(iov, buffer, buffer.length())
       @uv.fs_read(uv, read_req, file, [iov], -1, on_read) |> ignore()
     } else {
       println("Error opening file: \{@uv.strerror(result)}")

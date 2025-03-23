@@ -119,13 +119,12 @@ void
 moonbit_uv_buf_init(
   moonbit_uv_buf_t *buf,
   moonbit_bytes_t bytes,
-  size_t offset,
   size_t length
 ) {
   if (buf->buf.base) {
     moonbit_decref((void *)buf->buf.base);
   }
-  buf->buf = uv_buf_init((char *)bytes + offset, length);
+  buf->buf = uv_buf_init((char *)bytes, length);
   moonbit_decref(buf);
 }
 
