@@ -1,7 +1,6 @@
 #include "uv.h"
 #include "uv/unix.h"
 #include <moonbit.h>
-#include <netinet/in.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -98,7 +97,7 @@ typedef struct moonbit_uv_buf_s {
   uv_buf_t buf;
 } moonbit_uv_buf_t;
 
-void
+static inline void
 moonbit_uv_buf_finalize(void *object) {
   moonbit_uv_buf_t *buf = object;
   if (buf->buf.base) {
@@ -143,17 +142,21 @@ moonbit_uv_buf_get_base(moonbit_uv_buf_t *buf) {
 }
 
 static inline uv_buf_t *
-moonbit_uv_bufs_to_uv_bufs(moonbit_uv_buf_t **moonbit_uv_bufs, size_t len) {
-  uv_buf_t *uv_bufs = malloc(sizeof(uv_buf_t) * len);
-  for (size_t i = 0; i < len; i++) {
-    uv_bufs[i] = moonbit_uv_bufs[i]->buf;
+moonbit_uv_bufs_to_uv_bufs(moonbit_uv_buf_t **moonbit_uv_bufs, size_t size) {
+  uv_buf_t *bufs_data = malloc(sizeof(uv_buf_t) * size);
+  for (size_t i = 0; i < size; i++) {
+    bufs_data[i] = moonbit_uv_bufs[i]->buf;
+    moonbit_incref(bufs_data[i].base);
   }
-  return uv_bufs;
+  moonbit_decref(moonbit_uv_bufs);
+  return bufs_data;
 }
 
 typedef struct moonbit_uv_fs_s {
   void (*finalize)(void *self);
   uv_fs_t fs;
+  uv_buf_t *bufs_data;
+  size_t bufs_size;
 } moonbit_uv_fs_t;
 
 typedef struct moonbit_uv_fs_cb_s {
@@ -164,43 +167,27 @@ static inline void
 moonbit_uv_fs_cb(uv_fs_t *req) {
   moonbit_uv_fs_t *fs = containerof(req, moonbit_uv_fs_t, fs);
   moonbit_uv_fs_cb_t *cb = fs->fs.data;
-  // The FS callbacks can be divided into two categories:
-  //
-  // - One-shot: `uv_fs_open`, `uv_fs_close`. These APIs returns 0 when success and negative
-  //             error code when failure.
-  // - Multi-shot: `uv_fs_read`, `uv_fs_write`. These APIs return the number of bytes
-  //               read/written on success and negative error code on failure.
-  //
-  // We only want to transfer the ownership of the `fs` object to the callback on the *last* call
-  // to the callback. Therefore, we check if the result is greater than 0, as:
-  //
-  // - For one-shot APIs, the result will always be 0 or negative, and therefore we
-  //   skip the incref and transfer the ownership to the callback.
-  // - For multi-shot APIs, the result indicates the number of bytes read/written, and
-  //   A positive number indicates there might be more to read. In this case, we
-  //   call `moonbit_incref` on the `fs` object so that it will not get freed in the
-  //   callback so that it can be used in the next call to the callback.
-  //
-  // The same logic applies to the closure object `cb` as well.
-  if (req->result > 0) {
-    moonbit_incref(cb);
-    moonbit_incref(fs);
-  }
   cb->code(cb, fs);
 }
 
-void
+static inline void
 moonbit_uv_fs_finalize(void *object) {
   moonbit_uv_fs_t *fs = (moonbit_uv_fs_t *)object;
   if (fs->fs.data) {
     moonbit_decref(fs->fs.data);
+  }
+  if (fs->bufs_data) {
+    for (size_t i = 0; i < fs->bufs_size; i++) {
+      moonbit_decref(fs->bufs_data[i].base);
+    }
+    free(fs->bufs_data);
   }
 }
 
 moonbit_uv_fs_t *
 moonbit_uv_fs_alloc(void) {
   moonbit_uv_fs_t *fs = (moonbit_uv_fs_t *)moonbit_make_external_object(
-    moonbit_uv_fs_finalize, sizeof(uv_fs_t)
+    moonbit_uv_fs_finalize, sizeof(moonbit_uv_fs_t)
   );
   memset(&fs->fs, 0, sizeof(uv_fs_t));
   return fs;
@@ -277,16 +264,16 @@ moonbit_uv_fs_read(
   int64_t offset,
   moonbit_uv_fs_cb_t *cb
 ) {
-  uint32_t bufs_len = Moonbit_array_length(bufs);
-  uv_buf_t *uv_bufs = moonbit_uv_bufs_to_uv_bufs(bufs, bufs_len);
+  uint32_t bufs_size = Moonbit_array_length(bufs);
+  uv_buf_t *bufs_data = moonbit_uv_bufs_to_uv_bufs(bufs, bufs_size);
   // The ownership of `cb` is transferred into `fs`.
   moonbit_uv_fs_set_data(fs, cb);
+  fs->bufs_data = bufs_data;
+  fs->bufs_size = bufs_size;
   // The ownership of `fs` is transferred into `loop`.
   int rc = uv_fs_read(
-    loop, &fs->fs, file, uv_bufs, bufs_len, offset, moonbit_uv_fs_cb
+    loop, &fs->fs, file, bufs_data, bufs_size, offset, moonbit_uv_fs_cb
   );
-  free(uv_bufs);
-  moonbit_decref(bufs);
   moonbit_decref(loop);
   // No need to call `decref` on `cb` and `fs`, as it can be fused with
   // the incref that would happen before when we transfer their ownerships
@@ -303,14 +290,14 @@ moonbit_uv_fs_write(
   int64_t offset,
   moonbit_uv_fs_cb_t *cb
 ) {
-  uint32_t bufs_len = Moonbit_array_length(bufs);
-  uv_buf_t *bufs_val = moonbit_uv_bufs_to_uv_bufs(bufs, bufs_len);
+  uint32_t bufs_size = Moonbit_array_length(bufs);
+  uv_buf_t *bufs_data = moonbit_uv_bufs_to_uv_bufs(bufs, bufs_size);
   moonbit_uv_fs_set_data(fs, cb);
+  fs->bufs_data = bufs_data;
+  fs->bufs_size = bufs_size;
   int rc = uv_fs_write(
-    loop, &fs->fs, file, bufs_val, bufs_len, offset, moonbit_uv_fs_cb
+    loop, &fs->fs, file, bufs_data, bufs_size, offset, moonbit_uv_fs_cb
   );
-  free(bufs_val);
-  moonbit_decref(bufs);
   moonbit_decref(loop);
   return rc;
 }
@@ -375,12 +362,13 @@ moonbit_uv_handle_get_loop(uv_handle_t *handle) {
 
 struct sockaddr_in *
 moonbit_uv_sockaddr_in_alloc(void) {
-  return malloc(sizeof(struct sockaddr_in));
+  return moonbit_malloc(sizeof(struct sockaddr_in));
 }
 
 void
 moonbit_uv_ip4_addr(moonbit_bytes_t ip, int port, struct sockaddr_in *addr) {
   uv_ip4_addr((const char *)ip, port, addr);
+  moonbit_decref(addr);
 }
 
 uv_tcp_t *
@@ -396,12 +384,10 @@ moonbit_uv_tcp_init(uv_loop_t *loop, uv_tcp_t *tcp) {
 }
 
 int
-moonbit_uv_tcp_bind(
-  uv_tcp_t *tcp,
-  const struct sockaddr *addr,
-  unsigned int flags
-) {
-  return uv_tcp_bind(tcp, addr, flags);
+moonbit_uv_tcp_bind(uv_tcp_t *tcp, struct sockaddr *addr, unsigned int flags) {
+  int result = uv_tcp_bind(tcp, addr, flags);
+  moonbit_decref(addr);
+  return result;
 }
 
 uv_connect_t *
@@ -429,11 +415,12 @@ int
 moonbit_uv_tcp_connect(
   uv_connect_t *connect,
   uv_tcp_t *tcp,
-  const struct sockaddr *addr,
+  struct sockaddr *addr,
   moonbit_uv_connection_cb_t *cb
 ) {
   connect->data = cb;
   int result = uv_tcp_connect(connect, tcp, addr, moonbit_uv_connect_cb);
+  moonbit_decref(addr);
   return result;
 }
 
@@ -513,12 +500,21 @@ moonbit_uv_read_start(
 
 int
 moonbit_uv_read_stop(uv_stream_t *stream) {
+  if (stream->data) {
+    moonbit_uv_read_start_cb_t *cb = stream->data;
+    moonbit_decref(cb->read_cb);
+    moonbit_decref(cb->alloc_cb);
+    free(cb);
+    stream->data = NULL;
+  }
   return uv_read_stop(stream);
 }
 
 typedef struct moonbit_uv_write_s {
   void (*finalize)(void *self);
   uv_write_t write;
+  uv_buf_t *bufs_data;
+  size_t bufs_size;
 } moonbit_uv_write_t;
 
 void
@@ -527,12 +523,18 @@ moonbit_uv_write_finalize(void *object) {
   if (write->write.data) {
     moonbit_decref(write->write.data);
   }
+  if (write->bufs_data) {
+    for (size_t i = 0; i < write->bufs_size; i++) {
+      moonbit_decref(write->bufs_data[i].base);
+    }
+    free(write->bufs_data);
+  }
 }
 
 moonbit_uv_write_t *
 moonbit_uv_write_alloc(void) {
   moonbit_uv_write_t *write = (moonbit_uv_write_t *)
-    moonbit_make_external_object(moonbit_uv_write_finalize, sizeof(uv_write_t));
+    moonbit_make_external_object(moonbit_uv_write_finalize, sizeof(moonbit_uv_write_t));
   memset(&write->write, 0, sizeof(uv_write_t));
   return write;
 }
@@ -547,23 +549,24 @@ typedef struct moonbit_uv_write_cb {
 static inline void
 moonbit_uv_write_cb(uv_write_t *req, int status) {
   moonbit_uv_write_cb_t *moonbit_uv_cb = req->data;
-  moonbit_incref(moonbit_uv_cb);
   moonbit_uv_write_t *write = containerof(req, moonbit_uv_write_t, write);
   moonbit_uv_cb->code(moonbit_uv_cb, write, status);
 }
 
 int
 moonbit_uv_write(
-  uv_write_t *req,
+  moonbit_uv_write_t *req,
   uv_stream_t *handle,
   moonbit_uv_buf_t **bufs,
   moonbit_uv_write_cb_t *cb
 ) {
-  uint32_t bufs_len = Moonbit_array_length(bufs);
-  uv_buf_t *bufs_val = moonbit_uv_bufs_to_uv_bufs(bufs, bufs_len);
-  req->data = cb;
-  int result = uv_write(req, handle, bufs_val, bufs_len, moonbit_uv_write_cb);
-  free(bufs_val);
+  uint32_t bufs_size = Moonbit_array_length(bufs);
+  uv_buf_t *bufs_data = moonbit_uv_bufs_to_uv_bufs(bufs, bufs_size);
+  req->write.data = cb;
+  req->bufs_data = bufs_data;
+  req->bufs_size = bufs_size;
+  int result =
+    uv_write(&req->write, handle, bufs_data, bufs_size, moonbit_uv_write_cb);
   return result;
 }
 
@@ -607,7 +610,7 @@ typedef struct moonbit_uv_process_s {
   uv_process_t process;
 } moonbit_uv_process_t;
 
-void
+static inline void
 moonbit_uv_process_finalize(void *object) {
   moonbit_uv_process_t *process = object;
   if (process->process.data) {
@@ -635,7 +638,7 @@ typedef struct moonbit_uv_process_options_s {
   uv_process_options_t options;
 } moonbit_uv_process_options_t;
 
-void
+static inline void
 moonbit_uv_process_options_finalize(void *object) {
   moonbit_uv_process_options_t *options = object;
   if (options->options.file) {
