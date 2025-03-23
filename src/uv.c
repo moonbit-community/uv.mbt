@@ -136,7 +136,7 @@ moonbit_uv_buf_set_len(moonbit_uv_buf_t *buf, size_t len) {
 }
 
 moonbit_bytes_t
-moonbit_uv_buf_get(moonbit_uv_buf_t *buf) {
+moonbit_uv_buf_get_base(moonbit_uv_buf_t *buf) {
   moonbit_bytes_t bytes = (moonbit_bytes_t)buf->buf.base;
   moonbit_incref((void *)bytes);
   moonbit_decref(buf);
