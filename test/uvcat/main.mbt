@@ -8,10 +8,11 @@ fn main {
   let write_req = @uv.fs_alloc()
   let buffer : Bytes = Bytes::make(1024, 0)
   let iov = @uv.buf_alloc()
-  fn on_close(_) {
+  fn on_close(close_req) {
     @uv.fs_req_cleanup(open_req)
     @uv.fs_req_cleanup(read_req)
     @uv.fs_req_cleanup(write_req)
+    @uv.fs_req_cleanup(close_req)
   }
 
   fn on_write(req : @uv.Fs) -> Unit {

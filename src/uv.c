@@ -6,6 +6,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define containerof(ptr, type, member)                                         \
+  ((type *)((char *)(ptr) - offsetof(type, member)))
+
 uv_loop_t *
 moonbit_uv_default_loop(void) {
   return uv_default_loop();
@@ -149,25 +152,64 @@ moonbit_uv_bufs_to_uv_bufs(moonbit_uv_buf_t **moonbit_uv_bufs, size_t len) {
   return uv_bufs;
 }
 
-typedef struct moonbit_uv_fs_cb {
-  int32_t (*code)(struct moonbit_uv_fs_cb *, uv_fs_t *);
+typedef struct moonbit_uv_fs_s {
+  void (*finalize)(void *self);
+  uv_fs_t fs;
+} moonbit_uv_fs_t;
+
+typedef struct moonbit_uv_fs_cb_s {
+  int32_t (*code)(struct moonbit_uv_fs_cb_s *, moonbit_uv_fs_t *);
 } moonbit_uv_fs_cb_t;
 
 static inline void
 moonbit_uv_fs_cb(uv_fs_t *req) {
-  moonbit_uv_fs_cb_t *cb = req->data;
-  moonbit_incref(cb);
-  cb->code(cb, req);
+  moonbit_uv_fs_t *fs = containerof(req, moonbit_uv_fs_t, fs);
+  moonbit_uv_fs_cb_t *cb = fs->fs.data;
+  // The FS callbacks can be divided into two categories:
+  //
+  // - One-shot: `uv_fs_open`, `uv_fs_close`. These APIs returns 0 when success and negative
+  //             error code when failure.
+  // - Multi-shot: `uv_fs_read`, `uv_fs_write`. These APIs return the number of bytes
+  //               read/written on success and negative error code on failure.
+  //
+  // We only want to transfer the ownership of the `fs` object to the callback on the *last* call
+  // to the callback. Therefore, we check if the result is greater than 0, as:
+  //
+  // - For one-shot APIs, the result will always be 0 or negative, and therefore we
+  //   skip the incref and transfer the ownership to the callback.
+  // - For multi-shot APIs, the result indicates the number of bytes read/written, and
+  //   A positive number indicates there might be more to read. In this case, we
+  //   call `moonbit_incref` on the `fs` object so that it will not get freed in the
+  //   callback so that it can be used in the next call to the callback.
+  //
+  // The same logic applies to the closure object `cb` as well.
+  if (req->result > 0) {
+    moonbit_incref(cb);
+    moonbit_incref(fs);
+  }
+  cb->code(cb, fs);
 }
 
-uv_fs_t *
+void
+moonbit_uv_fs_finalize(void *object) {
+  moonbit_uv_fs_t *fs = (moonbit_uv_fs_t *)object;
+  if (fs->fs.data) {
+    moonbit_decref(fs->fs.data);
+  }
+}
+
+moonbit_uv_fs_t *
 moonbit_uv_fs_alloc(void) {
-  return moonbit_malloc(sizeof(uv_fs_t));
+  moonbit_uv_fs_t *fs = (moonbit_uv_fs_t *)moonbit_make_external_object(
+    moonbit_uv_fs_finalize, sizeof(uv_fs_t)
+  );
+  memset(&fs->fs, 0, sizeof(uv_fs_t));
+  return fs;
 }
 
 ssize_t
-moonbit_uv_fs_get_result(uv_fs_t *fs) {
-  ssize_t result = fs->result;
+moonbit_uv_fs_get_result(moonbit_uv_fs_t *fs) {
+  ssize_t result = fs->fs.result;
   moonbit_decref(fs);
   return result;
 }
@@ -181,13 +223,16 @@ enum moonbit_uv_fs_open_flag_t {
 int
 moonbit_uv_fs_open(
   uv_loop_t *loop,
-  uv_fs_t *fs,
+  moonbit_uv_fs_t *fs,
   moonbit_bytes_t path,
   int flags,
   int mode,
   moonbit_uv_fs_cb_t *cb
 ) {
-  fs->data = cb;
+  if (fs->fs.data) {
+    moonbit_decref(fs->fs.data);
+  }
+  fs->fs.data = cb;
   int uv_flags = 0;
   if (flags & MOONBIT_UV_FS_O_RDONLY) {
     uv_flags |= UV_FS_O_RDONLY;
@@ -198,26 +243,34 @@ moonbit_uv_fs_open(
   if (flags & MOONBIT_UV_FS_O_RDWR) {
     uv_flags |= UV_FS_O_RDWR;
   }
-  return uv_fs_open(
-    loop, fs, (const char *)path, uv_flags, mode, moonbit_uv_fs_cb
+  int result = uv_fs_open(
+    loop, &fs->fs, (const char *)path, uv_flags, mode, moonbit_uv_fs_cb
   );
+  moonbit_decref(loop);
+  moonbit_decref(path);
+  return result;
 }
 
 int
 moonbit_uv_fs_close(
   uv_loop_t *loop,
-  uv_fs_t *fs,
+  moonbit_uv_fs_t *fs,
   uv_file file,
   moonbit_uv_fs_cb_t *cb
 ) {
-  fs->data = cb;
-  return uv_fs_close(loop, fs, file, moonbit_uv_fs_cb);
+  if (fs->fs.data) {
+    moonbit_decref(fs->fs.data);
+  }
+  fs->fs.data = cb;
+  int result = uv_fs_close(loop, &fs->fs, file, moonbit_uv_fs_cb);
+  moonbit_decref(loop);
+  return result;
 }
 
 int
 moonbit_uv_fs_read(
   uv_loop_t *loop,
-  uv_fs_t *fs,
+  moonbit_uv_fs_t *fs,
   uv_file file,
   moonbit_uv_buf_t **bufs,
   int64_t offset,
@@ -225,12 +278,15 @@ moonbit_uv_fs_read(
 ) {
   uint32_t bufs_len = Moonbit_array_length(bufs);
   uv_buf_t *uv_bufs = moonbit_uv_bufs_to_uv_bufs(bufs, bufs_len);
-  fs->data = cb;
-  int rc =
-    uv_fs_read(loop, fs, file, uv_bufs, bufs_len, offset, moonbit_uv_fs_cb);
+  if (fs->fs.data) {
+    moonbit_decref(fs->fs.data);
+  }
+  fs->fs.data = cb;
+  int rc = uv_fs_read(
+    loop, &fs->fs, file, uv_bufs, bufs_len, offset, moonbit_uv_fs_cb
+  );
   free(uv_bufs);
   moonbit_decref(bufs);
-  moonbit_decref(fs);
   moonbit_decref(loop);
   return rc;
 }
@@ -238,7 +294,7 @@ moonbit_uv_fs_read(
 int
 moonbit_uv_fs_write(
   uv_loop_t *loop,
-  uv_fs_t *fs,
+  moonbit_uv_fs_t *fs,
   uv_file file,
   moonbit_uv_buf_t **bufs,
   int64_t offset,
@@ -246,19 +302,23 @@ moonbit_uv_fs_write(
 ) {
   uint32_t bufs_len = Moonbit_array_length(bufs);
   uv_buf_t *bufs_val = moonbit_uv_bufs_to_uv_bufs(bufs, bufs_len);
-  fs->data = cb;
-  int rc =
-    uv_fs_write(loop, fs, file, bufs_val, bufs_len, offset, moonbit_uv_fs_cb);
+  if (fs->fs.data) {
+    moonbit_decref(fs->fs.data);
+  }
+  fs->fs.data = cb;
+  int rc = uv_fs_write(
+    loop, &fs->fs, file, bufs_val, bufs_len, offset, moonbit_uv_fs_cb
+  );
   free(bufs_val);
   moonbit_decref(bufs);
-  moonbit_decref(fs);
   moonbit_decref(loop);
   return rc;
 }
 
 void
-moonbit_uv_fs_req_cleanup(uv_fs_t *fs) {
-  uv_fs_req_cleanup(fs);
+moonbit_uv_fs_req_cleanup(moonbit_uv_fs_t *fs) {
+  uv_fs_req_cleanup(&fs->fs);
+  moonbit_decref(fs);
 }
 
 int
@@ -362,7 +422,6 @@ static inline void
 moonbit_uv_connect_cb(uv_connect_t *req, int status) {
   moonbit_uv_connect_cb_t *cb = req->data;
   moonbit_incref(cb);
-  moonbit_incref(req);
   cb->code(cb, req, status);
 }
 
@@ -477,16 +536,20 @@ moonbit_uv_write_alloc(void) {
   memset(&write->write, 0, sizeof(uv_write_t));
   return write;
 }
-
 typedef struct moonbit_uv_write_cb {
-  int32_t (*code)(struct moonbit_uv_write_cb *, moonbit_uv_write_t *req, int status);
+  int32_t (*code)(
+    struct moonbit_uv_write_cb *,
+    moonbit_uv_write_t *req,
+    int status
+  );
 } moonbit_uv_write_cb_t;
 
 static inline void
-moonbit_uv_write_cb(moonbit_uv_write_t *req, int status) {
-  moonbit_uv_write_cb_t *moonbit_uv_cb = req->write.data;
+moonbit_uv_write_cb(uv_write_t *req, int status) {
+  moonbit_uv_write_cb_t *moonbit_uv_cb = req->data;
   moonbit_incref(moonbit_uv_cb);
-  moonbit_uv_cb->code(moonbit_uv_cb, req, status);
+  moonbit_uv_write_t *write = containerof(req, moonbit_uv_write_t, write);
+  moonbit_uv_cb->code(moonbit_uv_cb, write, status);
 }
 
 int

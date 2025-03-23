@@ -1,5 +1,5 @@
 ///|
-extern type Fs
+type Fs
 
 ///|
 pub fn fs_to_req(self : Fs) -> Req = "%identity"
