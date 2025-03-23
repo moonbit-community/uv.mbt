@@ -167,6 +167,7 @@ static inline void
 moonbit_uv_fs_cb(uv_fs_t *req) {
   moonbit_uv_fs_t *fs = containerof(req, moonbit_uv_fs_t, fs);
   moonbit_uv_fs_cb_t *cb = fs->fs.data;
+  fs->fs.data = NULL;
   cb->code(cb, fs);
 }
 
@@ -187,9 +188,15 @@ moonbit_uv_fs_finalize(void *object) {
 moonbit_uv_fs_t *
 moonbit_uv_fs_alloc(void) {
   moonbit_uv_fs_t *fs = (moonbit_uv_fs_t *)moonbit_make_external_object(
-    moonbit_uv_fs_finalize, sizeof(moonbit_uv_fs_t)
+    moonbit_uv_fs_finalize, sizeof(struct {
+      uv_fs_t fs;
+      uv_buf_t *bufs_data;
+      size_t bufs_size;
+    })
   );
   memset(&fs->fs, 0, sizeof(uv_fs_t));
+  fs->bufs_data = NULL;
+  fs->bufs_size = 0;
   return fs;
 }
 
@@ -206,6 +213,18 @@ moonbit_uv_fs_set_data(moonbit_uv_fs_t *fs, moonbit_uv_fs_cb_t *cb) {
     moonbit_decref(fs->fs.data);
   }
   fs->fs.data = cb;
+}
+
+static inline void
+moonbit_uv_fs_set_bufs(moonbit_uv_fs_t *fs, uv_buf_t *bufs_data, size_t bufs_size) {
+  if (fs->bufs_data) {
+    for (size_t i = 0; i < fs->bufs_size; i++) {
+      moonbit_decref(fs->bufs_data[i].base);
+    }
+    free(fs->bufs_data);
+  }
+  fs->bufs_data = bufs_data;
+  fs->bufs_size = bufs_size;
 }
 
 enum moonbit_uv_fs_open_flag_t {
@@ -268,8 +287,7 @@ moonbit_uv_fs_read(
   uv_buf_t *bufs_data = moonbit_uv_bufs_to_uv_bufs(bufs, bufs_size);
   // The ownership of `cb` is transferred into `fs`.
   moonbit_uv_fs_set_data(fs, cb);
-  fs->bufs_data = bufs_data;
-  fs->bufs_size = bufs_size;
+  moonbit_uv_fs_set_bufs(fs, bufs_data, bufs_size);
   // The ownership of `fs` is transferred into `loop`.
   int rc = uv_fs_read(
     loop, &fs->fs, file, bufs_data, bufs_size, offset, moonbit_uv_fs_cb
@@ -293,8 +311,7 @@ moonbit_uv_fs_write(
   uint32_t bufs_size = Moonbit_array_length(bufs);
   uv_buf_t *bufs_data = moonbit_uv_bufs_to_uv_bufs(bufs, bufs_size);
   moonbit_uv_fs_set_data(fs, cb);
-  fs->bufs_data = bufs_data;
-  fs->bufs_size = bufs_size;
+  moonbit_uv_fs_set_bufs(fs, bufs_data, bufs_size);
   int rc = uv_fs_write(
     loop, &fs->fs, file, bufs_data, bufs_size, offset, moonbit_uv_fs_cb
   );
@@ -533,9 +550,13 @@ moonbit_uv_write_finalize(void *object) {
 
 moonbit_uv_write_t *
 moonbit_uv_write_alloc(void) {
-  moonbit_uv_write_t *write = (moonbit_uv_write_t *)
-    moonbit_make_external_object(moonbit_uv_write_finalize, sizeof(moonbit_uv_write_t));
+  moonbit_uv_write_t *write =
+    (moonbit_uv_write_t *)moonbit_make_external_object(
+      moonbit_uv_write_finalize, sizeof(struct { uv_write_t write; uv_buf_t *bufs_data; size_t bufs_size; })
+    );
   memset(&write->write, 0, sizeof(uv_write_t));
+  write->bufs_data = NULL;
+  write->bufs_size = 0;
   return write;
 }
 typedef struct moonbit_uv_write_cb {
@@ -553,6 +574,26 @@ moonbit_uv_write_cb(uv_write_t *req, int status) {
   moonbit_uv_cb->code(moonbit_uv_cb, write, status);
 }
 
+static inline void
+moonbit_uv_write_set_data(moonbit_uv_write_t *req, moonbit_uv_write_cb_t *cb) {
+  if (req->write.data) {
+    moonbit_decref(req->write.data);
+  }
+  req->write.data = cb;
+}
+
+static inline void
+moonbit_uv_write_set_bufs(moonbit_uv_write_t *req, uv_buf_t *bufs_data, size_t bufs_size) {
+  if (req->bufs_data) {
+    for (size_t i = 0; i < req->bufs_size; i++) {
+      moonbit_decref(req->bufs_data[i].base);
+    }
+    free(req->bufs_data);
+  }
+  req->bufs_data = bufs_data;
+  req->bufs_size = bufs_size;
+}
+
 int
 moonbit_uv_write(
   moonbit_uv_write_t *req,
@@ -562,9 +603,8 @@ moonbit_uv_write(
 ) {
   uint32_t bufs_size = Moonbit_array_length(bufs);
   uv_buf_t *bufs_data = moonbit_uv_bufs_to_uv_bufs(bufs, bufs_size);
-  req->write.data = cb;
-  req->bufs_data = bufs_data;
-  req->bufs_size = bufs_size;
+  moonbit_uv_write_set_data(req, cb);
+  moonbit_uv_write_set_bufs(req, bufs_data, bufs_size);
   int result =
     uv_write(&req->write, handle, bufs_data, bufs_size, moonbit_uv_write_cb);
   return result;
