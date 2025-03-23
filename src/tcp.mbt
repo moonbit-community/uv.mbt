@@ -1,5 +1,5 @@
 ///|
-extern type SockaddrIn
+type SockaddrIn Bytes
 
 ///|
 pub extern "c" fn sockaddr_in_alloc() -> SockaddrIn = "moonbit_uv_sockaddr_in_alloc"
