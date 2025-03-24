@@ -36,4 +36,5 @@ pub impl Show for Errno with output(self : Errno, logger : &Logger) -> Unit {
   logger.write_string(message)
 }
 
+///|
 pub const EOF = -4095

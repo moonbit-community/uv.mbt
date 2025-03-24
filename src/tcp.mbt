@@ -53,6 +53,7 @@ type Connect Bytes
 ///|
 pub fn Connect::to_req(self : Connect) -> Req = "%identity"
 
+///|
 pub extern "c" fn connect_alloc() -> Connect = "moonbit_uv_connect_alloc"
 
 ///|

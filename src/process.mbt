@@ -5,10 +5,7 @@ pub extern "c" fn uv_disable_stdio_inheritance() = "moonbit_uv_disable_stdio_inh
 type Process
 
 ///|
-pub extern "c" fn process_close(
-  self : Process,
-  cb : (Process) -> Unit
-) -> Unit = "moonbit_uv_process_close"
+pub extern "c" fn process_close(self : Process, cb : (Process) -> Unit) -> Unit = "moonbit_uv_process_close"
 
 ///|
 pub extern "c" fn process_get_pid(process : Process) -> Int = "moonbit_uv_process_get_pid"
