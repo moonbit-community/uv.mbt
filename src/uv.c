@@ -15,21 +15,23 @@ moonbit_uv_default_loop(void) {
 
 uv_loop_t *
 moonbit_uv_loop_alloc(void) {
-  return (uv_loop_t *)moonbit_malloc(sizeof(uv_loop_t));
+  uv_loop_t *loop = (uv_loop_t *)moonbit_malloc(sizeof(uv_loop_t));
+  memset(loop, 0, sizeof(uv_loop_t));
+  return loop;
 }
 
 int
 moonbit_uv_loop_init(uv_loop_t *loop) {
-  int rc = uv_loop_init(loop);
+  int result = uv_loop_init(loop);
   moonbit_decref(loop);
-  return rc;
+  return result;
 }
 
 int
 moonbit_uv_loop_close(uv_loop_t *loop) {
-  int rc = uv_loop_close(loop);
+  int result = uv_loop_close(loop);
   moonbit_decref(loop);
-  return rc;
+  return result;
 }
 
 void
@@ -93,7 +95,6 @@ moonbit_uv_idle_stop(uv_idle_t *idle) {
 }
 
 typedef struct moonbit_uv_buf_s {
-  void (*finalize)(void *self);
   uv_buf_t buf;
 } moonbit_uv_buf_t;
 
@@ -146,14 +147,15 @@ moonbit_uv_bufs_to_uv_bufs(moonbit_uv_buf_t **moonbit_uv_bufs, size_t size) {
   uv_buf_t *bufs_data = malloc(sizeof(uv_buf_t) * size);
   for (size_t i = 0; i < size; i++) {
     bufs_data[i] = moonbit_uv_bufs[i]->buf;
-    moonbit_incref(bufs_data[i].base);
+    if (bufs_data[i].base) {
+      moonbit_incref(bufs_data[i].base);
+    }
   }
   moonbit_decref(moonbit_uv_bufs);
   return bufs_data;
 }
 
 typedef struct moonbit_uv_fs_s {
-  void (*finalize)(void *self);
   uv_fs_t fs;
   uv_buf_t *bufs_data;
   size_t bufs_size;
@@ -188,11 +190,7 @@ moonbit_uv_fs_finalize(void *object) {
 moonbit_uv_fs_t *
 moonbit_uv_fs_alloc(void) {
   moonbit_uv_fs_t *fs = (moonbit_uv_fs_t *)moonbit_make_external_object(
-    moonbit_uv_fs_finalize, sizeof(struct {
-      uv_fs_t fs;
-      uv_buf_t *bufs_data;
-      size_t bufs_size;
-    })
+    moonbit_uv_fs_finalize, sizeof(moonbit_uv_fs_t)
   );
   memset(&fs->fs, 0, sizeof(uv_fs_t));
   fs->bufs_data = NULL;
@@ -531,7 +529,6 @@ moonbit_uv_read_stop(uv_stream_t *stream) {
 }
 
 typedef struct moonbit_uv_write_s {
-  void (*finalize)(void *self);
   uv_write_t write;
   uv_buf_t *bufs_data;
   size_t bufs_size;
@@ -655,7 +652,6 @@ moonbit_uv_timer_start(
 }
 
 typedef struct moonbit_uv_process_s {
-  void (*finalize)(void *self);
   uv_process_t process;
 } moonbit_uv_process_t;
 
@@ -711,7 +707,6 @@ moonbit_uv_process_get_pid(moonbit_uv_process_t *process) {
 }
 
 typedef struct moonbit_uv_process_options_s {
-  void (*finalize)(void *self);
   uv_process_options_t options;
 } moonbit_uv_process_options_t;
 
