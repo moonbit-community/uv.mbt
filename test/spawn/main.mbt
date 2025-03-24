@@ -17,12 +17,12 @@ fn main {
 
   let options = @uv.process_options_alloc()
   let args : FixedArray[Bytes?] = [
-    Some(b"echo\x00"),
-    Some(b"Hello, world!\x00"),
+    Some(b"mkdir\x00"),
+    Some(b"test-dir\x00"),
     None,
   ]
   @uv.process_options_set_args(options, args)
-  @uv.process_options_set_file(options, b"echo\x00")
+  @uv.process_options_set_file(options, b"mkdir\x00")
   let child_req = @uv.process_alloc()
   let result = @uv.spawn(uv, child_req, options, on_exit)
   if result != 0 {
