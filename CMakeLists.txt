@@ -6,7 +6,7 @@ find_package(c.mbt REQUIRED)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_VERBOSE_MAKEFILE on)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -fsanitize=address -Wpedantic -Wall -Wextra")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -fsanitize=address")
 
 include(cmake/moonbit.cmake)
 
@@ -17,6 +17,7 @@ add_subdirectory(src/uv)
 add_library(uv.mbt::moonbit ALIAS moonbit)
 add_library(uv.mbt STATIC src/uv.c)
 add_library(uv.mbt::uv.mbt ALIAS uv.mbt)
+target_compile_options(uv.mbt PRIVATE -Wpedantic -Wall -Wextra)
 target_link_libraries(uv.mbt PRIVATE uv_a c.mbt::c.mbt moonbit)
 
 include(GNUInstallDirs)
