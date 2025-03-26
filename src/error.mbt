@@ -3,9 +3,16 @@ pub extern "c" fn strerror_r(err : Int, bytes : Bytes) -> Unit = "moonbit_uv_str
 
 ///|
 pub fn strerror(errno : Int) -> String {
-  let message = Bytes::make(256, 0)
-  strerror_r(errno, message)
-  let message = @encoding.decoder(UTF8).decode_lossy(message)
+  let bytes = Bytes::make(256, 0)
+  strerror_r(errno, bytes)
+  let buffer = @buffer.new()
+  for byte in bytes {
+    if byte == 0 {
+      break
+    }
+    buffer.write_byte(byte)
+  }
+  let message = @encoding.decoder(UTF8).decode_lossy(buffer.to_bytes())
   return message
 }
 
