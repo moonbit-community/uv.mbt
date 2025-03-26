@@ -3,7 +3,7 @@
     {
       "input": ["uv.c"],
       "output": ["uv-lib/moon.pkg.json"],
-      "command": "python3 scripts/prepare.py"
+      "command": "python3.12 scripts/prepare.py"
     }
   ],
   "import": ["tonyfettes/c", "moonbitlang/x/encoding", "tonyfettes/uv/uv-lib"]
