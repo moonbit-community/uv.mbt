@@ -1,5 +1,4 @@
 #include "uv.h"
-#include "uv/unix.h"
 #include <moonbit.h>
 #include <stdint.h>
 #include <stdlib.h>
