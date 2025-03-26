@@ -6,7 +6,7 @@
 #include <string.h>
 
 #define containerof(ptr, type, member)                                         \
-  ((type *)((char *)(ptr) - offsetof(type, member)))
+  ((type *)((char *)(ptr)-offsetof(type, member)))
 
 uv_loop_t *
 moonbit_uv_default_loop(void) {
@@ -15,7 +15,7 @@ moonbit_uv_default_loop(void) {
 
 uv_loop_t *
 moonbit_uv_loop_alloc(void) {
-  uv_loop_t *loop = (uv_loop_t *)moonbit_malloc(sizeof(uv_loop_t));
+  uv_loop_t *loop = (uv_loop_t *)moonbit_make_bytes(sizeof(uv_loop_t), 0);
   memset(loop, 0, sizeof(uv_loop_t));
   return loop;
 }
@@ -60,7 +60,7 @@ typedef struct moonbit_uv_idle_cb {
 
 uv_idle_t *
 moonbit_uv_idle_alloc(void) {
-  return moonbit_malloc(sizeof(uv_idle_t));
+  return (uv_idle_t *)moonbit_make_bytes(sizeof(uv_idle_t), 0);
 }
 
 int
@@ -380,7 +380,9 @@ moonbit_uv_handle_get_loop(uv_handle_t *handle) {
 
 struct sockaddr_in *
 moonbit_uv_sockaddr_in_alloc(void) {
-  return moonbit_malloc(sizeof(struct sockaddr_in));
+  return (struct sockaddr_in *)moonbit_make_bytes(
+    sizeof(struct sockaddr_in), 0
+  );
 }
 
 void
@@ -410,7 +412,8 @@ moonbit_uv_tcp_bind(uv_tcp_t *tcp, struct sockaddr *addr, unsigned int flags) {
 
 uv_connect_t *
 moonbit_uv_connect_alloc(void) {
-  uv_connect_t *connect = moonbit_malloc(sizeof(uv_connect_t));
+  uv_connect_t *connect =
+    (uv_connect_t *)moonbit_make_bytes(sizeof(uv_connect_t), 0);
   return connect;
 }
 
@@ -878,7 +881,7 @@ moonbit_uv_spawn(
 
 uv_tty_t *
 moonbit_uv_tty_alloc(void) {
-  uv_tty_t *tty = (uv_tty_t *)moonbit_malloc(sizeof(uv_tty_t));
+  uv_tty_t *tty = (uv_tty_t *)moonbit_make_bytes(sizeof(uv_tty_t), 0);
   memset(tty, 0, sizeof(uv_tty_t));
   return tty;
 }
