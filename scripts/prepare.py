@@ -122,8 +122,10 @@ if uv_lib_directory.exists():
     shutil.rmtree(uv_lib_directory)
 
 uv_lib_directory.mkdir(parents=True, exist_ok=True)
-(uv_lib_directory / ".gitignore").write_text("\n".join(["*.c", "*.h", "/uv/"]) + "\n")
-(uv_lib_directory / "moon.pkg.json").write_text("{}\n")
+(uv_lib_directory / ".gitignore").write_text(
+    "\n".join(["*.c", "*.h", "/uv/"]) + "\n", encoding="utf-8"
+)
+(uv_lib_directory / "moon.pkg.json").write_text("{}\n", encoding="utf-8")
 
 
 def create_directory(directory: Path):
@@ -132,31 +134,38 @@ def create_directory(directory: Path):
 
 
 def moon_pkg_json_add_native_stub(moon_pkg_path: Path, native_stub: str):
-    moon_pkg_json = json.loads(moon_pkg_path.read_text())
+    moon_pkg_json = json.loads(moon_pkg_path.read_text(encoding="utf-8"))
     if "native-stub" not in moon_pkg_json:
         moon_pkg_json["native-stub"] = []
     moon_pkg_json["native-stub"].append(native_stub)
-    moon_pkg_path.write_text(json.dumps(moon_pkg_json, indent=2) + "\n")
+    moon_pkg_path.write_text(
+        json.dumps(moon_pkg_json, indent=2) + "\n", encoding="utf-8"
+    )
 
 
 def copy_header_with_relocated_headers(source: Path, destination: Path):
     print(f"copy {source} -> {destination}")
-    content = source.read_text()
+    content = source.read_text(encoding="utf-8")
 
     def relocate(match: re.Match) -> str:
-        header = match.group(1)
+        indent = match.group("indent")
+        header = match.group("header")
         if (uv_directory / "src" / header).exists():
-            header = (uv_directory / "src").relative_to(source.parent, walk_up=True) / header
-            return f'#include "{header.as_posix()}"'
+            header = (uv_directory / "src").relative_to(
+                source.parent, walk_up=True
+            ) / header
+            return f'#{indent}include "{header.as_posix()}"'
         if (uv_directory / "include" / header).exists():
-            header = (uv_directory / "src").relative_to(source.parent, walk_up=True) / header
-            return f'#include "{header.as_posix()}"'
+            header = (uv_directory / "src").relative_to(
+                source.parent, walk_up=True
+            ) / header
+            return f'#{indent}include "{header.as_posix()}"'
         return f'#include "{header}"'
 
-    content = re.sub(r'#include "(.*?)"', relocate, content)
+    content = re.sub(r'#(?P<indent>\s*)include "(?P<header>.*?)"', relocate, content)
     if not destination.parent.exists():
         create_directory(destination.parent)
-    destination.write_text(content)
+    destination.write_text(content, encoding="utf-8")
 
 
 # Copy headers
@@ -168,22 +177,23 @@ for header in (uv_directory / "src").rglob("*.h"):
 
 def copy_source_with_relocated_headers(source: Path, destination: Path):
     print(f"copy {source} -> {destination}")
-    content = source.read_text()
+    content = source.read_text(encoding="utf-8")
 
     def relocate(match: re.Match) -> str:
-        header = match.group(1)
+        indent = match.group("indent")
+        header = match.group("header")
         if (uv_directory / "src" / header).exists():
-            return f'#include "{header}"'
+            return f'#{indent}include "{header}"'
         if (uv_directory / "include" / header).exists():
-            return f'#include "{header}"'
+            return f'#{indent}include "{header}"'
         hypothesis = (source.parent.relative_to(uv_directory / "src")) / header
         header = hypothesis.as_posix()
-        return f'#include "{header}"'
+        return f'#{indent}include "{header}"'
 
-    content = re.sub(r'#include "(.*?)"', relocate, content)
+    content = re.sub(r'#(?P<indent>\s*)include "(?P<header>.*?)"', relocate, content)
     if not destination.parent.exists():
         create_directory(destination.parent)
-    destination.write_text(content)
+    destination.write_text(content, encoding="utf-8")
 
 
 # Copy files
@@ -195,10 +205,28 @@ for source in uv_sources:
     native_stubs.append(destination.name)
 
 
+def copy_interface_with_relocated_headers(source: Path, destination: Path):
+    print(f"copy {source} -> {destination}")
+    content = source.read_text(encoding="utf-8")
+
+    def relocate(match: re.Match) -> str:
+        indent = match.group("indent")
+        header = match.group("header")
+        header = header.removeprefix("uv/")
+        return f'#{indent}include "{header}"'
+
+    content = re.sub(r'#(?P<indent>\s*)include "(?P<header>.*?)"', relocate, content)
+    if not destination.parent.exists():
+        create_directory(destination.parent)
+    destination.write_text(content, encoding="utf-8")
+
+
 # Copy API header
 shutil.copy(uv_directory / "include" / "uv.h", uv_lib_directory / "uv.h")
-shutil.copytree(uv_directory / "include" / "uv", uv_lib_directory / "uv")
-(uv_lib_directory / "uv" / "uv").symlink_to(".")
+for interface in (uv_directory / "include" / "uv").rglob("*.h"):
+    relative_path = interface.relative_to(uv_directory / "include" / "uv")
+    destination = uv_lib_directory / "uv" / relative_path
+    copy_interface_with_relocated_headers(interface, destination)
 
 
 src_directory = Path("src")
@@ -208,11 +236,12 @@ moon_pkg_json = {
     "native-stub": native_stubs,
 }
 (uv_lib_directory / "moon.pkg.json").write_text(
-    json.dumps(moon_pkg_json, indent=2) + "\n"
+    json.dumps(moon_pkg_json, indent=2) + "\n",
+    encoding="utf-8",
 )
 
 moon_pkg_path = src_directory / "moon.pkg.json"
-moon_pkg_json = json.loads(moon_pkg_path.read_text())
+moon_pkg_json = json.loads(moon_pkg_path.read_text(encoding="utf-8"))
 if "import" not in moon_pkg_json:
     moon_pkg_json["import"] = []
 moon_pkg_json["import"].append("tonyfettes/uv/uv-lib")
