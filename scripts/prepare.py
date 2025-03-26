@@ -122,7 +122,7 @@ if uv_lib_directory.exists():
     shutil.rmtree(uv_lib_directory)
 
 uv_lib_directory.mkdir(parents=True, exist_ok=True)
-(uv_lib_directory / ".gitignore").write_text("\n".join(["*.c", "*.h"]) + "\n")
+(uv_lib_directory / ".gitignore").write_text("\n".join(["*.c", "*.h", "/uv/"]) + "\n")
 (uv_lib_directory / "moon.pkg.json").write_text("{}\n")
 
 
