@@ -1,16 +1,7 @@
 {
-  "pre-build": [
-    {
-      "input": [],
-      "output": "moon.pkg.json",
-      "command": "python scripts/cmake.py"
-    }
-  ],
   "import": [
     "tonyfettes/c",
-    "tonyfettes/encoding"
-  ],
-  "native-stub": [
-    "uv.c"
+    "tonyfettes/encoding",
+    "tonyfettes/uv/uv-lib"
   ]
 }

@@ -2,10 +2,5 @@
   "is-main": true,
   "import": [
     "tonyfettes/uv"
-  ],
-  "link": {
-    "native": {
-      "cc": "echo"
-    }
-  }
+  ]
 }
