@@ -18,6 +18,8 @@ test {
   @json.inspect!(@uv.idle_start(idler, wait_for_a_while), content=0)
   println("Idling...")
   @json.inspect!(@uv.run(uv, @uv.RunMode::Default), content=0)
-  @uv.close(@uv.idle_to_handle(idler), fn(_) {  })
-  @json.inspect!(@uv.loop_close(uv), content=-16)
+  @uv.stop(uv)
+  @uv.close(@uv.idle_to_handle(idler), fn(_) {
+    assert_eq?(@uv.loop_close(uv), 0).unwrap()
+  })
 }
