@@ -24,6 +24,7 @@ def generate_native_flags_to(moon_pkg_path: Path):
                 "dbghelp",
                 "ole32",
                 "shell32",
+                "msvcrt",
             ]
             cc_link_flags = " ".join([f"/link {lib}.lib" for lib in external_libraries])
             moon_pkg_json["link"]["native"]["cc-link-flags"] = f"src\\uv-install\\lib\\libuv.lib {cc_link_flags}"
