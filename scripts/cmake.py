@@ -128,7 +128,7 @@ def generate_native_flags_to(moon_pkg_path: Path):
             define_flags = " ".join([f"-D{define}" for define in uv_defines])
             moon_pkg_json["link"]["native"]["stub-cc-flags"] = f"-I{include_directory} {define_flags}"
             uv_libraries_flags = " ".join([f"-l{library}" for library in uv_libraries])
-            moon_pkg_json["link"]["native"]["cc-link-flags"] = f"{static_libary} {uv_libraries_flags} -static"
+            moon_pkg_json["link"]["native"]["cc-link-flags"] = f"{static_libary} {uv_libraries_flags}"
         elif platform.system() == "Windows":
             static_libary = Path("src") / "uv-install" / "lib" / "libuv.lib"
             static_libary = static_libary.absolute()
