@@ -4,8 +4,7 @@
   "deps": {
     "tonyfettes/uv": {
       "path": ".."
-    },
-    "moonbitlang/x": "0.4.21"
+    }
   },
   "readme": "README.md",
   "repository": "",

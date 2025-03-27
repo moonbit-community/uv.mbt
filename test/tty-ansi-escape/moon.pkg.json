@@ -1,9 +1,7 @@
 {
   "is-main": true,
   "import": [
-    "tonyfettes/uv",
-    "moonbitlang/x/encoding",
-    "moonbitlang/x/sys"
+    "tonyfettes/uv"
   ],
   "link": {
     "native": {

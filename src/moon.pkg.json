@@ -8,7 +8,7 @@
   ],
   "import": [
     "tonyfettes/c",
-    "moonbitlang/x/encoding"
+    "tonyfettes/encoding"
   ],
   "native-stub": [
     "uv.c"
