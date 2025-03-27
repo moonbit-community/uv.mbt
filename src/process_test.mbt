@@ -16,12 +16,12 @@ test "spawn" {
 
   let options = @uv.process_options_alloc()
   let args : FixedArray[Bytes?] = [
-    Some(b"echo\x00"),
-    Some(b"test-dir\x00"),
+    Some(b"moon\x00"),
+    Some(b"version\x00"),
     None,
   ]
   @uv.process_options_set_args(options, args)
-  @uv.process_options_set_file(options, b"echo\x00")
+  @uv.process_options_set_file(options, b"moon\x00")
   let child_req = @uv.process_alloc()
   @json.inspect!(@uv.spawn(uv, child_req, options, on_exit), content=0)
   @json.inspect!(@uv.run(uv, @uv.RunMode::Default), content=0)
