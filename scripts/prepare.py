@@ -228,12 +228,25 @@ for interface in (uv_directory / "include" / "uv").rglob("*.h"):
     destination = uv_lib_directory / "uv" / relative_path
     copy_interface_with_relocated_headers(interface, destination)
 
+stub_cc_flags = []
+stub_cc_link_flags = []
+if platform.system() in ["Darwin", "Linux"]:
+    for define in uv_defines:
+        stub_cc_flags.append(f"-D{define}")
+    for library in uv_libraries:
+        stub_cc_link_flags.append(f"-l{library}")
 
 src_directory = Path("src")
 shutil.copy(src_directory / "uv.c", uv_lib_directory / "uv-lib.c")
 native_stubs.append("uv-lib.c")
 moon_pkg_json = {
     "native-stub": native_stubs,
+    "link": {
+        "native": {
+            "stub-cc-flags": " ".join(stub_cc_flags),
+            "stub-cc-link-flags": " ".join(stub_cc_link_flags),
+        }
+    }
 }
 (uv_lib_directory / "moon.pkg.json").write_text(
     json.dumps(moon_pkg_json, indent=2) + "\n",
