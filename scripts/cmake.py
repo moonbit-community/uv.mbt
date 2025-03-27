@@ -30,6 +30,8 @@ def main():
             "cmake",
             "--build",
             src_dir / "uv-build",
+            "--config",
+            "Release",
         ]
     )
     subprocess.run(

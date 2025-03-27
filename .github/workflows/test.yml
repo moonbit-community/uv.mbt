@@ -35,7 +35,6 @@ jobs:
       - name: Inspect MoonBit version
         run: |
           moon version --all
-          moonrun --version
 
       - name: Update mooncakes.io index
         run: moon update
