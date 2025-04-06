@@ -1,4 +1,28 @@
 {
+  "pre-build": [
+    {
+      "input": [],
+      "output": "uv-lib/uv-lib.c",
+      "command": "$mod_dir/scripts/prepare.py"
+    }
+  ],
+  "targets": {
+    "args.mbt": ["native"],
+    "buf.mbt": ["native"],
+    "error.mbt": ["native"],
+    "fs.mbt": ["native"],
+    "fs_test.mbt": ["native"],
+    "handle.mbt": ["native"],
+    "idle.mbt": ["native"],
+    "idle_test.mbt": ["native"],
+    "loop.mbt": ["native"],
+    "process.mbt": ["native"],
+    "process_test.mbt": ["native"],
+    "stream.mbt": ["native"],
+    "tcp.mbt": ["native"],
+    "timer.mbt": ["native"],
+    "tty.mbt": ["native"]
+  },
   "import": [
     "tonyfettes/c",
     "tonyfettes/encoding",
