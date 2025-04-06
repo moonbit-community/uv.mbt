@@ -2,8 +2,8 @@
 
 from typing import Literal
 from pathlib import Path, PosixPath
-import shutil
 import re
+import json
 
 System = Literal["macos", "linux", "win32"]
 
@@ -42,12 +42,16 @@ class Project:
     source: Path
     target: Path
     prefix: str
+    copied: set[Path]
 
-    def __init__(self, source: Path, target: Path, include: list[Path] = [], prefix: str = ""):
+    def __init__(
+        self, source: Path, target: Path, include: list[Path] = [], prefix: str = ""
+    ):
         self.source = source
         self.target = target
         self.include = include
         self.prefix = prefix
+        self.copied = set()
 
     def mangle(self, source: Path) -> Path:
         return Path("#".join([self.prefix, *source.parts]))
@@ -62,7 +66,9 @@ class Project:
             print(f"relocate<inner>: header = {header}")
             for directory in include_directories:
                 print(f"relocate<inner>: directory = {directory}")
-                resolved = ((directory / header).resolve()).relative_to(self.source.resolve())
+                resolved = ((directory / header).resolve()).relative_to(
+                    self.source.resolve()
+                )
                 print(f"relocate<inner>: resolved = {resolved}")
                 if not (self.source / resolved).exists():
                     continue
@@ -74,12 +80,11 @@ class Project:
                 return relocated
             return header
 
-
         def replace(match: re.Match) -> str:
             indent = match.group("indent")
             header: str = match.group("header")
             relocated = relocate(PosixPath(header))
-            return f"#{indent}include \"{relocated.as_posix()}\""
+            return f'#{indent}include "{relocated.as_posix()}"'
 
         content = re.sub(r'#(?P<indent>\s*)include "(?P<header>.*?)"', replace, content)
 
@@ -94,15 +99,17 @@ class Project:
 #endif
 """
 
-    def copy(self, source: Path, relocate : bool = True, condition: str | None = None):
+    def copy(self, source: Path, relocate: bool = True, condition: str | None = None):
         target = self.mangle(source)
         content = (self.source / source).read_text()
+        content = defines + content
         if relocate:
             content = self.relocate(source, content)
         if condition is not None:
             content = self.condition(condition, content)
         print(f"COPY {self.source / source} -> {self.target / target}")
         (self.target / target).write_text(content)
+        self.copied.add(target)
 
 
 def configure(project: Project):
@@ -209,17 +216,23 @@ def configure(project: Project):
         )
 
 
+def generate_native_stubs_to(project: Project, path: Path):
+    moon_pkg_json = json.loads(path.read_text())
+    moon_pkg_json["native-stub"] = []
+    for copied in project.copied:
+        moon_pkg_json["native-stub"].append(copied.as_posix())
+    moon_pkg_json["native-stub"].append("uv.c")
+    path.write_text(json.dumps(moon_pkg_json, indent=2) + "\n")
+
+
 def main():
     source = Path("src") / "uv"
-    target = Path("src") / "uva"
-    if target.exists():
-        shutil.rmtree(target)
-    target.mkdir(parents=True)
-    include = [
-        source / "include",
-        source / "src"
-    ]
-    configure(Project(source, target, include=include, prefix="uv"))
+    target = Path("src")
+    target.mkdir(parents=True, exist_ok=True)
+    include = [source / "include", source / "src"]
+    project = Project(source, target, include=include, prefix="uv")
+    configure(project)
+    generate_native_stubs_to(project, Path("src") / "moon.pkg.json")
 
 
 if __name__ == "__main__":
