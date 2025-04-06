@@ -1,6 +1,8 @@
-package tonyfettes/uv
+package "tonyfettes/uv"
 
 // Values
+const EOF : Int = -4095
+
 const STDERR : Int = 2
 
 const STDIN : Int = 0
@@ -15,13 +17,15 @@ fn buf_alloc() -> Buf
 
 fn buf_free(Buf) -> Unit
 
-fn buf_get(Buf) -> Bytes
+fn buf_get_base(Buf) -> Bytes
 
-fn buf_init(Buf, Bytes, Int, Int) -> Unit
+fn buf_init(Buf, Bytes, Int) -> Unit
 
 fn buf_set_len(Buf, UInt64) -> Unit
 
 fn close(Handle, (Handle) -> Unit) -> Unit
+
+fn connect_alloc() -> Connect
 
 fn errno(Int) -> Unit!Errno
 
@@ -34,6 +38,10 @@ fn fs_get_result(Fs) -> Int64
 fn fs_open(Loop, Fs, Bytes, OpenFlag, Int, (Fs) -> Unit) -> Int
 
 fn fs_read(Loop, Fs, File, FixedArray[Buf], Int64, (Fs) -> Unit) -> Int
+
+fn fs_req_cleanup(Fs) -> Unit
+
+fn fs_to_req(Fs) -> Req
 
 fn fs_write(Loop, Fs, File, FixedArray[Buf], Int64, (Fs) -> Unit) -> Int
 
@@ -65,6 +73,8 @@ fn loop_init(Loop) -> Int
 
 fn process_alloc() -> Process
 
+fn process_close(Process, (Process) -> Unit) -> Unit
+
 fn process_get_pid(Process) -> Int
 
 fn process_options_alloc() -> ProcessOptions
@@ -81,8 +91,6 @@ fn process_options_set_flags(ProcessOptions, ProcessFlags) -> Unit
 
 fn process_options_set_stdio(ProcessOptions, FixedArray[StdioContainer]) -> Unit
 
-fn process_to_handle(Process) -> Handle
-
 fn read_start(Stream, (Handle, UInt64, Buf) -> Unit, (Stream, Int64, Buf) -> Unit) -> Int
 
 fn read_stop(Stream) -> Int
@@ -91,7 +99,7 @@ fn run(Loop, RunMode) -> Int
 
 fn sockaddr_in_alloc() -> SockaddrIn
 
-fn spawn(Loop, Process, ProcessOptions, (Process, Int, Int) -> Unit) -> Int
+fn spawn(Loop, Process, ProcessOptions, (Process, Int64, Int) -> Unit) -> Int
 
 fn stdio_container_alloc() -> StdioContainer
 
@@ -99,19 +107,17 @@ fn stdio_container_set_flags(StdioContainer, StdioFlags) -> Unit
 
 fn stop(Loop) -> Unit
 
-fn stream_to_handle(Stream) -> Handle
+fn strerror(Int) -> String
 
 fn strerror_r(Int, Bytes) -> Unit
 
 fn tcp_alloc() -> Tcp
 
-fn tcp_bind(Tcp, SockaddrIn, Int) -> Int
+fn tcp_bind(Tcp, Sockaddr, Int) -> Int
+
+fn tcp_connect(Connect, Tcp, Sockaddr, (Connect, Int) -> Unit) -> Int
 
 fn tcp_init(Loop, Tcp) -> Int
-
-fn tcp_to_handle(Tcp) -> Handle
-
-fn tcp_to_stream(Tcp) -> Stream
 
 fn timer_alloc() -> Timer
 
@@ -127,6 +133,14 @@ fn timer_start(Timer, (Timer) -> Unit, UInt64, UInt64) -> Int
 
 fn timer_stop(Timer) -> Int
 
+fn tty_alloc() -> Tty
+
+fn tty_init(Loop, Tty, File) -> Int
+
+fn tty_reset_mode() -> Int
+
+fn tty_set_mode(Tty, TtyMode) -> Int
+
 fn uv_disable_stdio_inheritance() -> Unit
 
 fn uv_stdio_container_fd(StdioFlags, Int) -> StdioContainer
@@ -138,14 +152,22 @@ fn write(Write, Stream, FixedArray[Buf], (Write, Int) -> Unit) -> Int
 fn write_alloc() -> Write
 
 // Types and methods
-pub extern type Buf
+type Buf
+
+type Connect
+impl Connect {
+  to_req(Self) -> Req
+}
 
 pub type! Errno Int
 impl Show for Errno
 
-type File
+pub(all) type File Int
 
 type Fs
+impl Fs {
+  fs_to_req(Self) -> Req
+}
 
 type Handle
 
@@ -153,7 +175,7 @@ type Idle
 
 type Loop
 impl Loop {
-  spawn(Self, Process, ProcessOptions, (Process, Int, Int) -> Unit) -> Int
+  spawn(Self, Process, ProcessOptions, (Process, Int64, Int) -> Unit) -> Int
 }
 
 pub(all) enum OpenFlag {
@@ -163,10 +185,15 @@ pub(all) enum OpenFlag {
 }
 
 type Process
+impl Process {
+  process_close(Self, (Self) -> Unit) -> Unit
+}
 
 type ProcessFlags
 
 type ProcessOptions
+
+type Req
 
 pub(all) enum RunMode {
   Default
@@ -174,7 +201,12 @@ pub(all) enum RunMode {
   NoWait
 }
 
+type Sockaddr
+
 type SockaddrIn
+impl SockaddrIn {
+  to_sockaddr(Self) -> Sockaddr
+}
 
 type SockaddrIn6
 
@@ -183,14 +215,29 @@ type StdioContainer
 type StdioFlags
 
 type Stream
+impl Stream {
+  to_handle(Self) -> Handle
+}
 
 type Tcp
 impl Tcp {
-  tcp_to_handle(Self) -> Handle
-  tcp_to_stream(Self) -> Stream
+  to_handle(Self) -> Handle
+  to_stream(Self) -> Stream
 }
 
 type Timer
+
+type Tty
+impl Tty {
+  to_stream(Self) -> Stream
+}
+
+pub(all) enum TtyMode {
+  Normal
+  Raw
+  Io
+  RawVT
+}
 
 type Write
 
