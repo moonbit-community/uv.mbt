@@ -44,5 +44,5 @@ jobs:
 
       - name: Run tests
         run: |
-          moon check --target native
-          moon test --target native
+          moon check --target native -v
+          moon test --target native -v
