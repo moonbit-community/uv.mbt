@@ -24,30 +24,39 @@ This is a MoonBit binding to the [libuv](https://libuv.org) library.
 3. Use the `tonyfettes/uv` package in your MoonBit project.
 
    ```moonbit
-   let uv = @uv.loop_alloc()
-   ignore(@uv.loop_init(uv))
-   let mut test_exit_status = None
-   let mut test_term_signal = None
-   fn on_exit(
-     req : @uv.Process,
-     exit_status : Int64,
-     term_signal : Int
-   ) -> Unit {
-     test_exit_status = Some(exit_status)
-     test_term_signal = Some(term_signal)
-     @uv.process_close(req, fn(_) { @uv.stop(uv) })
-   }
+   ///|
+   fn main {
+     let uv = @uv.loop_alloc()
+     @uv.loop_init(uv) |> ignore()
+     fn on_exit(
+       req : @uv.Process,
+       exit_status : Int64,
+       term_signal : Int
+     ) -> Unit {
+       println(
+         "Process exited with status \{exit_status} and signal \{term_signal}",
+       )
+       @uv.process_close(req, fn(_) {
+         @uv.stop(uv)
+       })
+     }
 
-   let options = @uv.process_options_alloc()
-   let args : FixedArray[Bytes?] = [
-     Some(b"moon\x00"),
-     Some(b"version\x00"),
-     None,
-   ]
-   @uv.process_options_set_args(options, args)
-   @uv.process_options_set_file(options, b"moon\x00")
-   let child_req = @uv.process_alloc()
-   ignore(@uv.spawn(uv, child_req, options, on_exit))
-   ignore(@uv.run(uv, @uv.RunMode::Default))
-   ignore(@uv.loop_close(uv))
+     let options = @uv.process_options_alloc()
+     let args : FixedArray[Bytes?] = [
+       Some(b"moon\x00"),
+       Some(b"version\x00"),
+       None,
+     ]
+     @uv.process_options_set_args(options, args)
+     @uv.process_options_set_file(options, b"moon\x00")
+     let child_req = @uv.process_alloc()
+     let result = @uv.spawn(uv, child_req, options, on_exit)
+     if result != 0 {
+       println("Error spawning process: \{result}")
+     } else {
+       println("Launched process with ID \{@uv.process_get_pid(child_req)}")
+     }
+     @uv.run(uv, @uv.RunMode::Default) |> ignore()
+     @uv.loop_close(uv) |> ignore()
+   }
    ```
