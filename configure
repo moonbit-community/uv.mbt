@@ -210,13 +210,16 @@ def configure(project: Project):
         )
 
 
-def generate_native_stubs_to(project: Project, path: Path):
+def update_moon_pkg_json(project: Project, path: Path):
     moon_pkg_json = json.loads(path.read_text())
     moon_pkg_json["native-stub"] = []
     for copied in project.copied:
         moon_pkg_json["native-stub"].append(copied.as_posix())
     moon_pkg_json["native-stub"].append("uv.c")
     moon_pkg_json["native-stub"].sort()
+    for task in moon_pkg_json["pre-build"]:
+        if "command" in task and task["command"] == "./configure":
+            task["output"] = moon_pkg_json["native-stub"]
     path.write_text(json.dumps(moon_pkg_json, indent=2) + "\n")
 
 
@@ -227,7 +230,7 @@ def main():
     include = [source / "include", source / "src"]
     project = Project(source, target, include=include, prefix="uv")
     configure(project)
-    generate_native_stubs_to(project, Path("src") / "moon.pkg.json")
+    update_moon_pkg_json(project, Path("src") / "moon.pkg.json")
 
 
 if __name__ == "__main__":
