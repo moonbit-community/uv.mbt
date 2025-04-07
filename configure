@@ -57,23 +57,17 @@ class Project:
         return Path("#".join([self.prefix, *source.parts]))
 
     def relocate(self, source: Path, content: str) -> str:
-        print(f"relocate: source = {source}")
         include_directories = [(self.source / source).parent, *self.include]
-        print(f"relocate: include_directories = {include_directories}")
         headers = []
 
         def relocate(header: Path) -> Path:
-            print(f"relocate<inner>: header = {header}")
             for directory in include_directories:
-                print(f"relocate<inner>: directory = {directory}")
                 resolved = ((directory / header).resolve()).relative_to(
                     self.source.resolve()
                 )
-                print(f"relocate<inner>: resolved = {resolved}")
                 if not (self.source / resolved).exists():
                     continue
                 relocated = self.mangle(resolved)
-                print(f"relocate<inner>: relocated = {relocated}")
                 if not (self.target / relocated).exists():
                     self.copy(resolved, relocate=False)
                     headers.append(resolved)
@@ -222,6 +216,7 @@ def generate_native_stubs_to(project: Project, path: Path):
     for copied in project.copied:
         moon_pkg_json["native-stub"].append(copied.as_posix())
     moon_pkg_json["native-stub"].append("uv.c")
+    moon_pkg_json["native-stub"].sort()
     path.write_text(json.dumps(moon_pkg_json, indent=2) + "\n")
 
 
