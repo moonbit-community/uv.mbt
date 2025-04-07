@@ -33,9 +33,16 @@ def publish_to(directory: Path, test: bool = True, publish: bool = False):
         shutil.copy(file, directory / file)
 
     if test:
-        subprocess.run(["moon", "test", "--target", "native"], check=True, cwd=directory)
+        subprocess.run(
+            ["moon", "test", "--target", "native"], check=True, cwd=directory
+        )
         subprocess.run(["moon", "clean"], check=True, cwd=directory)
         shutil.rmtree(directory / ".mooncakes")
+
+    if publish:
+        subprocess.run(
+            ["moon", "publish"], check=True, cwd=directory
+        )
 
 
 def main():
@@ -54,6 +61,7 @@ def main():
     test = args.test
     publish = args.publish
     publish_to(Path("publish"), test, publish)
+
 
 if __name__ == "__main__":
     main()
