@@ -69,7 +69,7 @@
         "uv#src#win#winapi.c",
         "uv#src#win#winsock.c"
       ],
-      "command": "scripts/prepare"
+      "command": "python scripts/prepare"
     }
   ],
   "targets": {
