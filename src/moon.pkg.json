@@ -67,8 +67,7 @@
         "uv#src#win#udp.c",
         "uv#src#win#util.c",
         "uv#src#win#winapi.c",
-        "uv#src#win#winsock.c",
-        "uv.c"
+        "uv#src#win#winsock.c"
       ],
       "command": "./configure"
     }

@@ -212,14 +212,14 @@ def configure(project: Project):
 
 def update_moon_pkg_json(project: Project, path: Path):
     moon_pkg_json = json.loads(path.read_text())
-    moon_pkg_json["native-stub"] = []
+    native_stubs = []
     for copied in project.copied:
-        moon_pkg_json["native-stub"].append(copied.as_posix())
-    moon_pkg_json["native-stub"].append("uv.c")
-    moon_pkg_json["native-stub"].sort()
+        native_stubs.append(copied.as_posix())
+    native_stubs.sort()
+    moon_pkg_json["native-stub"] = [*native_stubs, "uv.c"]
     for task in moon_pkg_json["pre-build"]:
         if "command" in task and task["command"] == "./configure":
-            task["output"] = moon_pkg_json["native-stub"]
+            task["output"] = native_stubs
     path.write_text(json.dumps(moon_pkg_json, indent=2) + "\n")
 
 
