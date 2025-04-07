@@ -1,6 +1,4 @@
-#!/usr/bin/env python3
-
-from typing import Literal
+from typing import Literal, Optional
 from pathlib import Path, PosixPath
 import re
 import json
@@ -93,7 +91,7 @@ class Project:
 #endif
 """
 
-    def copy(self, source: Path, relocate: bool = True, condition: str | None = None):
+    def copy(self, source: Path, relocate: bool = True, condition: Optional[str] = None):
         target = self.mangle(source)
         content = (self.source / source).read_text()
         content = defines + content
@@ -219,7 +217,7 @@ def update_moon_pkg_json(project: Project, path: Path):
     moon_pkg_json["native-stub"] = [*native_stubs, "uv.c"]
     has_pre_build = False
     for task in moon_pkg_json["pre-build"]:
-        if "command" in task and task["command"] == "python scripts/prepare":
+        if "command" in task and task["command"] == "python scripts/prepare.py":
             task["output"] = native_stubs
             has_pre_build = True
     if not has_pre_build:
@@ -227,7 +225,7 @@ def update_moon_pkg_json(project: Project, path: Path):
             {
                 "input": [],
                 "output": native_stubs,
-                "command": "python scripts/prepare",
+                "command": "python scripts/prepare.py",
             }
         )
     path.write_text(json.dumps(moon_pkg_json, indent=2) + "\n")
