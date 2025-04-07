@@ -1,5 +1,5 @@
 from typing import Literal, Optional
-from pathlib import Path, PosixPath
+from pathlib import Path, PurePosixPath
 import re
 import json
 
@@ -75,7 +75,7 @@ class Project:
         def replace(match: re.Match) -> str:
             indent = match.group("indent")
             header: str = match.group("header")
-            relocated = relocate(PosixPath(header))
+            relocated = relocate(PurePosixPath(header))
             return f'#{indent}include "{relocated.as_posix()}"'
 
         content = re.sub(r'#(?P<indent>\s*)include "(?P<header>.*?)"', replace, content)
@@ -119,7 +119,7 @@ def configure(project: Project):
         "src/uv-data-getter-setters.c",
         "src/version.c",
     ]:
-        project.copy(PosixPath(source))
+        project.copy(PurePosixPath(source))
 
     for source in [
         "src/win/async.c",
@@ -149,7 +149,7 @@ def configure(project: Project):
         "src/win/winsock.c",
     ]:
         project.copy(
-            source=PosixPath(source),
+            source=PurePosixPath(source),
             condition="defined(_WIN32)",
         )
 
@@ -174,13 +174,13 @@ def configure(project: Project):
         "src/unix/udp.c",
     ]:
         project.copy(
-            source=PosixPath(source),
+            source=PurePosixPath(source),
             condition="!defined(_WIN32)",
         )
 
     for source in ["src/unix/proctitle.c"]:
         project.copy(
-            source=PosixPath(source),
+            source=PurePosixPath(source),
             condition="defined(__APPLE__) || defined(__linux__)",
         )
 
@@ -192,7 +192,7 @@ def configure(project: Project):
         "src/unix/fsevents.c",
     ]:
         project.copy(
-            source=PosixPath(source),
+            source=PurePosixPath(source),
             condition="defined(__APPLE__)",
         )
 
@@ -203,7 +203,7 @@ def configure(project: Project):
         "src/unix/random-sysctl-linux.c",
     ]:
         project.copy(
-            source=PosixPath(source),
+            source=PurePosixPath(source),
             condition="defined(__linux__)",
         )
 
