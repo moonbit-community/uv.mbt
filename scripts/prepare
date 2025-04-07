@@ -217,9 +217,19 @@ def update_moon_pkg_json(project: Project, path: Path):
         native_stubs.append(copied.as_posix())
     native_stubs.sort()
     moon_pkg_json["native-stub"] = [*native_stubs, "uv.c"]
+    has_pre_build = False
     for task in moon_pkg_json["pre-build"]:
-        if "command" in task and task["command"] == "./configure":
+        if "command" in task and task["command"] == "scripts/prepare":
             task["output"] = native_stubs
+            has_pre_build = True
+    if not has_pre_build:
+        moon_pkg_json["pre-build"].append(
+            {
+                "input": [],
+                "output": native_stubs,
+                "command": "scripts/prepare",
+            }
+        )
     path.write_text(json.dumps(moon_pkg_json, indent=2) + "\n")
 
 
