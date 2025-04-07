@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from typing import Literal, Optional
 from pathlib import Path, PurePosixPath
 import re
@@ -67,7 +69,7 @@ class Project:
                     continue
                 relocated = self.mangle(resolved)
                 if not (self.target / relocated).exists():
-                    self.copy(resolved, relocate=False)
+                    self.copy(resolved, prepare_defines=False, relocate=False)
                     headers.append(resolved)
                 return relocated
             return header
@@ -81,7 +83,7 @@ class Project:
         content = re.sub(r'#(?P<indent>\s*)include "(?P<header>.*?)"', replace, content)
 
         for source in headers:
-            self.copy(source)
+            self.copy(source, prepare_defines=False)
 
         return content
 
@@ -91,16 +93,23 @@ class Project:
 #endif
 """
 
-    def copy(self, source: Path, relocate: bool = True, condition: Optional[str] = None):
+    def copy(
+        self,
+        source: Path,
+        prepare_defines: bool = True,
+        relocate: bool = True,
+        condition: Optional[str] = None,
+    ):
         target = self.mangle(source)
-        content = (self.source / source).read_text()
-        content = defines + content
+        content = (self.source / source).read_text(encoding="utf-8")
+        if prepare_defines:
+            content = defines + content
         if relocate:
             content = self.relocate(source, content)
         if condition is not None:
             content = self.condition(condition, content)
         print(f"COPY {self.source / source} -> {self.target / target}")
-        (self.target / target).write_text(content)
+        (self.target / target).write_text(content, encoding="utf-8", newline="\n")
         self.copied.add(target)
 
 
@@ -209,15 +218,18 @@ def configure(project: Project):
 
 
 def update_moon_pkg_json(project: Project, path: Path):
-    moon_pkg_json = json.loads(path.read_text())
+    moon_pkg_json = json.loads(path.read_text(encoding="utf-8"))
     native_stubs = []
     for copied in project.copied:
-        native_stubs.append(copied.as_posix())
+        if copied.suffix == ".c":
+            native_stubs.append(copied.as_posix())
     native_stubs.sort()
     moon_pkg_json["native-stub"] = [*native_stubs, "uv.c"]
     has_pre_build = False
+    if "pre-build" not in moon_pkg_json:
+        moon_pkg_json["pre-build"] = []
     for task in moon_pkg_json["pre-build"]:
-        if "command" in task and task["command"] == "python scripts/prepare.py":
+        if "command" in task and task["command"] == "scripts/prepare.py":
             task["output"] = native_stubs
             has_pre_build = True
     if not has_pre_build:
@@ -225,10 +237,12 @@ def update_moon_pkg_json(project: Project, path: Path):
             {
                 "input": [],
                 "output": native_stubs,
-                "command": "python scripts/prepare.py",
+                "command": "scripts/prepare.py",
             }
         )
-    path.write_text(json.dumps(moon_pkg_json, indent=2) + "\n")
+    path.write_text(
+        json.dumps(moon_pkg_json, indent=2) + "\n", encoding="utf8", newline="\n"
+    )
 
 
 def main():
