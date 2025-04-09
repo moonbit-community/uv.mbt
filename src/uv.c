@@ -3,6 +3,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#define DEBUG
+#ifdef DEBUG
+#include <stdio.h>
+#define moonbit_uv_trace(format, ...)                                          \
+  fprintf(stdout, "%s: " format, __func__ __VA_OPT__(, ) __VA_ARGS__)
+#else
+#define moonbit_uv_trace(...)
+#endif
 
 #define containerof(ptr, type, member)                                         \
   ((type *)((char *)(ptr) - offsetof(type, member)))
