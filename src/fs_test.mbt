@@ -1,7 +1,6 @@
 ///|
-test "uvcat" {
-  let uv = @uv.loop_alloc()
-  ignore(@uv.loop_init(uv))
+test "cat" {
+  let uv = @uv.Loop::new!()
   let open_req = @uv.fs_alloc()
   let mut open_error = None
   let read_req = @uv.fs_alloc()
@@ -87,8 +86,8 @@ test "uvcat" {
     }),
     content=0,
   )
-  @json.inspect!(@uv.run(uv, @uv.RunMode::Default), content=0)
-  @json.inspect!(@uv.loop_close(uv), content=0)
+  uv.run!(@uv.RunMode::Default)
+  uv.close!()
   if open_error is Some(error) {
     raise error
   }

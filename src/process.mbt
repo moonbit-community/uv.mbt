@@ -5,46 +5,29 @@ pub extern "c" fn uv_disable_stdio_inheritance() = "moonbit_uv_disable_stdio_inh
 type Process
 
 ///|
-pub extern "c" fn process_close(self : Process, cb : (Process) -> Unit) -> Unit = "moonbit_uv_process_close"
+extern "c" fn uv_process_close(self : Process, cb : (Process) -> Unit) = "moonbit_uv_process_close"
 
 ///|
-pub extern "c" fn process_get_pid(process : Process) -> Int = "moonbit_uv_process_get_pid"
+pub fn Process::close(self : Process, cb : (Process) -> Unit) -> Unit {
+  uv_process_close(self, cb)
+}
 
 ///|
-pub extern "c" fn process_alloc() -> Process = "moonbit_uv_process_alloc"
+extern "c" fn uv_process_get_pid(process : Process) -> Int = "moonbit_uv_process_get_pid"
 
 ///|
-type ProcessOptions Bytes
+pub fn Process::pid(self : Process) -> Int {
+  return uv_process_get_pid(self)
+}
 
 ///|
-pub extern "c" fn process_options_alloc() -> ProcessOptions = "moonbit_uv_process_options_alloc"
+extern "c" fn uv_process_make() -> Process = "moonbit_uv_process_make"
 
 ///|
-pub extern "c" fn process_options_set_file(
-  options : ProcessOptions,
-  file : Bytes
-) = "moonbit_uv_process_options_set_file"
+type ProcessOptions
 
 ///|
-pub extern "c" fn process_options_set_args(
-  options : ProcessOptions,
-  args : FixedArray[Bytes?]
-) = "moonbit_uv_process_options_set_args"
-
-///|
-pub extern "c" fn process_options_set_env(
-  options : ProcessOptions,
-  env : FixedArray[Bytes?]
-) = "moonbit_uv_process_options_set_env"
-
-///|
-pub extern "c" fn process_options_set_cwd(
-  options : ProcessOptions,
-  cwd : Bytes
-) = "moonbit_uv_process_options_set_cwd"
-
-///|
-enum ProcessFlags {
+priv enum ProcessFlag {
   SetUID = 1
   SetGID = 2
   WindowsVerbatimArguments = 4
@@ -56,10 +39,105 @@ enum ProcessFlags {
 }
 
 ///|
-pub extern "c" fn process_options_set_flags(
-  options : ProcessOptions,
-  flags : ProcessFlags
-) = "moonbit_uv_process_options_set_flags"
+fn ProcessFlag::to_int(self : ProcessFlag) -> Int = "%identity"
+
+///|
+extern "c" fn uv_process_options_make() -> ProcessOptions = "moonbit_uv_process_options_make"
+
+///|
+extern "c" fn uv_process_options_set_exit_cb(
+  self : ProcessOptions,
+  exit_cb : (Process, Int64, Int) -> Unit
+) = "moonbit_uv_process_options_set_exit_cb"
+
+///|
+extern "c" fn uv_process_options_set_file(self : ProcessOptions, file : Bytes) = "moonbit_uv_process_options_set_file"
+
+///|
+extern "c" fn uv_process_options_set_args(
+  self : ProcessOptions,
+  args : FixedArray[Bytes?]
+) = "moonbit_uv_process_options_set_args"
+
+///|
+extern "c" fn uv_process_options_set_env(
+  self : ProcessOptions,
+  env : FixedArray[Bytes?]
+) = "moonbit_uv_process_options_set_env"
+
+///|
+extern "c" fn uv_process_options_set_cwd(self : ProcessOptions, cwd : Bytes) = "moonbit_uv_process_options_set_cwd"
+
+///|
+extern "c" fn uv_process_options_set_flags(self : ProcessOptions, flags : Int) = "moonbit_uv_process_options_set_flags"
+
+///|
+extern "c" fn uv_process_options_set_stdio(
+  self : ProcessOptions,
+  stdio : FixedArray[StdioContainer]
+) = "moonbit_uv_process_options_set_stdio"
+
+///|
+extern "c" fn uv_process_options_set_uid(self : ProcessOptions, uid : Uid) = "moonbit_uv_process_options_set_uid"
+
+///|
+extern "c" fn uv_process_options_set_gid(self : ProcessOptions, gid : Gid) = "moonbit_uv_process_options_set_gid"
+
+///|
+pub fn ProcessOptions::new(
+  file : String,
+  args : Array[String],
+  env? : Array[String],
+  cwd? : String,
+  stdio? : Array[StdioContainer],
+  uid? : Uid,
+  gid? : Gid,
+  exit_cb : (Process, Int64, Int) -> Unit
+) -> ProcessOptions {
+  let mut flags = 0
+  let options = uv_process_options_make()
+  uv_process_options_set_exit_cb(options, exit_cb)
+  let file = to_c_string(file)
+  uv_process_options_set_file(options, file)
+  let args = FixedArray::makei(args.length() + 2, fn(i) {
+    if i == 0 {
+      return Some(file)
+    } else if i - 1 == args.length() {
+      return None
+    } else {
+      return Some(to_c_string(args[i - 1]))
+    }
+  })
+  uv_process_options_set_args(options, args)
+  if env is Some(env) {
+    let env = FixedArray::makei(env.length() + 1, fn(i) {
+      if i == env.length() {
+        return None
+      } else {
+        return Some(to_c_string(env[i]))
+      }
+    })
+    uv_process_options_set_env(options, env)
+  }
+  if cwd is Some(cwd) {
+    let cwd = to_c_string(cwd)
+    uv_process_options_set_cwd(options, cwd)
+  }
+  if stdio is Some(stdio) {
+    let stdio = FixedArray::makei(stdio.length(), fn(i) { return stdio[i] })
+    uv_process_options_set_stdio(options, stdio)
+  }
+  if uid is Some(uid) {
+    flags = flags | SetUID.to_int()
+    uv_process_options_set_uid(options, uid)
+  }
+  if gid is Some(gid) {
+    flags = flags | SetGID.to_int()
+    uv_process_options_set_gid(options, gid)
+  }
+  uv_process_options_set_flags(options, flags)
+  return options
+}
 
 ///|
 enum StdioFlags {
@@ -76,36 +154,44 @@ enum StdioFlags {
 type StdioContainer Bytes
 
 ///|
-pub extern "c" fn stdio_container_alloc() -> StdioContainer = "moonbit_uv_stdio_container_t"
-
-///|
-pub extern "c" fn stdio_container_set_flags(
-  container : StdioContainer,
-  flags : StdioFlags
-) = "moonbit_uv_stdio_container_set_flags"
-
-///|
-pub extern "c" fn uv_stdio_container_stream(
+pub extern "c" fn StdioContainer::stream(
   flags : StdioFlags,
   stream : Stream
 ) -> StdioContainer = "moonbit_uv_stdio_container_stream"
 
 ///|
-pub extern "c" fn uv_stdio_container_fd(
+pub extern "c" fn StdioContainer::fd(
   flags : StdioFlags,
   fd : Int
 ) -> StdioContainer = "moonbit_uv_stdio_container_fd"
 
 ///|
-pub extern "c" fn process_options_set_stdio(
-  options : ProcessOptions,
-  stdio : FixedArray[StdioContainer]
-) = "moonbit_uv_process_options_set_stdio"
+type Uid Int
 
 ///|
-pub extern "c" fn spawn(
+type Gid Int
+
+///|
+extern "c" fn uv_spawn(
   self : Loop,
-  handle : Process,
-  options : ProcessOptions,
-  exit_cb : (Process, Int64, Int) -> Unit
+  process : Process,
+  options : ProcessOptions
 ) -> Int = "moonbit_uv_spawn"
+
+///|
+fn to_c_string(string : String) -> Bytes {
+  let buffer = @buffer.new()
+  @encoding.encode_to(string, buffer, encoding=UTF8)
+  buffer.write_byte(0)
+  return buffer.contents()
+}
+
+///|
+pub fn spawn(self : Loop, options : ProcessOptions) -> Process!Errno {
+  let process = uv_process_make()
+  let status = uv_spawn(self, process, options)
+  if status < 0 {
+    raise Errno(status)
+  }
+  return process
+}
