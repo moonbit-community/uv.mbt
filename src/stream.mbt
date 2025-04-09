@@ -5,7 +5,7 @@ extern type Stream
 pub fn Stream::to_handle(self : Stream) -> Handle = "%identity"
 
 ///|
-pub extern "c" fn read_start(
+extern "c" fn read_start(
   stream : Stream,
   alloc_cb : (Handle, UInt64, Buf) -> Unit,
   read_cb : (Stream, Int64, Buf) -> Unit
@@ -21,7 +21,7 @@ type Write
 pub extern "c" fn write_alloc() -> Write = "moonbit_uv_write_alloc"
 
 ///|
-pub extern "c" fn write(
+extern "c" fn write(
   write : Write,
   handle : Stream,
   bufs : FixedArray[Buf],

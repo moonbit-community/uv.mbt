@@ -1,17 +1,14 @@
 ///|
-type Buf
+priv type Buf
 
 ///|
-pub extern "c" fn buf_alloc() -> Buf = "moonbit_uv_buf_alloc"
+extern "c" fn Buf::make() -> Buf = "moonbit_uv_buf_make"
 
 ///|
-pub extern "c" fn buf_init(buf : Buf, bytes : Bytes, length : Int) -> Unit = "moonbit_uv_buf_init"
+extern "c" fn Buf::init(buf : Buf, bytes : Bytes, start_offset : Int, length : UInt) = "moonbit_uv_buf_init"
 
 ///|
-pub extern "c" fn buf_set_len(buf : Buf, len : UInt64) -> Unit = "moonbit_uv_buf_set_len"
+extern "c" fn Buf::set_len(buf : Buf, len : UInt64) -> Unit = "moonbit_uv_buf_set_len"
 
 ///|
-pub extern "c" fn buf_get_base(buf : Buf) -> Bytes = "moonbit_uv_buf_get_base"
-
-///|
-pub extern "c" fn buf_free(buf : Buf) -> Unit = "moonbit_uv_buf_free"
+extern "c" fn Buf::get_base(buf : Buf) -> Bytes = "moonbit_uv_buf_get_base"

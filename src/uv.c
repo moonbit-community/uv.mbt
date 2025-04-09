@@ -114,7 +114,7 @@ moonbit_uv_buf_finalize(void *object) {
 }
 
 moonbit_uv_buf_t *
-moonbit_uv_buf_alloc(void) {
+moonbit_uv_buf_make(void) {
   moonbit_uv_buf_t *buf = (moonbit_uv_buf_t *)moonbit_make_external_object(
     moonbit_uv_buf_finalize, sizeof(uv_buf_t)
   );
@@ -126,12 +126,13 @@ void
 moonbit_uv_buf_init(
   moonbit_uv_buf_t *buf,
   moonbit_bytes_t bytes,
-  size_t length
+  int32_t start_offset,
+  uint32_t length
 ) {
   if (buf->buf.base) {
     moonbit_decref((void *)buf->buf.base);
   }
-  buf->buf = uv_buf_init((char *)bytes, length);
+  buf->buf = uv_buf_init((char *)bytes + start_offset, length);
   moonbit_decref(buf);
 }
 
@@ -192,10 +193,11 @@ moonbit_uv_fs_finalize(void *object) {
     }
     free(fs->bufs_data);
   }
+  uv_fs_req_cleanup(&fs->fs);
 }
 
 moonbit_uv_fs_t *
-moonbit_uv_fs_alloc(void) {
+moonbit_uv_fs_make(void) {
   moonbit_uv_fs_t *fs = (moonbit_uv_fs_t *)moonbit_make_external_object(
     moonbit_uv_fs_finalize, sizeof(moonbit_uv_fs_t)
   );
@@ -205,8 +207,8 @@ moonbit_uv_fs_alloc(void) {
   return fs;
 }
 
-ssize_t
-moonbit_uv_fs_get_result(moonbit_uv_fs_t *fs) {
+int64_t
+moonbit_uv_fs_result(moonbit_uv_fs_t *fs) {
   ssize_t result = fs->fs.result;
   moonbit_decref(fs);
   return result;
@@ -236,11 +238,20 @@ moonbit_uv_fs_set_bufs(
   fs->bufs_size = bufs_size;
 }
 
-enum moonbit_uv_fs_open_flag_t {
-  MOONBIT_UV_FS_O_RDONLY = 0x0,
-  MOONBIT_UV_FS_O_WRONLY = 0x1,
-  MOONBIT_UV_FS_O_RDWR = 0x2,
-};
+int32_t
+moonbit_uv_fs_O_RDONLY(void) {
+  return UV_FS_O_RDONLY;
+}
+
+int32_t
+moonbit_uv_fs_O_WRONLY(void) {
+  return UV_FS_O_WRONLY;
+}
+
+int32_t
+moonbit_uv_fs_O_RDWR(void) {
+  return UV_FS_O_RDWR;
+}
 
 int
 moonbit_uv_fs_open(
@@ -252,18 +263,8 @@ moonbit_uv_fs_open(
   moonbit_uv_fs_cb_t *cb
 ) {
   moonbit_uv_fs_set_data(fs, cb);
-  int uv_flags = 0;
-  if (flags & MOONBIT_UV_FS_O_RDONLY) {
-    uv_flags |= UV_FS_O_RDONLY;
-  }
-  if (flags & MOONBIT_UV_FS_O_WRONLY) {
-    uv_flags |= UV_FS_O_WRONLY;
-  }
-  if (flags & MOONBIT_UV_FS_O_RDWR) {
-    uv_flags |= UV_FS_O_RDWR;
-  }
   int result = uv_fs_open(
-    loop, &fs->fs, (const char *)path, uv_flags, mode, moonbit_uv_fs_cb
+    loop, &fs->fs, (const char *)path, flags, mode, moonbit_uv_fs_cb
   );
   moonbit_decref(loop);
   moonbit_decref(path);
@@ -326,12 +327,6 @@ moonbit_uv_fs_write(
   );
   moonbit_decref(loop);
   return rc;
-}
-
-void
-moonbit_uv_fs_req_cleanup(moonbit_uv_fs_t *fs) {
-  uv_fs_req_cleanup(&fs->fs);
-  moonbit_decref(fs);
 }
 
 int
@@ -484,7 +479,7 @@ moonbit_uv_read_start_alloc_cb(
   moonbit_uv_read_start_cb_t *read_start_cb = handle->data;
   moonbit_uv_alloc_cb_t *alloc_cb = read_start_cb->alloc_cb;
   moonbit_incref(alloc_cb);
-  moonbit_uv_buf_t *moonbit_buf = moonbit_uv_buf_alloc();
+  moonbit_uv_buf_t *moonbit_buf = moonbit_uv_buf_make();
   // Incref the buffer so it doesn't get garbage collected inside the callback.
   moonbit_incref(moonbit_buf);
   alloc_cb->code(alloc_cb, handle, suggested_size, moonbit_buf);
@@ -504,7 +499,7 @@ moonbit_uv_read_start_read_cb(
   moonbit_uv_read_start_cb_t *read_start_cb = stream->data;
   moonbit_uv_read_cb_t *read_cb = read_start_cb->read_cb;
   moonbit_incref(read_cb);
-  moonbit_uv_buf_t *moonbit_buf = moonbit_uv_buf_alloc();
+  moonbit_uv_buf_t *moonbit_buf = moonbit_uv_buf_make();
   moonbit_buf->buf = *buf;
   // We moved the buffer into the callback so there is no need to incref nor
   // decref it.
@@ -880,7 +875,7 @@ moonbit_uv_process_options_set_stdio(
   }
   options->options.stdio_count = Moonbit_array_length(stdio);
   options->options.stdio =
-    malloc(sizeof(uv_stdio_container_t) * options->options.stdio_count);
+    malloc(sizeof(uv_stdio_container_t) * (size_t)options->options.stdio_count);
   for (int i = 0; i < options->options.stdio_count; i++) {
     options->options.stdio[i] = stdio[i];
   }
