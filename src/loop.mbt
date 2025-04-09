@@ -50,8 +50,8 @@ pub fn run(self : Loop, mode : RunMode) -> Unit!Errno {
 extern "c" fn uv_stop(loop_ : Loop) = "moonbit_uv_stop"
 
 ///|
-pub fn stop(loop_ : Loop) -> Unit {
-  uv_stop(loop_)
+pub fn stop(self : Loop) -> Unit {
+  uv_stop(self)
 }
 
 ///|
