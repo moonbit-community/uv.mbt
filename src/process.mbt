@@ -140,30 +140,28 @@ pub fn ProcessOptions::new(
 }
 
 ///|
-enum StdioFlags {
-  Ignore = 0x00
-  CreatePipe = 0x01
-  InheritFd = 0x02
-  InheritStream = 0x04
-  ReadablePipe = 0x10
-  WritablePipe = 0x20
-  NonBlockPipe = 0x40
-}
-
-///|
 type StdioContainer Bytes
 
 ///|
-pub extern "c" fn StdioContainer::stream(
-  flags : StdioFlags,
-  stream : Stream
-) -> StdioContainer = "moonbit_uv_stdio_container_stream"
+pub extern "c" fn StdioContainer::ignore() -> StdioContainer = "moonbit_uv_stdio_container_ignore"
 
 ///|
-pub extern "c" fn StdioContainer::fd(
-  flags : StdioFlags,
-  fd : Int
-) -> StdioContainer = "moonbit_uv_stdio_container_fd"
+pub extern "c" fn StdioContainer::create_pipe(
+  stream : Stream,
+  readable~ : Bool = false,
+  writable~ : Bool = false,
+  non_block~ : Bool = false
+) -> StdioContainer = "moonbit_uv_stdio_container_create_pipe"
+
+///|
+pub extern "c" fn StdioContainer::inherit_fd(fd : Int) -> StdioContainer = "moonbit_uv_stdio_container_inherit_fd"
+
+pub extern "c" fn StdioContainer::inherit_file(file : File) -> StdioContainer = "moonbit_uv_stdio_container_inherit_fd"
+
+///|
+pub extern "c" fn StdioContainer::inherit_stream(
+  stream : Stream
+) -> StdioContainer = "moonbit_uv_stdio_container_inherit_stream"
 
 ///|
 type Uid Int

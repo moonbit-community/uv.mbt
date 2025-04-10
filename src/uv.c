@@ -1,5 +1,6 @@
 #include "moonbit.h"
 #include "uv#include#uv.h"
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -741,20 +742,51 @@ moonbit_uv_exit_cb(
 }
 
 uv_stdio_container_t *
-moonbit_uv_stdio_container_stream(uv_stdio_flags flags, uv_stream_t *stream) {
+moonbit_uv_stdio_container_ignore(void) {
   uv_stdio_container_t *container =
     (uv_stdio_container_t *)moonbit_make_bytes(sizeof(uv_stdio_container_t), 0);
-  container->flags = flags;
+  container->flags = UV_IGNORE;
+  return container;
+}
+
+uv_stdio_container_t *
+moonbit_uv_stdio_container_pipe(
+  uv_stream_t *stream,
+  bool readable,
+  bool writable,
+  bool non_block
+) {
+  uv_stdio_container_t *container =
+    (uv_stdio_container_t *)moonbit_make_bytes(sizeof(uv_stdio_container_t), 0);
+  container->flags = UV_CREATE_PIPE;
+  if (readable) {
+    container->flags |= UV_READABLE_PIPE;
+  }
+  if (writable) {
+    container->flags |= UV_WRITABLE_PIPE;
+  }
+  if (non_block) {
+    container->flags |= UV_NONBLOCK_PIPE;
+  }
   container->data.stream = stream;
   return container;
 }
 
 uv_stdio_container_t *
-moonbit_uv_stdio_container_fd(uv_stdio_flags flags, int fd) {
+moonbit_uv_stdio_container_inherit_fd(int fd) {
   uv_stdio_container_t *container =
     (uv_stdio_container_t *)moonbit_make_bytes(sizeof(uv_stdio_container_t), 0);
-  container->flags = flags;
+  container->flags = UV_INHERIT_FD;
   container->data.fd = fd;
+  return container;
+}
+
+uv_stdio_container_t *
+moonbit_uv_stdio_container_inherit_stream(uv_stream_t *stream) {
+  uv_stdio_container_t *container =
+    (uv_stdio_container_t *)moonbit_make_bytes(sizeof(uv_stdio_container_t), 0);
+  container->flags = UV_INHERIT_STREAM;
+  container->data.stream = stream;
   return container;
 }
 
@@ -874,6 +906,7 @@ moonbit_uv_process_options_set_stdio(
     free(options->options.stdio);
   }
   options->options.stdio_count = Moonbit_array_length(stdio);
+  moonbit_uv_trace("stdio_count = %d\n", options->options.stdio_count);
   options->options.stdio =
     malloc(sizeof(uv_stdio_container_t) * (size_t)options->options.stdio_count);
   for (int i = 0; i < options->options.stdio_count; i++) {
@@ -920,6 +953,7 @@ moonbit_uv_spawn(
   options->options.exit_cb = NULL;
   moonbit_decref(loop);
   moonbit_decref(options);
+  // moonbit_uv_trace("spawn: %d\n", Moonbit_object_header(options)->rc);
   return result;
 }
 

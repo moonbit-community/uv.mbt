@@ -13,7 +13,12 @@ test "spawn" {
     child.close(fn(_) { uv.stop() })
   }
 
-  let options = @uv.ProcessOptions::new("moon", ["check"], fn(
+  let stdio = [
+    @uv.StdioContainer::ignore(),
+    @uv.StdioContainer::inherit_fd(@uv.STDOUT),
+    @uv.StdioContainer::inherit_fd(@uv.STDERR),
+  ]
+  let options = @uv.ProcessOptions::new("moon", ["check"], stdio~, fn(
     child,
     exit_status,
     term_signal
