@@ -16,15 +16,16 @@ test "spawn" {
   let stdio = [
     @uv.StdioContainer::ignore(),
     @uv.StdioContainer::inherit_file(@uv.stdout),
-    @uv.StdioContainer::inherit_file(@uv.stderr)
+    @uv.StdioContainer::inherit_file(@uv.stderr),
   ]
-  let options = @uv.ProcessOptions::new("moon", ["moon", "check"], stdio~, fn(
-    child,
-    exit_status,
-    term_signal
-  ) {
-    on_exit(child, exit_status, term_signal)
-  })
+  let options = @uv.ProcessOptions::new(
+    "moon",
+    ["moon", "check", "--target", "native"],
+    stdio~,
+    fn(child, exit_status, term_signal) {
+      on_exit(child, exit_status, term_signal)
+    },
+  )
   let _ = uv.spawn!(options)
   @uv.run!(uv, @uv.RunMode::Default)
   inspect!(test_exit_status, content="Some(0)")
