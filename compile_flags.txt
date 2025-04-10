@@ -1,0 +1,7 @@
+-I/Users/haoxiang/Library/MoonBit/include
+-std=c11
+-xc
+-Wpedantic
+-Wextra
+-Wall
+-Wno-dollar-in-identifier-extension

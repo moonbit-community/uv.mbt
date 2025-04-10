@@ -2,7 +2,7 @@
 type SockaddrIn Bytes
 
 ///|
-pub extern "c" fn sockaddr_in_alloc() -> SockaddrIn = "moonbit_uv_sockaddr_in_alloc"
+extern "c" fn sockaddr_in_make() -> SockaddrIn = "moonbit_uv_sockaddr_in_make"
 
 ///|
 extern type SockaddrIn6
