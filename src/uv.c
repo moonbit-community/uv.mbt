@@ -900,7 +900,7 @@ moonbit_uv_process_options_set_flags(
 void
 moonbit_uv_process_options_set_stdio(
   moonbit_uv_process_options_t *options,
-  uv_stdio_container_t *stdio
+  uv_stdio_container_t **stdio
 ) {
   if (options->options.stdio) {
     free(options->options.stdio);
@@ -910,7 +910,7 @@ moonbit_uv_process_options_set_stdio(
   options->options.stdio =
     malloc(sizeof(uv_stdio_container_t) * (size_t)options->options.stdio_count);
   for (int i = 0; i < options->options.stdio_count; i++) {
-    options->options.stdio[i] = stdio[i];
+    options->options.stdio[i] = *stdio[i];
   }
   moonbit_decref(stdio);
   moonbit_decref(options);

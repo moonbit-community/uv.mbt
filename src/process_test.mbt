@@ -15,10 +15,10 @@ test "spawn" {
 
   let stdio = [
     @uv.StdioContainer::ignore(),
-    @uv.StdioContainer::inherit_fd(@uv.STDOUT),
-    @uv.StdioContainer::inherit_fd(@uv.STDERR),
+    @uv.StdioContainer::inherit_file(@uv.stdout),
+    @uv.StdioContainer::inherit_file(@uv.stderr)
   ]
-  let options = @uv.ProcessOptions::new("moon", ["check"], stdio~, fn(
+  let options = @uv.ProcessOptions::new("moon", ["moon", "check"], stdio~, fn(
     child,
     exit_status,
     term_signal

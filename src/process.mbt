@@ -99,13 +99,11 @@ pub fn ProcessOptions::new(
   uv_process_options_set_exit_cb(options, exit_cb)
   let file = to_c_string(file)
   uv_process_options_set_file(options, file)
-  let args = FixedArray::makei(args.length() + 2, fn(i) {
-    if i == 0 {
-      return Some(file)
-    } else if i - 1 == args.length() {
+  let args = FixedArray::makei(args.length() + 1, fn(i) {
+    if i == args.length() {
       return None
     } else {
-      return Some(to_c_string(args[i - 1]))
+      return Some(to_c_string(args[i]))
     }
   })
   uv_process_options_set_args(options, args)
@@ -156,7 +154,9 @@ pub extern "c" fn StdioContainer::create_pipe(
 ///|
 pub extern "c" fn StdioContainer::inherit_fd(fd : Int) -> StdioContainer = "moonbit_uv_stdio_container_inherit_fd"
 
-pub extern "c" fn StdioContainer::inherit_file(file : File) -> StdioContainer = "moonbit_uv_stdio_container_inherit_fd"
+pub fn StdioContainer::inherit_file(file : File) -> StdioContainer {
+  return StdioContainer::inherit_fd(file._)
+}
 
 ///|
 pub extern "c" fn StdioContainer::inherit_stream(
