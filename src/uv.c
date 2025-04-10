@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#define DEBUG
 #ifdef DEBUG
 #include <stdio.h>
 #define moonbit_uv_trace(format, ...)                                          \
