@@ -1,4 +1,5 @@
 {
+  "warn-list": "-15+15",
   "targets": {
     "args.mbt": [
       "native"
@@ -50,6 +51,14 @@
     "tonyfettes/c",
     "tonyfettes/encoding"
   ],
+  "link": {
+    "native": {
+      "stub-cc": "gcc",
+      "stub-cc-flags": "-g -Og -fsanitize=address",
+      "cc": "gcc",
+      "cc-flags": "-g -Og -fsanitize=address"
+    }
+  },
   "native-stub": [
     "uv#src#fs-poll.c",
     "uv#src#idna.c",

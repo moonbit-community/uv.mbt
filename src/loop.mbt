@@ -12,7 +12,7 @@ pub fn Loop::new() -> Loop!Errno {
   let loop_ = uv_loop_make()
   let status = uv_loop_init(loop_)
   if status < 0 {
-    raise Errno(status)
+    raise Errno::of_int(status)
   }
   return loop_
 }
@@ -24,7 +24,7 @@ extern "c" fn uv_loop_close(loop_ : Loop) -> Int = "moonbit_uv_loop_close"
 pub fn Loop::close(loop_ : Loop) -> Unit!Errno {
   let status = uv_loop_close(loop_)
   if status < 0 {
-    raise Errno(status)
+    raise Errno::of_int(status)
   }
 }
 
@@ -42,7 +42,7 @@ extern "c" fn uv_run(loop_ : Loop, mode : RunMode) -> Int = "moonbit_uv_run"
 pub fn run(self : Loop, mode : RunMode) -> Unit!Errno {
   let status = uv_run(self, mode)
   if status < 0 {
-    raise Errno(status)
+    raise Errno::of_int(status)
   }
 }
 
