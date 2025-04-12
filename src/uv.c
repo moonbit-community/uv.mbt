@@ -16,19 +16,27 @@
   ((type *)((char *)(ptr) - offsetof(type, member)))
 
 static inline void
-moonbit_uv_decref(void *object) {
-  moonbit_uv_trace("%p\n", object);
+moonbit_uv_decref(const char *func, const char *name, void *object) {
+  fprintf(stderr, "%s: %s = %p\n", func, name, object);
+  fprintf(
+    stderr, "%s: %s->rc = %d -> %d\n", func, name,
+    Moonbit_object_header(object)->rc, Moonbit_object_header(object)->rc - 1
+  );
   moonbit_decref(object);
 }
 
 static inline void
-moonbit_uv_incref(void *object) {
-  moonbit_uv_trace("%p\n", object);
+moonbit_uv_incref(const char *func, const char *name, void *object) {
+  fprintf(stderr, "%s: %s = %p\n", func, name, object);
+  fprintf(
+    stderr, "%s: %s->rc = %d -> %d\n", func, name,
+    Moonbit_object_header(object)->rc, Moonbit_object_header(object)->rc + 1
+  );
   moonbit_incref(object);
 }
 
-#define moonbit_incref(object) moonbit_incref(object)
-#define moonbit_decref(object) moonbit_decref(object)
+#define moonbit_incref(object) moonbit_uv_incref(__func__, #object, object)
+#define moonbit_decref(object) moonbit_uv_decref(__func__, #object, object)
 
 // 1. All pointers without annotation is borrow ()
 // 2. It is OK to pass a owning pointer to a borrowed parameter
@@ -74,9 +82,11 @@ moonbit_uv_stop(uv_loop_t *loop) {
 
 int32_t
 moonbit_uv_run(uv_loop_t *loop, uv_run_mode mode) {
-  int rc = uv_run(loop, mode);
+  moonbit_uv_trace("loop = %p\n", (void *)loop);
+  moonbit_uv_trace("loop->rc = %d\n", Moonbit_object_header(loop)->rc);
+  int status = uv_run(loop, mode);
   moonbit_decref(loop);
-  return rc;
+  return status;
 }
 
 int32_t
@@ -147,12 +157,27 @@ moonbit_uv_fs_cb(uv_fs_t *req) {
   moonbit_uv_fs_t *fs = containerof(req, moonbit_uv_fs_t, fs);
   moonbit_uv_fs_cb_t *cb = fs->fs.data;
   fs->fs.data = NULL;
+  moonbit_uv_trace("fs = %p\n", (void *)fs);
+  moonbit_uv_trace("fs->rc = %d\n", Moonbit_object_header(fs)->rc);
+  moonbit_uv_trace("cb = %p\n", (void *)cb);
+  moonbit_uv_trace("cb->rc = %d\n", Moonbit_object_header(cb)->rc);
+  uv_loop_t *loop = req->loop;
+  moonbit_uv_trace("fs->fs.loop = %p\n", (void *)fs->fs.loop);
+  moonbit_uv_trace("fs->fs.loop->rc = %d\n", Moonbit_object_header(fs->fs.loop)->rc);
+  moonbit_uv_trace("calling cb ...\n");
   cb->code(cb, fs);
+  moonbit_uv_trace("called  cb ...\n");
+  moonbit_uv_trace("fs->fs.loop = %p\n", (void *)loop);
+  moonbit_uv_trace("fs->fs.loop->rc = %d\n", Moonbit_object_header(loop)->rc);
 }
 
 static inline void
 moonbit_uv_fs_finalize(void *object) {
   moonbit_uv_fs_t *fs = (moonbit_uv_fs_t *)object;
+  moonbit_uv_trace("fs = %p\n", (void *)fs);
+  moonbit_uv_trace("fs->rc = %d\n", Moonbit_object_header(fs)->rc);
+  moonbit_uv_trace("fs->fs.loop = %p\n", (void *)fs->fs.loop);
+  moonbit_uv_trace("fs->fs.loop->rc = %d\n", Moonbit_object_header(fs->fs.loop)->rc);
   if (fs->fs.data) {
     moonbit_decref(fs->fs.data);
   }
@@ -167,8 +192,8 @@ moonbit_uv_fs_make(void) {
   moonbit_uv_fs_t *fs = (moonbit_uv_fs_t *)moonbit_make_external_object(
     moonbit_uv_fs_finalize, sizeof(moonbit_uv_fs_t)
   );
-  memset(&fs->fs, 0, sizeof(uv_fs_t));
-  fs->bufs_base = NULL;
+  memset(fs, 0, sizeof(moonbit_uv_fs_t));
+  moonbit_uv_trace("fs = %p\n", (void *)fs);
   return fs;
 }
 
@@ -219,6 +244,10 @@ moonbit_uv_fs_open(
   int mode,
   moonbit_uv_fs_cb_t *cb
 ) {
+  moonbit_uv_trace("loop = %p\n", (void *)loop);
+  moonbit_uv_trace("loop->rc = %d\n", Moonbit_object_header(loop)->rc);
+  moonbit_uv_trace("cb = %p\n", (void *)cb);
+  moonbit_uv_trace("cb->rc = %d\n", Moonbit_object_header(cb)->rc);
   moonbit_uv_fs_set_data(fs, cb);
   int result = uv_fs_open(
     loop, &fs->fs, (const char *)path, flags, mode, moonbit_uv_fs_cb
@@ -235,6 +264,12 @@ moonbit_uv_fs_close(
   uv_file file,
   moonbit_uv_fs_cb_t *cb
 ) {
+  moonbit_uv_trace("loop = %p\n", (void *)loop);
+  moonbit_uv_trace("loop->rc = %d\n", Moonbit_object_header(loop)->rc);
+  moonbit_uv_trace("fs = %p\n", (void *)fs);
+  moonbit_uv_trace("fs->rc = %d\n", Moonbit_object_header(fs)->rc);
+  moonbit_uv_trace("cb = %p\n", (void *)cb);
+  moonbit_uv_trace("cb->rc = %d\n", Moonbit_object_header(cb)->rc);
   moonbit_uv_fs_set_data(fs, cb);
   int result = uv_fs_close(loop, &fs->fs, file, moonbit_uv_fs_cb);
   moonbit_decref(loop);
@@ -252,10 +287,12 @@ moonbit_uv_fs_read(
   int64_t offset,
   moonbit_uv_fs_cb_t *cb
 ) {
+  moonbit_uv_trace("cb = %p\n", (void *)cb);
+  moonbit_uv_trace("cb->rc = %d\n", Moonbit_object_header(cb)->rc);
   int bufs_size = Moonbit_array_length(bufs_base);
-  uv_buf_t *bufs = malloc(sizeof(uv_buf_t) * bufs_size);
+  uv_buf_t *bufs_data = malloc(sizeof(uv_buf_t) * bufs_size);
   for (int i = 0; i < bufs_size; i++) {
-    bufs[i] =
+    bufs_data[i] =
       uv_buf_init((char *)bufs_base[i] + bufs_offset[i], bufs_length[i]);
   }
   // The ownership of `cb` is transferred into `fs`.
@@ -263,11 +300,12 @@ moonbit_uv_fs_read(
   // The ownership of `bufs_base` is transferred into `fs`.
   moonbit_uv_fs_set_bufs(fs, bufs_base);
   // The ownership of `fs` is transferred into `loop`.
-  int result =
-    uv_fs_read(loop, &fs->fs, file, bufs, bufs_size, offset, moonbit_uv_fs_cb);
+  int result = uv_fs_read(
+    loop, &fs->fs, file, bufs_data, bufs_size, offset, moonbit_uv_fs_cb
+  );
   // Releasing `bufs` here, as it is only a box for the `bufs` array and should
   // not causing the bufs to be decref'ed.
-  free(bufs);
+  free(bufs_data);
   moonbit_decref(loop);
   moonbit_decref(bufs_offset);
   moonbit_decref(bufs_length);
@@ -340,7 +378,7 @@ typedef struct moonbit_uv_close_cb {
 static inline void
 moonbit_uv_close_cb(uv_handle_t *handle) {
   moonbit_uv_trace("handle = %p\n", (void *)handle);
-  moonbit_uv_trace("handle->rc = %d\n", Moonbit_object_header(handle)->rc);;
+  moonbit_uv_trace("handle->rc = %d\n", Moonbit_object_header(handle)->rc);
   moonbit_uv_close_cb_t *cb = handle->data;
   handle->data = NULL;
   // The cb will be called only once, so there is no need to incref here.
