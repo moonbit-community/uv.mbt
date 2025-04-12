@@ -17,12 +17,12 @@ pub impl ToStream for Tty with of_stream(stream : Stream) -> Tty = "%identity"
 extern "c" fn uv_tty_make() -> Tty = "moonbit_uv_tty_make"
 
 ///|
-extern "c" fn uv_tty_init(loop_ : Loop, tty : Tty, fd : File) -> Int = "moonbit_uv_tty_init"
+extern "c" fn uv_tty_init(self : Loop, tty : Tty, fd : Int) -> Int = "moonbit_uv_tty_init"
 
 ///|
-pub fn Tty::new(self : Loop, fd : File) -> Tty!Errno {
+pub fn Tty::new(self : Loop, file : File) -> Tty!Errno {
   let tty = uv_tty_make()
-  let result = uv_tty_init(self, tty, fd)
+  let result = uv_tty_init(self, tty, file._)
   if result < 0 {
     raise Errno::of_int(result)
   }
@@ -30,7 +30,7 @@ pub fn Tty::new(self : Loop, fd : File) -> Tty!Errno {
 }
 
 ///|
-pub(all) enum TtyMode {
+enum TtyMode {
   Normal
   Raw
   Io
@@ -38,7 +38,43 @@ pub(all) enum TtyMode {
 }
 
 ///|
-pub extern "c" fn tty_set_mode(tty : Tty, mode : TtyMode) -> Int = "moonbit_uv_tty_set_mode"
+pub fn TtyMode::normal() -> TtyMode {
+  TtyMode::Normal
+}
 
 ///|
-pub extern "c" fn tty_reset_mode() -> Int = "moonbit_uv_tty_reset_mode"
+pub fn TtyMode::raw() -> TtyMode {
+  TtyMode::Raw
+}
+
+///|
+pub fn TtyMode::io() -> TtyMode {
+  TtyMode::Io
+}
+
+///|
+pub fn TtyMode::raw_vt() -> TtyMode {
+  TtyMode::RawVT
+}
+
+///|
+extern "c" fn uv_tty_set_mode(self : Tty, mode : TtyMode) -> Int = "moonbit_uv_tty_set_mode"
+
+///|
+pub fn Tty::set_mode(self : Tty, mode : TtyMode) -> Unit!Errno {
+  let result = uv_tty_set_mode(self, mode)
+  if result < 0 {
+    raise Errno::of_int(result)
+  }
+}
+
+///|
+extern "c" fn uv_tty_reset_mode() -> Int = "moonbit_uv_tty_reset_mode"
+
+///|
+pub fn Tty::reset_mode() -> Unit!Errno {
+  let result = uv_tty_reset_mode()
+  if result < 0 {
+    raise Errno::of_int(result)
+  }
+}
