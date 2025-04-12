@@ -4,16 +4,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef DEBUG
-#include <stdio.h>
-#define moonbit_uv_trace(format, ...)                                          \
-  fprintf(stderr, "%s: " format, __func__ __VA_OPT__(, ) __VA_ARGS__)
-#else
-#define moonbit_uv_trace(...)
-#endif
 
 #define containerof(ptr, type, member)                                         \
   ((type *)((char *)(ptr) - offsetof(type, member)))
+
+#ifdef DEBUG
+#include <stdio.h>
 
 static inline void
 moonbit_uv_decref(const char *func, const char *name, void *object) {
@@ -37,6 +33,13 @@ moonbit_uv_incref(const char *func, const char *name, void *object) {
 
 #define moonbit_incref(object) moonbit_uv_incref(__func__, #object, object)
 #define moonbit_decref(object) moonbit_uv_decref(__func__, #object, object)
+#define moonbit_uv_trace(format, ...)                                          \
+  fprintf(stderr, "%s: " format, __func__ __VA_OPT__(, ) __VA_ARGS__)
+#else
+#define moonbit_incref(object) moonbit_incref(object)
+#define moonbit_decref(object) moonbit_decref(object)
+#define moonbit_uv_trace(...)
+#endif
 
 // 1. All pointers without annotation is borrow ()
 // 2. It is OK to pass a owning pointer to a borrowed parameter
@@ -101,7 +104,7 @@ typedef struct moonbit_uv_idle_cb {
 } moonbit_uv_idle_cb_t;
 
 uv_idle_t *
-moonbit_uv_idle_alloc(void) {
+moonbit_uv_idle_make(void) {
   return (uv_idle_t *)moonbit_make_bytes(sizeof(uv_idle_t), 0);
 }
 
@@ -127,8 +130,8 @@ moonbit_uv_idle_start(uv_idle_t *idle, moonbit_uv_idle_cb_t *cb) {
     moonbit_decref(idle->data);
   }
   idle->data = cb;
+  // The ownership of `idle` is transferred into `loop`.
   int status = uv_idle_start(idle, moonbit_uv_idle_cb);
-  moonbit_decref(idle);
   return status;
 }
 
@@ -139,6 +142,7 @@ moonbit_uv_idle_stop(uv_idle_t *idle) {
   }
   idle->data = NULL;
   int status = uv_idle_stop(idle);
+  moonbit_decref(idle);
   moonbit_decref(idle);
   return status;
 }

@@ -20,6 +20,7 @@ pub impl ToStream for Pipe with to_stream(self) {
   self.to_stream()
 }
 
+///|
 pub impl ToStream for Pipe with of_stream(self) = "%identity"
 
 ///|

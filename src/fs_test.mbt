@@ -14,11 +14,9 @@ test "cat" {
   let mut close_error = None
   fn do_close(uv : @uv.Loop, file : @uv.File) {
     try {
-      uv.fs_close!(file, fn(_) { })
+      uv.fs_close!(file, fn(_) {  })
     } catch {
-      error => {
-        close_error = Some(error)
-      }
+      error => close_error = Some(error)
     }
   }
 

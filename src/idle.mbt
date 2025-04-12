@@ -1,17 +1,46 @@
 ///|
 type Idle Bytes
 
-///|`
-pub fn idle_to_handle(idle : Idle) -> Handle = "%identity"
+///|
+pub impl ToHandle for Idle with to_handle(idle : Idle) -> Handle = "%identity"
 
 ///|
-pub extern "c" fn idle_alloc() -> Idle = "moonbit_uv_idle_alloc"
+pub impl ToHandle for Idle with of_handle(handle : Handle) -> Idle = "%identity"
 
 ///|
-pub extern "c" fn idle_init(loop_ : Loop, idle : Idle) -> Int = "moonbit_uv_idle_init"
+extern "c" fn uv_idle_make() -> Idle = "moonbit_uv_idle_make"
 
 ///|
-pub extern "c" fn idle_start(idle : Idle, cb : (Idle) -> Unit) -> Int = "moonbit_uv_idle_start"
+extern "c" fn uv_idle_init(loop_ : Loop, idle : Idle) -> Int = "moonbit_uv_idle_init"
 
 ///|
-pub extern "c" fn idle_stop(idle : Idle) -> Int = "moonbit_uv_idle_stop"
+pub fn Idle::new(self : Loop) -> Idle!Errno {
+  let idle = uv_idle_make()
+  let status = uv_idle_init(self, idle)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  return idle
+}
+
+///|
+extern "c" fn uv_idle_start(idle : Idle, cb : (Idle) -> Unit) -> Int = "moonbit_uv_idle_start"
+
+///|
+extern "c" fn uv_idle_stop(idle : Idle) -> Int = "moonbit_uv_idle_stop"
+
+///|
+pub fn Idle::start(self : Idle, cb : (Idle) -> Unit) -> Unit!Errno {
+  let status = uv_idle_start(self, fn(idle) { cb(idle) })
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
+pub fn Idle::stop(self : Idle) -> Unit!Errno {
+  let status = uv_idle_stop(self)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}

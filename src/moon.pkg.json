@@ -34,6 +34,9 @@
     "process_test.mbt": [
       "native"
     ],
+    "pipe.mbt": [
+      "native"
+    ],
     "stream.mbt": [
       "native"
     ],
