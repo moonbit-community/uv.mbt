@@ -5,12 +5,10 @@ pub extern "c" fn uv_disable_stdio_inheritance() = "moonbit_uv_disable_stdio_inh
 type Process
 
 ///|
-extern "c" fn uv_process_close(self : Process, cb : (Process) -> Unit) = "moonbit_uv_process_close"
+pub impl ToHandle for Process with to_handle(self) = "%identity"
 
 ///|
-pub fn Process::close(self : Process, cb : (Process) -> Unit) -> Unit {
-  uv_process_close(self, cb)
-}
+pub impl ToHandle for Process with of_handle(handle) = "%identity"
 
 ///|
 extern "c" fn uv_process_get_pid(process : Process) -> Int = "moonbit_uv_process_get_pid"
@@ -154,6 +152,7 @@ pub extern "c" fn StdioContainer::create_pipe(
 ///|
 pub extern "c" fn StdioContainer::inherit_fd(fd : Int) -> StdioContainer = "moonbit_uv_stdio_container_inherit_fd"
 
+///|
 pub fn StdioContainer::inherit_file(file : File) -> StdioContainer {
   return StdioContainer::inherit_fd(file._)
 }
@@ -189,7 +188,7 @@ pub fn spawn(self : Loop, options : ProcessOptions) -> Process!Errno {
   let process = uv_process_make()
   let status = uv_spawn(self, process, options)
   if status < 0 {
-    raise Errno(status)
+    raise Errno::of_int(status)
   }
   return process
 }
