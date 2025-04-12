@@ -1,28 +1,81 @@
 ///|
-extern type Timer
+type Timer
 
 ///|
-pub extern "c" fn timer_alloc() -> Timer = "moonbit_uv_timer_alloc"
+pub impl ToHandle for Timer with to_handle(self : Timer) -> Handle = "%identity"
 
 ///|
-pub extern "c" fn timer_init(loop_ : Loop, timer : Timer) -> Int = "uv_timer_init"
+pub impl ToHandle for Timer with of_handle(self : Handle) -> Timer = "%identity"
 
 ///|
-pub extern "c" fn timer_start(
+extern "c" fn uv_timer_make() -> Timer = "moonbit_uv_timer_make"
+
+///|
+extern "c" fn uv_timer_init(self : Loop, timer : Timer) -> Int = "moonbit_uv_timer_init"
+
+///|
+pub fn Timer::new(self : Loop) -> Timer!Errno {
+  let timer = uv_timer_make()
+  let status = uv_timer_init(self, timer)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  return timer
+}
+
+///|
+extern "c" fn uv_timer_start(
   timer : Timer,
   cb : (Timer) -> Unit,
+  // We shall never use Int/UInt for time, even in MoonBit.
   timeout : UInt64,
   repeat : UInt64
-) -> Int = "uv_timer_start"
+) -> Int = "moonbit_uv_timer_start"
 
 ///|
-pub extern "c" fn timer_stop(timer : Timer) -> Int = "uv_timer_stop"
+pub fn Timer::start(
+  self : Timer,
+  timeout~ : UInt64,
+  repeat~ : UInt64,
+  cb : (Timer) -> Unit
+) -> Unit!Errno {
+  let status = uv_timer_start(self, cb, timeout, repeat)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
 
 ///|
-pub extern "c" fn timer_set_repeat(timer : Timer, repeat : UInt64) -> Unit = "uv_timer_set_repeat"
+extern "c" fn uv_timer_stop(timer : Timer) -> Int = "moonbit_uv_timer_stop"
 
 ///|
-pub extern "c" fn timer_get_repeat(timer : Timer) -> UInt64 = "uv_timer_get_repeat"
+pub fn Timer::stop(self : Timer) -> Unit!Errno {
+  let status = uv_timer_stop(self)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
 
 ///|
-pub extern "c" fn timer_get_due_in(timer : Timer) -> UInt64 = "uv_timer_get_due_in"
+extern "c" fn uv_timer_set_repeat(timer : Timer, repeat : UInt64) -> Unit = "moonbit_uv_timer_set_repeat"
+
+///|
+pub fn Timer::set_repeat(self : Timer, repeat : UInt64) -> Unit {
+  uv_timer_set_repeat(self, repeat)
+}
+
+///|
+extern "c" fn uv_timer_get_repeat(timer : Timer) -> UInt64 = "moonbit_uv_timer_get_repeat"
+
+///|
+pub fn Timer::get_repeat(self : Timer) -> UInt64 {
+  uv_timer_get_repeat(self)
+}
+
+///|
+extern "c" fn uv_timer_get_due_in(timer : Timer) -> UInt64 = "moonbit_uv_timer_get_due_in"
+
+///|
+pub fn Timer::get_due_in(self : Timer) -> UInt64 {
+  uv_timer_get_due_in(self)
+}

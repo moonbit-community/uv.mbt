@@ -36,8 +36,6 @@ moonbit_uv_incref(const char *func, const char *name, void *object) {
 #define moonbit_uv_trace(format, ...)                                          \
   fprintf(stderr, "%s: " format, __func__ __VA_OPT__(, ) __VA_ARGS__)
 #else
-#define moonbit_incref(object) moonbit_incref(object)
-#define moonbit_decref(object) moonbit_decref(object)
 #define moonbit_uv_trace(...)
 #endif
 
@@ -761,27 +759,92 @@ typedef struct moonbit_uv_timer_cb {
   int32_t (*code)(struct moonbit_uv_timer_cb *, uv_timer_t *timer);
 } moonbit_uv_timer_cb_t;
 
-uv_timer_t *
-moonbit_uv_timer_alloc(void) {
-  return ((uv_timer_t *)malloc(sizeof(uv_timer_t)));
+typedef struct moonbit_uv_timer_s {
+  uv_timer_t timer;
+} moonbit_uv_timer_t;
+
+static inline void
+moonbit_uv_timer_finalize(void *object) {
+  moonbit_uv_timer_t *timer = (moonbit_uv_timer_t *)object;
+  moonbit_decref(timer->timer.loop);
+  if (timer->timer.data) {
+    moonbit_decref(timer->timer.data);
+  }
+}
+
+moonbit_uv_timer_t *
+moonbit_uv_timer_make(void) {
+  moonbit_uv_timer_t *timer =
+    (moonbit_uv_timer_t *)moonbit_make_external_object(
+      moonbit_uv_timer_finalize, sizeof(moonbit_uv_timer_t)
+    );
+  memset(timer, 0, sizeof(moonbit_uv_timer_t));
+  return timer;
+}
+
+int32_t
+moonbit_uv_timer_init(uv_loop_t *loop, moonbit_uv_timer_t *timer) {
+  // The ownership of `loop` is transferred into `timer`.
+  int status = uv_timer_init(loop, &timer->timer);
+  moonbit_decref(timer);
+  return status;
 }
 
 static inline void
 moonbit_uv_timer_cb(uv_timer_t *timer) {
   moonbit_uv_timer_cb_t *cb = timer->data;
   moonbit_incref(cb);
+  moonbit_incref(timer);
   cb->code(cb, timer);
 }
 
-int
+int32_t
 moonbit_uv_timer_start(
-  uv_timer_t *handle,
+  moonbit_uv_timer_t *timer,
   moonbit_uv_timer_cb_t *cb,
   uint64_t timeout,
   uint64_t repeat
 ) {
-  handle->data = cb;
-  return uv_timer_start(handle, moonbit_uv_timer_cb, timeout, repeat);
+  moonbit_uv_trace("timer = %p\n", (void *)timer);
+  moonbit_uv_trace("timer->rc = %d\n", Moonbit_object_header(timer)->rc);
+  if (timer->timer.data) {
+    moonbit_decref(timer->timer.data);
+  }
+  timer->timer.data = cb;
+  // The ownership of `handle` is transferred into `loop`.
+  return uv_timer_start(&timer->timer, moonbit_uv_timer_cb, timeout, repeat);
+}
+
+int32_t
+moonbit_uv_timer_stop(uv_timer_t *timer) {
+  if (timer->data) {
+    moonbit_decref(timer->data);
+  }
+  timer->data = NULL;
+  int status = uv_timer_stop(timer);
+  moonbit_decref(timer);
+  moonbit_decref(timer);
+  return status;
+}
+
+void
+moonbit_uv_timer_set_repeat(uv_timer_t *timer, uint64_t repeat) {
+  uv_timer_set_repeat(timer, repeat);
+  moonbit_decref(timer);
+}
+
+uint64_t
+moonbit_uv_timer_get_repeat(uv_timer_t *timer) {
+  uint64_t repeat = uv_timer_get_repeat(timer);
+  moonbit_decref(timer);
+  return repeat;
+}
+
+uint64_t
+moonbit_uv_timer_get_due_in(uv_timer_t *timer) {
+  uint64_t due_in = uv_timer_get_due_in(timer);
+  moonbit_decref(timer);
+  return due_in;
 }
 
 typedef struct moonbit_uv_process_s {
