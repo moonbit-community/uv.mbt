@@ -201,7 +201,7 @@ moonbit_uv_fs_make(void) {
 }
 
 int64_t
-moonbit_uv_fs_result(moonbit_uv_fs_t *fs) {
+moonbit_uv_fs_get_result(moonbit_uv_fs_t *fs) {
   ssize_t result = fs->fs.result;
   moonbit_decref(fs);
   return result;
@@ -342,6 +342,75 @@ moonbit_uv_fs_write(
   moonbit_decref(bufs_offset);
   moonbit_decref(bufs_length);
   return result;
+}
+
+int32_t
+moonbit_uv_fs_mkdir(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path,
+  int flags,
+  moonbit_uv_fs_cb_t *cb
+) {
+  moonbit_uv_fs_set_data(fs, cb);
+  int status =
+    uv_fs_mkdir(loop, &fs->fs, (const char *)path, flags, moonbit_uv_fs_cb);
+  moonbit_decref(loop);
+  moonbit_decref(path);
+  return status;
+}
+
+int32_t
+moonbit_uv_fs_rmdir(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path,
+  moonbit_uv_fs_cb_t *cb
+) {
+  moonbit_uv_fs_set_data(fs, cb);
+  int status = uv_fs_rmdir(loop, &fs->fs, (const char *)path, moonbit_uv_fs_cb);
+  moonbit_decref(loop);
+  moonbit_decref(path);
+  return status;
+}
+
+uv_dirent_t *
+moonbit_uv_dirent_make(void) {
+  return (uv_dirent_t *)moonbit_make_bytes(sizeof(uv_dirent_t), 0);
+}
+
+const char *
+moonbit_uv_dirent_get_name(uv_dirent_t *dirent) {
+  return dirent->name;
+}
+
+int32_t
+moonbit_uv_dirent_get_type(uv_dirent_t *dirent) {
+  return dirent->type;
+}
+
+int32_t
+moonbit_uv_fs_scandir(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path,
+  int32_t flags,
+  moonbit_uv_fs_cb_t *cb
+) {
+  moonbit_uv_fs_set_data(fs, cb);
+  int result =
+    uv_fs_scandir(loop, &fs->fs, (const char *)path, flags, moonbit_uv_fs_cb);
+  moonbit_decref(loop);
+  moonbit_decref(path);
+  return result;
+}
+
+int32_t
+moonbit_uv_fs_scandir_next(moonbit_uv_fs_t *fs, uv_dirent_t *ent) {
+  int status = uv_fs_scandir_next(&fs->fs, ent);
+  moonbit_decref(fs);
+  moonbit_decref(ent);
+  return status;
 }
 
 int
@@ -1220,6 +1289,6 @@ moonbit_uv_pipe(int32_t *fds, int32_t read_flags, int32_t write_flags) {
 }
 
 #define XX(code, _)                                                            \
-  int32_t uv_##code(void) { return UV_##code; }
+  int32_t moonbit_uv_##code(void) { return UV_##code; }
 UV_ERRNO_MAP(XX)
 #undef XX

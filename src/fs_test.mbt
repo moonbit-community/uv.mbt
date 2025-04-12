@@ -84,3 +84,29 @@ test "cat" {
   raise_option!(write_error)
   raise_option!(close_error)
 }
+
+///|
+test "mkdir" {
+  let uv = @uv.Loop::new!()
+  let mut mkdir_error = None
+  let mut rmdir_error = None
+  uv.fs_mkdir!(
+    "test-dir",
+    0,
+    fn(_) {
+      try {
+        uv.fs_rmdir!("test-dir", fn(_) {  }, fn(_, error) {
+          rmdir_error = Some(error)
+        })
+      } catch {
+        error => rmdir_error = Some(error)
+      }
+    },
+    fn(_, error) { mkdir_error = Some(error) },
+  )
+  uv.run!(Default)
+  uv.stop()
+  uv.close!()
+  raise_option!(mkdir_error)
+  raise_option!(rmdir_error)
+}

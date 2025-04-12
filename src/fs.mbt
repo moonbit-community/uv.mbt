@@ -109,11 +109,11 @@ pub fn fs_close(self : Loop, file : File, cb : (Fs) -> Unit) -> Unit!Errno {
 }
 
 ///|
-extern "c" fn uv_fs_result(req : Fs) -> Int64 = "moonbit_uv_fs_result"
+extern "c" fn uv_fs_get_result(req : Fs) -> Int64 = "moonbit_uv_fs_get_result"
 
 ///|
 fn Fs::result(self : Fs) -> Int64 {
-  uv_fs_result(self)
+  uv_fs_get_result(self)
 }
 
 ///|
@@ -223,3 +223,190 @@ pub let stdout : File = 1
 
 ///|
 pub let stderr : File = 2
+
+///|
+extern "c" fn uv_fs_unlink(
+  self : Loop,
+  req : Fs,
+  path : Bytes,
+  cb : (Fs) -> Unit
+) -> Int = "moonbit_uv_fs_unlink"
+
+///|
+pub fn fs_unlink[Ntbs : ToNtbs](
+  self : Loop,
+  path : Ntbs,
+  k : (Fs) -> Unit,
+  e : (Fs, Error) -> Unit
+) -> Unit!Errno {
+  fn cb(req : Fs) {
+    let status = req.result().to_int()
+    if status < 0 {
+      e(req, Errno::of_int(status))
+    } else {
+      k(req)
+    }
+  }
+
+  let req = uv_fs_make()
+  let status = uv_fs_unlink(self, req, path.to_ntbs(), cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
+extern "c" fn uv_fs_mkdir(
+  self : Loop,
+  req : Fs,
+  path : Bytes,
+  mode : Int,
+  cb : (Fs) -> Unit
+) -> Int = "moonbit_uv_fs_mkdir"
+
+///|
+pub fn fs_mkdir[Ntbs : ToNtbs](
+  self : Loop,
+  path : Ntbs,
+  mode : Int,
+  k : (Fs) -> Unit,
+  e : (Fs, Errno) -> Unit
+) -> Unit!Errno {
+  fn cb(req : Fs) {
+    let status = req.result().to_int()
+    if status < 0 {
+      e(req, Errno::of_int(status))
+    } else {
+      k(req)
+    }
+  }
+
+  let req = uv_fs_make()
+  let status = uv_fs_mkdir(self, req, path.to_ntbs(), mode, cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
+extern "c" fn uv_fs_rmdir(
+  self : Loop,
+  req : Fs,
+  path : Bytes,
+  cb : (Fs) -> Unit
+) -> Int = "moonbit_uv_fs_rmdir"
+
+///|
+pub fn fs_rmdir[Ntbs : ToNtbs](
+  self : Loop,
+  path : Ntbs,
+  k : (Fs) -> Unit,
+  e : (Fs, Errno) -> Unit
+) -> Unit!Errno {
+  fn cb(req : Fs) {
+    let status = req.result().to_int()
+    if status < 0 {
+      e(req, Errno::of_int(status))
+    } else {
+      k(req)
+    }
+  }
+
+  let req = uv_fs_make()
+  let status = uv_fs_rmdir(self, req, path.to_ntbs(), cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
+extern "c" fn uv_fs_scandir(
+  self : Loop,
+  req : Fs,
+  path : Bytes,
+  flags : Int,
+  cb : (Fs) -> Unit
+) -> Int = "moonbit_uv_fs_scandir"
+
+///|
+type Dirent
+
+///|
+pub enum DirentType {
+  Unknown
+  File
+  Dir
+  Link
+  Fifo
+  Socket
+  Char
+  Block
+}
+
+///|
+fn init {
+  ignore(DirentType::Unknown)
+  ignore(DirentType::File)
+  ignore(DirentType::Dir)
+  ignore(DirentType::Link)
+  ignore(DirentType::Fifo)
+  ignore(DirentType::Socket)
+  ignore(DirentType::Char)
+  ignore(DirentType::Block)
+}
+
+///|
+extern "c" fn uv_fs_dirent_make() -> Dirent = "moonbit_uv_fs_dirent_make"
+
+///|
+extern "c" fn uv_fs_dirent_get_name(self : Dirent) -> @c.Pointer[Byte] = "moonbit_uv_fs_dirent_get_name"
+
+///|
+pub fn Dirent::name(self : Dirent) -> String! {
+  let name = uv_fs_dirent_get_name(self)
+  let buffer = @buffer.new()
+  for i = 0; name[i] != 0; i = i + 1 {
+    buffer.write_byte(name[i])
+  }
+  let bytes = buffer.contents()
+  return @encoding.decoder(UTF8).decode!(bytes)
+}
+
+///|
+extern "c" fn uv_fs_dirent_get_type(self : Dirent) -> DirentType = "moonbit_uv_fs_dirent_get_type"
+
+///|
+pub fn Dirent::type_(self : Dirent) -> DirentType {
+  uv_fs_dirent_get_type(self)
+}
+
+///|
+extern "c" fn uv_fs_scandir_next(req : Fs, ent : Dirent) -> Int = "moonbit_uv_fs_scandir_next"
+
+///|
+pub fn fs_scandir[Ntbs : ToNtbs](
+  self : Loop,
+  path : Ntbs,
+  flags : Int,
+  k : (Fs, Dirent) -> Unit,
+  e : (Fs, Errno) -> Unit
+) -> Unit!Errno {
+  let req = uv_fs_make()
+  let status = uv_fs_scandir(self, req, path.to_ntbs(), flags, fn(req) {
+    let status = uv_fs_get_result(req).to_int()
+    if status < 0 {
+      return e(req, Errno::of_int(status))
+    }
+    while true {
+      let direnv = uv_fs_dirent_make()
+      let status = uv_fs_scandir_next(req, direnv)
+      if status < 0 {
+        return e(req, Errno::of_int(status))
+      }
+      k(req, direnv)
+    }
+  })
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
