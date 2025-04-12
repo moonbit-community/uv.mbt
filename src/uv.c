@@ -165,14 +165,13 @@ moonbit_uv_fs_cb(uv_fs_t *req) {
   moonbit_uv_trace("fs->rc = %d\n", Moonbit_object_header(fs)->rc);
   moonbit_uv_trace("cb = %p\n", (void *)cb);
   moonbit_uv_trace("cb->rc = %d\n", Moonbit_object_header(cb)->rc);
-  uv_loop_t *loop = req->loop;
   moonbit_uv_trace("fs->fs.loop = %p\n", (void *)fs->fs.loop);
-  moonbit_uv_trace("fs->fs.loop->rc = %d\n", Moonbit_object_header(fs->fs.loop)->rc);
+  moonbit_uv_trace(
+    "fs->fs.loop->rc = %d\n", Moonbit_object_header(fs->fs.loop)->rc
+  );
   moonbit_uv_trace("calling cb ...\n");
   cb->code(cb, fs);
   moonbit_uv_trace("called  cb ...\n");
-  moonbit_uv_trace("fs->fs.loop = %p\n", (void *)loop);
-  moonbit_uv_trace("fs->fs.loop->rc = %d\n", Moonbit_object_header(loop)->rc);
 }
 
 static inline void
@@ -181,7 +180,9 @@ moonbit_uv_fs_finalize(void *object) {
   moonbit_uv_trace("fs = %p\n", (void *)fs);
   moonbit_uv_trace("fs->rc = %d\n", Moonbit_object_header(fs)->rc);
   moonbit_uv_trace("fs->fs.loop = %p\n", (void *)fs->fs.loop);
-  moonbit_uv_trace("fs->fs.loop->rc = %d\n", Moonbit_object_header(fs->fs.loop)->rc);
+  moonbit_uv_trace(
+    "fs->fs.loop->rc = %d\n", Moonbit_object_header(fs->fs.loop)->rc
+  );
   if (fs->fs.data) {
     moonbit_decref(fs->fs.data);
   }
@@ -429,30 +430,49 @@ moonbit_uv_sockaddr_in_make(void) {
 void
 moonbit_uv_ip4_addr(moonbit_bytes_t ip, int port, struct sockaddr_in *addr) {
   uv_ip4_addr((const char *)ip, port, addr);
+  moonbit_decref(ip);
   moonbit_decref(addr);
 }
 
-uv_tcp_t *
-moonbit_uv_tcp_alloc(void) {
-  return ((uv_tcp_t *)malloc(sizeof(uv_tcp_t)));
+typedef struct moonbit_uv_tcp_s {
+  uv_tcp_t tcp;
+} moonbit_uv_tcp_t;
+
+static inline void
+moonbit_uv_tcp_finalize(void *object) {
+  moonbit_uv_tcp_t *tcp = (moonbit_uv_tcp_t *)object;
+  if (tcp->tcp.data) {
+    moonbit_decref(tcp->tcp.data);
+  }
+}
+
+moonbit_uv_tcp_t *
+moonbit_uv_tcp_make(void) {
+  moonbit_uv_tcp_t *tcp = (moonbit_uv_tcp_t *)moonbit_make_external_object(
+    moonbit_uv_tcp_finalize, sizeof(moonbit_uv_tcp_t)
+  );
+  memset(tcp, 0, sizeof(moonbit_uv_tcp_t));
+  return tcp;
 }
 
 int
-moonbit_uv_tcp_init(uv_loop_t *loop, uv_tcp_t *tcp) {
-  int result = uv_tcp_init(loop, tcp);
+moonbit_uv_tcp_init(uv_loop_t *loop, moonbit_uv_tcp_t *tcp) {
+  int result = uv_tcp_init(loop, &tcp->tcp);
   moonbit_decref(loop);
+  moonbit_decref(tcp);
   return result;
 }
 
 int
 moonbit_uv_tcp_bind(uv_tcp_t *tcp, struct sockaddr *addr, unsigned int flags) {
   int result = uv_tcp_bind(tcp, addr, flags);
+  moonbit_decref(tcp);
   moonbit_decref(addr);
   return result;
 }
 
 uv_connect_t *
-moonbit_uv_connect_alloc(void) {
+moonbit_uv_connect_make(void) {
   uv_connect_t *connect =
     (uv_connect_t *)moonbit_make_bytes(sizeof(uv_connect_t), 0);
   return connect;
@@ -469,7 +489,6 @@ typedef struct moonbit_uv_connect_cb_s {
 static inline void
 moonbit_uv_connect_cb(uv_connect_t *req, int status) {
   moonbit_uv_connect_cb_t *cb = req->data;
-  moonbit_incref(cb);
   cb->code(cb, req, status);
 }
 
@@ -480,9 +499,14 @@ moonbit_uv_tcp_connect(
   struct sockaddr *addr,
   moonbit_uv_connection_cb_t *cb
 ) {
+  if (connect->data) {
+    moonbit_decref(connect->data);
+  }
   connect->data = cb;
+  // The ownership of `connect` is transferred into `loop`.
   int result = uv_tcp_connect(connect, tcp, addr, moonbit_uv_connect_cb);
   moonbit_decref(addr);
+  moonbit_decref(tcp);
   return result;
 }
 

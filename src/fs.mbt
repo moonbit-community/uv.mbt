@@ -45,9 +45,30 @@ extern "c" fn uv_fs_open(
 ) -> Int = "moonbit_uv_fs_open"
 
 ///|
-pub fn fs_open(
+pub(open) trait ToNtbs {
+  to_ntbs(Self) -> Bytes
+}
+
+///|
+pub impl ToNtbs for String with to_ntbs(self : String) -> Bytes {
+  let buffer = @buffer.new()
+  @encoding.encode_to(self, buffer, encoding=UTF8)
+  buffer.write_byte(0)
+  return buffer.contents()
+}
+
+///|
+pub impl ToNtbs for Bytes with to_ntbs(self : Bytes) -> Bytes {
+  let buffer = @buffer.new()
+  buffer.write_bytes(self)
+  buffer.write_byte(0)
+  return buffer.contents()
+}
+
+///|
+pub fn fs_open[Ntbs : ToNtbs](
   self : Loop,
-  path : String,
+  path : Ntbs,
   flags : OpenFlags,
   mode : Int,
   open_cb : (Fs, File) -> Unit,
@@ -63,7 +84,7 @@ pub fn fs_open(
   }
 
   let req = uv_fs_make()
-  let path = to_c_string(path)
+  let path = path.to_ntbs()
   let status = uv_fs_open(self, req, path, flags._, mode, cb)
   if status < 0 {
     raise Errno::of_int(status)

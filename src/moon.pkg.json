@@ -56,9 +56,9 @@
   ],
   "link": {
     "native": {
-      "stub-cc": "gcc",
+      "stub-cc": "/opt/homebrew/opt/llvm/bin/clang",
       "stub-cc-flags": "-g -Og -fsanitize=address",
-      "cc": "gcc",
+      "cc": "/opt/homebrew/opt/llvm/bin/clang",
       "cc-flags": "-g -Og -fsanitize=address"
     }
   },

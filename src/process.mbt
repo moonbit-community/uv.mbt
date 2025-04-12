@@ -95,13 +95,13 @@ pub fn ProcessOptions::new(
   let mut flags = 0
   let options = uv_process_options_make()
   uv_process_options_set_exit_cb(options, exit_cb)
-  let file = to_c_string(file)
+  let file = to_ntbs(file)
   uv_process_options_set_file(options, file)
   let args = FixedArray::makei(args.length() + 1, fn(i) {
     if i == args.length() {
       return None
     } else {
-      return Some(to_c_string(args[i]))
+      return Some(to_ntbs(args[i]))
     }
   })
   uv_process_options_set_args(options, args)
@@ -110,13 +110,13 @@ pub fn ProcessOptions::new(
       if i == env.length() {
         return None
       } else {
-        return Some(to_c_string(env[i]))
+        return Some(to_ntbs(env[i]))
       }
     })
     uv_process_options_set_env(options, env)
   }
   if cwd is Some(cwd) {
-    let cwd = to_c_string(cwd)
+    let cwd = to_ntbs(cwd)
     uv_process_options_set_cwd(options, cwd)
   }
   if stdio is Some(stdio) {
@@ -176,7 +176,7 @@ extern "c" fn uv_spawn(
 ) -> Int = "moonbit_uv_spawn"
 
 ///|
-fn to_c_string(string : String) -> Bytes {
+fn to_ntbs(string : String) -> Bytes {
   let buffer = @buffer.new()
   @encoding.encode_to(string, buffer, encoding=UTF8)
   buffer.write_byte(0)

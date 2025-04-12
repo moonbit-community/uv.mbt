@@ -2,50 +2,114 @@
 type SockaddrIn Bytes
 
 ///|
-extern "c" fn sockaddr_in_make() -> SockaddrIn = "moonbit_uv_sockaddr_in_make"
+extern "c" fn uv_sockaddr_in_make() -> SockaddrIn = "moonbit_uv_sockaddr_in_make"
 
 ///|
-extern type SockaddrIn6
+type Tcp
 
 ///|
-extern type Tcp
+pub impl ToHandle for Tcp with to_handle(self : Tcp) -> Handle = "%identity"
 
 ///|
-pub fn Tcp::to_stream(self : Tcp) -> Stream = "%identity"
+pub impl ToHandle for Tcp with of_handle(self : Handle) -> Tcp = "%identity"
 
 ///|
-pub fn Tcp::to_handle(self : Tcp) -> Handle = "%identity"
+pub impl ToStream for Tcp with to_stream(self : Tcp) -> Stream = "%identity"
 
 ///|
-pub extern "c" fn tcp_alloc() -> Tcp = "moonbit_uv_tcp_alloc"
+pub impl ToStream for Tcp with of_stream(self : Stream) -> Tcp = "%identity"
 
 ///|
-pub extern "c" fn tcp_init(loop_ : Loop, tcp : Tcp) -> Int = "moonbit_uv_tcp_init"
+extern "c" fn uv_tcp_make() -> Tcp = "moonbit_uv_tcp_make"
 
 ///|
-pub extern "c" fn ip4_addr(ip : Bytes, port : Int, addr : SockaddrIn) -> Unit = "moonbit_uv_ip4_addr"
+extern "c" fn uv_tcp_init(self : Loop, tcp : Tcp) -> Int = "moonbit_uv_tcp_init"
 
 ///|
-pub extern "c" fn ip6_addr(ip : Bytes, port : Int, addr : SockaddrIn6) -> Unit = "moonbit_uv_ip6_addr"
+pub fn Tcp::new(loop_ : Loop) -> Tcp!Errno {
+  let tcp = uv_tcp_make()
+  let result = uv_tcp_init(loop_, tcp)
+  if result < 0 {
+    raise Errno::of_int(result)
+  }
+  tcp
+}
 
 ///|
-extern type Sockaddr
+extern "c" fn uv_ip4_addr(ip : Bytes, port : Int, addr : SockaddrIn) -> Unit = "moonbit_uv_ip4_addr"
 
 ///|
-pub fn SockaddrIn::to_sockaddr(addr : SockaddrIn) -> Sockaddr = "%identity"
+pub fn ip4_addr(ip : String, port : Int) -> SockaddrIn {
+  let ip = to_ntbs(ip)
+  let addr = uv_sockaddr_in_make()
+  uv_ip4_addr(ip, port, addr)
+  addr
+}
 
 ///|
-pub extern "c" fn tcp_bind(tcp : Tcp, addr : Sockaddr, flags : Int) -> Int = "moonbit_uv_tcp_bind"
+type Sockaddr Bytes
 
 ///|
-pub extern "c" fn listen(
+pub impl ToSockaddr for SockaddrIn with to_sockaddr(addr : SockaddrIn) -> Sockaddr = "%identity"
+
+///|
+extern "c" fn uv_tcp_bind(tcp : Tcp, addr : Sockaddr, flags : Int) -> Int = "moonbit_uv_tcp_bind"
+
+///|
+pub fn Tcp::bind[Sockaddr : ToSockaddr](
+  self : Tcp,
+  addr : Sockaddr,
+  flags : Int
+) -> Unit!Errno {
+  let status = uv_tcp_bind(self, addr.to_sockaddr(), flags)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
+extern "c" fn uv_listen(
   stream : Stream,
   backlog : Int,
   cb : (Stream, Int) -> Unit
 ) -> Int = "moonbit_uv_listen"
 
 ///|
-pub extern "c" fn accept(server : Stream, client : Stream) -> Int = "moonbit_uv_accept"
+pub fn listen[Stream : ToStream](
+  stream : Stream,
+  backlog : Int,
+  connection_cb : (Stream) -> Unit,
+  error_cb : (Stream, Errno) -> Unit
+) -> Unit!Errno {
+  stream.listen!(backlog, connection_cb, error_cb)
+}
+
+///|
+impl ToStream with listen(self, backlog, connection_cb, error_cb) {
+  fn uv_cb(self : Stream, status : Int) {
+    if status < 0 {
+      error_cb(ToStream::of_stream(self), Errno::of_int(status))
+    } else {
+      connection_cb(ToStream::of_stream(self))
+    }
+  }
+
+  let status = uv_listen(self.to_stream(), backlog, uv_cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
+extern "c" fn uv_accept(server : Stream, client : Stream) -> Int = "moonbit_uv_accept"
+
+///|
+pub fn accept[Server : ToStream, Client : ToStream](
+  server : Server,
+  client : Client
+) -> Int {
+  uv_accept(server.to_stream(), client.to_stream())
+}
 
 ///|
 type Connect Bytes
@@ -54,12 +118,36 @@ type Connect Bytes
 pub fn Connect::to_req(self : Connect) -> Req = "%identity"
 
 ///|
-pub extern "c" fn connect_alloc() -> Connect = "moonbit_uv_connect_alloc"
+extern "c" fn uv_connect_make() -> Connect = "moonbit_uv_connect_make"
 
 ///|
-pub extern "c" fn tcp_connect(
+extern "c" fn uv_tcp_connect(
   req : Connect,
   handle : Tcp,
   addr : Sockaddr,
   cb : (Connect, Int) -> Unit
 ) -> Int = "moonbit_uv_tcp_connect"
+
+///|
+trait ToSockaddr {
+  to_sockaddr(self : Self) -> Sockaddr
+}
+
+///|
+pub fn Tcp::connect[Sockaddr : ToSockaddr](
+  self : Tcp,
+  addr : Sockaddr,
+  connect_cb : (Connect) -> Unit,
+  error_cb : (Connect, Errno) -> Unit
+) -> Int {
+  fn cb(req : Connect, status : Int) {
+    if status < 0 {
+      error_cb(req, Errno::of_int(status))
+    } else {
+      connect_cb(req)
+    }
+  }
+
+  let req = uv_connect_make()
+  uv_tcp_connect(req, self, addr.to_sockaddr(), cb)
+}

@@ -51,7 +51,7 @@ pub fn Pipe::new(self : Loop, ipc~ : Bool = false) -> Pipe!Errno {
 
 ///|
 pub fn Pipe::bind(self : Pipe, name : String, flags : Int) -> Unit!Errno {
-  let name = to_c_string(name)
+  let name = to_ntbs(name)
   let status = uv_pipe_bind(self, name, flags)
   if status < 0 {
     raise Errno::of_int(status)

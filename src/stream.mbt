@@ -130,7 +130,16 @@ pub trait ToStream: ToHandle {
     (Self, Errno) -> Unit,
   ) -> Unit!Errno
   read_stop(Self) -> Unit!Errno
+  write(Self, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) ->
+       Unit!Errno
+  listen(Self, Int, (Self) -> Unit, (Self, Errno) -> Unit) -> Unit!Errno
 }
+
+///|
+pub impl ToStream for Stream with to_stream(self) = "%identity"
+
+///|
+pub impl ToStream for Stream with of_stream(self) = "%identity"
 
 ///|
 impl ToStream with read_start(self, alloc_cb, read_cb, error_cb) {
@@ -160,4 +169,9 @@ impl ToStream with read_start(self, alloc_cb, read_cb, error_cb) {
 ///|
 impl ToStream with read_stop(self) {
   self.to_stream().read_stop!()
+}
+
+///|
+impl ToStream with write(self, bufs, write_cb, error_cb) {
+  self.to_stream().write!(bufs, write_cb, error_cb)
 }
