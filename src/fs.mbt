@@ -341,6 +341,11 @@ pub enum DirentType {
   Socket
   Char
   Block
+} derive(Show)
+
+///|
+pub impl ToJson for DirentType with to_json(self) -> Json {
+  Json::string(self.to_string())
 }
 
 ///|
@@ -356,14 +361,14 @@ fn init {
 }
 
 ///|
-extern "c" fn uv_fs_dirent_make() -> Dirent = "moonbit_uv_fs_dirent_make"
+extern "c" fn uv_dirent_make() -> Dirent = "moonbit_uv_dirent_make"
 
 ///|
-extern "c" fn uv_fs_dirent_get_name(self : Dirent) -> @c.Pointer[Byte] = "moonbit_uv_fs_dirent_get_name"
+extern "c" fn uv_dirent_get_name(self : Dirent) -> @c.Pointer[Byte] = "moonbit_uv_dirent_get_name"
 
 ///|
 pub fn Dirent::name(self : Dirent) -> String! {
-  let name = uv_fs_dirent_get_name(self)
+  let name = uv_dirent_get_name(self)
   let buffer = @buffer.new()
   for i = 0; name[i] != 0; i = i + 1 {
     buffer.write_byte(name[i])
@@ -373,11 +378,11 @@ pub fn Dirent::name(self : Dirent) -> String! {
 }
 
 ///|
-extern "c" fn uv_fs_dirent_get_type(self : Dirent) -> DirentType = "moonbit_uv_fs_dirent_get_type"
+extern "c" fn uv_dirent_get_type(self : Dirent) -> DirentType = "moonbit_uv_dirent_get_type"
 
 ///|
 pub fn Dirent::type_(self : Dirent) -> DirentType {
-  uv_fs_dirent_get_type(self)
+  uv_dirent_get_type(self)
 }
 
 ///|
@@ -398,7 +403,7 @@ pub fn fs_scandir[Ntbs : ToNtbs](
       return e(req, Errno::of_int(status))
     }
     while true {
-      let direnv = uv_fs_dirent_make()
+      let direnv = uv_dirent_make()
       let status = uv_fs_scandir_next(req, direnv)
       if status < 0 {
         return e(req, Errno::of_int(status))

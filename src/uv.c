@@ -381,12 +381,16 @@ moonbit_uv_dirent_make(void) {
 
 const char *
 moonbit_uv_dirent_get_name(uv_dirent_t *dirent) {
-  return dirent->name;
+  const char *name = dirent->name;
+  moonbit_decref(dirent);
+  return name;
 }
 
 int32_t
 moonbit_uv_dirent_get_type(uv_dirent_t *dirent) {
-  return dirent->type;
+  int32_t type = dirent->type;
+  moonbit_decref(dirent);
+  return type;
 }
 
 int32_t
@@ -413,9 +417,12 @@ moonbit_uv_fs_scandir_next(moonbit_uv_fs_t *fs, uv_dirent_t *ent) {
   return status;
 }
 
-int
+int32_t
 moonbit_uv_accept(uv_stream_t *server, uv_stream_t *client) {
-  return uv_accept(server, client);
+  int status = uv_accept(server, client);
+  moonbit_decref(server);
+  moonbit_decref(client);
+  return status;
 }
 
 typedef struct moonbit_uv_connection_cb {

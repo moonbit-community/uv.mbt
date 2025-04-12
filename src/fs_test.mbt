@@ -110,3 +110,32 @@ test "mkdir" {
   raise_option!(mkdir_error)
   raise_option!(rmdir_error)
 }
+
+///|
+test "scandir" {
+  struct Entry {
+    name : String
+    type_ : @uv.DirentType
+  } derive(Show, ToJson)
+  let uv = @uv.Loop::new!()
+  let mut error = None
+  let entries = []
+  uv.fs_scandir!(
+    "test/fixtures",
+    0,
+    fn(_, dirent) {
+      try {
+        let name = dirent.name!()
+        entries.push({ name, type_: dirent.type_() })
+      } catch {
+        e => error = Some(e)
+      }
+    },
+    fn(_, e) { if not(e is EOF) { error = Some(e) } },
+  )
+  uv.run!(Default)
+  uv.stop()
+  uv.close!()
+  @json.inspect!(entries, content=[{ "name": "example.txt", "type_": "File" }])
+  raise_option!(error)
+}
