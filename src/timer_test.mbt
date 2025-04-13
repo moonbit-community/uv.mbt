@@ -9,9 +9,7 @@ test "timer" {
     if count > 10 {
       try {
         timer.stop!()
-        timer.close(fn(_) {
-          println("Timer closed")
-        })
+        timer.close(fn(_) { println("Timer closed") })
       } catch {
         error => println("Error stopping timer: \{error}")
       }

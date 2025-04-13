@@ -8,7 +8,7 @@ fn fib(n : Int) -> Int {
 }
 
 ///|
-test {
+test "work" {
   ignore(fib(40))
   let start = @uv.hrtime()
   ignore(fib(40))
@@ -17,9 +17,7 @@ test {
   let mut work_error = None
   let start = @uv.hrtime()
   for i in 0..<2 {
-    uv.queue_work!(fn(_) {
-      ignore(fib(40))
-    }, fn(_) {  }, fn(_, error) {
+    uv.queue_work!(fn(_) { ignore(fib(40)) }, fn(_) {  }, fn(_, error) {
       work_error = Some(error)
     })
   }
