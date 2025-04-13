@@ -527,7 +527,7 @@ moonbit_uv_close_cb(uv_handle_t *handle) {
 }
 
 static inline void
-moonbit_uv_handle_set_data(uv_handle_t *handle, moonbit_uv_close_cb_t *cb) {
+moonbit_uv_handle_set_data(uv_handle_t *handle, void *cb) {
   if (handle->data) {
     moonbit_decref(handle->data);
   }
@@ -1546,5 +1546,73 @@ moonbit_uv_cwd(moonbit_bytes_t buffer, int32_t *length) {
   *length = size;
   moonbit_decref(buffer);
   moonbit_decref(length);
+  return status;
+}
+
+typedef struct moonbit_uv_signal_s {
+  uv_signal_t signal;
+} moonbit_uv_signal_t;
+
+static inline void
+moonbit_uv_signal_finalize(void *object) {
+  moonbit_uv_signal_t *signal = object;
+  if (signal->signal.loop) {
+    moonbit_decref(signal->signal.loop);
+  }
+  if (signal->signal.data) {
+    moonbit_decref(signal->signal.data);
+  }
+}
+
+moonbit_uv_signal_t *
+moonbit_uv_signal_make(void) {
+  moonbit_uv_signal_t *signal =
+    (moonbit_uv_signal_t *)moonbit_make_external_object(
+      moonbit_uv_signal_finalize, sizeof(moonbit_uv_signal_t)
+    );
+  memset(signal, 0, sizeof(moonbit_uv_signal_t));
+  return signal;
+}
+
+int32_t
+moonbit_uv_signal_init(uv_loop_t *loop, moonbit_uv_signal_t *signal) {
+  uv_signal_init(loop, &signal->signal);
+  moonbit_decref(signal);
+}
+
+typedef struct moonbit_uv_signal_cb_s {
+  int32_t (*code)(
+    struct moonbit_uv_signal_cb_s *,
+    uv_signal_t *signal,
+    int signum
+  );
+} moonbit_uv_signal_cb_t;
+
+static inline void
+moonbit_uv_signal_cb(uv_signal_t *signal, int signum) {
+  moonbit_uv_signal_cb_t *cb = signal->data;
+  moonbit_incref(cb);
+  moonbit_incref(signal);
+  cb->code(cb, signal, signum);
+}
+
+int32_t
+moonbit_uv_signal_start(
+  moonbit_uv_signal_t *signal,
+  moonbit_uv_signal_cb_t *cb,
+  int32_t signum
+) {
+  moonbit_uv_handle_set_data((uv_handle_t *)&signal->signal, cb);
+  int32_t status =
+    uv_signal_start(&signal->signal, moonbit_uv_signal_cb, signum);
+  return status;
+}
+
+int32_t
+moonbit_uv_signal_stop(moonbit_uv_signal_t *signal) {
+  moonbit_uv_handle_set_data((uv_handle_t *)&signal->signal, NULL);
+  int32_t status = uv_signal_stop(&signal->signal);
+  moonbit_decref(signal);
+  moonbit_decref(signal);
   return status;
 }
