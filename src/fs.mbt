@@ -415,3 +415,111 @@ pub fn fs_scandir[Ntbs : ToNtbs](
     raise Errno::of_int(status)
   }
 }
+
+///|
+extern "c" fn uv_fs_rename(
+  self : Loop,
+  req : Fs,
+  path : Bytes,
+  new_path : Bytes,
+  cb : (Fs) -> Unit
+) -> Int = "moonbit_uv_fs_rename"
+
+///|
+pub fn fs_rename[Ntbs : ToNtbs](
+  self : Loop,
+  path : Ntbs,
+  new_path : Ntbs,
+  k : (Fs) -> Unit,
+  e : (Fs, Errno) -> Unit
+) -> Unit!Errno {
+  fn cb(req : Fs) {
+    let status = req.result().to_int()
+    if status < 0 {
+      e(req, Errno::of_int(status))
+    } else {
+      k(req)
+    }
+  }
+
+  let req = uv_fs_make()
+  let status = uv_fs_rename(self, req, path.to_ntbs(), new_path.to_ntbs(), cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
+type CopyFileFlags Int
+
+///|
+extern "c" fn uv_fs_COPYFILE_EXCL() -> Int = "moonbit_uv_fs_COPYFILE_EXCL"
+
+///|
+extern "c" fn uv_fs_COPYFILE_FICLONE() -> Int = "moonbit_uv_fs_COPYFILE_FICLONE"
+
+///|
+extern "c" fn uv_fs_COPYFILE_FICLONE_FORCE() -> Int = "moonbit_uv_fs_COPYFILE_FICLONE_FORCE"
+
+///|
+pub(all) enum CopyOnWrite {
+  False
+  True
+  Force
+}
+
+///|
+pub fn CopyFileFlags::new(
+  allow_exists~ : Bool = true,
+  copy_on_write~ : CopyOnWrite = False
+) -> CopyFileFlags {
+  let mut flags = if allow_exists { 0 } else { uv_fs_COPYFILE_EXCL() }
+  match copy_on_write {
+    False => ()
+    True => flags = flags | uv_fs_COPYFILE_FICLONE()
+    Force => flags = flags | uv_fs_COPYFILE_FICLONE_FORCE()
+  }
+  return flags
+}
+
+///|
+extern "c" fn uv_fs_copyfile(
+  self : Loop,
+  req : Fs,
+  path : Bytes,
+  new_path : Bytes,
+  flags : Int,
+  cb : (Fs) -> Unit
+) -> Int = "moonbit_uv_fs_copyfile"
+
+///|
+pub fn fs_copyfile[Ntbs : ToNtbs](
+  self : Loop,
+  path : Ntbs,
+  new_path : Ntbs,
+  flags : CopyFileFlags,
+  k : (Fs) -> Unit,
+  e : (Fs, Errno) -> Unit
+) -> Unit!Errno {
+  fn cb(req : Fs) {
+    let status = req.result().to_int()
+    if status < 0 {
+      e(req, Errno::of_int(status))
+    } else {
+      k(req)
+    }
+  }
+
+  let req = uv_fs_make()
+  let status = uv_fs_copyfile(
+    self,
+    req,
+    path.to_ntbs(),
+    new_path.to_ntbs(),
+    flags._,
+    cb,
+  )
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}

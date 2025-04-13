@@ -54,14 +54,6 @@
     "tonyfettes/c",
     "tonyfettes/encoding"
   ],
-  "link": {
-    "native": {
-      "stub-cc": "/opt/homebrew/opt/llvm/bin/clang",
-      "stub-cc-flags": "-g -Og -fsanitize=address",
-      "cc": "/opt/homebrew/opt/llvm/bin/clang",
-      "cc-flags": "-g -Og -fsanitize=address"
-    }
-  },
   "native-stub": [
     "uv#src#fs-poll.c",
     "uv#src#idna.c",

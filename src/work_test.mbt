@@ -19,9 +19,7 @@ test "work" {
   let start = @uv.hrtime()
   for i in 0..<2 {
     let mutex = mutex.copy()
-    uv.queue_work!(fn(_) {
-      ignore(fib(40))
-    }, fn(_) {  }, fn(_, error) {
+    uv.queue_work!(fn(_) { ignore(fib(40)) }, fn(_) {  }, fn(_, error) {
       mutex.lock()
       work_error = Some(error)
       mutex.unlock()

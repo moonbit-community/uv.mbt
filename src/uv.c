@@ -375,6 +375,55 @@ moonbit_uv_fs_rmdir(
   return status;
 }
 
+int32_t
+moonbit_uv_fs_COPYFILE_EXCL(void) {
+  return UV_FS_COPYFILE_EXCL;
+}
+
+int32_t
+moonbit_uv_fs_COPYFILE_FICLONE(void) {
+  return UV_FS_COPYFILE_FICLONE;
+}
+
+int32_t
+moonbit_uv_fs_COPYFILE_FICLONE_FORCE(void) {
+  return UV_FS_COPYFILE_FICLONE_FORCE;
+}
+
+int32_t
+moonbit_uv_fs_copyfile(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path,
+  moonbit_bytes_t new_path,
+  int flags,
+  moonbit_uv_fs_cb_t *cb
+) {
+  moonbit_uv_fs_set_data(fs, cb);
+  int status = uv_fs_copyfile(
+    loop, &fs->fs, (const char *)path, (const char *)new_path, flags,
+    moonbit_uv_fs_cb
+  );
+  moonbit_decref(loop);
+  moonbit_decref(path);
+  moonbit_decref(new_path);
+  return status;
+}
+
+int32_t
+moonbit_uv_fs_unlink(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path,
+  moonbit_uv_fs_cb_t *cb
+) {
+  moonbit_uv_fs_set_data(fs, cb);
+  int status = uv_fs_unlink(loop, &fs->fs, (const char *)path, moonbit_uv_fs_cb);
+  moonbit_decref(loop);
+  moonbit_decref(path);
+  return status;
+}
+
 uv_dirent_t *
 moonbit_uv_dirent_make(void) {
   return (uv_dirent_t *)moonbit_make_bytes(sizeof(uv_dirent_t), 0);

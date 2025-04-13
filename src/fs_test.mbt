@@ -6,83 +6,88 @@ fn raise_option[E : Error](option : E?) -> Unit!E {
 }
 
 ///|
+fn cat_do_close(uv : @uv.Loop, file : @uv.File, error : Ref[Errno?]) -> Unit {
+  try {
+    uv.fs_close!(file, fn(_) {  })
+  } catch {
+    e => error.val = Some(e)
+  }
+}
+
+///|
+fn cat_do_write(
+  uv : @uv.Loop,
+  file : @uv.File,
+  bytes : Bytes,
+  start : Int,
+  count : Int,
+  error : Ref[Errno?]
+) -> Unit {
+  try {
+    uv.fs_write!(
+      @uv.stdout,
+      [bytes[start:start + count]],
+      -1,
+      fn(_, delta) {
+        if delta < count {
+          cat_do_write(uv, file, bytes, start + delta, count - delta, error)
+        } else {
+          cat_do_read(uv, file, bytes, error)
+        }
+      },
+      fn(_, e) { error.val = Some(e) },
+    )
+  } catch {
+    e => error.val = Some(e)
+  }
+}
+
+///|
+fn cat_do_read(
+  uv : @uv.Loop,
+  file : @uv.File,
+  bytes : Bytes,
+  error : Ref[Errno?]
+) -> Unit {
+  try {
+    uv.fs_read!(
+      file,
+      [bytes[:]],
+      -1,
+      fn(_, count) {
+        if count == 0 {
+          cat_do_close(uv, file, error)
+        } else {
+          cat_do_write(uv, file, bytes, 0, count, error)
+        }
+      },
+      fn(_, errno) {
+        error.val = Some(errno)
+        cat_do_close(uv, file, error)
+      },
+    )
+  } catch {
+    e => {
+      error.val = Some(e)
+      cat_do_close(uv, file, error)
+    }
+  }
+}
+
+///|
 test "cat" {
   let uv = @uv.Loop::new!()
-  let mut open_error = None
-  let mut read_error = None
-  let mut write_error = None
-  let mut close_error = None
-  fn do_close(uv : @uv.Loop, file : @uv.File) {
-    try {
-      uv.fs_close!(file, fn(_) {  })
-    } catch {
-      error => close_error = Some(error)
-    }
-  }
-
-  fn do_write(
-    uv : @uv.Loop,
-    file : @uv.File,
-    bytes : Bytes,
-    start : Int,
-    count : Int
-  ) -> Unit {
-    try {
-      uv.fs_write!(
-        @uv.stdout,
-        [bytes[start:start + count]],
-        -1,
-        fn(_, delta) {
-          if delta < count {
-            do_write(uv, file, bytes, start + delta, count - delta)
-          }
-        },
-        fn(_, error) { write_error = Some(error) },
-      )
-    } catch {
-      error => write_error = Some(error)
-    }
-  }
-
-  fn do_read(uv : @uv.Loop, file : @uv.File, bytes : Bytes) -> Unit {
-    try {
-      uv.fs_read!(
-        file,
-        [bytes[:]],
-        -1,
-        fn(_, count) {
-          if count == 0 {
-            do_close(uv, file)
-          } else {
-            do_write(uv, file, bytes, 0, count)
-          }
-        },
-        fn(_, errno) {
-          read_error = Some(errno)
-          do_close(uv, file)
-        },
-      )
-    } catch {
-      error => {
-        read_error = Some(error)
-        do_close(uv, file)
-      }
-    }
-  }
-
+  let error = Ref::new(None)
   uv.fs_open!(
     "README.md",
     @uv.OpenFlags::read(),
     0,
-    fn(_, file) { do_read(uv, file, Bytes::make(1024, 0)) },
-    fn(_, errno) { open_error = Some(errno) },
+    fn(_, file) { cat_do_read(uv, file, Bytes::make(1024, 0), error) },
+    fn(_, e) { error.val = Some(e) },
   )
   uv.run!(@uv.RunMode::Default)
   uv.close!()
-  raise_option!(open_error)
-  raise_option!(read_error)
-  raise_option!(write_error)
-  raise_option!(close_error)
+  raise_option!(error.val)
 }
 
 ///|
@@ -137,5 +142,30 @@ test "scandir" {
   uv.stop()
   uv.close!()
   @json.inspect!(entries, content=[{ "name": "example.txt", "type_": "File" }])
+  raise_option!(error)
+}
+
+///|
+test "copyfile_unlink" {
+  let uv = @uv.Loop::new!()
+  let mut error = None
+  uv.fs_copyfile!(
+    "test/fixtures/example.txt",
+    "test/fixtures/example-copy.txt",
+    @uv.CopyFileFlags::new(),
+    fn(_) {
+      try {
+        uv.fs_unlink!("test/fixtures/example-copy.txt", fn(_) {  }, fn(_, e) {
+          error = Some(e)
+        })
+      } catch {
+        e => error = Some(e)
+      }
+    },
+    fn(_, e) { error = Some(e) },
+  )
+  uv.run!(Default)
+  uv.stop()
+  uv.close!()
   raise_option!(error)
 }
