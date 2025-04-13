@@ -5,6 +5,18 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef _WIN32
+#pragma comment(lib, "psapi.lib")
+#pragma comment(lib, "user32.lib")
+#pragma comment(lib, "advapi32.lib")
+#pragma comment(lib, "iphlpapi.lib")
+#pragma comment(lib, "userenv.lib")
+#pragma comment(lib, "ws2_32.lib")
+#pragma comment(lib, "dbghelp.lib")
+#pragma comment(lib, "ole32.lib")
+#pragma comment(lib, "shell32.lib")
+#endif
+
 #define containerof(ptr, type, member)                                         \
   ((type *)((char *)(ptr) - offsetof(type, member)))
 
