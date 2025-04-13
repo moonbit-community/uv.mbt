@@ -1,6 +1,5 @@
 #include "moonbit.h"
 #include "uv#include#uv.h"
-#include <stdatomic.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -418,7 +417,8 @@ moonbit_uv_fs_unlink(
   moonbit_uv_fs_cb_t *cb
 ) {
   moonbit_uv_fs_set_data(fs, cb);
-  int status = uv_fs_unlink(loop, &fs->fs, (const char *)path, moonbit_uv_fs_cb);
+  int status =
+    uv_fs_unlink(loop, &fs->fs, (const char *)path, moonbit_uv_fs_cb);
   moonbit_decref(loop);
   moonbit_decref(path);
   return status;
@@ -1450,7 +1450,7 @@ moonbit_uv_queue_work(
 
 typedef struct moonbit_uv_mutex_s {
   struct {
-    atomic_int arc;
+    int32_t arc;
     uv_mutex_t object;
   } *block;
 } moonbit_uv_mutex_t;
@@ -1461,7 +1461,9 @@ moonbit_uv_mutex_finalize(void *object) {
   moonbit_uv_trace("mutex = %p\n", (void *)mutex);
   moonbit_uv_trace("mutex->mutex = %p\n", (void *)mutex->block);
   if (mutex->block) {
-    int32_t arc = atomic_fetch_sub(&mutex->block->arc, 1);
+    uv_mutex_lock(&mutex->block->object);
+    int32_t arc = mutex->block->arc;
+    uv_mutex_unlock(&mutex->block->object);
     if (arc > 1) {
       return;
     }
@@ -1483,7 +1485,7 @@ moonbit_uv_mutex_make(void) {
 int32_t
 moonbit_uv_mutex_init(moonbit_uv_mutex_t *mutex) {
   mutex->block = malloc(sizeof(*mutex->block));
-  atomic_init(&mutex->block->arc, 1);
+  mutex->block->arc = 1;
   int status = uv_mutex_init(&mutex->block->object);
   moonbit_decref(mutex);
   return status;
@@ -1491,7 +1493,9 @@ moonbit_uv_mutex_init(moonbit_uv_mutex_t *mutex) {
 
 void
 moonbit_uv_mutex_copy(moonbit_uv_mutex_t *self, moonbit_uv_mutex_t *other) {
-  atomic_fetch_add(&self->block->arc, 1);
+  uv_mutex_lock(&self->block->object);
+  self->block->arc += 1;
+  uv_mutex_unlock(&self->block->object);
   other->block = self->block;
   moonbit_decref(self);
   moonbit_decref(other);
