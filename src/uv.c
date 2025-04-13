@@ -1,5 +1,6 @@
 #include "moonbit.h"
 #include "uv#include#uv.h"
+#include <stdatomic.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -1396,4 +1397,79 @@ moonbit_uv_queue_work(
   int status =
     uv_queue_work(loop, req, moonbit_uv_work_cb, moonbit_uv_after_work_cb);
   return status;
+}
+
+typedef struct moonbit_uv_mutex_s {
+  struct {
+    atomic_int arc;
+    uv_mutex_t object;
+  } *block;
+} moonbit_uv_mutex_t;
+
+static inline void
+moonbit_uv_mutex_finalize(void *object) {
+  moonbit_uv_mutex_t *mutex = object;
+  moonbit_uv_trace("mutex = %p\n", (void *)mutex);
+  moonbit_uv_trace("mutex->mutex = %p\n", (void *)mutex->block);
+  if (mutex->block) {
+    int32_t arc = atomic_fetch_sub(&mutex->block->arc, 1);
+    if (arc > 1) {
+      return;
+    }
+    uv_mutex_destroy(&mutex->block->object);
+    free(mutex->block);
+  }
+}
+
+moonbit_uv_mutex_t *
+moonbit_uv_mutex_make(void) {
+  moonbit_uv_mutex_t *mutex =
+    (moonbit_uv_mutex_t *)moonbit_make_external_object(
+      moonbit_uv_mutex_finalize, sizeof(moonbit_uv_mutex_t)
+    );
+  memset(mutex, 0, sizeof(moonbit_uv_mutex_t));
+  return mutex;
+}
+
+int32_t
+moonbit_uv_mutex_init(moonbit_uv_mutex_t *mutex) {
+  mutex->block = malloc(sizeof(*mutex->block));
+  atomic_init(&mutex->block->arc, 1);
+  int status = uv_mutex_init(&mutex->block->object);
+  moonbit_decref(mutex);
+  return status;
+}
+
+void
+moonbit_uv_mutex_copy(moonbit_uv_mutex_t *self, moonbit_uv_mutex_t *other) {
+  atomic_fetch_add(&self->block->arc, 1);
+  other->block = self->block;
+  moonbit_decref(self);
+  moonbit_decref(other);
+}
+
+typedef struct moonbit_uv_mutex_lock_cb_s {
+  int32_t (*code)(
+    struct moonbit_uv_mutex_lock_cb_s *,
+    moonbit_uv_mutex_t *mutex
+  );
+} moonbit_uv_mutex_lock_cb_t;
+
+void
+moonbit_uv_mutex_lock(moonbit_uv_mutex_t *mutex) {
+  uv_mutex_lock(&mutex->block->object);
+  moonbit_decref(mutex);
+}
+
+int32_t
+moonbit_uv_mutex_trylock(moonbit_uv_mutex_t *mutex) {
+  int32_t status = uv_mutex_trylock(&mutex->block->object);
+  moonbit_decref(mutex);
+  return status;
+}
+
+void
+moonbit_uv_mutex_unlock(moonbit_uv_mutex_t *mutex) {
+  uv_mutex_unlock(&mutex->block->object);
+  moonbit_decref(mutex);
 }
