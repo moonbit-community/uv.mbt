@@ -1,5 +1,5 @@
 ///|
-pub extern "c" fn uv_disable_stdio_inheritance() = "moonbit_uv_disable_stdio_inheritance"
+pub extern "c" fn disable_stdio_inheritance() = "moonbit_uv_disable_stdio_inheritance"
 
 ///|
 type Process

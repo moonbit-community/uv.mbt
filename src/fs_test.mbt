@@ -25,7 +25,7 @@ fn cat_do_write(
 ) -> Unit {
   try {
     uv.fs_write!(
-      @uv.stdout,
+      @uv.stdout(),
       [bytes[start:start + count]],
       -1,
       fn(_, delta) {

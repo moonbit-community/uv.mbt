@@ -20,7 +20,7 @@ extern "c" fn uv_read_start(
 ) -> Int = "moonbit_uv_read_start"
 
 ///|
-pub fn read_start(
+pub fn Stream::read_start(
   self : Stream,
   alloc_cb : (Handle, Int) -> @bytes.View,
   read_cb : (Stream, Int, @bytes.View) -> Unit,
@@ -59,10 +59,20 @@ pub fn read_start(
 }
 
 ///|
+pub fn read_start[Stream : ToStream](
+  stream : Stream,
+  alloc_cb : (Stream, Int) -> @bytes.View,
+  read_cb : (Stream, Int, @bytes.View) -> Unit,
+  error_cb : (Stream, Errno) -> Unit
+) -> Unit!Errno {
+  stream.read_start!(alloc_cb, read_cb, error_cb)
+}
+
+///|
 extern "c" fn uv_read_stop(stream : Stream) -> Int = "moonbit_uv_read_stop"
 
 ///|
-pub fn read_stop(self : Stream) -> Unit!Errno {
+pub fn Stream::read_stop(self : Stream) -> Unit!Errno {
   let result = uv_read_stop(self)
   if result < 0 {
     raise Errno::of_int(result)
@@ -70,10 +80,15 @@ pub fn read_stop(self : Stream) -> Unit!Errno {
 }
 
 ///|
+pub fn read_stop[Stream : ToStream](stream : Stream) -> Unit!Errno {
+  stream.read_stop!()
+}
+
+///|
 type Write
 
 ///|
-pub fn Write::to_req(self : Write) -> Req = "%identity"
+pub impl ToReq for Write with to_req(self : Write) -> Req = "%identity"
 
 ///|
 extern "c" fn uv_write_make() -> Write = "moonbit_uv_write_make"
@@ -89,7 +104,7 @@ extern "c" fn uv_write(
 ) -> Int = "moonbit_uv_write"
 
 ///|
-pub fn write(
+pub fn Stream::write(
   self : Stream,
   bufs : Array[@bytes.View],
   write_cb : (Write) -> Unit,
@@ -117,6 +132,16 @@ pub fn write(
   if result < 0 {
     raise Errno::of_int(result)
   }
+}
+
+///|
+pub fn write[Stream : ToStream](
+  stream : Stream,
+  bufs : Array[@bytes.View],
+  write_cb : (Write) -> Unit,
+  error_cb : (Write, Errno) -> Unit
+) -> Unit!Errno {
+  stream.write!(bufs, write_cb, error_cb)
 }
 
 ///|

@@ -18,7 +18,7 @@ test {
 
   idler.start!(fn(idle) { wait_for_a_while(idle) })
   println("Idling...")
-  uv.run!(@uv.RunMode::Default)
+  uv.run!(Default)
   uv.stop()
   uv.close!()
   raise_option!(error)

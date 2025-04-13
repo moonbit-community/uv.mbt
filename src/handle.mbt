@@ -2,23 +2,38 @@
 extern type Handle
 
 ///|
-extern "c" fn uv_close(handle : Handle, cb : (Handle) -> Unit) = "moonbit_uv_close"
+extern "c" fn uv_close(self : Handle, cb : (Handle) -> Unit) = "moonbit_uv_close"
 
 ///|
-pub fn close(self : Handle, cb : (Handle) -> Unit) -> Unit {
+pub fn Handle::close(self : Handle, cb : (Handle) -> Unit) -> Unit {
   uv_close(self, cb)
 }
 
 ///|
-extern "c" fn uv_is_closing(handle : Handle) -> Bool = "moonbit_uv_is_closing"
+pub fn close[Handle : ToHandle](handle : Handle, cb : (Handle) -> Unit) -> Unit {
+  handle.close(cb)
+}
 
 ///|
-pub fn is_closing(self : Handle) -> Bool {
+extern "c" fn uv_is_closing(self : Handle) -> Bool = "moonbit_uv_is_closing"
+
+///|
+pub fn Handle::is_closing(self : Handle) -> Bool {
   uv_is_closing(self)
 }
 
 ///|
-pub extern "c" fn handle_get_loop(handle : Handle) -> Loop = "moonbit_uv_handle_get_loop"
+pub fn is_closing[Handle : ToHandle](handle : Handle) -> Bool {
+  handle.is_closing()
+}
+
+///|
+extern "c" fn uv_handle_get_loop(self : Handle) -> Loop = "moonbit_uv_handle_get_loop"
+
+///|
+pub fn Handle::get_loop(self : Handle) -> Loop {
+  uv_handle_get_loop(self)
+}
 
 ///|
 pub trait ToHandle {

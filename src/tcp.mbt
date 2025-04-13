@@ -115,7 +115,7 @@ pub fn accept[Server : ToStream, Client : ToStream](
 type Connect Bytes
 
 ///|
-pub fn Connect::to_req(self : Connect) -> Req = "%identity"
+pub impl ToReq for Connect with to_req(self : Connect) -> Req = "%identity"
 
 ///|
 extern "c" fn uv_connect_make() -> Connect = "moonbit_uv_connect_make"

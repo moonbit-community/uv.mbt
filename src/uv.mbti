@@ -1,197 +1,281 @@
 package "tonyfettes/uv"
 
+import(
+  "moonbitlang/core/bytes"
+  "moonbitlang/core/string"
+)
+
 // Values
-const EOF : Int = -4095
+fn accept[Server : ToStream, Client : ToStream](Server, Client) -> Int
 
-const STDERR : Int = 2
+fn args() -> Array[String]!
 
-const STDIN : Int = 0
+fn argv() -> Array[Bytes]
 
-const STDOUT : Int = 1
+fn close[Handle : ToHandle](Handle, (Handle) -> Unit) -> Unit
 
-fn accept(Stream, Stream) -> Int
+fn disable_stdio_inheritance() -> Unit
 
-fn args() -> FixedArray[Bytes]
+fn errno(Int) -> Errno
 
-fn buf_alloc() -> Buf
+fn fs_close(Loop, File, (Fs) -> Unit) -> Unit!Errno
 
-fn buf_free(Buf) -> Unit
+fn fs_copyfile[Ntbs : ToNtbs](Loop, Ntbs, Ntbs, CopyFileFlags, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
-fn buf_get_base(Buf) -> Bytes
+fn fs_mkdir[Ntbs : ToNtbs](Loop, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
-fn buf_init(Buf, Bytes, Int) -> Unit
+fn fs_open[Ntbs : ToNtbs](Loop, Ntbs, OpenFlags, Int, (Fs, File) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
-fn buf_set_len(Buf, UInt64) -> Unit
+fn fs_read(Loop, File, Array[@bytes.View], Int64, (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
-fn close(Handle, (Handle) -> Unit) -> Unit
+fn fs_rename[Ntbs : ToNtbs](Loop, Ntbs, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
-fn connect_alloc() -> Connect
+fn fs_rmdir[Ntbs : ToNtbs](Loop, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
-fn errno(Int) -> Unit!Errno
+fn fs_scandir[Ntbs : ToNtbs](Loop, Ntbs, Int, (Fs, Dirent) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
-fn fs_alloc() -> Fs
+fn fs_unlink[Ntbs : ToNtbs](Loop, Ntbs, (Fs) -> Unit, (Fs, Error) -> Unit) -> Unit!Errno
 
-fn fs_close(Loop, Fs, File, (Fs) -> Unit) -> Int
+fn fs_write(Loop, File, Array[@bytes.View], Int64, (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
-fn fs_get_result(Fs) -> Int64
+fn hrtime() -> UInt64
 
-fn fs_open(Loop, Fs, Bytes, OpenFlag, Int, (Fs) -> Unit) -> Int
+fn ip4_addr(String, Int) -> SockaddrIn
 
-fn fs_read(Loop, Fs, File, FixedArray[Buf], Int64, (Fs) -> Unit) -> Int
+fn is_closing[Handle : ToHandle](Handle) -> Bool
 
-fn fs_req_cleanup(Fs) -> Unit
+fn listen[Stream : ToStream](Stream, Int, (Stream) -> Unit, (Stream, Errno) -> Unit) -> Unit!Errno
 
-fn fs_to_req(Fs) -> Req
+fn pipe(Int, Int) -> (File, File)!Errno
 
-fn fs_write(Loop, Fs, File, FixedArray[Buf], Int64, (Fs) -> Unit) -> Int
+fn queue_work(Loop, (Work) -> Unit, (Work) -> Unit, (Work, Errno) -> Unit) -> Unit!Errno
 
-fn handle_get_loop(Handle) -> Loop
+fn read_start[Stream : ToStream](Stream, (Stream, Int) -> @bytes.View, (Stream, Int, @bytes.View) -> Unit, (Stream, Errno) -> Unit) -> Unit!Errno
 
-fn idle_alloc() -> Idle
+fn read_stop[Stream : ToStream](Stream) -> Unit!Errno
 
-fn idle_init(Loop, Idle) -> Int
+fn run(Loop, RunMode) -> Unit!Errno
 
-fn idle_start(Idle, (Idle) -> Unit) -> Int
+fn sleep(UInt64) -> Unit
 
-fn idle_stop(Idle) -> Int
+fn spawn(Loop, ProcessOptions) -> Process!Errno
 
-fn idle_to_handle(Idle) -> Handle
+fn stderr() -> File
 
-fn ip4_addr(Bytes, Int, SockaddrIn) -> Unit
+fn stdin() -> File
 
-fn ip6_addr(Bytes, Int, SockaddrIn6) -> Unit
-
-fn listen(Stream, Int, (Stream, Int) -> Unit) -> Int
-
-fn loop_alive(Loop) -> Int
-
-fn loop_alloc() -> Loop
-
-fn loop_close(Loop) -> Int
-
-fn loop_init(Loop) -> Int
-
-fn process_alloc() -> Process
-
-fn process_close(Process, (Process) -> Unit) -> Unit
-
-fn process_get_pid(Process) -> Int
-
-fn process_options_alloc() -> ProcessOptions
-
-fn process_options_set_args(ProcessOptions, FixedArray[Bytes?]) -> Unit
-
-fn process_options_set_cwd(ProcessOptions, Bytes) -> Unit
-
-fn process_options_set_env(ProcessOptions, FixedArray[Bytes?]) -> Unit
-
-fn process_options_set_file(ProcessOptions, Bytes) -> Unit
-
-fn process_options_set_flags(ProcessOptions, ProcessFlags) -> Unit
-
-fn process_options_set_stdio(ProcessOptions, FixedArray[StdioContainer]) -> Unit
-
-fn read_start(Stream, (Handle, UInt64, Buf) -> Unit, (Stream, Int64, Buf) -> Unit) -> Int
-
-fn read_stop(Stream) -> Int
-
-fn run(Loop, RunMode) -> Int
-
-fn sockaddr_in_alloc() -> SockaddrIn
-
-fn spawn(Loop, Process, ProcessOptions, (Process, Int64, Int) -> Unit) -> Int
-
-fn stdio_container_alloc() -> StdioContainer
-
-fn stdio_container_set_flags(StdioContainer, StdioFlags) -> Unit
+fn stdout() -> File
 
 fn stop(Loop) -> Unit
 
 fn strerror(Int) -> String
 
-fn strerror_r(Int, Bytes) -> Unit
-
-fn tcp_alloc() -> Tcp
-
-fn tcp_bind(Tcp, Sockaddr, Int) -> Int
-
-fn tcp_connect(Connect, Tcp, Sockaddr, (Connect, Int) -> Unit) -> Int
-
-fn tcp_init(Loop, Tcp) -> Int
-
-fn timer_alloc() -> Timer
-
-fn timer_get_due_in(Timer) -> UInt64
-
-fn timer_get_repeat(Timer) -> UInt64
-
-fn timer_init(Loop, Timer) -> Int
-
-fn timer_set_repeat(Timer, UInt64) -> Unit
-
-fn timer_start(Timer, (Timer) -> Unit, UInt64, UInt64) -> Int
-
-fn timer_stop(Timer) -> Int
-
-fn tty_alloc() -> Tty
-
-fn tty_init(Loop, Tty, File) -> Int
-
-fn tty_reset_mode() -> Int
-
-fn tty_set_mode(Tty, TtyMode) -> Int
-
-fn uv_disable_stdio_inheritance() -> Unit
-
-fn uv_stdio_container_fd(StdioFlags, Int) -> StdioContainer
-
-fn uv_stdio_container_stream(StdioFlags, Stream) -> StdioContainer
-
-fn write(Write, Stream, FixedArray[Buf], (Write, Int) -> Unit) -> Int
-
-fn write_alloc() -> Write
+fn write[Stream : ToStream](Stream, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) -> Unit!Errno
 
 // Types and methods
-type Buf
-
 type Connect
-impl Connect {
-  to_req(Self) -> Req
+impl ToReq for Connect
+
+type CopyFileFlags
+impl CopyFileFlags {
+  new(allow_exists~ : Bool = .., copy_on_write~ : CopyOnWrite = ..) -> Self
 }
 
-pub type! Errno Int
+pub(all) enum CopyOnWrite {
+  False
+  True
+  Force
+}
+
+type Dirent
+impl Dirent {
+  name(Self) -> String!
+  type_(Self) -> DirentType
+}
+
+pub enum DirentType {
+  Unknown
+  File
+  Dir
+  Link
+  Fifo
+  Socket
+  Char
+  Block
+}
+impl Show for DirentType
+impl ToJson for DirentType
+
+pub type! Errno {
+  E2BIG
+  EACCES
+  EADDRINUSE
+  EADDRNOTAVAIL
+  EAFNOSUPPORT
+  EAGAIN
+  EAI_ADDRFAMILY
+  EAI_AGAIN
+  EAI_BADFLAGS
+  EAI_BADHINTS
+  EAI_CANCELED
+  EAI_FAIL
+  EAI_FAMILY
+  EAI_MEMORY
+  EAI_NODATA
+  EAI_NONAME
+  EAI_OVERFLOW
+  EAI_PROTOCOL
+  EAI_SERVICE
+  EAI_SOCKTYPE
+  EALREADY
+  EBADF
+  EBUSY
+  ECANCELED
+  ECHARSET
+  ECONNABORTED
+  ECONNREFUSED
+  ECONNRESET
+  EDESTADDRREQ
+  EEXIST
+  EFAULT
+  EFBIG
+  EHOSTUNREACH
+  EINTR
+  EINVAL
+  EIO
+  EISCONN
+  EISDIR
+  ELOOP
+  EMFILE
+  EMSGSIZE
+  ENAMETOOLONG
+  ENETDOWN
+  ENETUNREACH
+  ENFILE
+  ENOBUFS
+  ENODEV
+  ENOENT
+  ENOMEM
+  ENONET
+  ENOPROTOOPT
+  ENOSPC
+  ENOSYS
+  ENOTCONN
+  ENOTDIR
+  ENOTEMPTY
+  ENOTSOCK
+  ENOTSUP
+  EOVERFLOW
+  EPERM
+  EPIPE
+  EPROTO
+  EPROTONOSUPPORT
+  EPROTOTYPE
+  ERANGE
+  EROFS
+  ESHUTDOWN
+  ESPIPE
+  ESRCH
+  ETIMEDOUT
+  ETXTBSY
+  EXDEV
+  UNKNOWN
+  EOF
+  ENXIO
+  EMLINK
+  EHOSTDOWN
+  EREMOTEIO
+  ENOTTY
+  EFTYPE
+  EILSEQ
+  ESOCKTNOSUPPORT
+  ENODATA
+  EUNATCH
+  ENOEXEC
+}
+impl Eq for Errno
+impl Hash for Errno
 impl Show for Errno
 
-pub(all) type File Int
+type File
 
 type Fs
-impl Fs {
-  fs_to_req(Self) -> Req
-}
+impl ToReq for Fs
+
+type Gid
 
 type Handle
+impl Handle {
+  close(Self, (Self) -> Unit) -> Unit
+  get_loop(Self) -> Loop
+  is_closing(Self) -> Bool
+}
 
 type Idle
+impl Idle {
+  new(Loop) -> Self!Errno
+  start(Self, (Self) -> Unit) -> Unit!Errno
+  stop(Self) -> Unit!Errno
+}
+impl ToHandle for Idle
 
 type Loop
 impl Loop {
-  spawn(Self, Process, ProcessOptions, (Process, Int64, Int) -> Unit) -> Int
+  alive(Self) -> Bool
+  close(Self) -> Unit!Errno
+  fs_close(Self, File, (Fs) -> Unit) -> Unit!Errno
+  fs_copyfile[Ntbs : ToNtbs](Self, Ntbs, Ntbs, CopyFileFlags, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+  fs_mkdir[Ntbs : ToNtbs](Self, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+  fs_open[Ntbs : ToNtbs](Self, Ntbs, OpenFlags, Int, (Fs, File) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+  fs_read(Self, File, Array[@bytes.View], Int64, (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+  fs_rename[Ntbs : ToNtbs](Self, Ntbs, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+  fs_rmdir[Ntbs : ToNtbs](Self, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+  fs_scandir[Ntbs : ToNtbs](Self, Ntbs, Int, (Fs, Dirent) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+  fs_unlink[Ntbs : ToNtbs](Self, Ntbs, (Fs) -> Unit, (Fs, Error) -> Unit) -> Unit!Errno
+  fs_write(Self, File, Array[@bytes.View], Int64, (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+  new() -> Self!Errno
+  queue_work(Self, (Work) -> Unit, (Work) -> Unit, (Work, Errno) -> Unit) -> Unit!Errno
+  run(Self, RunMode) -> Unit!Errno
+  spawn(Self, ProcessOptions) -> Process!Errno
+  stop(Self) -> Unit
 }
 
-pub(all) enum OpenFlag {
-  ReadOnly
-  WriteOnly
-  ReadWrite
+type Mutex
+impl Mutex {
+  lock(Self) -> Unit
+  new() -> Self!Errno
+  trylock(Self) -> Unit!Errno
+  unlock(Self) -> Unit
 }
+impl Copy for Mutex
+
+type OpenFlags
+impl OpenFlags {
+  read() -> Self
+  read_write() -> Self
+  write() -> Self
+}
+
+type Pipe
+impl Pipe {
+  bind(Self, String, Int) -> Unit!Errno
+  new(Loop, ipc~ : Bool = ..) -> Self!Errno
+  to_handle(Self) -> Handle
+  to_stream(Self) -> Stream
+}
+impl ToHandle for Pipe
+impl ToStream for Pipe
 
 type Process
 impl Process {
-  process_close(Self, (Self) -> Unit) -> Unit
+  pid(Self) -> Int
 }
-
-type ProcessFlags
+impl ToHandle for Process
 
 type ProcessOptions
+impl ProcessOptions {
+  new(String, Array[String], env? : Array[String], cwd? : String, stdio? : Array[StdioContainer], uid? : Uid, gid? : Gid, (Process, Int64, Int) -> Unit) -> Self
+}
 
 type Req
 
@@ -204,44 +288,103 @@ pub(all) enum RunMode {
 type Sockaddr
 
 type SockaddrIn
-impl SockaddrIn {
-  to_sockaddr(Self) -> Sockaddr
-}
-
-type SockaddrIn6
+impl ToSockaddr for SockaddrIn
 
 type StdioContainer
-
-type StdioFlags
+impl StdioContainer {
+  create_pipe(Stream, readable~ : Bool = .., writable~ : Bool = .., non_block~ : Bool = ..) -> Self
+  ignore() -> Self
+  inherit_fd(Int) -> Self
+  inherit_file(File) -> Self
+  inherit_stream(Stream) -> Self
+}
 
 type Stream
 impl Stream {
+  read_start(Self, (Handle, Int) -> @bytes.View, (Self, Int, @bytes.View) -> Unit, (Self, Errno) -> Unit) -> Unit!Errno
+  read_stop(Self) -> Unit!Errno
   to_handle(Self) -> Handle
+  write(Self, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) -> Unit!Errno
 }
+impl ToHandle for Stream
+impl ToStream for Stream
 
 type Tcp
 impl Tcp {
-  to_handle(Self) -> Handle
-  to_stream(Self) -> Stream
+  bind[Sockaddr : ToSockaddr](Self, Sockaddr, Int) -> Unit!Errno
+  connect[Sockaddr : ToSockaddr](Self, Sockaddr, (Connect) -> Unit, (Connect, Errno) -> Unit) -> Int
+  new(Loop) -> Self!Errno
 }
+impl ToHandle for Tcp
+impl ToStream for Tcp
 
 type Timer
+impl Timer {
+  get_due_in(Self) -> UInt64
+  get_repeat(Self) -> UInt64
+  new(Loop) -> Self!Errno
+  set_repeat(Self, UInt64) -> Unit
+  start(Self, timeout~ : UInt64, repeat~ : UInt64, (Self) -> Unit) -> Unit!Errno
+  stop(Self) -> Unit!Errno
+}
+impl ToHandle for Timer
 
 type Tty
 impl Tty {
-  to_stream(Self) -> Stream
+  new(Loop, File) -> Self!Errno
+  reset_mode() -> Unit!Errno
+  set_mode(Self, TtyMode) -> Unit!Errno
+}
+impl ToHandle for Tty
+impl ToStream for Tty
+
+type TtyMode
+impl TtyMode {
+  io() -> Self
+  normal() -> Self
+  raw() -> Self
+  raw_vt() -> Self
 }
 
-pub(all) enum TtyMode {
-  Normal
-  Raw
-  Io
-  RawVT
-}
+type Uid
+
+type Work
 
 type Write
+impl ToReq for Write
 
 // Type aliases
 
 // Traits
+pub trait Copy {
+  copy(Self) -> Self
+}
+
+pub trait ToHandle {
+  to_handle(Self) -> Handle
+  of_handle(Handle) -> Self
+  close(Self, (Self) -> Unit) -> Unit
+  is_closing(Self) -> Bool
+}
+
+trait ToNtbs
+impl ToNtbs for String
+impl ToNtbs for Bytes
+impl ToNtbs for @bytes.View
+impl ToNtbs for @string.StringView
+
+pub trait ToReq {
+  to_req(Self) -> Req
+}
+
+trait ToSockaddr
+
+pub trait ToStream : ToHandle {
+  to_stream(Self) -> Stream
+  of_stream(Stream) -> Self
+  read_start(Self, (Self, Int) -> @bytes.View, (Self, Int, @bytes.View) -> Unit, (Self, Errno) -> Unit) -> Unit!Errno
+  read_stop(Self) -> Unit!Errno
+  write(Self, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) -> Unit!Errno
+  listen(Self, Int, (Self) -> Unit, (Self, Errno) -> Unit) -> Unit!Errno
+}
 

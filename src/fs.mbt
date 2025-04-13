@@ -2,7 +2,7 @@
 type Fs
 
 ///|
-pub fn Fs::to_req(self : Fs) -> Req = "%identity"
+pub impl ToReq for Fs with to_req(self : Fs) -> Req = "%identity"
 
 ///|
 extern "c" fn uv_fs_make() -> Fs = "moonbit_uv_fs_make"
@@ -45,7 +45,7 @@ extern "c" fn uv_fs_open(
 ) -> Int = "moonbit_uv_fs_open"
 
 ///|
-pub(open) trait ToNtbs {
+trait ToNtbs {
   to_ntbs(Self) -> Bytes
 }
 
@@ -61,6 +61,19 @@ pub impl ToNtbs for String with to_ntbs(self : String) -> Bytes {
 pub impl ToNtbs for Bytes with to_ntbs(self : Bytes) -> Bytes {
   let buffer = @buffer.new()
   buffer.write_bytes(self)
+  buffer.write_byte(0)
+  return buffer.contents()
+}
+
+///|
+pub impl ToNtbs for @string.View with to_ntbs(self : @string.View) -> Bytes {
+  self.to_string().to_ntbs()
+}
+
+///|
+pub impl ToNtbs for @bytes.View with to_ntbs(self : @bytes.View) -> Bytes {
+  let buffer = @buffer.new()
+  buffer.write_bytesview(self)
   buffer.write_byte(0)
   return buffer.contents()
 }
@@ -216,13 +229,19 @@ pub fn fs_write(
 }
 
 ///|
-pub let stdin : File = 0
+pub fn stdin() -> File {
+  0
+}
 
 ///|
-pub let stdout : File = 1
+pub fn stdout() -> File {
+  1
+}
 
 ///|
-pub let stderr : File = 2
+pub fn stderr() -> File {
+  2
+}
 
 ///|
 extern "c" fn uv_fs_unlink(

@@ -37,16 +37,34 @@
     "pipe.mbt": [
       "native"
     ],
+    "req.mbt": [
+      "native"
+    ],
     "stream.mbt": [
       "native"
     ],
     "tcp.mbt": [
       "native"
     ],
+    "thread.mbt": [
+      "native"
+    ],
+    "time.mbt": [
+      "native"
+    ],
     "timer.mbt": [
       "native"
     ],
+    "timer_test.mbt": [
+      "native"
+    ],
     "tty.mbt": [
+      "native"
+    ],
+    "work.mbt": [
+      "native"
+    ],
+    "work_test.mbt": [
       "native"
     ]
   },

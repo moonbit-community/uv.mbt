@@ -10,7 +10,7 @@ test "spawn" {
   fn do_write(bytes : @bytes.View, start : Int, count : Int) -> Unit {
     try {
       uv.fs_write!(
-        @uv.stdout,
+        @uv.stdout(),
         [bytes[start:start + count]],
         -1,
         fn(_, delta) {
