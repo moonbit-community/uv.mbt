@@ -109,7 +109,7 @@ class Project:
         if condition is not None:
             content = self.condition(condition, content)
         print(f"COPY {self.source / source} -> {self.target / target}")
-        (self.target / target).write_text(content, encoding="utf-8", newline="\n")
+        (self.target / target).write_text(content, encoding="utf-8")
         self.copied.add(target)
 
 
@@ -240,9 +240,7 @@ def update_moon_pkg_json(project: Project, path: Path):
                 "command": "python3 scripts/prepare.py",
             }
         )
-    path.write_text(
-        json.dumps(moon_pkg_json, indent=2) + "\n", encoding="utf8", newline="\n"
-    )
+    path.write_text(json.dumps(moon_pkg_json, indent=2) + "\n", encoding="utf8")
 
 
 def main():
