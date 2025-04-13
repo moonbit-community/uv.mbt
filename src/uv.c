@@ -1538,3 +1538,13 @@ moonbit_uv_mutex_unlock(moonbit_uv_mutex_t *mutex) {
   uv_mutex_unlock(&mutex->block->object);
   moonbit_decref(mutex);
 }
+
+int32_t
+moonbit_uv_cwd(moonbit_bytes_t buffer, int32_t *length) {
+  size_t size = *length;
+  int status = uv_cwd((char *)buffer, &size);
+  *length = size;
+  moonbit_decref(buffer);
+  moonbit_decref(length);
+  return status;
+}

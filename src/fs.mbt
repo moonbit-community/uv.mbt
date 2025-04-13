@@ -542,3 +542,21 @@ pub fn fs_copyfile[Ntbs : ToNtbs](
     raise Errno::of_int(status)
   }
 }
+
+///|
+extern "c" fn uv_cwd(buffer : Bytes, length : FixedArray[Int]) -> Int = "moonbit_uv_cwd"
+
+///|
+pub fn cwd() -> String!Errno {
+  let buffer = Bytes::make(1024, 0)
+  let length : FixedArray[Int] = [buffer.length()]
+  let mut status = uv_cwd(buffer, length)
+  if status == uv_ENOBUFS() {
+    let buffer = Bytes::make(length[0], 0)
+    status = uv_cwd(buffer, length)
+  }
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  return @encoding.decoder(UTF8).decode_lossy(buffer)
+}

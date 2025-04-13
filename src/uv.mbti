@@ -14,6 +14,8 @@ fn argv() -> Array[Bytes]
 
 fn close[Handle : ToHandle](Handle, (Handle) -> Unit) -> Unit
 
+fn cwd() -> String!Errno
+
 fn disable_stdio_inheritance() -> Unit
 
 fn errno(Int) -> Errno
