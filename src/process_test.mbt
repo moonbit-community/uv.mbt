@@ -31,7 +31,7 @@ test "spawn" {
         fn(_, size_hint) { return Bytes::make(size_hint, 0)[:] },
         fn(_, count, bytes) { do_write(bytes, 0, count) },
         fn(pipe, error) {
-          if not(error is EOF) {
+          if not(error is Errno(EOF)) {
             read_error = Some(error)
           }
           try {

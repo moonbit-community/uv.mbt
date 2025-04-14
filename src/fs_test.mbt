@@ -136,7 +136,7 @@ test "scandir" {
         e => error = Some(e)
       }
     },
-    fn(_, e) { if not(e is EOF) { error = Some(e) } },
+    fn(_, e) { if not(e is Errno(EOF)) { error = Some(e) } },
   )
   uv.run!(Default)
   uv.stop()

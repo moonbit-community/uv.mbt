@@ -2,7 +2,7 @@
 extern "c" fn strerror_r(err : Int, bytes : Bytes) -> Unit = "moonbit_uv_strerror_r"
 
 ///|
-pub fn strerror(errno : Int) -> String {
+fn strerror(errno : Int) -> String {
   let bytes = Bytes::make(256, 0)
   strerror_r(errno, bytes)
   let buffer = @buffer.new()
@@ -17,7 +17,7 @@ pub fn strerror(errno : Int) -> String {
 }
 
 ///|
-pub type! Errno {
+pub enum Status {
   E2BIG
   EACCES
   EADDRINUSE
@@ -106,6 +106,9 @@ pub type! Errno {
 } derive(Eq, Hash)
 
 ///|
+pub type! Errno Status derive(Eq, Hash)
+
+///|
 let errno_messages : Map[Errno, String] = Map::new()
 
 ///|
@@ -116,91 +119,91 @@ let errno_values : Map[Errno, Int] = Map::new()
 
 ///|
 fn init {
-  errno_errors[uv_E2BIG()] = Errno::E2BIG
-  errno_errors[uv_EACCES()] = Errno::EACCES
-  errno_errors[uv_EADDRINUSE()] = Errno::EADDRINUSE
-  errno_errors[uv_EADDRNOTAVAIL()] = Errno::EADDRNOTAVAIL
-  errno_errors[uv_EAFNOSUPPORT()] = Errno::EAFNOSUPPORT
-  errno_errors[uv_EAGAIN()] = Errno::EAGAIN
-  errno_errors[uv_EAI_ADDRFAMILY()] = Errno::EAI_ADDRFAMILY
-  errno_errors[uv_EAI_AGAIN()] = Errno::EAI_AGAIN
-  errno_errors[uv_EAI_BADFLAGS()] = Errno::EAI_BADFLAGS
-  errno_errors[uv_EAI_BADHINTS()] = Errno::EAI_BADHINTS
-  errno_errors[uv_EAI_CANCELED()] = Errno::EAI_CANCELED
-  errno_errors[uv_EAI_FAIL()] = Errno::EAI_FAIL
-  errno_errors[uv_EAI_FAMILY()] = Errno::EAI_FAMILY
-  errno_errors[uv_EAI_MEMORY()] = Errno::EAI_MEMORY
-  errno_errors[uv_EAI_NODATA()] = Errno::EAI_NODATA
-  errno_errors[uv_EAI_NONAME()] = Errno::EAI_NONAME
-  errno_errors[uv_EAI_OVERFLOW()] = Errno::EAI_OVERFLOW
-  errno_errors[uv_EAI_PROTOCOL()] = Errno::EAI_PROTOCOL
-  errno_errors[uv_EAI_SERVICE()] = Errno::EAI_SERVICE
-  errno_errors[uv_EAI_SOCKTYPE()] = Errno::EAI_SOCKTYPE
-  errno_errors[uv_EALREADY()] = Errno::EALREADY
-  errno_errors[uv_EBADF()] = Errno::EBADF
-  errno_errors[uv_EBUSY()] = Errno::EBUSY
-  errno_errors[uv_ECANCELED()] = Errno::ECANCELED
-  errno_errors[uv_ECHARSET()] = Errno::ECHARSET
-  errno_errors[uv_ECONNABORTED()] = Errno::ECONNABORTED
-  errno_errors[uv_ECONNREFUSED()] = Errno::ECONNREFUSED
-  errno_errors[uv_ECONNRESET()] = Errno::ECONNRESET
-  errno_errors[uv_EDESTADDRREQ()] = Errno::EDESTADDRREQ
-  errno_errors[uv_EEXIST()] = Errno::EEXIST
-  errno_errors[uv_EFAULT()] = Errno::EFAULT
-  errno_errors[uv_EFBIG()] = Errno::EFBIG
-  errno_errors[uv_EHOSTUNREACH()] = Errno::EHOSTUNREACH
-  errno_errors[uv_EINTR()] = Errno::EINTR
-  errno_errors[uv_EINVAL()] = Errno::EINVAL
-  errno_errors[uv_EIO()] = Errno::EIO
-  errno_errors[uv_EISCONN()] = Errno::EISCONN
-  errno_errors[uv_EISDIR()] = Errno::EISDIR
-  errno_errors[uv_ELOOP()] = Errno::ELOOP
-  errno_errors[uv_EMFILE()] = Errno::EMFILE
-  errno_errors[uv_EMSGSIZE()] = Errno::EMSGSIZE
-  errno_errors[uv_ENAMETOOLONG()] = Errno::ENAMETOOLONG
-  errno_errors[uv_ENETDOWN()] = Errno::ENETDOWN
-  errno_errors[uv_ENETUNREACH()] = Errno::ENETUNREACH
-  errno_errors[uv_ENFILE()] = Errno::ENFILE
-  errno_errors[uv_ENOBUFS()] = Errno::ENOBUFS
-  errno_errors[uv_ENODEV()] = Errno::ENODEV
-  errno_errors[uv_ENOENT()] = Errno::ENOENT
-  errno_errors[uv_ENOMEM()] = Errno::ENOMEM
-  errno_errors[uv_ENONET()] = Errno::ENONET
-  errno_errors[uv_ENOPROTOOPT()] = Errno::ENOPROTOOPT
-  errno_errors[uv_ENOSPC()] = Errno::ENOSPC
-  errno_errors[uv_ENOSYS()] = Errno::ENOSYS
-  errno_errors[uv_ENOTCONN()] = Errno::ENOTCONN
-  errno_errors[uv_ENOTDIR()] = Errno::ENOTDIR
-  errno_errors[uv_ENOTEMPTY()] = Errno::ENOTEMPTY
-  errno_errors[uv_ENOTSOCK()] = Errno::ENOTSOCK
-  errno_errors[uv_ENOTSUP()] = Errno::ENOTSUP
-  errno_errors[uv_EOVERFLOW()] = Errno::EOVERFLOW
-  errno_errors[uv_EPERM()] = Errno::EPERM
-  errno_errors[uv_EPIPE()] = Errno::EPIPE
-  errno_errors[uv_EPROTO()] = Errno::EPROTO
-  errno_errors[uv_EPROTONOSUPPORT()] = Errno::EPROTONOSUPPORT
-  errno_errors[uv_EPROTOTYPE()] = Errno::EPROTOTYPE
-  errno_errors[uv_ERANGE()] = Errno::ERANGE
-  errno_errors[uv_EROFS()] = Errno::EROFS
-  errno_errors[uv_ESHUTDOWN()] = Errno::ESHUTDOWN
-  errno_errors[uv_ESPIPE()] = Errno::ESPIPE
-  errno_errors[uv_ESRCH()] = Errno::ESRCH
-  errno_errors[uv_ETIMEDOUT()] = Errno::ETIMEDOUT
-  errno_errors[uv_ETXTBSY()] = Errno::ETXTBSY
-  errno_errors[uv_EXDEV()] = Errno::EXDEV
-  errno_errors[uv_UNKNOWN()] = Errno::UNKNOWN
-  errno_errors[uv_EOF()] = Errno::EOF
-  errno_errors[uv_ENXIO()] = Errno::ENXIO
-  errno_errors[uv_EMLINK()] = Errno::EMLINK
-  errno_errors[uv_EHOSTDOWN()] = Errno::EHOSTDOWN
-  errno_errors[uv_EREMOTEIO()] = Errno::EREMOTEIO
-  errno_errors[uv_ENOTTY()] = Errno::ENOTTY
-  errno_errors[uv_EFTYPE()] = Errno::EFTYPE
-  errno_errors[uv_EILSEQ()] = Errno::EILSEQ
-  errno_errors[uv_ESOCKTNOSUPPORT()] = Errno::ESOCKTNOSUPPORT
-  errno_errors[uv_ENODATA()] = Errno::ENODATA
-  errno_errors[uv_EUNATCH()] = Errno::EUNATCH
-  errno_errors[uv_ENOEXEC()] = Errno::ENOEXEC
+  errno_errors[uv_E2BIG()] = Errno(Status::E2BIG)
+  errno_errors[uv_EACCES()] = Errno(Status::EACCES)
+  errno_errors[uv_EADDRINUSE()] = Errno(Status::EADDRINUSE)
+  errno_errors[uv_EADDRNOTAVAIL()] = Errno(Status::EADDRNOTAVAIL)
+  errno_errors[uv_EAFNOSUPPORT()] = Errno(Status::EAFNOSUPPORT)
+  errno_errors[uv_EAGAIN()] = Errno(Status::EAGAIN)
+  errno_errors[uv_EAI_ADDRFAMILY()] = Errno(Status::EAI_ADDRFAMILY)
+  errno_errors[uv_EAI_AGAIN()] = Errno(Status::EAI_AGAIN)
+  errno_errors[uv_EAI_BADFLAGS()] = Errno(Status::EAI_BADFLAGS)
+  errno_errors[uv_EAI_BADHINTS()] = Errno(Status::EAI_BADHINTS)
+  errno_errors[uv_EAI_CANCELED()] = Errno(Status::EAI_CANCELED)
+  errno_errors[uv_EAI_FAIL()] = Errno(Status::EAI_FAIL)
+  errno_errors[uv_EAI_FAMILY()] = Errno(Status::EAI_FAMILY)
+  errno_errors[uv_EAI_MEMORY()] = Errno(Status::EAI_MEMORY)
+  errno_errors[uv_EAI_NODATA()] = Errno(Status::EAI_NODATA)
+  errno_errors[uv_EAI_NONAME()] = Errno(Status::EAI_NONAME)
+  errno_errors[uv_EAI_OVERFLOW()] = Errno(Status::EAI_OVERFLOW)
+  errno_errors[uv_EAI_PROTOCOL()] = Errno(Status::EAI_PROTOCOL)
+  errno_errors[uv_EAI_SERVICE()] = Errno(Status::EAI_SERVICE)
+  errno_errors[uv_EAI_SOCKTYPE()] = Errno(Status::EAI_SOCKTYPE)
+  errno_errors[uv_EALREADY()] = Errno(Status::EALREADY)
+  errno_errors[uv_EBADF()] = Errno(Status::EBADF)
+  errno_errors[uv_EBUSY()] = Errno(Status::EBUSY)
+  errno_errors[uv_ECANCELED()] = Errno(Status::ECANCELED)
+  errno_errors[uv_ECHARSET()] = Errno(Status::ECHARSET)
+  errno_errors[uv_ECONNABORTED()] = Errno(Status::ECONNABORTED)
+  errno_errors[uv_ECONNREFUSED()] = Errno(Status::ECONNREFUSED)
+  errno_errors[uv_ECONNRESET()] = Errno(Status::ECONNRESET)
+  errno_errors[uv_EDESTADDRREQ()] = Errno(Status::EDESTADDRREQ)
+  errno_errors[uv_EEXIST()] = Errno(Status::EEXIST)
+  errno_errors[uv_EFAULT()] = Errno(Status::EFAULT)
+  errno_errors[uv_EFBIG()] = Errno(Status::EFBIG)
+  errno_errors[uv_EHOSTUNREACH()] = Errno(Status::EHOSTUNREACH)
+  errno_errors[uv_EINTR()] = Errno(Status::EINTR)
+  errno_errors[uv_EINVAL()] = Errno(Status::EINVAL)
+  errno_errors[uv_EIO()] = Errno(Status::EIO)
+  errno_errors[uv_EISCONN()] = Errno(Status::EISCONN)
+  errno_errors[uv_EISDIR()] = Errno(Status::EISDIR)
+  errno_errors[uv_ELOOP()] = Errno(Status::ELOOP)
+  errno_errors[uv_EMFILE()] = Errno(Status::EMFILE)
+  errno_errors[uv_EMSGSIZE()] = Errno(Status::EMSGSIZE)
+  errno_errors[uv_ENAMETOOLONG()] = Errno(Status::ENAMETOOLONG)
+  errno_errors[uv_ENETDOWN()] = Errno(Status::ENETDOWN)
+  errno_errors[uv_ENETUNREACH()] = Errno(Status::ENETUNREACH)
+  errno_errors[uv_ENFILE()] = Errno(Status::ENFILE)
+  errno_errors[uv_ENOBUFS()] = Errno(Status::ENOBUFS)
+  errno_errors[uv_ENODEV()] = Errno(Status::ENODEV)
+  errno_errors[uv_ENOENT()] = Errno(Status::ENOENT)
+  errno_errors[uv_ENOMEM()] = Errno(Status::ENOMEM)
+  errno_errors[uv_ENONET()] = Errno(Status::ENONET)
+  errno_errors[uv_ENOPROTOOPT()] = Errno(Status::ENOPROTOOPT)
+  errno_errors[uv_ENOSPC()] = Errno(Status::ENOSPC)
+  errno_errors[uv_ENOSYS()] = Errno(Status::ENOSYS)
+  errno_errors[uv_ENOTCONN()] = Errno(Status::ENOTCONN)
+  errno_errors[uv_ENOTDIR()] = Errno(Status::ENOTDIR)
+  errno_errors[uv_ENOTEMPTY()] = Errno(Status::ENOTEMPTY)
+  errno_errors[uv_ENOTSOCK()] = Errno(Status::ENOTSOCK)
+  errno_errors[uv_ENOTSUP()] = Errno(Status::ENOTSUP)
+  errno_errors[uv_EOVERFLOW()] = Errno(Status::EOVERFLOW)
+  errno_errors[uv_EPERM()] = Errno(Status::EPERM)
+  errno_errors[uv_EPIPE()] = Errno(Status::EPIPE)
+  errno_errors[uv_EPROTO()] = Errno(Status::EPROTO)
+  errno_errors[uv_EPROTONOSUPPORT()] = Errno(Status::EPROTONOSUPPORT)
+  errno_errors[uv_EPROTOTYPE()] = Errno(Status::EPROTOTYPE)
+  errno_errors[uv_ERANGE()] = Errno(Status::ERANGE)
+  errno_errors[uv_EROFS()] = Errno(Status::EROFS)
+  errno_errors[uv_ESHUTDOWN()] = Errno(Status::ESHUTDOWN)
+  errno_errors[uv_ESPIPE()] = Errno(Status::ESPIPE)
+  errno_errors[uv_ESRCH()] = Errno(Status::ESRCH)
+  errno_errors[uv_ETIMEDOUT()] = Errno(Status::ETIMEDOUT)
+  errno_errors[uv_ETXTBSY()] = Errno(Status::ETXTBSY)
+  errno_errors[uv_EXDEV()] = Errno(Status::EXDEV)
+  errno_errors[uv_UNKNOWN()] = Errno(Status::UNKNOWN)
+  errno_errors[uv_EOF()] = Errno(Status::EOF)
+  errno_errors[uv_ENXIO()] = Errno(Status::ENXIO)
+  errno_errors[uv_EMLINK()] = Errno(Status::EMLINK)
+  errno_errors[uv_EHOSTDOWN()] = Errno(Status::EHOSTDOWN)
+  errno_errors[uv_EREMOTEIO()] = Errno(Status::EREMOTEIO)
+  errno_errors[uv_ENOTTY()] = Errno(Status::ENOTTY)
+  errno_errors[uv_EFTYPE()] = Errno(Status::EFTYPE)
+  errno_errors[uv_EILSEQ()] = Errno(Status::EILSEQ)
+  errno_errors[uv_ESOCKTNOSUPPORT()] = Errno(Status::ESOCKTNOSUPPORT)
+  errno_errors[uv_ENODATA()] = Errno(Status::ENODATA)
+  errno_errors[uv_EUNATCH()] = Errno(Status::EUNATCH)
+  errno_errors[uv_ENOEXEC()] = Errno(Status::ENOEXEC)
   for value, error in errno_errors {
     errno_values[error] = value
   }
@@ -208,12 +211,12 @@ fn init {
 
 ///|
 pub fn errno(errno : Int) -> Errno {
-  errno_errors[errno].or(Errno::UNKNOWN)
+  errno_errors[errno].or(Errno(Status::UNKNOWN))
 }
 
 ///|
 fn Errno::of_int(errno : Int) -> Errno {
-  errno_errors[errno].or(Errno::UNKNOWN)
+  errno_errors[errno].or(Errno(Status::UNKNOWN))
 }
 
 ///|
