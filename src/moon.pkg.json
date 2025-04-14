@@ -37,6 +37,12 @@
     "pipe.mbt": [
       "native"
     ],
+    "random_test.mbt": [
+      "native"
+    ],
+    "random.mbt": [
+      "native"
+    ],
     "req.mbt": [
       "native"
     ],
