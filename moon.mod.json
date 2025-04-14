@@ -1,6 +1,6 @@
 {
   "name": "tonyfettes/uv",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "deps": {
     "tonyfettes/c": "0.1.12",
     "tonyfettes/encoding": "0.1.0"
