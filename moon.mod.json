@@ -9,6 +9,6 @@
   "repository": "https://github.com/tonyfettes/uv.mbt",
   "license": "Apache-2.0",
   "keywords": [],
-  "description": "",
+  "description": "MoonBit binding to libuv",
   "source": "src"
 }
