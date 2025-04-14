@@ -142,12 +142,27 @@ type StdioContainer Bytes
 pub extern "c" fn StdioContainer::ignore() -> StdioContainer = "moonbit_uv_stdio_container_ignore"
 
 ///|
-pub extern "c" fn StdioContainer::create_pipe(
+extern "c" fn uv_stdio_container_create_pipe(
   stream : Stream,
   readable~ : Bool = false,
   writable~ : Bool = false,
   non_block~ : Bool = false
 ) -> StdioContainer = "moonbit_uv_stdio_container_create_pipe"
+
+///|
+pub fn StdioContainer::create_pipe[Stream : ToStream](
+  stream : Stream,
+  readable~ : Bool = false,
+  writable~ : Bool = false,
+  non_block~ : Bool = false
+) -> StdioContainer {
+  return uv_stdio_container_create_pipe(
+    stream.to_stream(),
+    readable~,
+    writable~,
+    non_block~,
+  )
+}
 
 ///|
 pub extern "c" fn StdioContainer::inherit_fd(fd : Int) -> StdioContainer = "moonbit_uv_stdio_container_inherit_fd"
