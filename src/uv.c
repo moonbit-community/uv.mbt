@@ -1576,8 +1576,9 @@ moonbit_uv_signal_make(void) {
 
 int32_t
 moonbit_uv_signal_init(uv_loop_t *loop, moonbit_uv_signal_t *signal) {
-  uv_signal_init(loop, &signal->signal);
+  int status = uv_signal_init(loop, &signal->signal);
   moonbit_decref(signal);
+  return status;
 }
 
 typedef struct moonbit_uv_signal_cb_s {
