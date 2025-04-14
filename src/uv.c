@@ -61,12 +61,14 @@ moonbit_uv_incref(const char *func, const char *name, void *object) {
 // 6. When the scope of a owning pointer ends, the pointer should be
 //    decref'd.
 
-uv_loop_t *MOONBIT_FFI_EXPORT
+MOONBIT_FFI_EXPORT
+uv_loop_t *
 moonbit_uv_default_loop(void) {
   return uv_default_loop();
 }
 
-uv_loop_t *MOONBIT_FFI_EXPORT
+MOONBIT_FFI_EXPORT
+uv_loop_t *
 moonbit_uv_loop_make(void) {
   uv_loop_t *loop = (uv_loop_t *)moonbit_make_bytes(sizeof(uv_loop_t), 0);
   memset(loop, 0, sizeof(uv_loop_t));
