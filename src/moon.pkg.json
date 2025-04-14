@@ -40,6 +40,9 @@
     "req.mbt": [
       "native"
     ],
+    "signal.mbt": [
+      "native"
+    ],
     "stream.mbt": [
       "native"
     ],
