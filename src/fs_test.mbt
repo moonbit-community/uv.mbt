@@ -27,7 +27,6 @@ fn cat_do_write(
     uv.fs_write!(
       @uv.stdout(),
       [bytes[start:start + count]],
-      -1,
       fn(_, delta) {
         if delta < count {
           cat_do_write(uv, file, bytes, start + delta, count - delta, error)
@@ -53,7 +52,6 @@ fn cat_do_read(
     uv.fs_read!(
       file,
       [bytes[:]],
-      -1,
       fn(_, count) {
         if count == 0 {
           cat_do_close(uv, file, error)

@@ -149,7 +149,7 @@ pub fn fs_read(
   self : Loop,
   file : File,
   bufs : Array[@bytes.View],
-  offset : Int64,
+  offset~ : Int64 = -1,
   read_cb : (Fs, Int) -> Unit,
   error_cb : (Fs, Errno) -> Unit
 ) -> Unit!Errno {
@@ -197,7 +197,7 @@ pub fn fs_write(
   self : Loop,
   file : File,
   bufs : Array[@bytes.View],
-  offset : Int64,
+  offset~ : Int64 = -1,
   write_cb : (Fs, Int) -> Unit,
   error_cb : (Fs, Errno) -> Unit
 ) -> Unit!Errno {

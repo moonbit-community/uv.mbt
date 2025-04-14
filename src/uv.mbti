@@ -28,7 +28,7 @@ fn fs_mkdir[Ntbs : ToNtbs](Loop, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -
 
 fn fs_open[Ntbs : ToNtbs](Loop, Ntbs, OpenFlags, Int, (Fs, File) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
-fn fs_read(Loop, File, Array[@bytes.View], Int64, (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn fs_read(Loop, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
 fn fs_rename[Ntbs : ToNtbs](Loop, Ntbs, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
@@ -38,7 +38,7 @@ fn fs_scandir[Ntbs : ToNtbs](Loop, Ntbs, Int, (Fs, Dirent) -> Unit, (Fs, Errno) 
 
 fn fs_unlink[Ntbs : ToNtbs](Loop, Ntbs, (Fs) -> Unit, (Fs, Error) -> Unit) -> Unit!Errno
 
-fn fs_write(Loop, File, Array[@bytes.View], Int64, (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn fs_write(Loop, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
 fn hrtime() -> UInt64
 
@@ -141,12 +141,12 @@ impl Loop {
   fs_copyfile[Ntbs : ToNtbs](Self, Ntbs, Ntbs, CopyFileFlags, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   fs_mkdir[Ntbs : ToNtbs](Self, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   fs_open[Ntbs : ToNtbs](Self, Ntbs, OpenFlags, Int, (Fs, File) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-  fs_read(Self, File, Array[@bytes.View], Int64, (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+  fs_read(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   fs_rename[Ntbs : ToNtbs](Self, Ntbs, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   fs_rmdir[Ntbs : ToNtbs](Self, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   fs_scandir[Ntbs : ToNtbs](Self, Ntbs, Int, (Fs, Dirent) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   fs_unlink[Ntbs : ToNtbs](Self, Ntbs, (Fs) -> Unit, (Fs, Error) -> Unit) -> Unit!Errno
-  fs_write(Self, File, Array[@bytes.View], Int64, (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+  fs_write(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   new() -> Self!Errno
   queue_work(Self, (Work) -> Unit, (Work) -> Unit, (Work, Errno) -> Unit) -> Unit!Errno
   run(Self, RunMode) -> Unit!Errno
@@ -303,7 +303,7 @@ impl Hash for Status
 
 type StdioContainer
 impl StdioContainer {
-  create_pipe(Stream, readable~ : Bool = .., writable~ : Bool = .., non_block~ : Bool = ..) -> Self
+  create_pipe[Stream : ToStream](Stream, readable~ : Bool = .., writable~ : Bool = .., non_block~ : Bool = ..) -> Self
   ignore() -> Self
   inherit_fd(Int) -> Self
   inherit_file(File) -> Self
@@ -312,6 +312,8 @@ impl StdioContainer {
 
 type Stream
 impl Stream {
+  is_readable(Self) -> Bool
+  is_writable(Self) -> Bool
   read_start(Self, (Handle, Int) -> @bytes.View, (Self, Int, @bytes.View) -> Unit, (Self, Errno) -> Unit) -> Unit!Errno
   read_stop(Self) -> Unit!Errno
   to_handle(Self) -> Handle

@@ -12,7 +12,6 @@ test "spawn" {
       uv.fs_write!(
         @uv.stdout(),
         [bytes[start:start + count]],
-        -1,
         fn(_, delta) {
           if delta < count {
             do_write(bytes, start + delta, count - delta)
