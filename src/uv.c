@@ -835,6 +835,22 @@ moonbit_uv_read_stop(uv_stream_t *stream) {
   return status;
 }
 
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_is_readable(uv_stream_t *stream) {
+  int32_t is_readable = uv_is_readable(stream);
+  moonbit_decref(stream);
+  return is_readable;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_is_writable(uv_stream_t *stream) {
+  int32_t is_writable = uv_is_writable(stream);
+  moonbit_decref(stream);
+  return is_writable;
+}
+
 typedef struct moonbit_uv_write_s {
   uv_write_t write;
   uv_buf_t *bufs_data;

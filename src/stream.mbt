@@ -200,3 +200,19 @@ impl ToStream with read_stop(self) {
 impl ToStream with write(self, bufs, write_cb, error_cb) {
   self.to_stream().write!(bufs, write_cb, error_cb)
 }
+
+///|
+extern "c" fn uv_stream_is_readable(stream : Stream) -> Bool = "moonbit_uv_stream_is_readable"
+
+///|
+extern "c" fn uv_stream_is_writable(stream : Stream) -> Bool = "moonbit_uv_stream_is_writable"
+
+///|
+pub fn Stream::is_readable(self : Stream) -> Bool {
+  uv_stream_is_readable(self)
+}
+
+///|
+pub fn Stream::is_writable(self : Stream) -> Bool {
+  uv_stream_is_writable(self)
+}
