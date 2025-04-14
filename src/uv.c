@@ -1746,3 +1746,64 @@ moonbit_uv_hrtime() {
   uint64_t hrtime = uv_hrtime();
   return hrtime;
 }
+
+typedef struct moonbit_uv_random_cb_s {
+  int32_t (*code)(
+    struct moonbit_uv_random_cb_s *,
+    uv_random_t *req,
+    int status,
+    int32_t length
+  );
+} moonbit_uv_random_cb_t;
+
+static inline void
+moonbit_uv_random_cb(uv_random_t *req, int status, void *, size_t length) {
+  moonbit_uv_random_cb_t *cb = req->data;
+  req->data = NULL;
+  cb->code(cb, req, status, (int32_t)length);
+}
+
+typedef struct moonbit_uv_random_s {
+  uv_random_t random;
+} moonbit_uv_random_t;
+
+static inline void
+moonbit_uv_random_finalize(void *object) {
+  moonbit_uv_random_t *random = object;
+  if (random->random.loop) {
+    moonbit_decref(random->random.loop);
+  }
+  if (random->random.data) {
+    moonbit_decref(random->random.data);
+  }
+}
+
+MOONBIT_FFI_EXPORT
+moonbit_uv_random_t *
+moonbit_uv_random_make(void) {
+  moonbit_uv_random_t *random =
+    (moonbit_uv_random_t *)moonbit_make_external_object(
+      moonbit_uv_random_finalize, sizeof(moonbit_uv_random_t)
+    );
+  memset(random, 0, sizeof(moonbit_uv_random_t));
+  return random;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_random(
+  uv_loop_t *loop,
+  moonbit_uv_random_t *random,
+  moonbit_bytes_t buffer,
+  int32_t buffer_offset,
+  int32_t buffer_length,
+  int32_t flags,
+  moonbit_uv_random_cb_t *cb
+) {
+  random->random.data = cb;
+  int32_t status = uv_random(
+    loop, &random->random, (char *)buffer + buffer_offset, buffer_length, flags,
+    moonbit_uv_random_cb
+  );
+  return status;
+}
