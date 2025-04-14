@@ -25,7 +25,7 @@ test "spawn" {
     }
   }
 
-  fn do_read(process : @uv.Process, pipe : @uv.Pipe) -> Unit {
+  fn do_read(pipe : @uv.Pipe) -> Unit {
     try {
       pipe.read_start!(
         fn(_, size_hint) { return Bytes::make(size_hint, 0)[:] },
@@ -39,13 +39,13 @@ test "spawn" {
           } catch {
             error => stop_error = Some(error)
           }
-          pipe.close(fn(_) { process.close(fn(_) {  }) })
+          pipe.close(fn(_) {  })
         },
       )
     } catch {
       error => {
         read_error = Some(error)
-        pipe.close(fn(_) { process.close(fn(_) {  }) })
+        pipe.close(fn(_) {  })
       }
     }
   }
@@ -61,10 +61,11 @@ test "spawn" {
     fn(child, exit_status, term_signal) {
       test_exit_status = Some(exit_status)
       test_term_signal = Some(term_signal)
-      do_read(child, stdout_pipe)
+      child.close(fn(_) {  })
     },
   )
   let _ = uv.spawn!(options)
+  do_read(stdout_pipe)
   uv.run!(Default)
   uv.stop()
   uv.close!()
