@@ -51,7 +51,7 @@ test "spawn" {
 
   let stdio = [
     @uv.StdioContainer::ignore(),
-    @uv.StdioContainer::create_pipe(stdout_pipe.to_stream(), writable=true),
+    @uv.StdioContainer::create_pipe(stdout_pipe, writable=true),
   ]
   let options = @uv.ProcessOptions::new(
     "moon",

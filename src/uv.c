@@ -1056,6 +1056,12 @@ moonbit_uv_timer_get_due_in(uv_timer_t *timer) {
   return due_in;
 }
 
+MOONBIT_FFI_EXPORT
+void
+moonbit_uv_disable_stdio_inheritance(void) {
+  uv_disable_stdio_inheritance();
+}
+
 typedef struct moonbit_uv_process_s {
   uv_process_t process;
 } moonbit_uv_process_t;
