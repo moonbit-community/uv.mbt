@@ -1391,6 +1391,14 @@ moonbit_uv_spawn(
 }
 
 MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_process_kill(moonbit_uv_process_t *process, int signum) {
+  int result = uv_process_kill(&process->process, signum);
+  moonbit_decref(process);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
 uv_tty_t *
 moonbit_uv_tty_make(void) {
   uv_tty_t *tty = (uv_tty_t *)moonbit_make_bytes(sizeof(uv_tty_t), 0);

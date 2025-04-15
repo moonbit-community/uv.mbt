@@ -207,3 +207,14 @@ pub fn spawn(self : Loop, options : ProcessOptions) -> Process!Errno {
   }
   return process
 }
+
+///|
+extern "c" fn uv_process_kill(self : Process, signum : Int) -> Int = "moonbit_uv_process_kill"
+
+///|
+pub fn Process::kill(self : Process, signum : Int) -> Unit!Errno {
+  let status = uv_process_kill(self, signum)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
