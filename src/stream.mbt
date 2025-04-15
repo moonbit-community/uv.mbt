@@ -158,6 +158,8 @@ pub trait ToStream: ToHandle {
   write(Self, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) ->
        Unit!Errno
   listen(Self, Int, (Self) -> Unit, (Self, Errno) -> Unit) -> Unit!Errno
+  is_readable(Self) -> Bool
+  is_writable(Self) -> Bool
 }
 
 ///|
@@ -202,17 +204,37 @@ impl ToStream with write(self, bufs, write_cb, error_cb) {
 }
 
 ///|
-extern "c" fn uv_stream_is_readable(stream : Stream) -> Bool = "moonbit_uv_stream_is_readable"
+extern "c" fn uv_is_readable(stream : Stream) -> Bool = "moonbit_uv_is_readable"
 
 ///|
-extern "c" fn uv_stream_is_writable(stream : Stream) -> Bool = "moonbit_uv_stream_is_writable"
+extern "c" fn uv_is_writable(stream : Stream) -> Bool = "moonbit_uv_is_writable"
 
 ///|
 pub fn Stream::is_readable(self : Stream) -> Bool {
-  uv_stream_is_readable(self)
+  uv_is_readable(self)
 }
 
 ///|
 pub fn Stream::is_writable(self : Stream) -> Bool {
-  uv_stream_is_writable(self)
+  uv_is_writable(self)
+}
+
+///|
+pub fn is_readable[Stream : ToStream](stream : Stream) -> Bool {
+  uv_is_readable(stream.to_stream())
+}
+
+///|
+pub fn is_writable[Stream : ToStream](stream : Stream) -> Bool {
+  uv_is_writable(stream.to_stream())
+}
+
+///|
+impl ToStream with is_readable(self) {
+  self.to_stream().is_readable()
+}
+
+///|
+impl ToStream with is_writable(self) {
+  self.to_stream().is_writable()
 }
