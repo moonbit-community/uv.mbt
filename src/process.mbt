@@ -165,11 +165,11 @@ pub fn StdioContainer::create_pipe[Stream : ToStream](
 }
 
 ///|
-pub extern "c" fn StdioContainer::inherit_fd(fd : Int) -> StdioContainer = "moonbit_uv_stdio_container_inherit_fd"
+extern "c" fn uv_stdio_container_inherit_fd(fd : Int) -> StdioContainer = "moonbit_uv_stdio_container_inherit_fd"
 
 ///|
 pub fn StdioContainer::inherit_file(file : File) -> StdioContainer {
-  return StdioContainer::inherit_fd(file._)
+  return uv_stdio_container_inherit_fd(file._)
 }
 
 ///|
