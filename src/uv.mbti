@@ -52,6 +52,8 @@ fn pipe(Int, Int) -> (File, File)!Errno
 
 fn queue_work(Loop, (Work) -> Unit, (Work) -> Unit, (Work, Errno) -> Unit) -> Unit!Errno
 
+fn random(Loop, @bytes.View, Int, (Random, @bytes.View) -> Unit, (Random, Errno) -> Unit) -> Unit!Errno
+
 fn read_start[Stream : ToStream](Stream, (Stream, Int) -> @bytes.View, (Stream, Int, @bytes.View) -> Unit, (Stream, Errno) -> Unit) -> Unit!Errno
 
 fn read_stop[Stream : ToStream](Stream) -> Unit!Errno
@@ -149,6 +151,7 @@ impl Loop {
   fs_write(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   new() -> Self!Errno
   queue_work(Self, (Work) -> Unit, (Work) -> Unit, (Work, Errno) -> Unit) -> Unit!Errno
+  random(Self, @bytes.View, Int, (Random, @bytes.View) -> Unit, (Random, Errno) -> Unit) -> Unit!Errno
   run(Self, RunMode) -> Unit!Errno
   spawn(Self, ProcessOptions) -> Process!Errno
   stop(Self) -> Unit
@@ -190,6 +193,8 @@ type ProcessOptions
 impl ProcessOptions {
   new(String, Array[String], env? : Array[String], cwd? : String, stdio? : Array[StdioContainer], uid? : Uid, gid? : Gid, (Process, Int64, Int) -> Unit) -> Self
 }
+
+type Random
 
 type Req
 
@@ -305,7 +310,6 @@ type StdioContainer
 impl StdioContainer {
   create_pipe[Stream : ToStream](Stream, readable~ : Bool = .., writable~ : Bool = .., non_block~ : Bool = ..) -> Self
   ignore() -> Self
-  inherit_fd(Int) -> Self
   inherit_file(File) -> Self
   inherit_stream(Stream) -> Self
 }
