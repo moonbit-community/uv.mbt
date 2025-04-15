@@ -51,6 +51,8 @@ moonbit_uv_incref(const char *func, const char *name, void *object) {
 #define moonbit_uv_trace(...)
 #endif
 
+#define moonbit_uv_ignore(var) (void)(var)
+
 // 1. All pointers without annotation is borrow ()
 // 2. It is OK to pass a owning pointer to a borrowed parameter
 // 3. It is OK to pass a borrowed pointer to an borrowed parameter
@@ -1757,7 +1759,13 @@ typedef struct moonbit_uv_random_cb_s {
 } moonbit_uv_random_cb_t;
 
 static inline void
-moonbit_uv_random_cb(uv_random_t *req, int status, void *, size_t length) {
+moonbit_uv_random_cb(
+  uv_random_t *req,
+  int status,
+  void *buffer,
+  size_t length
+) {
+  moonbit_uv_ignore(buffer);
   moonbit_uv_random_cb_t *cb = req->data;
   req->data = NULL;
   cb->code(cb, req, status, (int32_t)length);
