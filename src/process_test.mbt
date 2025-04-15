@@ -6,7 +6,7 @@ test "spawn" {
   let mut read_error = None
   let mut write_error = None
   let mut stop_error = None
-  let stdout_pipe = @uv.Pipe::new!(uv, ipc=true)
+  let stdout_pipe = @uv.Pipe::new!(uv, ipc=false)
   fn do_write(bytes : @bytes.View, start : Int, count : Int) -> Unit {
     try {
       uv.fs_write!(
