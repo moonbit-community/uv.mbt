@@ -1745,6 +1745,42 @@ moonbit_uv_signal_stop(moonbit_uv_signal_t *signal) {
 }
 
 MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_SIGHUP() {
+  return SIGHUP;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_SIGINT() {
+  return SIGINT;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_SIGQUIT() {
+  return SIGQUIT;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_SIGABRT() {
+  return SIGABRT;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_SIGTERM() {
+  return SIGTERM;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_SIGWINCH() {
+  return SIGWINCH;
+}
+
+MOONBIT_FFI_EXPORT
 void
 moonbit_uv_sleep(uint32_t milliseconds) {
   uv_sleep(milliseconds);
