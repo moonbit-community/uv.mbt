@@ -6,7 +6,7 @@ import(
 )
 
 // Values
-fn accept[Server : ToStream, Client : ToStream](Server, Client) -> Int
+fn accept[Server : ToStream, Client : ToStream](Server, Client) -> Unit!Errno
 
 fn args() -> Array[@string.StringView]!
 
@@ -350,7 +350,7 @@ impl ToStream for Stream
 type Tcp
 impl Tcp {
   bind[Sockaddr : ToSockaddr](Self, Sockaddr, Int) -> Unit!Errno
-  connect[Sockaddr : ToSockaddr](Self, Sockaddr, (Connect) -> Unit, (Connect, Errno) -> Unit) -> Int
+  connect[Sockaddr : ToSockaddr](Self, Sockaddr, (Connect) -> Unit, (Connect, Errno) -> Unit) -> Unit!Errno
   new(Loop) -> Self!Errno
 }
 impl ToHandle for Tcp

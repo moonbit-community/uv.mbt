@@ -107,8 +107,11 @@ extern "c" fn uv_accept(server : Stream, client : Stream) -> Int = "moonbit_uv_a
 pub fn accept[Server : ToStream, Client : ToStream](
   server : Server,
   client : Client
-) -> Int {
-  uv_accept(server.to_stream(), client.to_stream())
+) -> Unit!Errno {
+  let status = uv_accept(server.to_stream(), client.to_stream())
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
 }
 
 ///|
@@ -139,7 +142,7 @@ pub fn Tcp::connect[Sockaddr : ToSockaddr](
   addr : Sockaddr,
   connect_cb : (Connect) -> Unit,
   error_cb : (Connect, Errno) -> Unit
-) -> Int {
+) -> Unit!Errno {
   fn cb(req : Connect, status : Int) {
     if status < 0 {
       error_cb(req, Errno::of_int(status))
@@ -149,5 +152,8 @@ pub fn Tcp::connect[Sockaddr : ToSockaddr](
   }
 
   let req = uv_connect_make()
-  uv_tcp_connect(req, self, addr.to_sockaddr(), cb)
+  let status = uv_tcp_connect(req, self, addr.to_sockaddr(), cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
 }
