@@ -879,8 +879,6 @@ moonbit_uv_is_writable(uv_stream_t *stream) {
 
 typedef struct moonbit_uv_write_s {
   uv_write_t write;
-  uv_buf_t *bufs_data;
-  size_t bufs_size;
 } moonbit_uv_write_t;
 
 static inline void
@@ -888,12 +886,6 @@ moonbit_uv_write_finalize(void *object) {
   moonbit_uv_write_t *write = object;
   if (write->write.data) {
     moonbit_decref(write->write.data);
-  }
-  if (write->bufs_data) {
-    for (size_t i = 0; i < write->bufs_size; i++) {
-      moonbit_decref(write->bufs_data[i].base);
-    }
-    free(write->bufs_data);
   }
 }
 
@@ -904,9 +896,7 @@ moonbit_uv_write_make(void) {
     (moonbit_uv_write_t *)moonbit_make_external_object(
       moonbit_uv_write_finalize, sizeof(moonbit_uv_write_t)
     );
-  memset(&write->write, 0, sizeof(uv_write_t));
-  write->bufs_data = NULL;
-  write->bufs_size = 0;
+  memset(write, 0, sizeof(moonbit_uv_write_t));
   return write;
 }
 
@@ -918,35 +908,51 @@ typedef struct moonbit_uv_write_cb {
   );
 } moonbit_uv_write_cb_t;
 
+typedef struct moonbit_uv_write_data_s {
+  moonbit_uv_write_cb_t *cb;
+  size_t bufs_size;
+  uv_buf_t *bufs_data;
+} moonbit_uv_write_data_t;
+
 static inline void
 moonbit_uv_write_cb(uv_write_t *req, int status) {
-  moonbit_uv_write_cb_t *moonbit_uv_cb = req->data;
+  moonbit_uv_write_data_t *data = req->data;
+  req->data = NULL;
+  moonbit_uv_write_cb_t *cb = data->cb;
   moonbit_uv_write_t *write = containerof(req, moonbit_uv_write_t, write);
-  moonbit_uv_cb->code(moonbit_uv_cb, write, status);
+  cb->code(cb, write, status);
 }
 
 static inline void
-moonbit_uv_write_set_data(moonbit_uv_write_t *req, moonbit_uv_write_cb_t *cb) {
+moonbit_uv_write_data_finalize(void *object) {
+  moonbit_uv_write_data_t *write_data = object;
+  for (size_t i = 0; i < write_data->bufs_size; i++) {
+    moonbit_decref(write_data->bufs_data[i].base);
+  }
+  free(write_data->bufs_data);
+}
+
+static inline moonbit_uv_write_data_t *
+moonbit_uv_write_data_make(size_t bufs_size) {
+  moonbit_uv_write_data_t *write_data =
+    (moonbit_uv_write_data_t *)moonbit_make_external_object(
+      moonbit_uv_write_data_finalize, sizeof(moonbit_uv_write_data_t)
+    );
+  memset(write_data, 0, sizeof(moonbit_uv_write_data_t));
+  write_data->bufs_size = bufs_size;
+  write_data->bufs_data = malloc(sizeof(uv_buf_t) * bufs_size);
+  return write_data;
+}
+
+static inline void
+moonbit_uv_write_set_data(
+  moonbit_uv_write_t *req,
+  moonbit_uv_write_data_t *data
+) {
   if (req->write.data) {
     moonbit_decref(req->write.data);
   }
-  req->write.data = cb;
-}
-
-static inline void
-moonbit_uv_write_set_bufs(
-  moonbit_uv_write_t *req,
-  uv_buf_t *bufs_data,
-  size_t bufs_size
-) {
-  if (req->bufs_data) {
-    for (size_t i = 0; i < req->bufs_size; i++) {
-      moonbit_decref(req->bufs_data[i].base);
-    }
-    free(req->bufs_data);
-  }
-  req->bufs_data = bufs_data;
-  req->bufs_size = bufs_size;
+  req->write.data = data;
 }
 
 MOONBIT_FFI_EXPORT
@@ -960,17 +966,18 @@ moonbit_uv_write(
   moonbit_uv_write_cb_t *cb
 ) {
   int bufs_size = Moonbit_array_length(bufs_base);
-  uv_buf_t *bufs_data = malloc(sizeof(uv_buf_t) * bufs_size);
+  moonbit_uv_write_data_t *data = moonbit_uv_write_data_make(bufs_size);
   for (int i = 0; i < bufs_size; i++) {
-    bufs_data[i] =
+    data->bufs_data[i] =
       uv_buf_init((char *)bufs_base[i] + bufs_offset[i], bufs_length[i]);
   }
-  moonbit_uv_write_set_data(req, cb);
-  moonbit_uv_write_set_bufs(req, bufs_data, bufs_size);
-  int result =
-    uv_write(&req->write, handle, bufs_data, bufs_size, moonbit_uv_write_cb);
+  data->bufs_size = bufs_size;
+  data->cb = cb;
+  moonbit_uv_write_set_data(req, data);
+  int result = uv_write(
+    &req->write, handle, data->bufs_data, bufs_size, moonbit_uv_write_cb
+  );
   moonbit_decref(handle);
-  free(bufs_data);
   return result;
 }
 
