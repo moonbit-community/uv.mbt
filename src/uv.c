@@ -1859,3 +1859,11 @@ moonbit_uv_random(
   );
   return status;
 }
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_os_uname(moonbit_bytes_t buffer) {
+  int32_t status = uv_os_uname((uv_utsname_t *)buffer);
+  moonbit_decref(buffer);
+  return status;
+}
