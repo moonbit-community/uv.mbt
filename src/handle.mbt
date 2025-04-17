@@ -39,8 +39,8 @@ pub fn Handle::get_loop(self : Handle) -> Loop {
 pub trait ToHandle {
   to_handle(Self) -> Handle
   of_handle(Handle) -> Self
-  close(Self, (Self) -> Unit) -> Unit = _
-  is_closing(Self) -> Bool = _
+  close(Self, (Self) -> Unit) -> Unit
+  is_closing(Self) -> Bool
 }
 
 ///|

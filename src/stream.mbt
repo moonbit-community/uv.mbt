@@ -153,13 +153,13 @@ pub trait ToStream: ToHandle {
     (Self, Int) -> @bytes.View,
     (Self, Int, @bytes.View) -> Unit,
     (Self, Errno) -> Unit,
-  ) -> Unit!Errno = _
-  read_stop(Self) -> Unit!Errno = _
+  ) -> Unit!Errno
+  read_stop(Self) -> Unit!Errno
   write(Self, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) ->
-       Unit!Errno = _
-  listen(Self, Int, (Self) -> Unit, (Self, Errno) -> Unit) -> Unit!Errno = _
-  is_readable(Self) -> Bool = _
-  is_writable(Self) -> Bool = _
+       Unit!Errno
+  listen(Self, Int, (Self) -> Unit, (Self, Errno) -> Unit) -> Unit!Errno
+  is_readable(Self) -> Bool
+  is_writable(Self) -> Bool
 }
 
 ///|
