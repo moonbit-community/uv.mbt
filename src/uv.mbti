@@ -8,13 +8,13 @@ import(
 // Values
 fn accept[Server : ToStream, Client : ToStream](Server, Client) -> Int
 
-fn args() -> Array[String]!
+fn args() -> Array[@string.StringView]!
 
 fn argv() -> Array[Bytes]
 
 fn close[Handle : ToHandle](Handle, (Handle) -> Unit) -> Unit
 
-fn cwd() -> String!Errno
+fn cwd() -> @string.StringView!Errno
 
 fn disable_stdio_inheritance() -> Unit
 
@@ -30,6 +30,8 @@ fn fs_open[Ntbs : ToNtbs](Loop, Ntbs, OpenFlags, Int, (Fs, File) -> Unit, (Fs, E
 
 fn fs_read(Loop, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
+fn fs_realpath[Ntbs : ToNtbs](Loop, Ntbs, (Fs, @string.StringView) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+
 fn fs_rename[Ntbs : ToNtbs](Loop, Ntbs, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
 fn fs_rmdir[Ntbs : ToNtbs](Loop, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
@@ -42,7 +44,7 @@ fn fs_write(Loop, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> U
 
 fn hrtime() -> UInt64
 
-fn ip4_addr(String, Int) -> SockaddrIn
+fn ip4_addr[Ntbs : ToNtbs](Ntbs, Int) -> SockaddrIn
 
 fn is_closing[Handle : ToHandle](Handle) -> Bool
 
@@ -51,6 +53,8 @@ fn is_readable[Stream : ToStream](Stream) -> Bool
 fn is_writable[Stream : ToStream](Stream) -> Bool
 
 fn listen[Stream : ToStream](Stream, Int, (Stream) -> Unit, (Stream, Errno) -> Unit) -> Unit!Errno
+
+fn os_uname() -> Utsname!Errno
 
 fn pipe(Int, Int) -> (File, File)!Errno
 
@@ -95,7 +99,7 @@ pub(all) enum CopyOnWrite {
 
 type Dirent
 impl Dirent {
-  name(Self) -> String!
+  name(Self) -> @string.StringView
   type_(Self) -> DirentType
 }
 
@@ -148,6 +152,7 @@ impl Loop {
   fs_mkdir[Ntbs : ToNtbs](Self, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   fs_open[Ntbs : ToNtbs](Self, Ntbs, OpenFlags, Int, (Fs, File) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   fs_read(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+  fs_realpath[Ntbs : ToNtbs](Self, Ntbs, (Fs, @string.StringView) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   fs_rename[Ntbs : ToNtbs](Self, Ntbs, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   fs_rmdir[Ntbs : ToNtbs](Self, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   fs_scandir[Ntbs : ToNtbs](Self, Ntbs, Int, (Fs, Dirent) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
@@ -179,7 +184,7 @@ impl OpenFlags {
 
 type Pipe
 impl Pipe {
-  bind(Self, String, Int) -> Unit!Errno
+  bind[Ntbs : ToNtbs](Self, Ntbs, Int) -> Unit!Errno
   new(Loop, ipc~ : Bool = ..) -> Self!Errno
   to_handle(Self) -> Handle
   to_stream(Self) -> Stream
@@ -196,7 +201,7 @@ impl ToHandle for Process
 
 type ProcessOptions
 impl ProcessOptions {
-  new(String, Array[String], env? : Array[String], cwd? : String, stdio? : Array[StdioContainer], uid? : Uid, gid? : Gid, (Process, Int64, Int) -> Unit) -> Self
+  new[Ntbs : ToNtbs](Ntbs, Array[@string.StringView], env? : Array[@string.StringView], cwd? : @string.StringView, stdio? : Array[StdioContainer], uid? : Uid, gid? : Gid, (Process, Int64, Int) -> Unit) -> Self
 }
 
 type Random
@@ -380,6 +385,14 @@ impl TtyMode {
 }
 
 type Uid
+
+type Utsname
+impl Utsname {
+  machine(Self) -> @string.StringView
+  release(Self) -> @string.StringView
+  sysname(Self) -> @string.StringView
+  version(Self) -> @string.StringView
+}
 
 type Work
 

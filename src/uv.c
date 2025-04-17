@@ -514,6 +514,30 @@ moonbit_uv_fs_scandir_next(moonbit_uv_fs_t *fs, uv_dirent_t *ent) {
 }
 
 MOONBIT_FFI_EXPORT
+void *
+moonbit_uv_fs_get_ptr(uv_fs_t *fs) {
+  void *ptr = fs->ptr;
+  moonbit_decref(fs);
+  return ptr;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_realpath(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path,
+  moonbit_uv_fs_cb_t *cb
+) {
+  moonbit_uv_fs_set_data(fs, cb);
+  int status =
+    uv_fs_realpath(loop, &fs->fs, (const char *)path, moonbit_uv_fs_cb);
+  moonbit_decref(loop);
+  moonbit_decref(path);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
 int32_t
 moonbit_uv_accept(uv_stream_t *server, uv_stream_t *client) {
   int status = uv_accept(server, client);

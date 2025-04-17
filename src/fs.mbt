@@ -386,14 +386,14 @@ extern "c" fn uv_dirent_make() -> Dirent = "moonbit_uv_dirent_make"
 extern "c" fn uv_dirent_get_name(self : Dirent) -> @c.Pointer[Byte] = "moonbit_uv_dirent_get_name"
 
 ///|
-pub fn Dirent::name(self : Dirent) -> String! {
+pub fn Dirent::name(self : Dirent) -> @string.View {
   let name = uv_dirent_get_name(self)
   let buffer = @buffer.new()
   for i = 0; name[i] != 0; i = i + 1 {
     buffer.write_byte(name[i])
   }
   let bytes = buffer.contents()
-  return @encoding.decoder(UTF8).decode!(bytes)
+  return @encoding.decoder(UTF8).decode_lossy(bytes)
 }
 
 ///|
@@ -422,12 +422,12 @@ pub fn fs_scandir[Ntbs : ToNtbs](
       return e(req, Errno::of_int(status))
     }
     while true {
-      let direnv = uv_dirent_make()
-      let status = uv_fs_scandir_next(req, direnv)
+      let dirent = uv_dirent_make()
+      let status = uv_fs_scandir_next(req, dirent)
       if status < 0 {
         return e(req, Errno::of_int(status))
       }
-      k(req, direnv)
+      k(req, dirent)
     }
   })
   if status < 0 {
@@ -547,7 +547,7 @@ pub fn fs_copyfile[Ntbs : ToNtbs](
 extern "c" fn uv_cwd(buffer : Bytes, length : FixedArray[Int]) -> Int = "moonbit_uv_cwd"
 
 ///|
-pub fn cwd() -> String!Errno {
+pub fn cwd() -> @string.View!Errno {
   let buffer = Bytes::make(1024, 0)
   let length : FixedArray[Int] = [buffer.length()]
   let mut status = uv_cwd(buffer, length)
@@ -559,4 +559,44 @@ pub fn cwd() -> String!Errno {
     raise Errno::of_int(status)
   }
   return @encoding.decoder(UTF8).decode_lossy(buffer)
+}
+
+///|
+extern "c" fn uv_fs_get_ptr(req : Fs) -> @c.Pointer[Unit] = "moonbit_uv_fs_get_ptr"
+
+///|
+extern "c" fn uv_fs_realpath(
+  uv : Loop,
+  req : Fs,
+  path : Bytes,
+  cb : (Fs) -> Unit
+) -> Int = "moonbit_uv_fs_realpath"
+
+///|
+pub fn fs_realpath[Ntbs : ToNtbs](
+  self : Loop,
+  path : Ntbs,
+  k : (Fs, @string.View) -> Unit,
+  e : (Fs, Errno) -> Unit
+) -> Unit!Errno {
+  fn cb(req : Fs) {
+    let status = req.result().to_int()
+    if status < 0 {
+      e(req, Errno::of_int(status))
+    } else {
+      let ptr : @c.Pointer[Byte] = uv_fs_get_ptr(req).cast()
+      let buffer = @buffer.new()
+      for i = 0; ptr[i] != 0; i = i + 1 {
+        buffer.write_byte(ptr[i])
+      }
+      let bytes = buffer.contents()
+      k(req, @encoding.decoder(UTF8).decode_lossy(bytes))
+    }
+  }
+
+  let req = uv_fs_make()
+  let status = uv_fs_realpath(self, req, path.to_ntbs(), cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
 }

@@ -39,8 +39,8 @@ pub fn Tcp::new(loop_ : Loop) -> Tcp!Errno {
 extern "c" fn uv_ip4_addr(ip : Bytes, port : Int, addr : SockaddrIn) -> Unit = "moonbit_uv_ip4_addr"
 
 ///|
-pub fn ip4_addr(ip : String, port : Int) -> SockaddrIn {
-  let ip = to_ntbs(ip)
+pub fn ip4_addr[Ntbs : ToNtbs](ip : Ntbs, port : Int) -> SockaddrIn {
+  let ip = ip.to_ntbs()
   let addr = uv_sockaddr_in_make()
   uv_ip4_addr(ip, port, addr)
   addr

@@ -127,12 +127,8 @@ test "scandir" {
     "test/fixtures",
     0,
     fn(_, dirent) {
-      try {
-        let name = dirent.name!()
-        entries.push({ name, type_: dirent.type_() })
-      } catch {
-        e => error = Some(e)
-      }
+      let name = dirent.name()
+      entries.push({ name: name.to_string(), type_: dirent.type_() })
     },
     fn(_, e) { if not(e is Errno(EOF)) { error = Some(e) } },
   )
@@ -160,6 +156,21 @@ test "copyfile_unlink" {
         e => error = Some(e)
       }
     },
+    fn(_, e) { error = Some(e) },
+  )
+  uv.run!(Default)
+  uv.stop()
+  uv.close!()
+  raise_option!(error)
+}
+
+///|
+test "realpath" {
+  let uv = @uv.Loop::new!()
+  let mut error = None
+  uv.fs_realpath!(
+    "test/fixtures/example.txt",
+    fn(_, p) { println("realpath: \{p}") },
     fn(_, e) { error = Some(e) },
   )
   uv.run!(Default)

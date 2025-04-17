@@ -82,11 +82,11 @@ extern "c" fn uv_process_options_set_uid(self : ProcessOptions, uid : Uid) = "mo
 extern "c" fn uv_process_options_set_gid(self : ProcessOptions, gid : Gid) = "moonbit_uv_process_options_set_gid"
 
 ///|
-pub fn ProcessOptions::new(
-  file : String,
-  args : Array[String],
-  env? : Array[String],
-  cwd? : String,
+pub fn ProcessOptions::new[Ntbs : ToNtbs](
+  file : Ntbs,
+  args : Array[@string.View],
+  env? : Array[@string.View],
+  cwd? : @string.View,
   stdio? : Array[StdioContainer],
   uid? : Uid,
   gid? : Gid,
@@ -95,13 +95,13 @@ pub fn ProcessOptions::new(
   let mut flags = 0
   let options = uv_process_options_make()
   uv_process_options_set_exit_cb(options, exit_cb)
-  let file = to_ntbs(file)
+  let file = file.to_ntbs()
   uv_process_options_set_file(options, file)
   let args = FixedArray::makei(args.length() + 1, fn(i) {
     if i == args.length() {
       return None
     } else {
-      return Some(to_ntbs(args[i]))
+      return Some(args[i].to_ntbs())
     }
   })
   uv_process_options_set_args(options, args)
@@ -110,13 +110,13 @@ pub fn ProcessOptions::new(
       if i == env.length() {
         return None
       } else {
-        return Some(to_ntbs(env[i]))
+        return Some(env[i].to_ntbs())
       }
     })
     uv_process_options_set_env(options, env)
   }
   if cwd is Some(cwd) {
-    let cwd = to_ntbs(cwd)
+    let cwd = cwd.to_ntbs()
     uv_process_options_set_cwd(options, cwd)
   }
   if stdio is Some(stdio) {
@@ -189,14 +189,6 @@ extern "c" fn uv_spawn(
   process : Process,
   options : ProcessOptions
 ) -> Int = "moonbit_uv_spawn"
-
-///|
-fn to_ntbs(string : String) -> Bytes {
-  let buffer = @buffer.new()
-  @encoding.encode_to(string, buffer, encoding=UTF8)
-  buffer.write_byte(0)
-  return buffer.contents()
-}
 
 ///|
 pub fn spawn(self : Loop, options : ProcessOptions) -> Process!Errno {
