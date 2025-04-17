@@ -46,6 +46,10 @@ fn ip4_addr(String, Int) -> SockaddrIn
 
 fn is_closing[Handle : ToHandle](Handle) -> Bool
 
+fn is_readable[Stream : ToStream](Stream) -> Bool
+
+fn is_writable[Stream : ToStream](Stream) -> Bool
+
 fn listen[Stream : ToStream](Stream, Int, (Stream) -> Unit, (Stream, Errno) -> Unit) -> Unit!Errno
 
 fn pipe(Int, Int) -> (File, File)!Errno
@@ -185,6 +189,7 @@ impl ToStream for Pipe
 
 type Process
 impl Process {
+  kill(Self, Int) -> Unit!Errno
   pid(Self) -> Int
 }
 impl ToHandle for Process
@@ -207,9 +212,20 @@ pub(all) enum RunMode {
 type Signal
 impl Signal {
   new(Loop) -> Self!Errno
-  start(Self, (Self, Int) -> Unit, Int) -> Unit!Errno
+  start(Self, (Self, Signum) -> Unit, Signum) -> Unit!Errno
   stop(Self) -> Unit!Errno
 }
+
+pub enum Signum {
+  SIGHUP
+  SIGINT
+  SIGQUIT
+  SIGABRT
+  SIGTERM
+  SIGWINCH
+}
+impl Eq for Signum
+impl Hash for Signum
 
 type Sockaddr
 
@@ -403,5 +419,7 @@ pub trait ToStream : ToHandle {
   read_stop(Self) -> Unit!Errno
   write(Self, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) -> Unit!Errno
   listen(Self, Int, (Self) -> Unit, (Self, Errno) -> Unit) -> Unit!Errno
+  is_readable(Self) -> Bool
+  is_writable(Self) -> Bool
 }
 
