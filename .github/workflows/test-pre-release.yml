@@ -1,0 +1,49 @@
+name: Test (Pre-release)
+
+on:
+  push:
+    branches: ["dev"]
+  pull_request:
+    branches: ["dev"]
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install MoonBit (Unix)
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s 'pre-release'
+          echo "$HOME/.moon/bin" >> $GITHUB_PATH
+
+      - name: Install MoonBit (Windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        env:
+          MOONBIT_INSTALL_VERSION: pre-release
+        run: |
+          Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
+          "C:\Users\runneradmin\.moon\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+
+      - name: Inspect MoonBit version
+        run: |
+          moon version --all
+
+      - name: Update mooncakes.io index
+        run: moon update
+
+      - name: Setup MSVC
+        if: ${{ matrix.os == 'windows-latest' }}
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Run tests
+        run: |
+          moon check --target native -v
+          moon test --target native -v
