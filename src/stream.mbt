@@ -160,6 +160,7 @@ pub trait ToStream: ToHandle {
   listen(Self, Int, (Self) -> Unit, (Self, Errno) -> Unit) -> Unit!Errno = _
   is_readable(Self) -> Bool = _
   is_writable(Self) -> Bool = _
+  shutdown(Self, (Shutdown) -> Unit, (Shutdown, Errno) -> Unit) -> Unit!Errno = _
 }
 
 ///|
@@ -237,4 +238,55 @@ impl ToStream with is_readable(self) {
 ///|
 impl ToStream with is_writable(self) {
   self.to_stream().is_writable()
+}
+
+///|
+type Shutdown
+
+///|
+pub impl ToReq for Shutdown with to_req(self : Shutdown) -> Req = "%identity"
+
+///|
+extern "c" fn uv_shutdown_make() -> Shutdown = "moonbit_uv_shutdown_make"
+
+///|
+extern "c" fn uv_shutdown(
+  shutdown : Shutdown,
+  handle : Stream,
+  cb : (Shutdown, Int) -> Unit
+) -> Int = "moonbit_uv_shutdown"
+
+///|
+pub fn Stream::shutdown(
+  self : Stream,
+  shutdown_cb : (Shutdown) -> Unit,
+  error_cb : (Shutdown, Errno) -> Unit
+) -> Unit!Errno {
+  fn cb(req : Shutdown, status : Int) {
+    if status < 0 {
+      error_cb(req, Errno::of_int(status))
+    } else {
+      shutdown_cb(req)
+    }
+  }
+
+  let req = uv_shutdown_make()
+  let result = uv_shutdown(req, self, cb)
+  if result < 0 {
+    raise Errno::of_int(result)
+  }
+}
+
+///|
+pub fn shutdown[Stream : ToStream](
+  stream : Stream,
+  shutdown_cb : (Shutdown) -> Unit,
+  error_cb : (Shutdown, Errno) -> Unit
+) -> Unit!Errno {
+  stream.shutdown!(shutdown_cb, error_cb)
+}
+
+///|
+impl ToStream with shutdown(self, shutdown_cb, error_cb) {
+  self.to_stream().shutdown!(shutdown_cb, error_cb)
 }
