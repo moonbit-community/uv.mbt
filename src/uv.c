@@ -2062,14 +2062,20 @@ moonbit_uv_getaddrinfo(
     moonbit_decref(req->getaddrinfo.data);
   }
   req->getaddrinfo.data = cb;
+  struct addrinfo *addrinfo = NULL;
+  if (hints) {
+    addrinfo = &hints->addrinfo;
+  }
   int32_t status = uv_getaddrinfo(
     loop, &req->getaddrinfo, moonbit_uv_getaddrinfo_cb, (const char *)node,
-    (const char *)service, &hints->addrinfo
+    (const char *)service, addrinfo
   );
   moonbit_decref(loop);
   moonbit_decref(node);
   moonbit_decref(service);
-  moonbit_decref(hints);
+  if (hints) {
+    moonbit_decref(hints);
+  }
   return status;
 }
 
