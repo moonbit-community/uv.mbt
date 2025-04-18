@@ -918,8 +918,8 @@ typedef struct moonbit_uv_write_data_s {
 static inline void
 moonbit_uv_write_cb(uv_write_t *req, int status) {
   moonbit_uv_write_data_t *data = req->data;
-  req->data = NULL;
   moonbit_uv_write_cb_t *cb = data->cb;
+  data->cb = NULL;
   moonbit_uv_write_t *write = containerof(req, moonbit_uv_write_t, write);
   cb->code(cb, write, status);
 }
