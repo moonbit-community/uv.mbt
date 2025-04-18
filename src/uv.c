@@ -911,8 +911,7 @@ typedef struct moonbit_uv_write_cb {
 
 typedef struct moonbit_uv_write_data_s {
   moonbit_uv_write_cb_t *cb;
-  size_t bufs_size;
-  uv_buf_t *bufs_data;
+  moonbit_bytes_t *bufs;
 } moonbit_uv_write_data_t;
 
 static inline void
@@ -926,22 +925,22 @@ moonbit_uv_write_cb(uv_write_t *req, int status) {
 
 static inline void
 moonbit_uv_write_data_finalize(void *object) {
-  moonbit_uv_write_data_t *write_data = object;
-  for (size_t i = 0; i < write_data->bufs_size; i++) {
-    moonbit_decref(write_data->bufs_data[i].base);
+  moonbit_uv_write_data_t *data = object;
+  if (data->bufs) {
+    moonbit_decref(data->bufs);
   }
-  free(write_data->bufs_data);
+  if (data->cb) {
+    moonbit_decref(data->cb);
+  }
 }
 
 static inline moonbit_uv_write_data_t *
-moonbit_uv_write_data_make(size_t bufs_size) {
+moonbit_uv_write_data_make(void) {
   moonbit_uv_write_data_t *write_data =
     (moonbit_uv_write_data_t *)moonbit_make_external_object(
       moonbit_uv_write_data_finalize, sizeof(moonbit_uv_write_data_t)
     );
   memset(write_data, 0, sizeof(moonbit_uv_write_data_t));
-  write_data->bufs_size = bufs_size;
-  write_data->bufs_data = malloc(sizeof(uv_buf_t) * bufs_size);
   return write_data;
 }
 
@@ -961,24 +960,27 @@ int32_t
 moonbit_uv_write(
   moonbit_uv_write_t *req,
   uv_stream_t *handle,
-  moonbit_bytes_t *bufs_base,
+  moonbit_bytes_t *bufs,
   int32_t *bufs_offset,
   int32_t *bufs_length,
   moonbit_uv_write_cb_t *cb
 ) {
-  int bufs_size = Moonbit_array_length(bufs_base);
-  moonbit_uv_write_data_t *data = moonbit_uv_write_data_make(bufs_size);
+  int bufs_size = Moonbit_array_length(bufs);
+  uv_buf_t *bufs_data = malloc(sizeof(uv_buf_t) * bufs_size);
   for (int i = 0; i < bufs_size; i++) {
-    data->bufs_data[i] =
-      uv_buf_init((char *)bufs_base[i] + bufs_offset[i], bufs_length[i]);
+    bufs_data[i] =
+      uv_buf_init((char *)bufs[i] + bufs_offset[i], bufs_length[i]);
   }
-  data->bufs_size = bufs_size;
+  moonbit_uv_write_data_t *data = moonbit_uv_write_data_make();
+  data->bufs = bufs;
   data->cb = cb;
   moonbit_uv_write_set_data(req, data);
-  int result = uv_write(
-    &req->write, handle, data->bufs_data, bufs_size, moonbit_uv_write_cb
-  );
+  int result =
+    uv_write(&req->write, handle, bufs_data, bufs_size, moonbit_uv_write_cb);
+  free(bufs_data);
   moonbit_decref(handle);
+  moonbit_decref(bufs_offset);
+  moonbit_decref(bufs_length);
   return result;
 }
 
