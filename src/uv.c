@@ -559,7 +559,9 @@ void
 moonbit_uv_listen_cb(uv_stream_t *server, int status) {
   moonbit_uv_connection_cb_t *cb = server->data;
   moonbit_incref(cb);
+  moonbit_incref(server);
   cb->code(cb, server, status);
+  moonbit_uv_trace("server->rc = %d\n", Moonbit_object_header(server)->rc);
 }
 
 MOONBIT_FFI_EXPORT
@@ -569,6 +571,8 @@ moonbit_uv_listen(
   int backlog,
   moonbit_uv_connection_cb_t *cb
 ) {
+  moonbit_uv_trace("stream = %p\n", (void *)stream);
+  moonbit_uv_trace("stream->rc = %d\n", Moonbit_object_header(stream)->rc);
   stream->data = cb;
   return uv_listen(stream, backlog, moonbit_uv_listen_cb);
 }
@@ -601,6 +605,10 @@ moonbit_uv_close(uv_handle_t *handle, moonbit_uv_close_cb_t *close_cb) {
   moonbit_uv_trace("handle = %p\n", (void *)handle);
   moonbit_uv_trace("handle->rc = %d\n", Moonbit_object_header(handle)->rc);
   moonbit_uv_handle_set_data(handle, close_cb);
+  moonbit_uv_trace("handle->type = %s\n", uv_handle_type_name(handle->type));
+  if (uv_is_active(handle)) {
+    moonbit_decref(handle);
+  }
   uv_close(handle, moonbit_uv_close_cb);
 }
 
@@ -668,8 +676,12 @@ moonbit_uv_tcp_init(uv_loop_t *loop, moonbit_uv_tcp_t *tcp) {
 
 MOONBIT_FFI_EXPORT
 int32_t
-moonbit_uv_tcp_bind(uv_tcp_t *tcp, struct sockaddr *addr, unsigned int flags) {
-  int result = uv_tcp_bind(tcp, addr, flags);
+moonbit_uv_tcp_bind(
+  moonbit_uv_tcp_t *tcp,
+  struct sockaddr *addr,
+  unsigned int flags
+) {
+  int result = uv_tcp_bind(&tcp->tcp, addr, flags);
   moonbit_decref(tcp);
   moonbit_decref(addr);
   return result;
@@ -701,7 +713,7 @@ MOONBIT_FFI_EXPORT
 int32_t
 moonbit_uv_tcp_connect(
   uv_connect_t *connect,
-  uv_tcp_t *tcp,
+  moonbit_uv_tcp_t *tcp,
   struct sockaddr *addr,
   moonbit_uv_connection_cb_t *cb
 ) {
@@ -710,7 +722,7 @@ moonbit_uv_tcp_connect(
   }
   connect->data = cb;
   // The ownership of `connect` is transferred into `loop`.
-  int result = uv_tcp_connect(connect, tcp, addr, moonbit_uv_connect_cb);
+  int result = uv_tcp_connect(connect, &tcp->tcp, addr, moonbit_uv_connect_cb);
   moonbit_decref(addr);
   moonbit_decref(tcp);
   return result;
@@ -853,11 +865,13 @@ moonbit_uv_read_stop(uv_stream_t *stream) {
   moonbit_uv_trace("stream = %p\n", (void *)stream);
   moonbit_uv_trace("stream->rc = %d\n", Moonbit_object_header(stream)->rc);
   moonbit_uv_stream_set_data(stream, NULL);
-  int32_t status = uv_read_stop(stream);
   // We have to decref `stream` here twice, because
   // 1. We are removing `stream` from `loop`, and
   // 2. We need to decref the passed-in argument `stream`.
-  moonbit_decref(stream);
+  if (uv_is_active((uv_handle_t *)stream)) {
+    moonbit_decref(stream);
+  }
+  int32_t status = uv_read_stop(stream);
   moonbit_decref(stream);
   return status;
 }
