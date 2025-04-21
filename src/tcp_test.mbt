@@ -1,8 +1,3 @@
-test "dns" {
-  let uv = @uv.Loop::new!()
-  
-}
-
 ///|
 test "client" {
   let uv = @uv.Loop::new!()

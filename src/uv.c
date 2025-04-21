@@ -2127,3 +2127,63 @@ moonbit_uv_addrinfo_results_iter(
   }
   return terminated;
 }
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_IF_NAMESIZE(void) {
+  return UV_IF_NAMESIZE;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_ip_name(const struct sockaddr *src, moonbit_bytes_t dst) {
+  return uv_ip_name(src, (char *)dst, Moonbit_array_length(dst));
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_SOCK_RAW(void) {
+  return SOCK_RAW;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_SOCK_DGRAM(void) {
+  return SOCK_DGRAM;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_SOCK_STREAM(void) {
+  return SOCK_STREAM;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_AF_INET(void) {
+  return AF_INET;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_AF_INET6(void) {
+  return AF_INET6;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_AF_UNSPEC(void) {
+  return AF_UNSPEC;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_IPPROTO_UDP(void) {
+  return IPPROTO_UDP;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_IPPROTO_TCP(void) {
+  return IPPROTO_TCP;
+}
