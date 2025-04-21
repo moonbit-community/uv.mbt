@@ -1,6 +1,5 @@
 #include "moonbit.h"
 #include "uv#include#uv.h"
-#include <netdb.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
