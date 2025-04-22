@@ -50,6 +50,9 @@ pub fn ip4_addr[Ntbs : ToNtbs](ip : Ntbs, port : Int) -> SockaddrIn {
 type Sockaddr Bytes
 
 ///|
+pub impl ToSockaddr for Sockaddr with to_sockaddr(self : Sockaddr) -> Sockaddr = "%identity"
+
+///|
 pub impl ToSockaddr for SockaddrIn with to_sockaddr(addr : SockaddrIn) -> Sockaddr = "%identity"
 
 ///|
