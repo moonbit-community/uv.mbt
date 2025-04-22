@@ -2187,3 +2187,45 @@ int32_t
 moonbit_uv_IPPROTO_TCP(void) {
   return IPPROTO_TCP;
 }
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_AI_PASSIVE(void) {
+  return AI_PASSIVE;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_AI_V4MAPPED(void) {
+  return AI_V4MAPPED;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_AI_ALL(void) {
+  return AI_ALL;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_AI_ADDRCONFIG(void) {
+  return AI_ADDRCONFIG;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_AI_NUMERICHOST(void) {
+  return AI_NUMERICHOST;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_AI_NUMERICSERV(void) {
+  return AI_NUMERICSERV;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_AI_CANONNAME(void) {
+  return AI_CANONNAME;
+}

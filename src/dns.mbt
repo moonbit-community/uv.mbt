@@ -16,12 +16,108 @@ extern "c" fn uv_addrinfo_hints(
 ) -> AddrInfoHints = "moonbit_uv_addrinfo_hints"
 
 ///|
+type AddrInfoFlags Int
+
+///|
+extern "c" fn uv_AI_PASSIVE() -> Int = "moonbit_uv_AI_PASSIVE"
+
+///|
+let _AI_PASSIVE : Int = uv_AI_PASSIVE()
+
+///|
+extern "c" fn uv_AI_CANONNAME() -> Int = "moonbit_uv_AI_CANONNAME"
+
+///|
+let _AI_CANONNAME : Int = uv_AI_CANONNAME()
+
+///|
+extern "c" fn uv_AI_NUMERICHOST() -> Int = "moonbit_uv_AI_NUMERICHOST"
+
+///|
+let _AI_NUMERICHOST : Int = uv_AI_NUMERICHOST()
+
+///|
+extern "c" fn uv_AI_NUMERICSERV() -> Int = "moonbit_uv_AI_NUMERICSERV"
+
+///|
+let _AI_NUMERICSERV : Int = uv_AI_NUMERICSERV()
+
+///|
+extern "c" fn uv_AI_ALL() -> Int = "moonbit_uv_AI_ALL"
+
+///|
+let _AI_ALL : Int = uv_AI_ALL()
+
+///|
+extern "c" fn uv_AI_ADDRCONFIG() -> Int = "moonbit_uv_AI_ADDRCONFIG"
+
+///|
+let _AI_ADDRCONFIG : Int = uv_AI_ADDRCONFIG()
+
+///|
+extern "c" fn uv_AI_V4MAPPED() -> Int = "moonbit_uv_AI_V4MAPPED"
+
+///|
+let _AI_V4MAPPED : Int = uv_AI_V4MAPPED()
+
+///|
+pub fn AddrInfoFlags::new(
+  passive~ : Bool = false,
+  canonname~ : Bool = false,
+  numeric_host~ : Bool = false,
+  numeric_serv~ : Bool = false,
+  all~ : Bool = false,
+  addrconfig~ : Bool = false,
+  v4mapped~ : Bool = false
+) -> AddrInfoFlags {
+  let mut flags = 0
+  if passive {
+    flags = flags | _AI_PASSIVE
+  }
+  if canonname {
+    flags = flags | _AI_CANONNAME
+  }
+  if numeric_host {
+    flags = flags | _AI_NUMERICHOST
+  }
+  if numeric_serv {
+    flags = flags | _AI_NUMERICSERV
+  }
+  if all {
+    flags = flags | _AI_ALL
+  }
+  if addrconfig {
+    flags = flags | _AI_ADDRCONFIG
+  }
+  if v4mapped {
+    flags = flags | _AI_V4MAPPED
+  }
+  return flags
+}
+
+///|
 pub fn AddrInfoHints::new(
-  flags~ : Int = 0,
-  family~ : Int = 0,
-  socktype~ : Int = 0,
-  protocol~ : Int = 0
+  flags? : AddrInfoFlags,
+  family? : AddressFamily,
+  socktype? : SockType,
+  protocol? : Protocol
 ) -> AddrInfoHints {
+  let flags = match flags {
+    Some(flags) => flags._
+    None => 0
+  }
+  let family = match family {
+    Some(family) => family.to_int()
+    None => _AF_UNSPEC
+  }
+  let socktype = match socktype {
+    Some(socktype) => socktype.to_int()
+    None => 0
+  }
+  let protocol = match protocol {
+    Some(protocol) => protocol.to_int()
+    None => 0
+  }
   uv_addrinfo_hints(flags, family, socktype, protocol)
 }
 
@@ -92,7 +188,6 @@ pub fn ip_name(self : Sockaddr) -> String!Errno {
 
 ///|
 struct AddrInfo {
-  flags : Int
   family : Int
   socktype : Int
   protocol : Int
@@ -120,33 +215,42 @@ let _AF_UNSPEC : Int = uv_AF_UNSPEC()
 
 ///|
 pub enum AddressFamily {
-  IPv4
-  IPv6
-  Unspecified
+  INET
+  INET6
 } derive(Show)
+
+///|
+pub fn AddressFamily::inet() -> AddressFamily {
+  return INET
+}
+
+///|
+pub fn AddressFamily::inet6() -> AddressFamily {
+  return INET6
+}
 
 ///|
 fn AddressFamily::of_int(self : Int) -> AddressFamily!Errno {
   if self == _AF_INET {
-    return IPv4
+    return INET
   }
   if self == _AF_INET6 {
-    return IPv6
-  }
-  if self == _AF_UNSPEC {
-    return Unspecified
+    return INET6
   }
   raise Errno(EINVAL)
 }
 
 ///|
-pub fn AddrInfo::family(self : AddrInfo) -> AddressFamily!Errno {
-  AddressFamily::of_int!(self.family)
+fn AddressFamily::to_int(self : AddressFamily) -> Int {
+  match self {
+    INET => _AF_INET
+    INET6 => _AF_INET6
+  }
 }
 
 ///|
-pub fn AddrInfo::flags(self : AddrInfo) -> Int {
-  self.flags
+pub fn AddrInfo::family(self : AddrInfo) -> AddressFamily!Errno {
+  AddressFamily::of_int!(self.family)
 }
 
 ///|
@@ -156,23 +260,47 @@ pub fn AddrInfo::addr(self : AddrInfo) -> Sockaddr {
 
 ///|
 enum SockType {
-  Stream
-  Raw
-  Datagram
+  STREAM
+  RAW
+  DGRAM
 } derive(Show)
 
 ///|
-pub fn SockType::of_int(self : Int) -> SockType!Errno {
+pub fn SockType::stream() -> SockType {
+  return STREAM
+}
+
+///|
+pub fn SockType::raw() -> SockType {
+  return RAW
+}
+
+///|
+pub fn SockType::dgram() -> SockType {
+  return DGRAM
+}
+
+///|
+fn SockType::of_int(self : Int) -> SockType!Errno {
   if self == _SOCK_STREAM {
-    return Stream
+    return STREAM
   }
   if self == _SOCK_RAW {
-    return Raw
+    return RAW
   }
   if self == _SOCK_DGRAM {
-    return Datagram
+    return DGRAM
   }
   raise Errno(EINVAL)
+}
+
+///|
+fn SockType::to_int(self : SockType) -> Int {
+  match self {
+    STREAM => _SOCK_STREAM
+    RAW => _SOCK_RAW
+    DGRAM => _SOCK_DGRAM
+  }
 }
 
 ///|
@@ -187,6 +315,16 @@ pub enum Protocol {
 } derive(Show)
 
 ///|
+pub fn Protocol::tcp() -> Protocol {
+  return TCP
+}
+
+///|
+pub fn Protocol::udp() -> Protocol {
+  return UDP
+}
+
+///|
 fn Protocol::of_int(self : Int) -> Protocol!Errno {
   if self == _IPPROTO_TCP {
     return TCP
@@ -195,6 +333,14 @@ fn Protocol::of_int(self : Int) -> Protocol!Errno {
     return UDP
   }
   raise Errno(EINVAL)
+}
+
+///|
+fn Protocol::to_int(self : Protocol) -> Int {
+  match self {
+    TCP => _IPPROTO_TCP
+    UDP => _IPPROTO_UDP
+  }
 }
 
 ///|
@@ -211,7 +357,7 @@ pub fn AddrInfo::canonname(self : AddrInfo) -> String? {
 fn AddrInfoResults::iter(self : AddrInfoResults) -> Iter[AddrInfo] {
   Iter::new(fn(yield_) {
     if uv_addrinfo_results_iter(self, fn(
-        flags,
+        _,
         family,
         socktype,
         protocol,
@@ -227,7 +373,7 @@ fn AddrInfoResults::iter(self : AddrInfoResults) -> Iter[AddrInfo] {
           }
           Some(@encoding.decoder(UTF8).decode_lossy(buffer.contents()))
         }
-        match yield_({ flags, family, socktype, protocol, addr, canonname }) {
+        match yield_({ family, socktype, protocol, addr, canonname }) {
           IterEnd => true
           IterContinue => false
         }
