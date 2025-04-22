@@ -647,9 +647,8 @@ moonbit_uv_handle_loop(uv_handle_t *handle) {
 MOONBIT_FFI_EXPORT
 struct sockaddr_in *
 moonbit_uv_sockaddr_in_make(void) {
-  return (struct sockaddr_in *)moonbit_make_bytes(
-    sizeof(struct sockaddr_in), 0
-  );
+  return (struct sockaddr_in *
+  )moonbit_make_bytes(sizeof(struct sockaddr_in), 0);
 }
 
 MOONBIT_FFI_EXPORT
@@ -716,6 +715,46 @@ moonbit_uv_connect_make(void) {
   return connect;
 }
 
+typedef struct moonbit_uv_udp_s {
+  uv_udp_t udp;
+} moonbit_uv_udp_t;
+
+static inline void
+moonbit_uv_udp_finalize(void *object) {
+  moonbit_uv_udp_t *udp = (moonbit_uv_udp_t *)object;
+  if (udp->udp.data) {
+    moonbit_decref(udp->udp.data);
+  }
+}
+
+MOONBIT_FFI_EXPORT
+moonbit_uv_udp_t *
+moonbit_uv_udp_make(void) {
+  moonbit_uv_udp_t *udp = (moonbit_uv_udp_t *)moonbit_make_external_object(
+    moonbit_uv_udp_finalize, sizeof(moonbit_uv_udp_t)
+  );
+  memset(udp, 0, sizeof(moonbit_uv_udp_t));
+  return udp;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_udp_init(uv_loop_t *loop, moonbit_uv_udp_t *udp) {
+  int result = uv_udp_init(loop, &udp->udp);
+  moonbit_decref(loop);
+  moonbit_decref(udp);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_udp_connect(moonbit_uv_udp_t *udp, struct sockaddr *addr) {
+  int result = uv_udp_connect(&udp->udp, addr);
+  moonbit_decref(addr);
+  moonbit_decref(udp);
+  return result;
+}
+
 typedef struct moonbit_uv_connect_cb_s {
   int32_t (*code)(
     struct moonbit_uv_connect_cb_s *,
@@ -746,6 +785,115 @@ moonbit_uv_tcp_connect(
   int result = uv_tcp_connect(connect, &tcp->tcp, addr, moonbit_uv_connect_cb);
   moonbit_decref(addr);
   moonbit_decref(tcp);
+  return result;
+}
+
+typedef struct moonbit_uv_udp_send_s {
+  uv_udp_send_t req;
+} moonbit_uv_udp_send_t;
+
+static inline void
+moonbit_uv_udp_send_finalize(void *object) {
+  moonbit_uv_udp_send_t *send = object;
+  if (send->req.data) {
+    moonbit_decref(send->req.data);
+  }
+}
+
+MOONBIT_FFI_EXPORT
+moonbit_uv_udp_send_t *
+moonbit_uv_udp_send_make(void) {
+  moonbit_uv_udp_send_t *send =
+    (moonbit_uv_udp_send_t *)moonbit_make_external_object(
+      moonbit_uv_udp_send_finalize, sizeof(moonbit_uv_udp_send_t)
+    );
+  memset(send, 0, sizeof(moonbit_uv_udp_send_t));
+  return send;
+}
+
+typedef struct moonbit_uv_udp_send_cb_s {
+  int32_t (*code)(
+    struct moonbit_uv_udp_send_cb_s *,
+    moonbit_uv_udp_send_t *req,
+    int status
+  );
+} moonbit_uv_udp_send_cb_t;
+
+typedef struct moonbit_uv_udp_send_data_s {
+  moonbit_uv_udp_send_cb_t *cb;
+  moonbit_bytes_t *bufs;
+} moonbit_uv_udp_send_data_t;
+
+static inline void
+moonbit_uv_udp_send_data_finalize(void *object) {
+  moonbit_uv_udp_send_data_t *data = object;
+  if (data->bufs) {
+    moonbit_decref(data->bufs);
+  }
+  if (data->cb) {
+    moonbit_decref(data->cb);
+  }
+}
+
+static inline moonbit_uv_udp_send_data_t *
+moonbit_uv_udp_send_data_make(void) {
+  moonbit_uv_udp_send_data_t *send_data =
+    (moonbit_uv_udp_send_data_t *)moonbit_make_external_object(
+      moonbit_uv_udp_send_data_finalize, sizeof(moonbit_uv_udp_send_data_t)
+    );
+  memset(send_data, 0, sizeof(moonbit_uv_udp_send_data_t));
+  return send_data;
+}
+
+static inline void
+moonbit_uv_udp_send_cb(uv_udp_send_t *req, int status) {
+  moonbit_uv_udp_send_data_t *data = req->data;
+  moonbit_uv_udp_send_cb_t *cb = data->cb;
+  data->cb = NULL;
+  moonbit_uv_udp_send_t *send = containerof(req, moonbit_uv_udp_send_t, req);
+  cb->code(cb, send, status);
+}
+
+static inline void
+moonbit_uv_udp_send_set_data(
+  moonbit_uv_udp_send_t *req,
+  moonbit_uv_udp_send_data_t *data
+) {
+  if (req->req.data) {
+    moonbit_decref(req->req.data);
+  }
+  req->req.data = data;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_udp_send(
+  moonbit_uv_udp_send_t *req,
+  moonbit_uv_udp_t *udp,
+  moonbit_bytes_t *bufs,
+  int32_t *bufs_offset,
+  int32_t *bufs_length,
+  struct sockaddr *addr,
+  moonbit_uv_udp_send_cb_t *cb
+) {
+  int bufs_size = Moonbit_array_length(bufs);
+  uv_buf_t *bufs_data = malloc(sizeof(uv_buf_t) * bufs_size);
+  for (int i = 0; i < bufs_size; i++) {
+    bufs_data[i] =
+      uv_buf_init((char *)bufs[i] + bufs_offset[i], bufs_length[i]);
+  }
+  moonbit_uv_udp_send_data_t *data = moonbit_uv_udp_send_data_make();
+  data->bufs = bufs;
+  data->cb = cb;
+  moonbit_uv_udp_send_set_data(req, data);
+  int result = uv_udp_send(
+    &req->req, &udp->udp, bufs_data, bufs_size, addr, moonbit_uv_udp_send_cb
+  );
+  free(bufs_data);
+  moonbit_decref(bufs_offset);
+  moonbit_decref(bufs_length);
+  moonbit_decref(addr);
+  moonbit_decref(udp);
   return result;
 }
 
@@ -2042,8 +2190,8 @@ moonbit_uv_addrinfo_hints(
   int32_t socktype,
   int32_t protocol
 ) {
-  moonbit_uv_addrinfo_hints_t *hints = (moonbit_uv_addrinfo_hints_t *)
-    moonbit_make_bytes(sizeof(moonbit_uv_addrinfo_hints_t), 0);
+  moonbit_uv_addrinfo_hints_t *hints = (moonbit_uv_addrinfo_hints_t *
+  )moonbit_make_bytes(sizeof(moonbit_uv_addrinfo_hints_t), 0);
   hints->addrinfo.ai_flags = flags;
   hints->addrinfo.ai_family = family;
   hints->addrinfo.ai_socktype = socktype;
