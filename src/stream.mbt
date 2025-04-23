@@ -205,9 +205,11 @@ impl ToStream with write(self, bufs, write_cb, error_cb) {
 }
 
 ///|
+#borrow(stream)
 extern "c" fn uv_is_readable(stream : Stream) -> Bool = "moonbit_uv_is_readable"
 
 ///|
+#borrow(stream)
 extern "c" fn uv_is_writable(stream : Stream) -> Bool = "moonbit_uv_is_writable"
 
 ///|

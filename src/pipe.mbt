@@ -27,6 +27,7 @@ pub impl ToStream for Pipe with of_stream(self) = "%identity"
 extern "c" fn uv_pipe_make() -> Pipe = "moonbit_uv_pipe_make"
 
 ///|
+#borrow(self, pipe)
 extern "c" fn uv_pipe_init(self : Loop, pipe : Pipe, ipc : Bool) -> Int = "moonbit_uv_pipe_init"
 
 ///|

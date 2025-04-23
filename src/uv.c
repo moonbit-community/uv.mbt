@@ -873,17 +873,13 @@ moonbit_uv_read_stop(uv_stream_t *stream) {
 MOONBIT_FFI_EXPORT
 int32_t
 moonbit_uv_is_readable(uv_stream_t *stream) {
-  int32_t is_readable = uv_is_readable(stream);
-  moonbit_decref(stream);
-  return is_readable;
+  return uv_is_readable(stream);
 }
 
 MOONBIT_FFI_EXPORT
 int32_t
 moonbit_uv_is_writable(uv_stream_t *stream) {
-  int32_t is_writable = uv_is_writable(stream);
-  moonbit_decref(stream);
-  return is_writable;
+  return uv_is_writable(stream);
 }
 
 typedef struct moonbit_uv_write_s {
@@ -1477,12 +1473,11 @@ moonbit_uv_pipe_make(void) {
 MOONBIT_FFI_EXPORT
 int32_t
 moonbit_uv_pipe_init(uv_loop_t *loop, uv_pipe_t *handle, int32_t ipc) {
+  moonbit_uv_trace("loop = %p\n", (void *)loop);
+  moonbit_uv_trace("loop->rc = %d\n", Moonbit_object_header(loop)->rc);
   moonbit_uv_trace("handle = %p\n", (void *)handle);
-  int result = uv_pipe_init(loop, handle, ipc);
-  moonbit_decref(loop);
-  moonbit_decref(handle);
   moonbit_uv_trace("handle->rc = %d\n", Moonbit_object_header(handle)->rc);
-  return result;
+  return uv_pipe_init(loop, handle, ipc);
 }
 
 MOONBIT_FFI_EXPORT
