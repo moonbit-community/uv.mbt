@@ -38,6 +38,21 @@ pub fn Udp::connect[Sockaddr : ToSockaddr](
 }
 
 ///|
+extern "c" fn uv_udp_bind(handle : Udp, addr : Sockaddr, flags : UInt) -> Int = "moonbit_uv_udp_bind"
+
+///|
+pub fn Udp::bind[Sockaddr : ToSockaddr](
+  self : Udp,
+  addr : Sockaddr,
+  flags : UdpFlags
+) -> Unit!Errno {
+  let result = uv_udp_bind(self, addr.to_sockaddr(), flags._)
+  if result < 0 {
+    raise Errno::of_int(result)
+  }
+}
+
+///|
 type UdpSend
 
 ///|
@@ -95,4 +110,12 @@ pub fn Udp::send[Sockaddr : ToSockaddr](
   if result < 0 {
     raise Errno::of_int(result)
   }
+}
+
+///|
+type UdpFlags UInt
+
+///|
+pub fn UdpFlags::new() -> UdpFlags {
+  UdpFlags(0)
 }

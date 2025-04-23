@@ -755,6 +755,19 @@ moonbit_uv_udp_connect(moonbit_uv_udp_t *udp, struct sockaddr *addr) {
   return result;
 }
 
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_udp_bind(
+  moonbit_uv_udp_t *udp,
+  struct sockaddr *addr,
+  uint32_t flags
+) {
+  int result = uv_udp_bind(&udp->udp, addr, flags);
+  moonbit_decref(addr);
+  moonbit_decref(udp);
+  return result;
+}
+
 typedef struct moonbit_uv_connect_cb_s {
   int32_t (*code)(
     struct moonbit_uv_connect_cb_s *,
