@@ -69,7 +69,7 @@ pub fn PipeBindFlags::new(truncate~ : Bool = true) -> PipeBindFlags {
 pub fn Pipe::bind[Ntbs : ToNtbs](
   self : Pipe,
   name : Ntbs,
-  flags~ : PipeBindFlags = PipeBindFlags::new()
+  flags : PipeBindFlags
 ) -> Unit!Errno {
   let name = name.to_ntbs()
   let status = uv_pipe_bind(self, name, flags._)

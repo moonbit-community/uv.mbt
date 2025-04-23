@@ -59,12 +59,36 @@ pub impl ToSockaddr for SockaddrIn with to_sockaddr(addr : SockaddrIn) -> Sockad
 extern "c" fn uv_tcp_bind(tcp : Tcp, addr : Sockaddr, flags : UInt) -> Int = "moonbit_uv_tcp_bind"
 
 ///|
+type TcpBindFlags UInt
+
+///|
+const TCP_IPV6ONLY : UInt = 1
+
+///|
+const TCP_REUSEPORT : UInt = 2
+
+///|
+pub fn TcpBindFlags::new(
+  ipv6_only~ : Bool = false,
+  reuse_port~ : Bool = false
+) -> TcpBindFlags {
+  let mut flags = 0U
+  if ipv6_only {
+    flags = flags | TCP_IPV6ONLY
+  }
+  if reuse_port {
+    flags = flags | TCP_REUSEPORT
+  }
+  return flags
+}
+
+///|
 pub fn Tcp::bind[Sockaddr : ToSockaddr](
   self : Tcp,
   addr : Sockaddr,
-  flags : UInt
+  flags : TcpBindFlags
 ) -> Unit!Errno {
-  let status = uv_tcp_bind(self, addr.to_sockaddr(), flags)
+  let status = uv_tcp_bind(self, addr.to_sockaddr(), flags._)
   if status < 0 {
     raise Errno::of_int(status)
   }
