@@ -605,9 +605,6 @@ moonbit_uv_close(uv_handle_t *handle, moonbit_uv_close_cb_t *close_cb) {
   moonbit_uv_trace("handle->rc = %d\n", Moonbit_object_header(handle)->rc);
   moonbit_uv_handle_set_data(handle, close_cb);
   moonbit_uv_trace("handle->type = %s\n", uv_handle_type_name(handle->type));
-  if (uv_is_active(handle)) {
-    moonbit_decref(handle);
-  }
   uv_close(handle, moonbit_uv_close_cb);
 }
 
@@ -864,13 +861,11 @@ moonbit_uv_read_stop(uv_stream_t *stream) {
   moonbit_uv_trace("stream = %p\n", (void *)stream);
   moonbit_uv_trace("stream->rc = %d\n", Moonbit_object_header(stream)->rc);
   moonbit_uv_stream_set_data(stream, NULL);
+  int32_t status = uv_read_stop(stream);
   // We have to decref `stream` here twice, because
   // 1. We are removing `stream` from `loop`, and
   // 2. We need to decref the passed-in argument `stream`.
-  if (uv_is_active((uv_handle_t *)stream)) {
-    moonbit_decref(stream);
-  }
-  int32_t status = uv_read_stop(stream);
+  moonbit_decref(stream);
   moonbit_decref(stream);
   return status;
 }
