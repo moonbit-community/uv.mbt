@@ -1624,10 +1624,12 @@ static inline void
 moonbit_uv_mutex_finalize(void *object) {
   moonbit_uv_mutex_t *mutex = object;
   moonbit_uv_trace("mutex = %p\n", (void *)mutex);
-  moonbit_uv_trace("mutex->mutex = %p\n", (void *)mutex->block);
+  moonbit_uv_trace("mutex->block = %p\n", (void *)mutex->block);
   if (mutex->block) {
     uv_mutex_lock(&mutex->block->object);
     int32_t arc = mutex->block->arc;
+    moonbit_uv_trace("mutex->block->arc = %d -> %d\n", arc, arc - 1);
+    mutex->block->arc = arc - 1;
     uv_mutex_unlock(&mutex->block->object);
     if (arc > 1) {
       return;
