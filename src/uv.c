@@ -275,8 +275,8 @@ moonbit_uv_fs_open(
   uv_loop_t *loop,
   moonbit_uv_fs_t *fs,
   moonbit_bytes_t path,
-  int flags,
-  int mode,
+  int32_t flags,
+  int32_t mode,
   moonbit_uv_fs_cb_t *cb
 ) {
   moonbit_uv_trace("loop = %p\n", (void *)loop);
@@ -297,7 +297,7 @@ int32_t
 moonbit_uv_fs_close(
   uv_loop_t *loop,
   moonbit_uv_fs_t *fs,
-  uv_file file,
+  int32_t file,
   moonbit_uv_fs_cb_t *cb
 ) {
   moonbit_uv_trace("loop = %p\n", (void *)loop);
@@ -317,7 +317,7 @@ int32_t
 moonbit_uv_fs_read(
   uv_loop_t *loop,
   moonbit_uv_fs_t *fs,
-  uv_file file,
+  int32_t file,
   moonbit_bytes_t *bufs_base,
   int32_t *bufs_offset,
   int32_t *bufs_length,
@@ -354,7 +354,7 @@ int32_t
 moonbit_uv_fs_write(
   uv_loop_t *loop,
   moonbit_uv_fs_t *fs,
-  uv_file file,
+  int32_t file,
   moonbit_bytes_t *bufs_base,
   int32_t *bufs_offset,
   int32_t *bufs_length,
@@ -385,12 +385,12 @@ moonbit_uv_fs_mkdir(
   uv_loop_t *loop,
   moonbit_uv_fs_t *fs,
   moonbit_bytes_t path,
-  int flags,
+  int32_t mode,
   moonbit_uv_fs_cb_t *cb
 ) {
   moonbit_uv_fs_set_data(fs, cb);
   int status =
-    uv_fs_mkdir(loop, &fs->fs, (const char *)path, flags, moonbit_uv_fs_cb);
+    uv_fs_mkdir(loop, &fs->fs, (const char *)path, mode, moonbit_uv_fs_cb);
   moonbit_decref(loop);
   moonbit_decref(path);
   return status;
@@ -436,7 +436,7 @@ moonbit_uv_fs_copyfile(
   moonbit_uv_fs_t *fs,
   moonbit_bytes_t path,
   moonbit_bytes_t new_path,
-  int flags,
+  int32_t flags,
   moonbit_uv_fs_cb_t *cb
 ) {
   moonbit_uv_fs_set_data(fs, cb);
@@ -515,9 +515,28 @@ moonbit_uv_fs_scandir_next(moonbit_uv_fs_t *fs, uv_dirent_t *ent) {
 }
 
 MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_rename(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *req,
+  moonbit_bytes_t path,
+  moonbit_bytes_t new_path,
+  moonbit_uv_fs_cb_t *cb
+) {
+  moonbit_uv_fs_set_data(req, cb);
+  int status = uv_fs_rename(
+    loop, &req->fs, (const char *)path, (const char *)new_path, moonbit_uv_fs_cb
+  );
+  moonbit_decref(loop);
+  moonbit_decref(path);
+  moonbit_decref(new_path);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
 void *
-moonbit_uv_fs_get_ptr(uv_fs_t *fs) {
-  void *ptr = fs->ptr;
+moonbit_uv_fs_get_ptr(moonbit_uv_fs_t *fs) {
+  void *ptr = fs->fs.ptr;
   moonbit_decref(fs);
   return ptr;
 }
@@ -555,7 +574,7 @@ typedef struct moonbit_uv_connection_cb {
   );
 } moonbit_uv_connection_cb_t;
 
-void
+static inline void
 moonbit_uv_listen_cb(uv_stream_t *server, int status) {
   moonbit_uv_connection_cb_t *cb = server->data;
   moonbit_incref(cb);
@@ -568,7 +587,7 @@ MOONBIT_FFI_EXPORT
 int32_t
 moonbit_uv_listen(
   uv_stream_t *stream,
-  int backlog,
+  int32_t backlog,
   moonbit_uv_connection_cb_t *cb
 ) {
   moonbit_uv_trace("stream = %p\n", (void *)stream);
@@ -634,7 +653,7 @@ moonbit_uv_sockaddr_in_make(void) {
 }
 
 void
-moonbit_uv_ip4_addr(moonbit_bytes_t ip, int port, struct sockaddr_in *addr) {
+moonbit_uv_ip4_addr(moonbit_bytes_t ip, int32_t port, struct sockaddr_in *addr) {
   uv_ip4_addr((const char *)ip, port, addr);
   moonbit_decref(ip);
   moonbit_decref(addr);
@@ -676,7 +695,7 @@ int32_t
 moonbit_uv_tcp_bind(
   moonbit_uv_tcp_t *tcp,
   struct sockaddr *addr,
-  unsigned int flags
+  uint32_t flags
 ) {
   int result = uv_tcp_bind(&tcp->tcp, addr, flags);
   moonbit_decref(tcp);
@@ -991,7 +1010,7 @@ moonbit_uv_write(
 
 MOONBIT_FFI_EXPORT
 void
-moonbit_uv_strerror_r(int err, moonbit_bytes_t bytes) {
+moonbit_uv_strerror_r(int32_t err, moonbit_bytes_t bytes) {
   size_t bytes_len = Moonbit_array_length(bytes);
   char *bytes_ptr = (char *)bytes;
   uv_strerror_r(err, bytes_ptr, bytes_len);
@@ -1063,12 +1082,12 @@ moonbit_uv_timer_start(
 
 MOONBIT_FFI_EXPORT
 int32_t
-moonbit_uv_timer_stop(uv_timer_t *timer) {
-  if (timer->data) {
-    moonbit_decref(timer->data);
+moonbit_uv_timer_stop(moonbit_uv_timer_t *timer) {
+  if (timer->timer.data) {
+    moonbit_decref(timer->timer.data);
   }
-  timer->data = NULL;
-  int status = uv_timer_stop(timer);
+  timer->timer.data = NULL;
+  int status = uv_timer_stop(&timer->timer);
   moonbit_decref(timer);
   moonbit_decref(timer);
   return status;
@@ -1076,23 +1095,23 @@ moonbit_uv_timer_stop(uv_timer_t *timer) {
 
 MOONBIT_FFI_EXPORT
 void
-moonbit_uv_timer_set_repeat(uv_timer_t *timer, uint64_t repeat) {
-  uv_timer_set_repeat(timer, repeat);
+moonbit_uv_timer_set_repeat(moonbit_uv_timer_t *timer, uint64_t repeat) {
+  uv_timer_set_repeat(&timer->timer, repeat);
   moonbit_decref(timer);
 }
 
 MOONBIT_FFI_EXPORT
 uint64_t
-moonbit_uv_timer_get_repeat(uv_timer_t *timer) {
-  uint64_t repeat = uv_timer_get_repeat(timer);
+moonbit_uv_timer_get_repeat(moonbit_uv_timer_t *timer) {
+  uint64_t repeat = uv_timer_get_repeat(&timer->timer);
   moonbit_decref(timer);
   return repeat;
 }
 
 MOONBIT_FFI_EXPORT
 uint64_t
-moonbit_uv_timer_get_due_in(uv_timer_t *timer) {
-  uint64_t due_in = uv_timer_get_due_in(timer);
+moonbit_uv_timer_get_due_in(moonbit_uv_timer_t *timer) {
+  uint64_t due_in = uv_timer_get_due_in(&timer->timer);
   moonbit_decref(timer);
   return due_in;
 }
@@ -1195,9 +1214,9 @@ MOONBIT_FFI_EXPORT
 moonbit_uv_stdio_container_t *
 moonbit_uv_stdio_container_create_pipe(
   uv_stream_t *stream,
-  bool readable,
-  bool writable,
-  bool non_block
+  int32_t readable,
+  int32_t writable,
+  int32_t non_block
 ) {
   moonbit_uv_trace("stream = %p\n", (void *)stream);
   moonbit_uv_stdio_container_t *container = moonbit_uv_stdio_container_make();
@@ -1218,7 +1237,7 @@ moonbit_uv_stdio_container_create_pipe(
 
 MOONBIT_FFI_EXPORT
 moonbit_uv_stdio_container_t *
-moonbit_uv_stdio_container_inherit_fd(int fd) {
+moonbit_uv_stdio_container_inherit_fd(int32_t fd) {
   moonbit_uv_stdio_container_t *container = moonbit_uv_stdio_container_make();
   container->container.flags = UV_INHERIT_FD;
   container->container.data.fd = fd;
@@ -1357,7 +1376,7 @@ MOONBIT_FFI_EXPORT
 void
 moonbit_uv_process_options_set_flags(
   moonbit_uv_process_options_t *options,
-  unsigned int flags
+  uint32_t flags
 ) {
   options->options.flags = flags;
   moonbit_decref(options);
@@ -1431,7 +1450,7 @@ moonbit_uv_spawn(
 
 MOONBIT_FFI_EXPORT
 int32_t
-moonbit_uv_process_kill(moonbit_uv_process_t *process, int signum) {
+moonbit_uv_process_kill(moonbit_uv_process_t *process, int32_t signum) {
   int result = uv_process_kill(&process->process, signum);
   moonbit_decref(process);
   return result;
@@ -1447,7 +1466,7 @@ moonbit_uv_tty_make(void) {
 
 MOONBIT_FFI_EXPORT
 int32_t
-moonbit_uv_tty_init(uv_loop_t *loop, uv_tty_t *handle, uv_file fd) {
+moonbit_uv_tty_init(uv_loop_t *loop, uv_tty_t *handle, int32_t fd) {
   int result = uv_tty_init(loop, handle, fd, 0);
   moonbit_decref(loop);
   moonbit_decref(handle);
@@ -1483,7 +1502,7 @@ moonbit_uv_pipe_init(uv_loop_t *loop, uv_pipe_t *handle, int32_t ipc) {
 
 MOONBIT_FFI_EXPORT
 int32_t
-moonbit_uv_pipe_open(uv_pipe_t *handle, uv_file fd) {
+moonbit_uv_pipe_open(uv_pipe_t *handle, int32_t fd) {
   int result = uv_pipe_open(handle, fd);
   moonbit_decref(handle);
   return result;

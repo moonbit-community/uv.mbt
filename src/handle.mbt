@@ -28,14 +28,6 @@ pub fn is_closing[Handle : ToHandle](handle : Handle) -> Bool {
 }
 
 ///|
-extern "c" fn uv_handle_get_loop(self : Handle) -> Loop = "moonbit_uv_handle_get_loop"
-
-///|
-pub fn Handle::get_loop(self : Handle) -> Loop {
-  uv_handle_get_loop(self)
-}
-
-///|
 pub trait ToHandle {
   to_handle(Self) -> Handle
   of_handle(Handle) -> Self

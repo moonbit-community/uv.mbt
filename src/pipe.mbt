@@ -31,7 +31,7 @@ extern "c" fn uv_pipe_make() -> Pipe = "moonbit_uv_pipe_make"
 extern "c" fn uv_pipe_init(self : Loop, pipe : Pipe, ipc : Bool) -> Int = "moonbit_uv_pipe_init"
 
 ///|
-extern "c" fn uv_pipe_bind(self : Pipe, name : Bytes, flags : Int) -> Int = "moonbit_uv_pipe_bind"
+extern "c" fn uv_pipe_bind(self : Pipe, name : Bytes, flags : UInt) -> Int = "moonbit_uv_pipe_bind"
 
 ///|
 extern "c" fn uv_pipe(

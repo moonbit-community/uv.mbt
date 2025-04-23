@@ -1,5 +1,5 @@
 ///|
-extern "c" fn strerror_r(err : Int, bytes : Bytes) -> Unit = "moonbit_uv_strerror_r"
+extern "c" fn strerror_r(err : Int, bytes : Bytes) = "moonbit_uv_strerror_r"
 
 ///|
 fn strerror(errno : Int) -> String {

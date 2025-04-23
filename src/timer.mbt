@@ -57,7 +57,7 @@ pub fn Timer::stop(self : Timer) -> Unit!Errno {
 }
 
 ///|
-extern "c" fn uv_timer_set_repeat(timer : Timer, repeat : UInt64) -> Unit = "moonbit_uv_timer_set_repeat"
+extern "c" fn uv_timer_set_repeat(timer : Timer, repeat : UInt64) = "moonbit_uv_timer_set_repeat"
 
 ///|
 pub fn Timer::set_repeat(self : Timer, repeat : UInt64) -> Unit {

@@ -36,7 +36,7 @@ pub fn Tcp::new(loop_ : Loop) -> Tcp!Errno {
 }
 
 ///|
-extern "c" fn uv_ip4_addr(ip : Bytes, port : Int, addr : SockaddrIn) -> Unit = "moonbit_uv_ip4_addr"
+extern "c" fn uv_ip4_addr(ip : Bytes, port : Int, addr : SockaddrIn) = "moonbit_uv_ip4_addr"
 
 ///|
 pub fn ip4_addr[Ntbs : ToNtbs](ip : Ntbs, port : Int) -> SockaddrIn {
@@ -56,13 +56,13 @@ pub impl ToSockaddr for Sockaddr with to_sockaddr(self : Sockaddr) -> Sockaddr =
 pub impl ToSockaddr for SockaddrIn with to_sockaddr(addr : SockaddrIn) -> Sockaddr = "%identity"
 
 ///|
-extern "c" fn uv_tcp_bind(tcp : Tcp, addr : Sockaddr, flags : Int) -> Int = "moonbit_uv_tcp_bind"
+extern "c" fn uv_tcp_bind(tcp : Tcp, addr : Sockaddr, flags : UInt) -> Int = "moonbit_uv_tcp_bind"
 
 ///|
 pub fn Tcp::bind[Sockaddr : ToSockaddr](
   self : Tcp,
   addr : Sockaddr,
-  flags : Int
+  flags : UInt
 ) -> Unit!Errno {
   let status = uv_tcp_bind(self, addr.to_sockaddr(), flags)
   if status < 0 {

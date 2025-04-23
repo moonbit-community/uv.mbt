@@ -7,9 +7,9 @@ pub fn hrtime() -> UInt64 {
 }
 
 ///|
-extern "c" fn uv_sleep(milliseconds : UInt64) = "moonbit_uv_sleep"
+extern "c" fn uv_sleep(milliseconds : UInt) = "moonbit_uv_sleep"
 
 ///|
-pub fn sleep(milliseconds : UInt64) -> Unit {
+pub fn sleep(milliseconds : UInt) -> Unit {
   uv_sleep(milliseconds)
 }

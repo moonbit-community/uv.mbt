@@ -37,7 +37,7 @@ priv enum ProcessFlag {
 }
 
 ///|
-fn ProcessFlag::to_int(self : ProcessFlag) -> Int = "%identity"
+fn ProcessFlag::to_int(self : ProcessFlag) -> UInt = "%identity"
 
 ///|
 extern "c" fn uv_process_options_make() -> ProcessOptions = "moonbit_uv_process_options_make"
@@ -67,7 +67,7 @@ extern "c" fn uv_process_options_set_env(
 extern "c" fn uv_process_options_set_cwd(self : ProcessOptions, cwd : Bytes) = "moonbit_uv_process_options_set_cwd"
 
 ///|
-extern "c" fn uv_process_options_set_flags(self : ProcessOptions, flags : Int) = "moonbit_uv_process_options_set_flags"
+extern "c" fn uv_process_options_set_flags(self : ProcessOptions, flags : UInt) = "moonbit_uv_process_options_set_flags"
 
 ///|
 extern "c" fn uv_process_options_set_stdio(
@@ -92,7 +92,7 @@ pub fn ProcessOptions::new[Ntbs : ToNtbs](
   gid? : Gid,
   exit_cb : (Process, Int64, Int) -> Unit
 ) -> ProcessOptions {
-  let mut flags = 0
+  let mut flags = 0U
   let options = uv_process_options_make()
   uv_process_options_set_exit_cb(options, exit_cb)
   let file = file.to_ntbs()
