@@ -12,7 +12,7 @@ extern "c" fn uv_random(
   buffer_offset : Int,
   buffer_length : Int,
   flags : Int,
-  random_cb : (Random, Int, Int) -> Unit
+  random_cb : (Random, Int, Bytes, Int, Int) -> Unit
 ) -> Int = "moonbit_uv_random"
 
 ///|
@@ -23,11 +23,11 @@ pub fn random(
   random_cb : (Random, @bytes.View) -> Unit,
   error_cb : (Random, Errno) -> Unit
 ) -> Unit!Errno {
-  fn uv_random_cb(random, status, length) {
+  fn uv_random_cb(random, status, buffer : Bytes, offset, length) {
     if status < 0 {
       error_cb(random, Errno::of_int(status))
     } else {
-      random_cb(random, buffer[:length])
+      random_cb(random, buffer[offset:offset + length])
     }
   }
 

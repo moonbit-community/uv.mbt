@@ -1,6 +1,7 @@
 #include "moonbit.h"
 #include "uv#include#uv.h"
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1830,31 +1831,57 @@ moonbit_uv_hrtime(void) {
   return hrtime;
 }
 
+typedef struct moonbit_uv_random_s {
+  uv_random_t random;
+} moonbit_uv_random_t;
+
 typedef struct moonbit_uv_random_cb_s {
   int32_t (*code)(
     struct moonbit_uv_random_cb_s *,
-    uv_random_t *req,
+    moonbit_uv_random_t *req,
     int status,
+    moonbit_bytes_t buffer,
+    int32_t offset,
     int32_t length
   );
 } moonbit_uv_random_cb_t;
 
+typedef struct moonbit_uv_random_data_s {
+  moonbit_bytes_t buffer;
+  moonbit_uv_random_cb_t *cb;
+} moonbit_uv_random_data_t;
+
 static inline void
-moonbit_uv_random_cb(
-  uv_random_t *req,
-  int status,
-  void *buffer,
-  size_t length
-) {
-  moonbit_uv_ignore(buffer);
-  moonbit_uv_random_cb_t *cb = req->data;
-  req->data = NULL;
-  cb->code(cb, req, status, (int32_t)length);
+moonbit_uv_random_data_finalize(void *object) {
+  moonbit_uv_random_data_t *data = object;
+  if (data->buffer) {
+    moonbit_decref(data->buffer);
+  }
+  if (data->cb) {
+    moonbit_decref(data->cb);
+  }
 }
 
-typedef struct moonbit_uv_random_s {
-  uv_random_t random;
-} moonbit_uv_random_t;
+static inline moonbit_uv_random_data_t *
+moonbit_uv_random_data_make(void) {
+  moonbit_uv_random_data_t *data = moonbit_make_external_object(
+    moonbit_uv_random_data_finalize, sizeof(moonbit_uv_random_data_t)
+  );
+  memset(data, 0, sizeof(moonbit_uv_random_data_t));
+  return data;
+}
+
+static inline void
+moonbit_uv_random_cb(uv_random_t *req, int status, void *start, size_t length) {
+  moonbit_uv_random_data_t *data = req->data;
+  moonbit_uv_random_cb_t *cb = data->cb;
+  data->cb = NULL;
+  moonbit_bytes_t buffer = data->buffer;
+  data->buffer = NULL;
+  ptrdiff_t offset = (char *)start - (char *)buffer;
+  moonbit_uv_random_t *random = containerof(req, moonbit_uv_random_t, random);
+  cb->code(cb, random, status, buffer, offset, length);
+}
 
 static inline void
 moonbit_uv_random_finalize(void *object) {
@@ -1889,7 +1916,13 @@ moonbit_uv_random(
   int32_t flags,
   moonbit_uv_random_cb_t *cb
 ) {
-  random->random.data = cb;
+  moonbit_uv_random_data_t *data = moonbit_uv_random_data_make();
+  data->buffer = buffer;
+  data->cb = cb;
+  if (random->random.data) {
+    moonbit_decref(random->random.data);
+  }
+  random->random.data = data;
   int32_t status = uv_random(
     loop, &random->random, (char *)buffer + buffer_offset, buffer_length, flags,
     moonbit_uv_random_cb
