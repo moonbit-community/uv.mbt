@@ -42,9 +42,13 @@ fn fs_unlink[Ntbs : ToNtbs](Loop, Ntbs, (Fs) -> Unit, (Fs, Error) -> Unit) -> Un
 
 fn fs_write(Loop, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
+fn getaddrinfo[Node : ToNtbs, Service : ToNtbs](Loop, (GetAddrInfo, Iter[AddrInfo]) -> Unit, (GetAddrInfo, Errno) -> Unit, Node, Service, hints? : AddrInfoHints) -> Unit!Errno
+
 fn hrtime() -> UInt64
 
 fn ip4_addr[Ntbs : ToNtbs](Ntbs, Int) -> SockaddrIn
+
+fn ip_name(Sockaddr) -> String!Errno
 
 fn is_closing[Handle : ToHandle](Handle) -> Bool
 
@@ -68,7 +72,9 @@ fn read_stop[Stream : ToStream](Stream) -> Unit!Errno
 
 fn run(Loop, RunMode) -> Unit!Errno
 
-fn sleep(UInt64) -> Unit
+fn shutdown[Stream : ToStream](Stream, (Shutdown) -> Unit, (Shutdown, Errno) -> Unit) -> Unit!Errno
+
+fn sleep(UInt) -> Unit
 
 fn spawn(Loop, ProcessOptions) -> Process!Errno
 
@@ -83,6 +89,35 @@ fn stop(Loop) -> Unit
 fn write[Stream : ToStream](Stream, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) -> Unit!Errno
 
 // Types and methods
+type AddrInfo
+impl AddrInfo {
+  addr(Self) -> Sockaddr
+  canonname(Self) -> String?
+  family(Self) -> AddressFamily!Errno
+  protocol(Self) -> Protocol!Errno
+  socktype(Self) -> SockType!Errno
+}
+
+type AddrInfoFlags
+impl AddrInfoFlags {
+  new(passive~ : Bool = .., canonname~ : Bool = .., numeric_host~ : Bool = .., numeric_serv~ : Bool = .., all~ : Bool = .., addrconfig~ : Bool = .., v4mapped~ : Bool = ..) -> Self
+}
+
+type AddrInfoHints
+impl AddrInfoHints {
+  new(flags? : AddrInfoFlags, family? : AddressFamily, socktype? : SockType, protocol? : Protocol) -> Self
+}
+
+pub enum AddressFamily {
+  INET
+  INET6
+}
+impl AddressFamily {
+  inet() -> Self
+  inet6() -> Self
+}
+impl Show for AddressFamily
+
 type Connect
 impl ToReq for Connect
 
@@ -126,12 +161,13 @@ type File
 type Fs
 impl ToReq for Fs
 
+type GetAddrInfo
+
 type Gid
 
 type Handle
 impl Handle {
   close(Self, (Self) -> Unit) -> Unit
-  get_loop(Self) -> Loop
   is_closing(Self) -> Bool
 }
 
@@ -158,6 +194,7 @@ impl Loop {
   fs_scandir[Ntbs : ToNtbs](Self, Ntbs, Int, (Fs, Dirent) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   fs_unlink[Ntbs : ToNtbs](Self, Ntbs, (Fs) -> Unit, (Fs, Error) -> Unit) -> Unit!Errno
   fs_write(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+  getaddrinfo[Node : ToNtbs, Service : ToNtbs](Self, (GetAddrInfo, Iter[AddrInfo]) -> Unit, (GetAddrInfo, Errno) -> Unit, Node, Service, hints? : AddrInfoHints) -> Unit!Errno
   new() -> Self!Errno
   queue_work(Self, (Work) -> Unit, (Work) -> Unit, (Work, Errno) -> Unit) -> Unit!Errno
   random(Self, @bytes.View, Int, (Random, @bytes.View) -> Unit, (Random, Errno) -> Unit) -> Unit!Errno
@@ -184,13 +221,18 @@ impl OpenFlags {
 
 type Pipe
 impl Pipe {
-  bind[Ntbs : ToNtbs](Self, Ntbs, Int) -> Unit!Errno
+  bind[Ntbs : ToNtbs](Self, Ntbs, PipeBindFlags) -> Unit!Errno
   new(Loop, ipc~ : Bool = ..) -> Self!Errno
   to_handle(Self) -> Handle
   to_stream(Self) -> Stream
 }
 impl ToHandle for Pipe
 impl ToStream for Pipe
+
+type PipeBindFlags
+impl PipeBindFlags {
+  new(truncate~ : Bool = ..) -> Self
+}
 
 type Process
 impl Process {
@@ -204,6 +246,16 @@ impl ProcessOptions {
   new[Ntbs : ToNtbs](Ntbs, Array[@string.StringView], env? : Array[@string.StringView], cwd? : @string.StringView, stdio? : Array[StdioContainer], uid? : Uid, gid? : Gid, (Process, Int64, Int) -> Unit) -> Self
 }
 
+pub enum Protocol {
+  TCP
+  UDP
+}
+impl Protocol {
+  tcp() -> Self
+  udp() -> Self
+}
+impl Show for Protocol
+
 type Random
 
 type Req
@@ -213,6 +265,9 @@ pub(all) enum RunMode {
   Once
   NoWait
 }
+
+type Shutdown
+impl ToReq for Shutdown
 
 type Signal
 impl Signal {
@@ -232,7 +287,19 @@ pub enum Signum {
 impl Eq for Signum
 impl Hash for Signum
 
+type SockType
+impl SockType {
+  dgram() -> Self
+  raw() -> Self
+  stream() -> Self
+}
+impl Show for SockType
+
 type Sockaddr
+impl Sockaddr {
+  ip_name(Self) -> String!Errno
+}
+impl ToSockaddr for Sockaddr
 
 type SockaddrIn
 impl ToSockaddr for SockaddrIn
@@ -341,6 +408,7 @@ impl Stream {
   is_writable(Self) -> Bool
   read_start(Self, (Handle, Int) -> @bytes.View, (Self, Int, @bytes.View) -> Unit, (Self, Errno) -> Unit) -> Unit!Errno
   read_stop(Self) -> Unit!Errno
+  shutdown(Self, (Shutdown) -> Unit, (Shutdown, Errno) -> Unit) -> Unit!Errno
   to_handle(Self) -> Handle
   write(Self, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) -> Unit!Errno
 }
@@ -349,12 +417,17 @@ impl ToStream for Stream
 
 type Tcp
 impl Tcp {
-  bind[Sockaddr : ToSockaddr](Self, Sockaddr, Int) -> Unit!Errno
+  bind[Sockaddr : ToSockaddr](Self, Sockaddr, TcpBindFlags) -> Unit!Errno
   connect[Sockaddr : ToSockaddr](Self, Sockaddr, (Connect) -> Unit, (Connect, Errno) -> Unit) -> Unit!Errno
   new(Loop) -> Self!Errno
 }
 impl ToHandle for Tcp
 impl ToStream for Tcp
+
+type TcpBindFlags
+impl TcpBindFlags {
+  new(ipv6_only~ : Bool = .., reuse_port~ : Bool = ..) -> Self
+}
 
 type Timer
 impl Timer {
@@ -434,5 +507,6 @@ pub trait ToStream : ToHandle {
   listen(Self, Int, (Self) -> Unit, (Self, Errno) -> Unit) -> Unit!Errno
   is_readable(Self) -> Bool
   is_writable(Self) -> Bool
+  shutdown(Self, (Shutdown) -> Unit, (Shutdown, Errno) -> Unit) -> Unit!Errno
 }
 
