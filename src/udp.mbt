@@ -113,6 +113,71 @@ pub fn Udp::send[Sockaddr : ToSockaddr](
 }
 
 ///|
+extern "c" fn uv_udp_recv_start(
+  udp : Udp,
+  alloc_cb : (Handle, UInt64, @c.Pointer[Int], @c.Pointer[Int]) -> Bytes,
+  recv_cb : (Udp, Int64, Bytes?, Int, Int, Sockaddr, UInt) -> Unit
+) -> Int = "moonbit_uv_udp_recv_start"
+
+///|
+pub fn Udp::recv_start(
+  self : Udp,
+  alloc_cb : (Handle, Int) -> @bytes.View,
+  read_cb : (Udp, Int, @bytes.View, Sockaddr, UdpFlags) -> Unit,
+  error_cb : (Udp, Errno) -> Unit
+) -> Unit!Errno {
+  fn uv_alloc_cb(
+    handle : Handle,
+    suggested_size : UInt64,
+    buf_offset : @c.Pointer[Int],
+    buf_length : @c.Pointer[Int]
+  ) -> Bytes {
+    let bytes = alloc_cb(handle, suggested_size.to_int())
+    buf_offset[0] = bytes.start_offset()
+    buf_length[0] = bytes.length()
+    return bytes.data()
+  }
+
+  fn uv_recv_cb(
+    udp : Udp,
+    nread : Int64,
+    buf_data : Bytes?,
+    buf_offset : Int,
+    buf_length : Int,
+    sockaddr : Sockaddr,
+    flags : UInt
+  ) -> Unit {
+    if nread < 0 {
+      error_cb(udp, Errno::of_int(nread.to_int()))
+    } else {
+      read_cb(
+        udp,
+        nread.to_int(),
+        buf_data.unwrap()[buf_offset:buf_length],
+        sockaddr,
+        UdpFlags(flags),
+      )
+    }
+  }
+
+  let result = uv_udp_recv_start(self, uv_alloc_cb, uv_recv_cb)
+  if result < 0 {
+    raise Errno::of_int(result)
+  }
+}
+
+///|
+extern "c" fn uv_udp_recv_stop(udp : Udp) -> Int = "moonbit_uv_udp_recv_stop"
+
+///|
+pub fn Udp::recv_stop(self : Udp) -> Unit!Errno {
+  let result = uv_udp_recv_stop(self)
+  if result < 0 {
+    raise Errno::of_int(result)
+  }
+}
+
+///|
 type UdpFlags UInt
 
 ///|
