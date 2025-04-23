@@ -51,9 +51,28 @@ pub fn Pipe::new(self : Loop, ipc~ : Bool = false) -> Pipe!Errno {
 }
 
 ///|
-pub fn Pipe::bind[Ntbs : ToNtbs](self : Pipe, name : Ntbs, flags : Int) -> Unit!Errno {
+type PipeBindFlags UInt
+
+///|
+const PIPE_NO_TRUNCATE : UInt = 1U << 0
+
+///|
+pub fn PipeBindFlags::new(truncate~ : Bool = true) -> PipeBindFlags {
+  let mut flags = 0U
+  if not(truncate) {
+    flags = flags | PIPE_NO_TRUNCATE
+  }
+  return flags
+}
+
+///|
+pub fn Pipe::bind[Ntbs : ToNtbs](
+  self : Pipe,
+  name : Ntbs,
+  flags~ : PipeBindFlags = PipeBindFlags::new()
+) -> Unit!Errno {
   let name = name.to_ntbs()
-  let status = uv_pipe_bind(self, name, flags)
+  let status = uv_pipe_bind(self, name, flags._)
   if status < 0 {
     raise Errno::of_int(status)
   }
