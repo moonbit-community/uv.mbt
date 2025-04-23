@@ -128,10 +128,11 @@ extern "c" fn AddrInfoHints::nil() -> AddrInfoHints = "moonbit_c_null"
 priv type AddrInfoResults
 
 ///|
-extern "c" fn uv_addrinfo_results_iter(
+#borrow(self, cb)
+extern "c" fn uv_addrinfo_results_iterate(
   self : AddrInfoResults,
   cb : (Int, Int, Int, Int, Sockaddr, @c.Pointer[Byte]) -> Bool
-) -> Bool = "moonbit_uv_addrinfo_results_iter"
+) -> Bool = "moonbit_uv_addrinfo_results_iterate"
 
 ///|
 extern "c" fn uv_SOCK_STREAM() -> Int = "moonbit_uv_SOCK_STREAM"
@@ -170,6 +171,7 @@ extern "c" fn uv_IF_NAMESIZE() -> Int = "moonbit_uv_IF_NAMESIZE"
 let _IF_NAMESIZE : Int = uv_IF_NAMESIZE()
 
 ///|
+#borrow(src, dst)
 extern "c" fn uv_ip_name(src : Sockaddr, dst : Bytes) -> Int = "moonbit_uv_ip_name"
 
 ///|
@@ -356,7 +358,7 @@ pub fn AddrInfo::canonname(self : AddrInfo) -> String? {
 ///|
 fn AddrInfoResults::iter(self : AddrInfoResults) -> Iter[AddrInfo] {
   Iter::new(fn(yield_) {
-    if uv_addrinfo_results_iter(self, fn(
+    if uv_addrinfo_results_iterate(self, fn(
         _,
         family,
         socktype,

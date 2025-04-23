@@ -2089,9 +2089,9 @@ moonbit_uv_getaddrinfo(
   return status;
 }
 
-typedef struct moonbit_uv_addrinfo_results_iter_cb_s {
+typedef struct moonbit_uv_addrinfo_results_iterate_cb_s {
   int32_t (*code)(
-    struct moonbit_uv_addrinfo_results_iter_cb_s *,
+    struct moonbit_uv_addrinfo_results_iterate_cb_s *,
     int32_t ai_flags,
     int32_t ai_family,
     int32_t ai_socktype,
@@ -2099,13 +2099,13 @@ typedef struct moonbit_uv_addrinfo_results_iter_cb_s {
     moonbit_bytes_t ai_addr,
     char *ai_canonname
   );
-} moonbit_uv_addrinfo_results_iter_cb_t;
+} moonbit_uv_addrinfo_results_iterate_cb_t;
 
 MOONBIT_FFI_EXPORT
 int32_t
-moonbit_uv_addrinfo_results_iter(
+moonbit_uv_addrinfo_results_iterate(
   moonbit_uv_addrinfo_results_t *results,
-  moonbit_uv_addrinfo_results_iter_cb_t *cb
+  moonbit_uv_addrinfo_results_iterate_cb_t *cb
 ) {
   int32_t terminated = 0;
   for (struct addrinfo *ai = results->addrinfo; ai != NULL; ai = ai->ai_next) {
