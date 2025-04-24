@@ -40,8 +40,7 @@ pub fn os_uname() -> Utsname!Errno {
       }
       buffer.write_byte(byte)
     }
-    let decoder = @encoding.decoder(UTF8)
-    return decoder.decode_lossy(buffer.contents())
+    return @encoding.decode_lossy(encoding=UTF8, buffer.contents())
   }
 
   let buffer = Bytes::make(256 * 4, 0)

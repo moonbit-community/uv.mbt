@@ -3,7 +3,7 @@
   "version": "0.1.19",
   "deps": {
     "tonyfettes/c": "0.1.13",
-    "tonyfettes/encoding": "0.1.0"
+    "tonyfettes/encoding": "0.1.3"
   },
   "readme": "README.md",
   "repository": "https://github.com/tonyfettes/uv.mbt",

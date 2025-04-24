@@ -393,7 +393,7 @@ pub fn Dirent::name(self : Dirent) -> @string.View {
     buffer.write_byte(name[i])
   }
   let bytes = buffer.contents()
-  return @encoding.decoder(UTF8).decode_lossy(bytes)
+  return @encoding.decode_lossy(encoding=UTF8, bytes)
 }
 
 ///|
@@ -558,7 +558,7 @@ pub fn cwd() -> @string.View!Errno {
   if status < 0 {
     raise Errno::of_int(status)
   }
-  return @encoding.decoder(UTF8).decode_lossy(buffer)
+  return @encoding.decode_lossy(encoding=UTF8, buffer)
 }
 
 ///|
@@ -590,7 +590,7 @@ pub fn fs_realpath[Ntbs : ToNtbs](
         buffer.write_byte(ptr[i])
       }
       let bytes = buffer.contents()
-      k(req, @encoding.decoder(UTF8).decode_lossy(bytes))
+      k(req, @encoding.decode_lossy(encoding=UTF8, bytes))
     }
   }
 

@@ -39,7 +39,7 @@ test "client" {
   raise_option!(write_error)
   raise_option!(read_start_error)
   raise_option!(read_stop_error)
-  let string = @encoding.decoder(UTF8).decode_lossy(buffer.contents())
+  let string = @encoding.decode_lossy(encoding=UTF8, buffer.contents())
   let body = [..string.split("\r\n\r\n")][1]
   @json.inspect!([..body.split("\n")][:3], content=[
     "<!doctype html>", "<html>", "<head>",

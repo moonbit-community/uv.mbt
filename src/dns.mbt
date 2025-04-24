@@ -175,7 +175,7 @@ let _IF_NAMESIZE : Int = uv_IF_NAMESIZE()
 extern "c" fn uv_ip_name(src : Sockaddr, dst : Bytes) -> Int = "moonbit_uv_ip_name"
 
 ///|
-pub fn ip_name(self : Sockaddr) -> String!Errno {
+pub fn ip_name(self : Sockaddr) -> @string.View!Errno {
   let bytes = Bytes::make(_IF_NAMESIZE, 0)
   let status = uv_ip_name(self, bytes)
   if status < 0 {
@@ -185,7 +185,7 @@ pub fn ip_name(self : Sockaddr) -> String!Errno {
   for i = 0; bytes[i] != 0; i = i + 1 {
     buffer.write_byte(bytes[i])
   }
-  return @encoding.decoder(UTF8).decode_lossy(buffer.contents())
+  return @encoding.decode_lossy(encoding=UTF8, buffer.contents())
 }
 
 ///|
@@ -194,7 +194,7 @@ struct AddrInfo {
   socktype : Int
   protocol : Int
   addr : Sockaddr
-  canonname : String?
+  canonname : @string.View?
 }
 
 ///|
@@ -351,7 +351,7 @@ pub fn AddrInfo::protocol(self : AddrInfo) -> Protocol!Errno {
 }
 
 ///|
-pub fn AddrInfo::canonname(self : AddrInfo) -> String? {
+pub fn AddrInfo::canonname(self : AddrInfo) -> @string.View? {
   self.canonname
 }
 
@@ -373,7 +373,7 @@ fn AddrInfoResults::iter(self : AddrInfoResults) -> Iter[AddrInfo] {
           for i = 0; canonname[i] != 0; i = i + 1 {
             buffer.write_byte(canonname[i])
           }
-          Some(@encoding.decoder(UTF8).decode_lossy(buffer.contents()))
+          Some(@encoding.decode_lossy(encoding=UTF8, buffer.contents()))
         }
         match yield_({ family, socktype, protocol, addr, canonname }) {
           IterEnd => true

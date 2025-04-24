@@ -2,7 +2,7 @@
 extern "c" fn strerror_r(err : Int, bytes : Bytes) = "moonbit_uv_strerror_r"
 
 ///|
-fn strerror(errno : Int) -> String {
+fn strerror(errno : Int) -> @string.View {
   let bytes = Bytes::make(256, 0)
   strerror_r(errno, bytes)
   let buffer = @buffer.new()
@@ -12,8 +12,7 @@ fn strerror(errno : Int) -> String {
     }
     buffer.write_byte(byte)
   }
-  let message = @encoding.decoder(UTF8).decode_lossy(buffer.to_bytes())
-  return message
+  @encoding.decode_lossy(encoding=UTF8, buffer.to_bytes())
 }
 
 ///|
@@ -109,7 +108,7 @@ pub enum Status {
 pub type! Errno Status derive(Eq, Hash)
 
 ///|
-let errno_messages : Map[Errno, String] = Map::new()
+let errno_messages : Map[Errno, @string.View] = Map::new()
 
 ///|
 let errno_errors : Map[Int, Errno] = Map::new()
@@ -227,12 +226,12 @@ fn Errno::to_int(self : Errno) -> Int {
 ///|
 pub impl Show for Errno with output(self : Errno, logger : &Logger) -> Unit {
   if errno_messages.get(self) is Some(message) {
-    logger.write_string(message)
+    logger.write_string(message.to_string())
     return
   }
   let message = strerror(self.to_int())
   errno_messages[self] = message
-  logger.write_string(message)
+  logger.write_string(message.to_string())
 }
 
 ///|

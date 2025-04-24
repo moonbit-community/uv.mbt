@@ -8,7 +8,7 @@ import(
 // Values
 fn accept[Server : ToStream, Client : ToStream](Server, Client) -> Unit!Errno
 
-fn args() -> Array[@string.StringView]!
+fn args() -> Array[@string.StringView]
 
 fn argv() -> Array[Bytes]
 
@@ -48,7 +48,7 @@ fn hrtime() -> UInt64
 
 fn ip4_addr[Ntbs : ToNtbs](Ntbs, Int) -> SockaddrIn
 
-fn ip_name(Sockaddr) -> String!Errno
+fn ip_name(Sockaddr) -> @string.StringView!Errno
 
 fn is_closing[Handle : ToHandle](Handle) -> Bool
 
@@ -92,7 +92,7 @@ fn write[Stream : ToStream](Stream, Array[@bytes.View], (Write) -> Unit, (Write,
 type AddrInfo
 impl AddrInfo {
   addr(Self) -> Sockaddr
-  canonname(Self) -> String?
+  canonname(Self) -> @string.StringView?
   family(Self) -> AddressFamily!Errno
   protocol(Self) -> Protocol!Errno
   socktype(Self) -> SockType!Errno
@@ -276,16 +276,16 @@ impl Signal {
   stop(Self) -> Unit!Errno
 }
 
-pub enum Signum {
-  SIGHUP
-  SIGINT
-  SIGQUIT
-  SIGABRT
-  SIGTERM
-  SIGWINCH
+type Signum
+impl Signum {
+  sigabrt() -> Self
+  sighup() -> Self
+  sigint() -> Self
+  sigpipe() -> Self?
+  sigquit() -> Self
+  sigterm() -> Self
+  sigwinch() -> Self
 }
-impl Eq for Signum
-impl Hash for Signum
 
 type SockType
 impl SockType {
@@ -297,7 +297,7 @@ impl Show for SockType
 
 type Sockaddr
 impl Sockaddr {
-  ip_name(Self) -> String!Errno
+  ip_name(Self) -> @string.StringView!Errno
 }
 impl ToSockaddr for Sockaddr
 

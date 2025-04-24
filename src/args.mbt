@@ -8,11 +8,11 @@ pub fn argv() -> Array[Bytes] {
 }
 
 ///|
-pub fn args() -> Array[@string.View]! {
+pub fn args() -> Array[@string.View] {
   let argv = moonbit_get_cli_args()
   let args = []
   for i in 0..<argv.length() {
-    args.push(@encoding.decoder(UTF8).decode!(argv[i]).view())
+    args.push(@encoding.decode_lossy(encoding=UTF8, argv[i]).view())
   }
   args
 }
