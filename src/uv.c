@@ -652,8 +652,13 @@ moonbit_uv_sockaddr_in_make(void) {
   );
 }
 
+MOONBIT_FFI_EXPORT
 void
-moonbit_uv_ip4_addr(moonbit_bytes_t ip, int32_t port, struct sockaddr_in *addr) {
+moonbit_uv_ip4_addr(
+  moonbit_bytes_t ip,
+  int32_t port,
+  struct sockaddr_in *addr
+) {
   uv_ip4_addr((const char *)ip, port, addr);
   moonbit_decref(ip);
   moonbit_decref(addr);
