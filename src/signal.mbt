@@ -31,13 +31,10 @@ pub fn Signal::start(
   signum : Signum
 ) -> Unit!Errno {
   fn uv_cb(signal : Signal, signum : Int) {
-    let signum = Signum::of_int(signum)
     cb(signal, signum)
   }
 
-  let signum = signum.to_int()
-  guard signum is Some(signum) else { raise Errno(EINVAL) }
-  let status = uv_signal_start(self, uv_cb, signum)
+  let status = uv_signal_start(self, uv_cb, signum._)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -58,57 +55,82 @@ pub fn Signal::stop(self : Signal) -> Unit!Errno {
 extern "c" fn uv_SIGHUP() -> Int = "moonbit_uv_SIGHUP"
 
 ///|
+let _SIGHUP : Int = uv_SIGHUP()
+
+///|
 extern "c" fn uv_SIGINT() -> Int = "moonbit_uv_SIGINT"
+
+///|
+let _SIGINT : Int = uv_SIGINT()
 
 ///|
 extern "c" fn uv_SIGQUIT() -> Int = "moonbit_uv_SIGQUIT"
 
 ///|
+let _SIGQUIT : Int = uv_SIGQUIT()
+
+///|
 extern "c" fn uv_SIGABRT() -> Int = "moonbit_uv_SIGABRT"
+
+///|
+let _SIGABRT : Int = uv_SIGABRT()
 
 ///|
 extern "c" fn uv_SIGTERM() -> Int = "moonbit_uv_SIGTERM"
 
 ///|
+let _SIGTERM : Int = uv_SIGTERM()
+
+///|
 extern "c" fn uv_SIGWINCH() -> Int = "moonbit_uv_SIGWINCH"
 
 ///|
-pub enum Signum {
-  SIGHUP
-  SIGINT
-  SIGQUIT
-  SIGABRT
-  SIGTERM
-  SIGWINCH
-} derive(Eq, Hash)
+let _SIGWINCH : Int = uv_SIGWINCH()
 
 ///|
-let signum_to_int : Map[Signum, Int] = {
-  let map = Map::new()
-  map[SIGHUP] = uv_SIGHUP()
-  map[SIGINT] = uv_SIGINT()
-  map[SIGQUIT] = uv_SIGQUIT()
-  map[SIGABRT] = uv_SIGABRT()
-  map[SIGTERM] = uv_SIGTERM()
-  map[SIGWINCH] = uv_SIGWINCH()
-  map
+extern "c" fn uv_SIGPIPE() -> Int = "moonbit_uv_SIGPIPE"
+
+///|
+let _SIGPIPE : Int = uv_SIGPIPE()
+
+///|
+type Signum Int
+
+///|
+pub fn Signum::sighup() -> Signum {
+  _SIGHUP
 }
 
 ///|
-let signum_of_int : Map[Int, Signum] = {
-  let map = Map::new()
-  for signum, int in signum_to_int {
-    map[int] = signum
+pub fn Signum::sigint() -> Signum {
+  _SIGINT
+}
+
+///|
+pub fn Signum::sigquit() -> Signum {
+  _SIGQUIT
+}
+
+///|
+pub fn Signum::sigabrt() -> Signum {
+  _SIGABRT
+}
+
+///|
+pub fn Signum::sigterm() -> Signum {
+  _SIGTERM
+}
+
+///|
+pub fn Signum::sigwinch() -> Signum {
+  _SIGWINCH
+}
+
+///|
+pub fn Signum::sigpipe() -> Signum? {
+  if _SIGPIPE == -1 {
+    None
+  } else {
+    Some(_SIGPIPE)
   }
-  map
-}
-
-///|
-fn Signum::to_int(self : Signum) -> Int? {
-  signum_to_int[self]
-}
-
-///|
-fn Signum::of_int(self : Int) -> Signum {
-  signum_of_int[self].unwrap()
 }

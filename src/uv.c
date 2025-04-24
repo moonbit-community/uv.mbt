@@ -1845,6 +1845,16 @@ moonbit_uv_SIGWINCH(void) {
 }
 
 MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_SIGPIPE(void) {
+#ifdef _WIN32
+  return -1;
+#else
+  return SIGPIPE;
+#endif
+}
+
+MOONBIT_FFI_EXPORT
 void
 moonbit_uv_sleep(uint32_t milliseconds) {
   uv_sleep(milliseconds);
