@@ -3,7 +3,7 @@ test "udp" {
   let uv = @uv.Loop::new!()
   let in_socket = @uv.Udp::new!(uv)
   let out_socket = @uv.Udp::new!(uv)
-  let addr : @uv.SockaddrIn = @uv.ip4_addr("0.0.0.0", 8543)
+  let addr : @uv.SockaddrIn = @uv.ip4_addr("127.0.0.1", 8543)
   in_socket.bind!(addr, @uv.UdpFlags::new())
   in_socket.recv_start!(
     fn(_udp, _size) { Bytes::make(100, '\x00')[:] },
