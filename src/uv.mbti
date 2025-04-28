@@ -457,6 +457,25 @@ impl TtyMode {
   raw_vt() -> Self
 }
 
+type Udp
+impl Udp {
+  bind[Sockaddr : ToSockaddr](Self, Sockaddr, UdpFlags) -> Unit!Errno
+  connect[Sockaddr : ToSockaddr](Self, Sockaddr) -> Unit!Errno
+  new(Loop) -> Self!Errno
+  recv_start(Self, (Handle, Int) -> @bytes.View, (Self, Int, @bytes.View, Sockaddr, UdpFlags) -> Unit, (Self, Errno) -> Unit) -> Unit!Errno
+  recv_stop(Self) -> Unit!Errno
+  send[Sockaddr : ToSockaddr](Self, Array[@bytes.View], (UdpSend) -> Unit, (UdpSend, Errno) -> Unit, addr? : Sockaddr) -> Unit!Errno
+}
+impl ToHandle for Udp
+
+type UdpFlags
+impl UdpFlags {
+  new() -> Self
+}
+
+type UdpSend
+impl ToReq for UdpSend
+
 type Uid
 
 type Utsname
