@@ -1,47 +1,123 @@
 ///|
-test "client" {
+test "tcp" {
   let uv = @uv.Loop::new!()
-  let socket = @uv.Tcp::new!(uv)
-  let addr = @uv.ip4_addr("184.24.77.179", 80)
-  let mut write_error = None
-  let mut read_start_error = None
-  let mut read_stop_error = None
-  let mut connect_error = None
-  socket.connect!(addr, fn(_) {  }, fn(_, e) { connect_error = Some(e) })
-  socket.write!(
-    [
-      b"GET / HTTP/1.1\r\n", b"Host: www.example.com\r\n", b"User-Agent: libuv-client/1.0\r\n",
-      b"Connection: close\r\n", b"\r\n",
-    ],
-    fn(_) {  },
-    fn(_, e) { write_error = Some(e) },
-  )
-  let buffer = @buffer.new()
-  socket.read_start!(
-    fn(_, _) { Bytes::make(1024, 0)[:] },
-    fn(_, nread, buf) { buffer.write_bytesview(buf[:nread]) },
-    fn(_, e) {
-      if not(e is Errno(EOF)) {
-        read_start_error = Some(e)
-      }
+  let client_socket = @uv.Tcp::new!(uv)
+  let server_socket = @uv.Tcp::new!(uv)
+  let addr = @uv.ip4_addr("127.0.0.1", 8544)
+  let errors : Array[Error] = []
+  server_socket.bind!(addr, @uv.TcpBindFlags::new())
+  fn server_close(error : Error?) {
+    if error is Some(error) {
+      errors.push(error)
+    }
+    server_socket.close(fn(_) {  })
+  }
+
+  server_socket.listen!(
+    128,
+    fn(_) {
       try {
-        socket.read_stop!()
+        let server_client_socket = @uv.Tcp::new!(uv)
+        @uv.accept!(server_socket, server_client_socket)
+        fn server_stop_read(error : Error?) {
+          if error is Some(error) {
+            errors.push(error)
+          }
+          try {
+            server_client_socket.read_stop!()
+          } catch {
+            e => errors.push(e)
+          }
+          server_client_socket.close(fn(_) {  })
+          server_close(None)
+        }
+
+        server_client_socket.read_start!(
+          fn(_, _) { Bytes::make(32, 0)[:] },
+          fn(_, nread, buf) {
+            try {
+              let request = @encoding.decode!([..buf[:nread]], encoding=UTF8)
+              inspect!(request, content="Request")
+              server_client_socket.write!(
+                [b"Response"],
+                fn(_) { server_stop_read(None) },
+                fn(_, e) { server_stop_read(Some(e)) },
+              )
+            } catch {
+              e => server_stop_read(Some(e))
+            }
+          },
+          fn(_, e) {
+            if e is Errno(EOF) {
+              server_stop_read(None)
+            } else {
+              server_stop_read(Some(e))
+            }
+          },
+        )
       } catch {
-        e => read_stop_error = Some(e)
+        e => server_close(Some(e))
       }
-      socket.close(fn(_) {  })
     },
+    fn(_, e) { server_close(Some(e)) },
+  )
+  fn client_close(error : Error?) {
+    if error is Some(error) {
+      errors.push(error)
+    }
+    client_socket.close(fn(_) {  })
+  }
+
+  client_socket.connect!(
+    addr,
+    fn(_) {
+      fn client_stop_read(error : Error?) {
+        if error is Some(error) {
+          errors.push(error)
+        }
+        try {
+          client_socket.read_stop!()
+        } catch {
+          e => errors.push(e)
+        }
+        client_close(None)
+      }
+
+      try {
+        client_socket.write!([b"Request"], fn(_) { client_close(None) }, fn(
+          _,
+          e
+        ) {
+          client_close(Some(e))
+        })
+        client_socket.read_start!(
+          fn(_, _) { Bytes::make(32, 0)[:] },
+          fn(_, nread, buf) {
+            try {
+              let response = @encoding.decode!([..buf[:nread]], encoding=UTF8)
+              inspect!(response, content="Response")
+            } catch {
+              e => client_stop_read(Some(e))
+            }
+          },
+          fn(_, e) {
+            if e is Errno(EOF) {
+              client_stop_read(None)
+            } else {
+              client_stop_read(Some(e))
+            }
+          },
+        )
+      } catch {
+        e => client_close(Some(e))
+      }
+    },
+    fn(_, e) { client_close(Some(e)) },
   )
   uv.run!(Default)
   uv.stop()
   uv.close!()
-  raise_option!(connect_error)
-  raise_option!(write_error)
-  raise_option!(read_start_error)
-  raise_option!(read_stop_error)
-  let string = @encoding.decode_lossy(encoding=UTF8, buffer.contents())
-  let body = [..string.split("\r\n\r\n")][1]
-  @json.inspect!([..body.split("\n")][:3], content=[
-    "<!doctype html>", "<html>", "<head>",
-  ])
+  for error in errors {
+    raise error
+  }
 }
