@@ -1,11 +1,7 @@
 ///|
 test "spawn" {
   let uv = @uv.Loop::new!()
-  let mut test_exit_status = None
-  let mut test_term_signal = None
-  let mut read_error = None
-  let mut write_error = None
-  let mut stop_error = None
+  let errors : Array[Error] = []
   let stdout_pipe = @uv.Pipe::new!(uv, ipc=false)
   fn do_write(bytes : @bytes.View, start : Int, count : Int) -> Unit {
     try {
@@ -17,10 +13,10 @@ test "spawn" {
             do_write(bytes, start + delta, count - delta)
           }
         },
-        fn(_, error) { write_error = Some(error) },
+        fn(_, error) { errors.push(error) },
       )
     } catch {
-      error => write_error = Some(error)
+      error => errors.push(error)
     }
   }
 
@@ -31,19 +27,19 @@ test "spawn" {
         fn(_, count, bytes) { do_write(bytes, 0, count) },
         fn(pipe, error) {
           if not(error is Errno(EOF)) {
-            read_error = Some(error)
+            errors.push(error)
           }
           try {
             pipe.read_stop!()
           } catch {
-            error => stop_error = Some(error)
+            error => errors.push(error)
           }
           pipe.close(fn(_) {  })
         },
       )
     } catch {
       error => {
-        read_error = Some(error)
+        errors.push(error)
         pipe.close(fn(_) {  })
       }
     }
@@ -59,8 +55,12 @@ test "spawn" {
     ["moon", "version", "--all"],
     stdio~,
     fn(child, exit_status, term_signal) {
-      test_exit_status = Some(exit_status)
-      test_term_signal = Some(term_signal)
+      try {
+        assert_eq!(exit_status, 0)
+        assert_eq!(term_signal, 0)
+      } catch {
+        error => errors.push(error)
+      }
       child.close(fn(_) {  })
     },
   )
@@ -69,9 +69,7 @@ test "spawn" {
   uv.run!(Default)
   uv.stop()
   uv.close!()
-  inspect!(test_exit_status, content="Some(0)")
-  inspect!(test_term_signal, content="Some(0)")
-  raise_option!(read_error)
-  raise_option!(write_error)
-  raise_option!(stop_error)
+  for error in errors {
+    raise error
+  }
 }
