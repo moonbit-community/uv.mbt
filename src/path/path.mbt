@@ -349,7 +349,7 @@ pub impl ToPath for @string.View with to_path(self : @string.View) -> Path!PathE
   } catch {
     e => raise PathError::Errno(e)
   }
-  if utsname.sysname() == "Windows" {
+  if utsname.sysname() == "Windows_NT" {
     return WindowsPath(ToWindowsPath::to_windows_path(self))
   } else {
     return PosixPath(ToPosixPath::to_posix_path(self))
@@ -368,7 +368,7 @@ pub impl[T : ToPath] ToPath for Array[T] with to_path(self : Array[T]) -> Path!P
   } catch {
     e => raise PathError::Errno(e)
   }
-  let mut path : Path = if utsname.sysname() == "Windows" {
+  let mut path : Path = if utsname.sysname() == "Windows_NT" {
     WindowsPath(WindowsPath::{ parts: [] })
   } else {
     PosixPath(PosixPath::{ parts: [] })
