@@ -558,7 +558,7 @@ pub fn cwd() -> @string.View!Errno {
   if status < 0 {
     raise Errno::of_int(status)
   }
-  return @encoding.decode_lossy(encoding=UTF8, buffer)
+  return @encoding.decode_lossy(encoding=UTF8, buffer[:length[0]])
 }
 
 ///|
