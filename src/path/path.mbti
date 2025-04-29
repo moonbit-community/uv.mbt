@@ -1,0 +1,23 @@
+package "tonyfettes/uv/path"
+
+import(
+  "moonbitlang/core/string"
+)
+
+// Values
+fn path[Input : ToPath](Input) -> Path!PathError
+
+// Types and methods
+type Path
+impl @tonyfettes/uv.ToNtbs for Path
+
+type PathError
+
+// Type aliases
+
+// Traits
+trait ToPath
+impl ToPath for String
+impl[T : ToPath] ToPath for Array[T]
+impl ToPath for @string.StringView
+
