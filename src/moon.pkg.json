@@ -224,5 +224,8 @@
       ],
       "command": "python3 scripts/prepare.py"
     }
+  ],
+  "test-import": [
+    "tonyfettes/uv/path"
   ]
 }

@@ -167,14 +167,24 @@ test "copyfile_unlink" {
 ///|
 test "realpath" {
   let uv = @uv.Loop::new!()
-  let mut error = None
+  let cwd = @uv.cwd!()
+  let errors : Array[Error] = []
+  let file = "test/fixtures/example.txt"
   uv.fs_realpath!(
     "test/fixtures/example.txt",
-    fn(_, p) { println("realpath: \{p}") },
-    fn(_, e) { error = Some(e) },
+    fn(_, p) {
+      try {
+        assert_eq!(@path.path!(p), @path.path!([cwd, file]))
+      } catch {
+        e => errors.push(e)
+      }
+    },
+    fn(_, e) { errors.push(e) },
   )
   uv.run!(Default)
   uv.stop()
   uv.close!()
-  raise_option!(error)
+  for e in errors {
+    raise e
+  }
 }
