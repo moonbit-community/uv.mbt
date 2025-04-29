@@ -45,7 +45,7 @@ extern "c" fn uv_fs_open(
 ) -> Int = "moonbit_uv_fs_open"
 
 ///|
-trait ToNtbs {
+pub(open) trait ToNtbs {
   to_ntbs(Self) -> Bytes
 }
 

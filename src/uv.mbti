@@ -505,7 +505,9 @@ pub trait ToHandle {
   is_closing(Self) -> Bool
 }
 
-trait ToNtbs
+pub(open) trait ToNtbs {
+  to_ntbs(Self) -> Bytes
+}
 impl ToNtbs for String
 impl ToNtbs for Bytes
 impl ToNtbs for @bytes.View
