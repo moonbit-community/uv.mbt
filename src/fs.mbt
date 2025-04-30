@@ -386,7 +386,7 @@ extern "c" fn uv_dirent_make() -> Dirent = "moonbit_uv_dirent_make"
 extern "c" fn uv_dirent_get_name(self : Dirent) -> @c.Pointer[Byte] = "moonbit_uv_dirent_get_name"
 
 ///|
-pub fn Dirent::name(self : Dirent) -> @string.View {
+pub fn Dirent::name(self : Dirent) -> String {
   let name = uv_dirent_get_name(self)
   let buffer = @buffer.new()
   for i = 0; name[i] != 0; i = i + 1 {
@@ -547,7 +547,7 @@ pub fn fs_copyfile[Ntbs : ToNtbs](
 extern "c" fn uv_cwd(buffer : Bytes, length : FixedArray[Int]) -> Int = "moonbit_uv_cwd"
 
 ///|
-pub fn cwd() -> @string.View!Errno {
+pub fn cwd() -> String!Errno {
   let buffer = Bytes::make(1024, 0)
   let length : FixedArray[Int] = [buffer.length()]
   let mut status = uv_cwd(buffer, length)
@@ -576,7 +576,7 @@ extern "c" fn uv_fs_realpath(
 pub fn fs_realpath[Ntbs : ToNtbs](
   self : Loop,
   path : Ntbs,
-  k : (Fs, @string.View) -> Unit,
+  k : (Fs, String) -> Unit,
   e : (Fs, Errno) -> Unit
 ) -> Unit!Errno {
   fn cb(req : Fs) {

@@ -3,35 +3,35 @@ extern "c" fn uv_os_uname(buffer : Bytes) -> Int = "moonbit_uv_os_uname"
 
 ///|
 struct Utsname {
-  sysname : @string.View
-  release : @string.View
-  version : @string.View
-  machine : @string.View
+  sysname : String
+  release : String
+  version : String
+  machine : String
 }
 
 ///|
-pub fn Utsname::sysname(self : Utsname) -> @string.View {
+pub fn Utsname::sysname(self : Utsname) -> String {
   self.sysname
 }
 
 ///|
-pub fn Utsname::release(self : Utsname) -> @string.View {
+pub fn Utsname::release(self : Utsname) -> String {
   self.release
 }
 
 ///|
-pub fn Utsname::version(self : Utsname) -> @string.View {
+pub fn Utsname::version(self : Utsname) -> String {
   self.version
 }
 
 ///|
-pub fn Utsname::machine(self : Utsname) -> @string.View {
+pub fn Utsname::machine(self : Utsname) -> String {
   self.machine
 }
 
 ///|
 pub fn os_uname() -> Utsname!Errno {
-  fn decode(bytes : @bytes.View) -> @string.View {
+  fn decode(bytes : @bytes.View) -> String {
     let buffer = @buffer.new()
     for i in 0..<bytes.length() {
       let byte = bytes[i]

@@ -9,6 +9,8 @@ fn path[Input : ToPath](Input) -> Path!PathError
 
 // Types and methods
 type Path
+impl Eq for Path
+impl Show for Path
 impl @tonyfettes/uv.ToNtbs for Path
 
 type PathError
@@ -16,7 +18,9 @@ type PathError
 // Type aliases
 
 // Traits
-trait ToPath
+pub trait ToPath {
+  to_path(Self) -> Path!PathError
+}
 impl ToPath for String
 impl[T : ToPath] ToPath for Array[T]
 impl ToPath for @string.StringView

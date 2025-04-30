@@ -175,7 +175,7 @@ let _IF_NAMESIZE : Int = uv_IF_NAMESIZE()
 extern "c" fn uv_ip_name(src : Sockaddr, dst : Bytes) -> Int = "moonbit_uv_ip_name"
 
 ///|
-pub fn ip_name(self : Sockaddr) -> @string.View!Errno {
+pub fn ip_name(self : Sockaddr) -> String!Errno {
   let bytes = Bytes::make(_IF_NAMESIZE, 0)
   let status = uv_ip_name(self, bytes)
   if status < 0 {
@@ -194,7 +194,7 @@ struct AddrInfo {
   socktype : Int
   protocol : Int
   addr : Sockaddr
-  canonname : @string.View?
+  canonname : String?
 }
 
 ///|
@@ -351,7 +351,7 @@ pub fn AddrInfo::protocol(self : AddrInfo) -> Protocol!Errno {
 }
 
 ///|
-pub fn AddrInfo::canonname(self : AddrInfo) -> @string.View? {
+pub fn AddrInfo::canonname(self : AddrInfo) -> String? {
   self.canonname
 }
 

@@ -8,13 +8,13 @@ import(
 // Values
 fn accept[Server : ToStream, Client : ToStream](Server, Client) -> Unit!Errno
 
-fn args() -> Array[@string.StringView]
+fn args() -> Array[String]
 
 fn argv() -> Array[Bytes]
 
 fn close[Handle : ToHandle](Handle, (Handle) -> Unit) -> Unit
 
-fn cwd() -> @string.StringView!Errno
+fn cwd() -> String!Errno
 
 fn disable_stdio_inheritance() -> Unit
 
@@ -30,7 +30,7 @@ fn fs_open[Ntbs : ToNtbs](Loop, Ntbs, OpenFlags, Int, (Fs, File) -> Unit, (Fs, E
 
 fn fs_read(Loop, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
-fn fs_realpath[Ntbs : ToNtbs](Loop, Ntbs, (Fs, @string.StringView) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn fs_realpath[Ntbs : ToNtbs](Loop, Ntbs, (Fs, String) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
 fn fs_rename[Ntbs : ToNtbs](Loop, Ntbs, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
@@ -48,7 +48,7 @@ fn hrtime() -> UInt64
 
 fn ip4_addr[Ntbs : ToNtbs](Ntbs, Int) -> SockaddrIn
 
-fn ip_name(Sockaddr) -> @string.StringView!Errno
+fn ip_name(Sockaddr) -> String!Errno
 
 fn is_closing[Handle : ToHandle](Handle) -> Bool
 
@@ -92,7 +92,7 @@ fn write[Stream : ToStream](Stream, Array[@bytes.View], (Write) -> Unit, (Write,
 type AddrInfo
 impl AddrInfo {
   addr(Self) -> Sockaddr
-  canonname(Self) -> @string.StringView?
+  canonname(Self) -> String?
   family(Self) -> AddressFamily!Errno
   protocol(Self) -> Protocol!Errno
   socktype(Self) -> SockType!Errno
@@ -134,7 +134,7 @@ pub(all) enum CopyOnWrite {
 
 type Dirent
 impl Dirent {
-  name(Self) -> @string.StringView
+  name(Self) -> String
   type_(Self) -> DirentType
 }
 
@@ -188,7 +188,7 @@ impl Loop {
   fs_mkdir[Ntbs : ToNtbs](Self, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   fs_open[Ntbs : ToNtbs](Self, Ntbs, OpenFlags, Int, (Fs, File) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   fs_read(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-  fs_realpath[Ntbs : ToNtbs](Self, Ntbs, (Fs, @string.StringView) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+  fs_realpath[Ntbs : ToNtbs](Self, Ntbs, (Fs, String) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   fs_rename[Ntbs : ToNtbs](Self, Ntbs, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   fs_rmdir[Ntbs : ToNtbs](Self, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   fs_scandir[Ntbs : ToNtbs](Self, Ntbs, Int, (Fs, Dirent) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
@@ -297,7 +297,7 @@ impl Show for SockType
 
 type Sockaddr
 impl Sockaddr {
-  ip_name(Self) -> @string.StringView!Errno
+  ip_name(Self) -> String!Errno
 }
 impl ToSockaddr for Sockaddr
 
@@ -480,10 +480,10 @@ type Uid
 
 type Utsname
 impl Utsname {
-  machine(Self) -> @string.StringView
-  release(Self) -> @string.StringView
-  sysname(Self) -> @string.StringView
-  version(Self) -> @string.StringView
+  machine(Self) -> String
+  release(Self) -> String
+  sysname(Self) -> String
+  version(Self) -> String
 }
 
 type Work
