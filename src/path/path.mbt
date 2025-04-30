@@ -333,7 +333,7 @@ pub impl @uv.ToNtbs for Path with to_ntbs(self : Path) -> Bytes {
 }
 
 ///|
-trait ToPath {
+pub trait ToPath {
   to_path(Self) -> Path!PathError
 }
 
@@ -409,7 +409,9 @@ impl Show for WindowsPath with output(self : WindowsPath, logger : &Logger) -> U
     if i > 0 {
       logger.write_char('\\')
     }
-    logger.write_object(part)
+    for char in part {
+      logger.write_char(char)
+    }
   }
 }
 
@@ -419,7 +421,9 @@ impl Show for PosixPath with output(self : PosixPath, logger : &Logger) -> Unit 
     if i > 0 {
       logger.write_char('/')
     }
-    logger.write_object(part)
+    for char in part {
+      logger.write_char(char)
+    }
   }
 }
 
