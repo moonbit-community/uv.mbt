@@ -36,7 +36,9 @@ fn fs_rename[Ntbs : ToNtbs](Loop, Ntbs, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit)
 
 fn fs_rmdir[Ntbs : ToNtbs](Loop, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
-fn fs_scandir[Ntbs : ToNtbs](Loop, Ntbs, Int, (Fs, Dirent) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn fs_scandir[Ntbs : ToNtbs](Loop, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+
+fn fs_scandir_next(Fs) -> Dirent!Errno
 
 fn fs_unlink[Ntbs : ToNtbs](Loop, Ntbs, (Fs) -> Unit, (Fs, Error) -> Unit) -> Unit!Errno
 
@@ -191,7 +193,7 @@ impl Loop {
   fs_realpath[Ntbs : ToNtbs](Self, Ntbs, (Fs, String) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   fs_rename[Ntbs : ToNtbs](Self, Ntbs, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   fs_rmdir[Ntbs : ToNtbs](Self, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-  fs_scandir[Ntbs : ToNtbs](Self, Ntbs, Int, (Fs, Dirent) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+  fs_scandir[Ntbs : ToNtbs](Self, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   fs_unlink[Ntbs : ToNtbs](Self, Ntbs, (Fs) -> Unit, (Fs, Error) -> Unit) -> Unit!Errno
   fs_write(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   getaddrinfo[Node : ToNtbs, Service : ToNtbs](Self, (GetAddrInfo, Iter[AddrInfo]) -> Unit, (GetAddrInfo, Errno) -> Unit, Node, Service, hints? : AddrInfoHints) -> Unit!Errno

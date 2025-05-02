@@ -412,7 +412,7 @@ pub fn fs_scandir[Ntbs : ToNtbs](
   self : Loop,
   path : Ntbs,
   flags : Int,
-  k : (Fs, Dirent) -> Unit,
+  k : (Fs) -> Unit,
   e : (Fs, Errno) -> Unit
 ) -> Unit!Errno {
   let req = uv_fs_make()
@@ -420,19 +420,23 @@ pub fn fs_scandir[Ntbs : ToNtbs](
     let status = uv_fs_get_result(req).to_int()
     if status < 0 {
       return e(req, Errno::of_int(status))
-    }
-    while true {
-      let dirent = uv_dirent_make()
-      let status = uv_fs_scandir_next(req, dirent)
-      if status < 0 {
-        return e(req, Errno::of_int(status))
-      }
-      k(req, dirent)
+    } else {
+      k(req)
     }
   })
   if status < 0 {
     raise Errno::of_int(status)
   }
+}
+
+///|
+pub fn fs_scandir_next(req : Fs) -> Dirent!Errno {
+  let dirent = uv_dirent_make()
+  let status = uv_fs_scandir_next(req, dirent)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  dirent
 }
 
 ///|

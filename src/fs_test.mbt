@@ -126,9 +126,18 @@ test "scandir" {
   uv.fs_scandir!(
     "test/fixtures",
     0,
-    fn(_, dirent) {
-      let name = dirent.name()
-      entries.push({ name: name.to_string(), type_: dirent.type_() })
+    fn(req) {
+      while true {
+        let dirent = try {
+          @uv.fs_scandir_next!(req)
+        } catch {
+          e => {
+            error = Some(e)
+            break
+          }
+        }
+        entries.push({ name: dirent.name(), type_: dirent.type_() })
+      }
     },
     fn(_, e) { if not(e is Errno(EOF)) { error = Some(e) } },
   )
