@@ -11,28 +11,55 @@ extern "c" fn uv_fs_make() -> Fs = "moonbit_uv_fs_make"
 type OpenFlags Int
 
 ///|
-pub fn OpenFlags::read() -> OpenFlags {
-  return uv_fs_O_RDONLY()
+pub fn OpenFlags::read(create~ : Bool = false) -> OpenFlags {
+  let mut flags = _O_RDONLY
+  if create {
+    flags = flags | _O_CREAT
+  }
+  flags
 }
 
 ///|
-pub fn OpenFlags::write() -> OpenFlags {
-  return uv_fs_O_WRONLY()
+pub fn OpenFlags::write(create~ : Bool = false) -> OpenFlags {
+  let mut flags = _O_WRONLY
+  if create {
+    flags = flags | _O_CREAT
+  }
+  flags
 }
 
 ///|
-pub fn OpenFlags::read_write() -> OpenFlags {
-  return uv_fs_O_RDWR()
+pub fn OpenFlags::read_write(create~ : Bool = false) -> OpenFlags {
+  let mut flags = _O_RDWR
+  if create {
+    flags = flags | _O_CREAT
+  }
+  flags
 }
 
 ///|
 extern "c" fn uv_fs_O_RDONLY() -> Int = "moonbit_uv_fs_O_RDONLY"
 
 ///|
+let _O_RDONLY : Int = uv_fs_O_RDONLY()
+
+///|
 extern "c" fn uv_fs_O_WRONLY() -> Int = "moonbit_uv_fs_O_WRONLY"
 
 ///|
+let _O_WRONLY : Int = uv_fs_O_WRONLY()
+
+///|
 extern "c" fn uv_fs_O_RDWR() -> Int = "moonbit_uv_fs_O_RDWR"
+
+///|
+let _O_RDWR : Int = uv_fs_O_RDWR()
+
+///|
+extern "c" fn uv_fs_O_CREAT() -> Int = "moonbit_uv_fs_O_CREAT"
+
+///|
+let _O_CREAT : Int = uv_fs_O_CREAT()
 
 ///|
 extern "c" fn uv_fs_open(

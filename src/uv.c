@@ -271,6 +271,12 @@ moonbit_uv_fs_O_RDWR(void) {
 
 MOONBIT_FFI_EXPORT
 int32_t
+moonbit_uv_fs_O_CREAT(void) {
+  return UV_FS_O_CREAT;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
 moonbit_uv_fs_open(
   uv_loop_t *loop,
   moonbit_uv_fs_t *fs,
