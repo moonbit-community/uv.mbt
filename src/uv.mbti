@@ -163,6 +163,27 @@ type File
 type Fs
 impl ToReq for Fs
 
+type FsEvent
+impl FsEvent {
+  get_path(Self) -> String!Errno
+  new(Loop) -> Self!Errno
+  start(Self, String, FsEventFlags, (Self, String?, Array[FsEventType]) -> Unit, (Self, String?, Errno) -> Unit) -> Unit!Errno
+  stop(Self) -> Unit!Errno
+}
+impl ToHandle for FsEvent
+
+type FsEventFlags
+impl FsEventFlags {
+  new(recursive~ : Bool = ..) -> Self
+}
+
+pub enum FsEventType {
+  Rename
+  Change
+}
+impl Show for FsEventType
+impl ToJson for FsEventType
+
 type GetAddrInfo
 
 type Gid
@@ -216,9 +237,9 @@ impl Copy for Mutex
 
 type OpenFlags
 impl OpenFlags {
-  read() -> Self
-  read_write() -> Self
-  write() -> Self
+  read(create~ : Bool = ..) -> Self
+  read_write(create~ : Bool = ..) -> Self
+  write(create~ : Bool = ..) -> Self
 }
 
 type Pipe
