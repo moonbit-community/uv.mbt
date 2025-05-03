@@ -316,7 +316,7 @@ fn Path::parent(self : Path) -> Path {
 }
 
 ///|
-impl Div for Path with op_div(self : Path, other : Path) -> Path {
+pub impl Div for Path with op_div(self : Path, other : Path) -> Path {
   match (self, other) {
     (WindowsPath(self), WindowsPath(other)) => WindowsPath(self / other)
     (PosixPath(self), PosixPath(other)) => PosixPath(self / other)
@@ -433,4 +433,8 @@ pub impl Show for Path with output(self : Path, logger : &Logger) -> Unit {
     WindowsPath(w) => w.output(logger)
     PosixPath(p) => p.output(logger)
   }
+}
+
+pub impl ToJson for Path with to_json(self : Path) -> Json {
+  self.to_string().to_json()
 }

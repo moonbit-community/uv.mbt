@@ -9,8 +9,10 @@ fn path[Input : ToPath](Input) -> Path!PathError
 
 // Types and methods
 type Path
+impl Div for Path
 impl Eq for Path
 impl Show for Path
+impl ToJson for Path
 impl @tonyfettes/uv.ToNtbs for Path
 
 type PathError
