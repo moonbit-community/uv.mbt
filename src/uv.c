@@ -564,6 +564,68 @@ moonbit_uv_fs_realpath(
 }
 
 MOONBIT_FFI_EXPORT
+uv_fs_event_t *
+moonbit_uv_fs_event_make(void) {
+  return (uv_fs_event_t *)moonbit_make_bytes(sizeof(uv_fs_event_t), 0);
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_event_init(uv_loop_t *loop, uv_fs_event_t *handle) {
+  int status = uv_fs_event_init(loop, handle);
+  moonbit_decref(loop);
+  moonbit_decref(handle);
+  return status;
+}
+
+typedef struct moonbit_uv_fs_event_cb_s {
+  int32_t (*code)(
+    struct moonbit_uv_fs_event_cb_s *,
+    uv_fs_event_t *handle,
+    const char *filename,
+    int32_t events,
+    int32_t status
+  );
+} moonbit_uv_fs_event_cb_t;
+
+static inline void
+moonbit_uv_fs_event_cb(
+  uv_fs_event_t *handle,
+  const char *filename,
+  int32_t events,
+  int32_t status
+) {
+  moonbit_uv_fs_event_cb_t *cb = handle->data;
+  moonbit_incref(cb);
+  moonbit_incref(handle);
+  cb->code(cb, handle, filename, events, status);
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_event_start(
+  uv_fs_event_t *handle,
+  moonbit_uv_fs_cb_t *cb,
+  moonbit_bytes_t path,
+  int32_t flags
+) {
+  handle->data = cb;
+  int status = uv_fs_event_start(
+    handle, moonbit_uv_fs_event_cb, (const char *)path, flags
+  );
+  moonbit_decref(path);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_event_stop(uv_fs_event_t *handle) {
+  int status = uv_fs_event_stop(handle);
+  moonbit_decref(handle);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
 int32_t
 moonbit_uv_accept(uv_stream_t *server, uv_stream_t *client) {
   int status = uv_accept(server, client);
@@ -653,8 +715,9 @@ moonbit_uv_handle_loop(uv_handle_t *handle) {
 MOONBIT_FFI_EXPORT
 struct sockaddr_in *
 moonbit_uv_sockaddr_in_make(void) {
-  return (struct sockaddr_in *
-  )moonbit_make_bytes(sizeof(struct sockaddr_in), 0);
+  return (struct sockaddr_in *)moonbit_make_bytes(
+    sizeof(struct sockaddr_in), 0
+  );
 }
 
 MOONBIT_FFI_EXPORT
@@ -1367,6 +1430,8 @@ moonbit_uv_timer_make(void) {
 MOONBIT_FFI_EXPORT
 int32_t
 moonbit_uv_timer_init(uv_loop_t *loop, moonbit_uv_timer_t *timer) {
+  moonbit_uv_trace("loop = %p\n", (void *)loop);
+  moonbit_uv_trace("timer = %p\n", (void *)timer);
   // The ownership of `loop` is transferred into `timer`.
   int status = uv_timer_init(loop, &timer->timer);
   moonbit_decref(timer);
@@ -2356,8 +2421,8 @@ moonbit_uv_addrinfo_hints(
   int32_t socktype,
   int32_t protocol
 ) {
-  moonbit_uv_addrinfo_hints_t *hints = (moonbit_uv_addrinfo_hints_t *
-  )moonbit_make_bytes(sizeof(moonbit_uv_addrinfo_hints_t), 0);
+  moonbit_uv_addrinfo_hints_t *hints = (moonbit_uv_addrinfo_hints_t *)
+    moonbit_make_bytes(sizeof(moonbit_uv_addrinfo_hints_t), 0);
   hints->addrinfo.ai_flags = flags;
   hints->addrinfo.ai_family = family;
   hints->addrinfo.ai_socktype = socktype;
