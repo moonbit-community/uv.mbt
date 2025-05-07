@@ -24,6 +24,10 @@ fn fs_close(Loop, File, (Fs) -> Unit) -> Unit!Errno
 
 fn fs_copyfile[Ntbs : ToNtbs](Loop, Ntbs, Ntbs, CopyFileFlags, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
+fn fs_fstat(Loop, File, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+
+fn fs_lstat[Ntbs : ToNtbs](Loop, Ntbs, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+
 fn fs_mkdir[Ntbs : ToNtbs](Loop, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
 fn fs_open[Ntbs : ToNtbs](Loop, Ntbs, OpenFlags, Int, (Fs, File) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
@@ -39,6 +43,8 @@ fn fs_rmdir[Ntbs : ToNtbs](Loop, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Uni
 fn fs_scandir[Ntbs : ToNtbs](Loop, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
 fn fs_scandir_next(Fs) -> Dirent!Errno
+
+fn fs_stat[Ntbs : ToNtbs](Loop, Ntbs, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
 fn fs_unlink[Ntbs : ToNtbs](Loop, Ntbs, (Fs) -> Unit, (Fs, Error) -> Unit) -> Unit!Errno
 
@@ -208,6 +214,8 @@ impl Loop {
   close(Self) -> Unit!Errno
   fs_close(Self, File, (Fs) -> Unit) -> Unit!Errno
   fs_copyfile[Ntbs : ToNtbs](Self, Ntbs, Ntbs, CopyFileFlags, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+  fs_fstat(Self, File, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+  fs_lstat[Ntbs : ToNtbs](Self, Ntbs, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   fs_mkdir[Ntbs : ToNtbs](Self, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   fs_open[Ntbs : ToNtbs](Self, Ntbs, OpenFlags, Int, (Fs, File) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   fs_read(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
@@ -215,6 +223,7 @@ impl Loop {
   fs_rename[Ntbs : ToNtbs](Self, Ntbs, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   fs_rmdir[Ntbs : ToNtbs](Self, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   fs_scandir[Ntbs : ToNtbs](Self, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+  fs_stat[Ntbs : ToNtbs](Self, Ntbs, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   fs_unlink[Ntbs : ToNtbs](Self, Ntbs, (Fs) -> Unit, (Fs, Error) -> Unit) -> Unit!Errno
   fs_write(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   getaddrinfo[Node : ToNtbs, Service : ToNtbs](Self, (GetAddrInfo, Iter[AddrInfo]) -> Unit, (GetAddrInfo, Errno) -> Unit, Node, Service, hints? : AddrInfoHints) -> Unit!Errno
@@ -326,6 +335,37 @@ impl ToSockaddr for Sockaddr
 
 type SockaddrIn
 impl ToSockaddr for SockaddrIn
+
+type Stat
+impl Stat {
+  atim_nsec(Self) -> Int64
+  atim_sec(Self) -> Int64
+  birthtim_nsec(Self) -> Int64
+  birthtim_sec(Self) -> Int64
+  blksize(Self) -> UInt64
+  blocks(Self) -> UInt64
+  ctim_nsec(Self) -> Int64
+  ctim_sec(Self) -> Int64
+  dev(Self) -> UInt64
+  flags(Self) -> UInt64
+  gen(Self) -> UInt64
+  gid(Self) -> UInt64
+  ino(Self) -> UInt64
+  is_block_device(Self) -> Bool
+  is_character_device(Self) -> Bool
+  is_directory(Self) -> Bool
+  is_file(Self) -> Bool
+  is_pipe(Self) -> Bool
+  is_socket(Self) -> Bool
+  is_symlink(Self) -> Bool
+  mode(Self) -> UInt64
+  mtim_nsec(Self) -> Int64
+  mtim_sec(Self) -> Int64
+  nlink(Self) -> UInt64
+  rdev(Self) -> UInt64
+  size(Self) -> UInt64
+  uid(Self) -> UInt64
+}
 
 pub enum Status {
   E2BIG

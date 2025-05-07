@@ -83,7 +83,7 @@ test "cat" {
     fn(_, file) { cat_do_read(uv, file, Bytes::make(1024, 0), error) },
     fn(_, e) { error.val = Some(e) },
   )
-  uv.run!(@uv.RunMode::Default)
+  uv.run!(Default)
   uv.close!()
   raise_option!(error.val)
 }
@@ -191,6 +191,102 @@ test "realpath" {
     fn(_, e) { errors.push(e) },
   )
   uv.run!(Default)
+  uv.stop()
+  uv.close!()
+  for e in errors {
+    raise e
+  }
+}
+
+///|
+test "stat" {
+  let uv = @uv.Loop::new!()
+  let errors : Array[Error] = []
+  uv.fs_stat!(
+    "test/fixtures/example.txt",
+    fn(_, stat) {
+      try {
+        // It should be a regular file
+        assert_true!(stat.is_file())
+        // It shouldn't be a directory
+        assert_true!(not(stat.is_directory()))
+        // Size should be greater than 0
+        assert_true!(stat.size() > 0)
+      } catch {
+        e => errors.push(e)
+      }
+    },
+    fn(_, e) { errors.push(e) },
+  )
+  uv.run!(Default)
+  uv.stop()
+  uv.close!()
+  for e in errors {
+    raise e
+  }
+}
+
+///|
+test "lstat" {
+  let uv = @uv.Loop::new!()
+  let errors : Array[Error] = []
+  uv.fs_lstat!(
+    "test/fixtures",
+    fn(_, stat) {
+      try {
+        // It should be a directory;ppp
+
+        assert_true!(stat.is_directory())
+        // It shouldn't be a regular file
+        assert_true!(not(stat.is_file()))
+      } catch {
+        e => errors.push(e)
+      }
+    },
+    fn(_, e) { errors.push(e) },
+  )
+  uv.run!(Default)
+  uv.stop()
+  uv.close!()
+  for e in errors {
+    raise e
+  }
+}
+
+///|
+test "fstat" {
+  let uv = @uv.Loop::new!()
+  let errors : Array[Error] = []
+  let mut file_handle : @uv.File? = None
+  uv.fs_open!(
+    "test/fixtures/example.txt",
+    @uv.OpenFlags::read(),
+    0,
+    fn(_, file) { file_handle = Some(file) },
+    fn(_, e) { errors.push(e) },
+  )
+  uv.run!(Default)
+  if file_handle is Some(fh) {
+    uv.fs_fstat!(
+      fh,
+      fn(_, stat) {
+        try {
+          // It should be a regular file
+          assert_true!(stat.is_file())
+          // It shouldn't be a directory
+          assert_true!(not(stat.is_directory()))
+          // Size should be greater than 0
+          assert_true!(stat.size() > 0)
+        } catch {
+          e => errors.push(e)
+        }
+      },
+      fn(_, e) { errors.push(e) },
+    )
+    uv.run!(Default)
+    uv.fs_close!(fh, fn(_) {  })
+    uv.run!(Default)
+  }
   uv.stop()
   uv.close!()
   for e in errors {

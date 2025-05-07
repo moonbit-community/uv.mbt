@@ -604,6 +604,351 @@ extern "c" fn uv_fs_realpath(
 ) -> Int = "moonbit_uv_fs_realpath"
 
 ///|
+type Stat Bytes
+
+///|
+extern "c" fn moonbit_uv_stat_get_dev(stat : Stat) -> UInt64 = "moonbit_uv_stat_get_dev"
+
+///|
+extern "c" fn moonbit_uv_stat_get_mode(stat : Stat) -> UInt64 = "moonbit_uv_stat_get_mode"
+
+///|
+extern "c" fn moonbit_uv_stat_get_nlink(stat : Stat) -> UInt64 = "moonbit_uv_stat_get_nlink"
+
+///|
+extern "c" fn moonbit_uv_stat_get_uid(stat : Stat) -> UInt64 = "moonbit_uv_stat_get_uid"
+
+///|
+extern "c" fn moonbit_uv_stat_get_gid(stat : Stat) -> UInt64 = "moonbit_uv_stat_get_gid"
+
+///|
+extern "c" fn moonbit_uv_stat_get_rdev(stat : Stat) -> UInt64 = "moonbit_uv_stat_get_rdev"
+
+///|
+extern "c" fn moonbit_uv_stat_get_ino(stat : Stat) -> UInt64 = "moonbit_uv_stat_get_ino"
+
+///|
+extern "c" fn moonbit_uv_stat_get_size(stat : Stat) -> UInt64 = "moonbit_uv_stat_get_size"
+
+///|
+extern "c" fn moonbit_uv_stat_get_blksize(stat : Stat) -> UInt64 = "moonbit_uv_stat_get_blksize"
+
+///|
+extern "c" fn moonbit_uv_stat_get_blocks(stat : Stat) -> UInt64 = "moonbit_uv_stat_get_blocks"
+
+///|
+extern "c" fn moonbit_uv_stat_get_flags(stat : Stat) -> UInt64 = "moonbit_uv_stat_get_flags"
+
+///|
+extern "c" fn moonbit_uv_stat_get_gen(stat : Stat) -> UInt64 = "moonbit_uv_stat_get_gen"
+
+///|
+extern "c" fn moonbit_uv_stat_get_atim_sec(stat : Stat) -> Int64 = "moonbit_uv_stat_get_atim_sec"
+
+///|
+extern "c" fn moonbit_uv_stat_get_atim_nsec(stat : Stat) -> Int64 = "moonbit_uv_stat_get_atim_nsec"
+
+///|
+extern "c" fn moonbit_uv_stat_get_mtim_sec(stat : Stat) -> Int64 = "moonbit_uv_stat_get_mtim_sec"
+
+///|
+extern "c" fn moonbit_uv_stat_get_mtim_nsec(stat : Stat) -> Int64 = "moonbit_uv_stat_get_mtim_nsec"
+
+///|
+extern "c" fn moonbit_uv_stat_get_ctim_sec(stat : Stat) -> Int64 = "moonbit_uv_stat_get_ctim_sec"
+
+///|
+extern "c" fn moonbit_uv_stat_get_ctim_nsec(stat : Stat) -> Int64 = "moonbit_uv_stat_get_ctim_nsec"
+
+///|
+extern "c" fn moonbit_uv_stat_get_birthtim_sec(stat : Stat) -> Int64 = "moonbit_uv_stat_get_birthtim_sec"
+
+///|
+extern "c" fn moonbit_uv_stat_get_birthtim_nsec(stat : Stat) -> Int64 = "moonbit_uv_stat_get_birthtim_nsec"
+
+///|
+pub fn Stat::dev(self : Stat) -> UInt64 {
+  moonbit_uv_stat_get_dev(self)
+}
+
+///|
+pub fn Stat::mode(self : Stat) -> UInt64 {
+  moonbit_uv_stat_get_mode(self)
+}
+
+///|
+pub fn Stat::nlink(self : Stat) -> UInt64 {
+  moonbit_uv_stat_get_nlink(self)
+}
+
+///|
+pub fn Stat::uid(self : Stat) -> UInt64 {
+  moonbit_uv_stat_get_uid(self)
+}
+
+///|
+pub fn Stat::gid(self : Stat) -> UInt64 {
+  moonbit_uv_stat_get_gid(self)
+}
+
+///|
+pub fn Stat::rdev(self : Stat) -> UInt64 {
+  moonbit_uv_stat_get_rdev(self)
+}
+
+///|
+pub fn Stat::ino(self : Stat) -> UInt64 {
+  moonbit_uv_stat_get_ino(self)
+}
+
+///|
+pub fn Stat::size(self : Stat) -> UInt64 {
+  moonbit_uv_stat_get_size(self)
+}
+
+///|
+pub fn Stat::blksize(self : Stat) -> UInt64 {
+  moonbit_uv_stat_get_blksize(self)
+}
+
+///|
+pub fn Stat::blocks(self : Stat) -> UInt64 {
+  moonbit_uv_stat_get_blocks(self)
+}
+
+///|
+pub fn Stat::flags(self : Stat) -> UInt64 {
+  moonbit_uv_stat_get_flags(self)
+}
+
+///|
+pub fn Stat::gen(self : Stat) -> UInt64 {
+  moonbit_uv_stat_get_gen(self)
+}
+
+///|
+pub fn Stat::atim_sec(self : Stat) -> Int64 {
+  moonbit_uv_stat_get_atim_sec(self)
+}
+
+///|
+pub fn Stat::atim_nsec(self : Stat) -> Int64 {
+  moonbit_uv_stat_get_atim_nsec(self)
+}
+
+///|
+pub fn Stat::mtim_sec(self : Stat) -> Int64 {
+  moonbit_uv_stat_get_mtim_sec(self)
+}
+
+///|
+pub fn Stat::mtim_nsec(self : Stat) -> Int64 {
+  moonbit_uv_stat_get_mtim_nsec(self)
+}
+
+///|
+pub fn Stat::ctim_sec(self : Stat) -> Int64 {
+  moonbit_uv_stat_get_ctim_sec(self)
+}
+
+///|
+pub fn Stat::ctim_nsec(self : Stat) -> Int64 {
+  moonbit_uv_stat_get_ctim_nsec(self)
+}
+
+///|
+pub fn Stat::birthtim_sec(self : Stat) -> Int64 {
+  moonbit_uv_stat_get_birthtim_sec(self)
+}
+
+///|
+pub fn Stat::birthtim_nsec(self : Stat) -> Int64 {
+  moonbit_uv_stat_get_birthtim_nsec(self)
+}
+
+///|
+pub fn Stat::is_file(self : Stat) -> Bool {
+  (self.mode() & _S_IFMT) == _S_IFREG
+}
+
+///|
+pub fn Stat::is_directory(self : Stat) -> Bool {
+  (self.mode() & _S_IFMT) == _S_IFDIR
+}
+
+///|
+pub fn Stat::is_symlink(self : Stat) -> Bool {
+  (self.mode() & _S_IFMT) == _S_IFLNK
+}
+
+///|
+pub fn Stat::is_socket(self : Stat) -> Bool {
+  (self.mode() & _S_IFMT) == _S_IFSOCK
+}
+
+///|
+pub fn Stat::is_pipe(self : Stat) -> Bool {
+  (self.mode() & _S_IFMT) == _S_IFIFO
+}
+
+///|
+pub fn Stat::is_block_device(self : Stat) -> Bool {
+  (self.mode() & _S_IFMT) == _S_IFBLK
+}
+
+///|
+pub fn Stat::is_character_device(self : Stat) -> Bool {
+  (self.mode() & _S_IFMT) == _S_IFCHR
+}
+
+///|
+extern "c" fn uv_fs_S_IFMT() -> UInt64 = "moonbit_uv_fs_S_IFMT"
+
+///|
+let _S_IFMT : UInt64 = uv_fs_S_IFMT()
+
+///|
+extern "c" fn uv_fs_S_IFREG() -> UInt64 = "moonbit_uv_fs_S_IFREG"
+
+///|
+let _S_IFREG : UInt64 = uv_fs_S_IFREG()
+
+///|
+extern "c" fn uv_fs_S_IFDIR() -> UInt64 = "moonbit_uv_fs_S_IFDIR"
+
+///|
+let _S_IFDIR : UInt64 = uv_fs_S_IFDIR()
+
+///|
+extern "c" fn uv_fs_S_IFLNK() -> UInt64 = "moonbit_uv_fs_S_IFLNK"
+
+///|
+let _S_IFLNK : UInt64 = uv_fs_S_IFLNK()
+
+///|
+extern "c" fn uv_fs_S_IFSOCK() -> UInt64 = "moonbit_uv_fs_S_IFSOCK"
+
+///|
+let _S_IFSOCK : UInt64 = uv_fs_S_IFSOCK()
+
+///|
+extern "c" fn uv_fs_S_IFIFO() -> UInt64 = "moonbit_uv_fs_S_IFIFO"
+
+///|
+let _S_IFIFO : UInt64 = uv_fs_S_IFIFO()
+
+///|
+extern "c" fn uv_fs_S_IFBLK() -> UInt64 = "moonbit_uv_fs_S_IFBLK"
+
+///|
+let _S_IFBLK : UInt64 = uv_fs_S_IFBLK()
+
+///|
+extern "c" fn uv_fs_S_IFCHR() -> UInt64 = "moonbit_uv_fs_S_IFCHR"
+
+///|
+let _S_IFCHR : UInt64 = uv_fs_S_IFCHR()
+
+///|
+extern "c" fn uv_fs_get_statbuf(req : Fs) -> Stat = "moonbit_uv_fs_get_statbuf"
+
+///|
+extern "c" fn uv_fs_stat(
+  self : Loop,
+  req : Fs,
+  path : Bytes,
+  cb : (Fs) -> Unit
+) -> Int = "moonbit_uv_fs_stat"
+
+///|
+pub fn fs_stat[Ntbs : ToNtbs](
+  self : Loop,
+  path : Ntbs,
+  k : (Fs, Stat) -> Unit,
+  e : (Fs, Errno) -> Unit
+) -> Unit!Errno {
+  fn cb(req : Fs) {
+    let status = req.result().to_int()
+    if status < 0 {
+      e(req, Errno::of_int(status))
+    } else {
+      let statbuf = uv_fs_get_statbuf(req)
+      k(req, statbuf)
+    }
+  }
+
+  let req = uv_fs_make()
+  let status = uv_fs_stat(self, req, path.to_ntbs(), cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
+extern "c" fn uv_fs_lstat(
+  self : Loop,
+  req : Fs,
+  path : Bytes,
+  cb : (Fs) -> Unit
+) -> Int = "moonbit_uv_fs_lstat"
+
+///|
+pub fn fs_lstat[Ntbs : ToNtbs](
+  self : Loop,
+  path : Ntbs,
+  k : (Fs, Stat) -> Unit,
+  e : (Fs, Errno) -> Unit
+) -> Unit!Errno {
+  fn cb(req : Fs) {
+    let status = req.result().to_int()
+    if status < 0 {
+      e(req, Errno::of_int(status))
+    } else {
+      let statbuf = uv_fs_get_statbuf(req)
+      k(req, statbuf)
+    }
+  }
+
+  let req = uv_fs_make()
+  let status = uv_fs_lstat(self, req, path.to_ntbs(), cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
+extern "c" fn uv_fs_fstat(
+  self : Loop,
+  req : Fs,
+  file : File,
+  cb : (Fs) -> Unit
+) -> Int = "moonbit_uv_fs_fstat"
+
+///|
+pub fn fs_fstat(
+  self : Loop,
+  file : File,
+  k : (Fs, Stat) -> Unit,
+  e : (Fs, Errno) -> Unit
+) -> Unit!Errno {
+  fn cb(req : Fs) {
+    let status = req.result().to_int()
+    if status < 0 {
+      e(req, Errno::of_int(status))
+    } else {
+      let statbuf = uv_fs_get_statbuf(req)
+      k(req, statbuf)
+    }
+  }
+
+  let req = uv_fs_make()
+  let status = uv_fs_fstat(self, req, file, cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
 pub fn fs_realpath[Ntbs : ToNtbs](
   self : Loop,
   path : Ntbs,

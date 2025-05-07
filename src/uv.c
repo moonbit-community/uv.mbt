@@ -548,6 +548,107 @@ moonbit_uv_fs_get_ptr(moonbit_uv_fs_t *fs) {
 }
 
 MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_fs_S_IFMT(void) {
+  return S_IFMT;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_fs_S_IFREG(void) {
+  return S_IFREG;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_fs_S_IFDIR(void) {
+  return S_IFDIR;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_fs_S_IFLNK(void) {
+  return S_IFLNK;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_fs_S_IFSOCK(void) {
+  return S_IFSOCK;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_fs_S_IFIFO(void) {
+  return S_IFIFO;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_fs_S_IFBLK(void) {
+  return S_IFBLK;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_fs_S_IFCHR(void) {
+  return S_IFCHR;
+}
+
+MOONBIT_FFI_EXPORT
+uv_stat_t *
+moonbit_uv_fs_get_statbuf(moonbit_uv_fs_t *fs) {
+  uv_stat_t *statbuf = (uv_stat_t *)moonbit_make_bytes(sizeof(uv_stat_t), 0);
+  memcpy(statbuf, &fs->fs.statbuf, sizeof(uv_stat_t));
+  moonbit_decref(fs);
+  return statbuf;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_stat(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path,
+  moonbit_uv_fs_cb_t *cb
+) {
+  moonbit_uv_fs_set_data(fs, cb);
+  int status = uv_fs_stat(loop, &fs->fs, (const char *)path, moonbit_uv_fs_cb);
+  moonbit_decref(loop);
+  moonbit_decref(path);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_lstat(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path,
+  moonbit_uv_fs_cb_t *cb
+) {
+  moonbit_uv_fs_set_data(fs, cb);
+  int status = uv_fs_lstat(loop, &fs->fs, (const char *)path, moonbit_uv_fs_cb);
+  moonbit_decref(loop);
+  moonbit_decref(path);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_fstat(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  int32_t file,
+  moonbit_uv_fs_cb_t *cb
+) {
+  moonbit_uv_fs_set_data(fs, cb);
+  int status = uv_fs_fstat(loop, &fs->fs, file, moonbit_uv_fs_cb);
+  moonbit_decref(loop);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
 int32_t
 moonbit_uv_fs_realpath(
   uv_loop_t *loop,
@@ -2666,4 +2767,184 @@ MOONBIT_FFI_EXPORT
 int32_t
 moonbit_uv_AI_CANONNAME(void) {
   return AI_CANONNAME;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_stat_get_dev(moonbit_bytes_t stat_ptr) {
+  uv_stat_t *s = (uv_stat_t *)stat_ptr;
+  uint64_t val = s->st_dev;
+  moonbit_decref(stat_ptr);
+  return val;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_stat_get_mode(moonbit_bytes_t stat_ptr) {
+  uv_stat_t *s = (uv_stat_t *)stat_ptr;
+  uint64_t val = s->st_mode;
+  moonbit_decref(stat_ptr);
+  return val;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_stat_get_nlink(moonbit_bytes_t stat_ptr) {
+  uv_stat_t *s = (uv_stat_t *)stat_ptr;
+  uint64_t val = s->st_nlink;
+  moonbit_decref(stat_ptr);
+  return val;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_stat_get_uid(moonbit_bytes_t stat_ptr) {
+  uv_stat_t *s = (uv_stat_t *)stat_ptr;
+  uint64_t val = s->st_uid;
+  moonbit_decref(stat_ptr);
+  return val;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_stat_get_gid(moonbit_bytes_t stat_ptr) {
+  uv_stat_t *s = (uv_stat_t *)stat_ptr;
+  uint64_t val = s->st_gid;
+  moonbit_decref(stat_ptr);
+  return val;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_stat_get_rdev(moonbit_bytes_t stat_ptr) {
+  uv_stat_t *s = (uv_stat_t *)stat_ptr;
+  uint64_t val = s->st_rdev;
+  moonbit_decref(stat_ptr);
+  return val;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_stat_get_ino(moonbit_bytes_t stat_ptr) {
+  uv_stat_t *s = (uv_stat_t *)stat_ptr;
+  uint64_t val = s->st_ino;
+  moonbit_decref(stat_ptr);
+  return val;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_stat_get_size(moonbit_bytes_t stat_ptr) {
+  uv_stat_t *s = (uv_stat_t *)stat_ptr;
+  uint64_t val = s->st_size;
+  moonbit_decref(stat_ptr);
+  return val;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_stat_get_blksize(moonbit_bytes_t stat_ptr) {
+  uv_stat_t *s = (uv_stat_t *)stat_ptr;
+  uint64_t val = s->st_blksize;
+  moonbit_decref(stat_ptr);
+  return val;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_stat_get_blocks(moonbit_bytes_t stat_ptr) {
+  uv_stat_t *s = (uv_stat_t *)stat_ptr;
+  uint64_t val = s->st_blocks;
+  moonbit_decref(stat_ptr);
+  return val;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_stat_get_flags(moonbit_bytes_t stat_ptr) {
+  uv_stat_t *s = (uv_stat_t *)stat_ptr;
+  uint64_t val = s->st_flags;
+  moonbit_decref(stat_ptr);
+  return val;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_stat_get_gen(moonbit_bytes_t stat_ptr) {
+  uv_stat_t *s = (uv_stat_t *)stat_ptr;
+  uint64_t val = s->st_gen;
+  moonbit_decref(stat_ptr);
+  return val;
+}
+
+MOONBIT_FFI_EXPORT
+int64_t
+moonbit_uv_stat_get_atim_sec(moonbit_bytes_t stat_ptr) {
+  uv_stat_t *s = (uv_stat_t *)stat_ptr;
+  int64_t val = s->st_atim.tv_sec;
+  moonbit_decref(stat_ptr);
+  return val;
+}
+
+MOONBIT_FFI_EXPORT
+int64_t
+moonbit_uv_stat_get_atim_nsec(moonbit_bytes_t stat_ptr) {
+  uv_stat_t *s = (uv_stat_t *)stat_ptr;
+  int64_t val = s->st_atim.tv_nsec;
+  moonbit_decref(stat_ptr);
+  return val;
+}
+
+MOONBIT_FFI_EXPORT
+int64_t
+moonbit_uv_stat_get_mtim_sec(moonbit_bytes_t stat_ptr) {
+  uv_stat_t *s = (uv_stat_t *)stat_ptr;
+  int64_t val = s->st_mtim.tv_sec;
+  moonbit_decref(stat_ptr);
+  return val;
+}
+
+MOONBIT_FFI_EXPORT
+int64_t
+moonbit_uv_stat_get_mtim_nsec(moonbit_bytes_t stat_ptr) {
+  uv_stat_t *s = (uv_stat_t *)stat_ptr;
+  int64_t val = s->st_mtim.tv_nsec;
+  moonbit_decref(stat_ptr);
+  return val;
+}
+
+MOONBIT_FFI_EXPORT
+int64_t
+moonbit_uv_stat_get_ctim_sec(moonbit_bytes_t stat_ptr) {
+  uv_stat_t *s = (uv_stat_t *)stat_ptr;
+  int64_t val = s->st_ctim.tv_sec;
+  moonbit_decref(stat_ptr);
+  return val;
+}
+
+MOONBIT_FFI_EXPORT
+int64_t
+moonbit_uv_stat_get_ctim_nsec(moonbit_bytes_t stat_ptr) {
+  uv_stat_t *s = (uv_stat_t *)stat_ptr;
+  int64_t val = s->st_ctim.tv_nsec;
+  moonbit_decref(stat_ptr);
+  return val;
+}
+
+MOONBIT_FFI_EXPORT
+int64_t
+moonbit_uv_stat_get_birthtim_sec(moonbit_bytes_t stat_ptr) {
+  uv_stat_t *s = (uv_stat_t *)stat_ptr;
+  int64_t val = s->st_birthtim.tv_sec;
+  moonbit_decref(stat_ptr);
+  return val;
+}
+
+MOONBIT_FFI_EXPORT
+int64_t
+moonbit_uv_stat_get_birthtim_nsec(moonbit_bytes_t stat_ptr) {
+  uv_stat_t *s = (uv_stat_t *)stat_ptr;
+  int64_t val = s->st_birthtim.tv_nsec;
+  moonbit_decref(stat_ptr);
+  return val;
 }
