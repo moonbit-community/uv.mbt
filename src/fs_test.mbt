@@ -183,7 +183,7 @@ test "realpath" {
     "test/fixtures/example.txt",
     fn(_, p) {
       try {
-        assert_eq!(@path.path!(p), @path.path!([cwd, file]))
+        assert_eq!(@async.path!(p), @async.path!([cwd, file]))
       } catch {
         e => errors.push(e)
       }
