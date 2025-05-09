@@ -210,17 +210,17 @@ fn init {
 
 ///|
 pub fn errno(errno : Int) -> Errno {
-  errno_errors[errno].or(Errno(Status::UNKNOWN))
+  errno_errors.get(errno).or(Errno(Status::UNKNOWN))
 }
 
 ///|
 fn Errno::of_int(errno : Int) -> Errno {
-  errno_errors[errno].or(Errno(Status::UNKNOWN))
+  errno_errors.get(errno).or(Errno(Status::UNKNOWN))
 }
 
 ///|
 fn Errno::to_int(self : Errno) -> Int {
-  errno_values[self].or(uv_UNKNOWN())
+  errno_values.get(self).or(uv_UNKNOWN())
 }
 
 ///|
