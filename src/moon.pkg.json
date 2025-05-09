@@ -4,10 +4,22 @@
     "args.mbt": [
       "native"
     ],
+    "dns_test.mbt": [
+      "native"
+    ],
+    "dns.mbt": [
+      "native"
+    ],
     "buf.mbt": [
       "native"
     ],
     "error.mbt": [
+      "native"
+    ],
+    "fs_event_test.mbt": [
+      "native"
+    ],
+    "fs_event.mbt": [
       "native"
     ],
     "fs.mbt": [
@@ -52,7 +64,13 @@
     "signal.mbt": [
       "native"
     ],
+    "stream_test.mbt": [
+      "native"
+    ],
     "stream.mbt": [
+      "native"
+    ],
+    "tcp_test.mbt": [
       "native"
     ],
     "tcp.mbt": [
@@ -71,6 +89,12 @@
       "native"
     ],
     "tty.mbt": [
+      "native"
+    ],
+    "udp_test.mbt": [
+      "native"
+    ],
+    "udp.mbt": [
       "native"
     ],
     "work.mbt": [
@@ -226,6 +250,6 @@
     }
   ],
   "test-import": [
-    "tonyfettes/uv/path"
+    "tonyfettes/uv/async"
   ]
 }
