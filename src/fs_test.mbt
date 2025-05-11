@@ -132,7 +132,9 @@ test "scandir" {
           @uv.fs_scandir_next!(req)
         } catch {
           e => {
-            error = Some(e)
+            if not(e is Errno(EOF)) {
+              error = Some(e)
+            }
             break
           }
         }
