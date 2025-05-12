@@ -6,7 +6,7 @@ fn main {
     let uv = @uv.Loop::new!()
     let server = @uv.Tcp::new!(uv)
     let addr = @uv.ip4_addr("0.0.0.0", default_port)
-    server.bind!(addr, 0)
+    server.bind!(addr, @uv.TcpBindFlags::new())
     fn alloc_buffer(_ : @uv.Tcp, suggested_size : Int) {
       Bytes::make(suggested_size, 0)[:]
     }
@@ -29,18 +29,22 @@ fn main {
       }
     }
 
-    fn on_new_connection(server) {
+    fn on_new_connection(server : @uv.Tcp) {
       try {
         let client = @uv.Tcp::new!(uv)
-        if @uv.accept(server, client.to_stream()) == 0 {
+        try {
+          @uv.accept!(server, client)
           client.read_start!(alloc_buffer, echo_read, fn(_, error) {
-            if not(error is EOF) {
+            if not(error is Errno(EOF)) {
               println("Read error: \{error}")
             }
-            @uv.close(client.to_handle(), on_close)
+            client.close(on_close)
           })
-        } else {
-          @uv.close(client.to_handle(), on_close)
+        } catch {
+          error => {
+            println("Accept error: \{error}")
+            client.close(on_close)
+          }
         }
       } catch {
         error => println("Accept error: \{error}")

@@ -1,13 +1,12 @@
 ///|
 fn main {
   try {
-    let args = @uv.args!()
+    let args = @uv.args()
     fn do_read(uv : @uv.Loop, file : @uv.File, bytes : Bytes) -> Unit {
       try {
         uv.fs_read!(
           file,
           [bytes[:]],
-          -1,
           fn(_, count) { do_write(uv, file, bytes, 0, count) },
           fn(_, error) { println("Error reading file: \{error}") },
         )
@@ -28,9 +27,8 @@ fn main {
           uv.fs_close!(file, fn(_) {  })
         } else {
           uv.fs_write!(
-            @uv.stdout,
+            @uv.stdout(),
             [bytes[start:start + count]],
-            -1,
             fn(_, write_count) {
               if write_count < count {
                 do_write(

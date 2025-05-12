@@ -9,7 +9,7 @@ fn main {
   try {
     let uv = @uv.Loop::new!()
     let server = @uv.Tcp::new!(uv)
-    let stdin = @uv.Tty::new!(uv, @uv.stdin)
+    let stdin = @uv.Tty::new!(uv, @uv.stdin())
     fn on_tty_read(count : Int, bytes : @bytes.View) {
       try {
         server.write!([bytes[:count]], fn(_) {  }, fn(_, error) {
@@ -22,7 +22,7 @@ fn main {
 
     fn on_tcp_read(count : Int, bytes : @bytes.View) {
       try {
-        uv.fs_write!(@uv.stdout, [bytes[:count]], -1, fn(_, _) {  }, fn(
+        uv.fs_write!(@uv.stdout(), [bytes[:count]], fn(_, _) {  }, fn(
           _,
           error
         ) {
@@ -59,7 +59,7 @@ fn main {
           alloc_buffer,
           fn(_, count, bytes) { on_tcp_read(count, bytes) },
           fn(_, error) {
-            if not(error is EOF) {
+            if not(error is Errno(EOF)) {
               println("Read error: \{error}")
             }
             on_tcp_error(server, error)
@@ -75,7 +75,7 @@ fn main {
           fn(_, count, bytes) { on_tty_read(count, bytes) },
           fn(_, error) {
             println("Read error: \{error}")
-            if not(error is EOF) {
+            if not(error is Errno(EOF)) {
               println("Read error: \{error}")
             }
             on_tcp_error(server, error)
@@ -88,7 +88,7 @@ fn main {
     }
 
     let addr = @uv.ip4_addr("127.0.0.1", 7001)
-    let _ = server.connect(addr, on_connect, fn(_, error) {
+    let _ = server.connect!(addr, on_connect, fn(_, error) {
       println("Connect error: \{error}")
     })
     @uv.run!(uv, @uv.RunMode::Default)
