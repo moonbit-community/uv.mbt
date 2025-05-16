@@ -549,6 +549,15 @@ impl Utsname {
   version(Self) -> String
 }
 
+type Thread
+impl Thread {
+  new(() -> Unit) -> Self!Errno
+  join(Self) -> Unit!Errno
+  current() -> Self
+  equal(Self, Thread) -> Bool
+}
+impl Copy for Thread
+
 type Work
 
 type Write

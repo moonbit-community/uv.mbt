@@ -79,6 +79,12 @@
     "thread.mbt": [
       "native"
     ],
+    "thread_alt.mbt": [
+      "native"
+    ],
+    "thread_test.mbt": [
+      "native"
+    ],
     "time.mbt": [
       "native"
     ],

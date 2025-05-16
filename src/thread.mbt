@@ -1,60 +1,57 @@
 ///|
-type Mutex
+type Thread
 
 ///|
-extern "c" fn uv_mutex_make() -> Mutex = "moonbit_uv_mutex_make"
+extern "c" fn uv_thread_make() -> Thread = "moonbit_uv_thread_make"
 
 ///|
-extern "c" fn uv_mutex_init(self : Mutex) -> Int = "moonbit_uv_mutex_init"
+extern "c" fn uv_thread_create(self : Thread, callback : () -> Unit) -> Int = "moonbit_uv_thread_create"
 
 ///|
-pub fn Mutex::new() -> Mutex!Errno {
-  let mutex = uv_mutex_make()
-  let status = uv_mutex_init(mutex)
+pub fn Thread::new(callback : () -> Unit) -> Thread!Errno {
+  let thread = uv_thread_make()
+  let status = uv_thread_create(thread, callback)
   if status != 0 {
     raise Errno::of_int(status)
   }
-  return mutex
+  return thread
 }
 
 ///|
-extern "c" fn uv_mutex_copy(self : Mutex, other : Mutex) = "moonbit_uv_mutex_copy"
+extern "c" fn uv_thread_join(self : Thread) -> Int = "moonbit_uv_thread_join"
 
 ///|
-extern "c" fn uv_mutex_lock(self : Mutex) = "moonbit_uv_mutex_lock"
+extern "c" fn uv_thread_self(self : Thread) -> Unit = "moonbit_uv_thread_self"
 
 ///|
-extern "c" fn uv_mutex_trylock(self : Mutex) -> Int = "moonbit_uv_mutex_trylock"
+extern "c" fn uv_thread_equal(self : Thread, other : Thread) -> Int = "moonbit_uv_thread_equal"
 
 ///|
-extern "c" fn uv_mutex_unlock(self : Mutex) = "moonbit_uv_mutex_unlock"
+extern "c" fn uv_thread_copy(self : Thread, other : Thread) -> Unit = "moonbit_uv_thread_copy"
 
 ///|
-pub fn Mutex::lock(self : Mutex) -> Unit {
-  uv_mutex_lock(self)
-}
-
-///|
-pub fn Mutex::trylock(self : Mutex) -> Unit!Errno {
-  let status = uv_mutex_trylock(self)
-  if status < 0 {
+pub fn Thread::join(self : Thread) -> Unit!Errno {
+  let status = uv_thread_join(self)
+  if status != 0 {
     raise Errno::of_int(status)
   }
 }
 
 ///|
-pub fn Mutex::unlock(self : Mutex) -> Unit {
-  uv_mutex_unlock(self)
+pub fn Thread::current() -> Thread {
+  let thread = uv_thread_make()
+  uv_thread_self(thread)
+  return thread
 }
 
 ///|
-pub trait Copy {
-  copy(Self) -> Self
+pub fn Thread::equal(self : Thread, other : Thread) -> Bool {
+  return uv_thread_equal(self, other) != 0
 }
 
 ///|
-pub impl Copy for Mutex with copy(self : Mutex) -> Mutex {
-  let other = uv_mutex_make()
-  uv_mutex_copy(self, other)
+pub impl Copy for Thread with copy(self : Thread) -> Thread {
+  let other = uv_thread_make()
+  uv_thread_copy(self, other)
   return other
 }
