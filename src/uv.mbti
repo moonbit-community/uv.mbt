@@ -492,6 +492,15 @@ impl TcpBindFlags {
   new(ipv6_only~ : Bool = .., reuse_port~ : Bool = ..) -> Self
 }
 
+type Thread
+impl Thread {
+  current() -> Self
+  equal(Self, Self) -> Bool
+  join(Self) -> Unit!Errno
+  new(() -> Unit) -> Self!Errno
+}
+impl Copy for Thread
+
 type Timer
 impl Timer {
   get_due_in(Self) -> UInt64
@@ -548,15 +557,6 @@ impl Utsname {
   sysname(Self) -> String
   version(Self) -> String
 }
-
-type Thread
-impl Thread {
-  new(() -> Unit) -> Self!Errno
-  join(Self) -> Unit!Errno
-  current() -> Self
-  equal(Self, Thread) -> Bool
-}
-impl Copy for Thread
 
 type Work
 
