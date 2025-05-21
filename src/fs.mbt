@@ -976,3 +976,85 @@ pub fn fs_realpath[Ntbs : ToNtbs](
     raise Errno::of_int(status)
   }
 }
+
+///|
+extern "c" fn uv_F_OK() -> Int = "moonbit_uv_F_OK"
+
+///|
+let _F_OK : Int = uv_F_OK()
+
+///|
+extern "c" fn uv_R_OK() -> Int = "moonbit_uv_R_OK"
+
+///|
+let _R_OK : Int = uv_R_OK()
+
+///|
+extern "c" fn uv_W_OK() -> Int = "moonbit_uv_W_OK"
+
+///|
+let _W_OK : Int = uv_W_OK()
+
+///|
+extern "c" fn uv_X_OK() -> Int = "moonbit_uv_X_OK"
+
+///|
+let _X_OK : Int = uv_X_OK()
+
+///|
+type AccessFlags Int
+
+///|
+pub fn AccessFlags::new(
+  read~ : Bool = false,
+  write~ : Bool = false,
+  execute~ : Bool = false
+) -> AccessFlags {
+  if not(read) && not(write) && not(execute) {
+    return _F_OK
+  }
+  let mut flags = 0
+  if read {
+    flags = flags | _R_OK
+  }
+  if write {
+    flags = flags | _W_OK
+  }
+  if execute {
+    flags = flags | _X_OK
+  }
+  return flags
+}
+
+///|
+extern "c" fn uv_fs_access(
+  self : Loop,
+  req : Fs,
+  path : Bytes,
+  mode : Int,
+  cb : (Fs) -> Unit
+) -> Int = "moonbit_uv_fs_access"
+
+///|
+pub fn fs_access[Ntbs : ToNtbs](
+  self : Loop,
+  path : Ntbs,
+  mode : AccessFlags,
+  k : (Fs) -> Unit,
+  e : (Fs, Errno) -> Unit
+) -> Unit!Errno {
+  fn cb(req : Fs) {
+    let status = req.result().to_int()
+    if status < 0 {
+      e(req, Errno::of_int(status))
+    } else {
+      k(req)
+    }
+  }
+
+  let req = uv_fs_make()
+  let status = uv_fs_access(self, req, path.to_ntbs(), mode._, cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}

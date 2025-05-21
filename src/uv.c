@@ -16,6 +16,8 @@
 #pragma comment(lib, "dbghelp.lib")
 #pragma comment(lib, "ole32.lib")
 #pragma comment(lib, "shell32.lib")
+#else
+#include <unistd.h>
 #endif
 
 #define containerof(ptr, type, member)                                         \
@@ -659,6 +661,47 @@ moonbit_uv_fs_realpath(
   moonbit_uv_fs_set_data(fs, cb);
   int status =
     uv_fs_realpath(loop, &fs->fs, (const char *)path, moonbit_uv_fs_cb);
+  moonbit_decref(loop);
+  moonbit_decref(path);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_F_OK(void) {
+  return F_OK;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_R_OK(void) {
+  return R_OK;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_W_OK(void) {
+  return W_OK;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_X_OK(void) {
+  return X_OK;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_access(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path,
+  int32_t mode,
+  moonbit_uv_fs_cb_t *cb
+) {
+  moonbit_uv_fs_set_data(fs, cb);
+  int status =
+    uv_fs_access(loop, &fs->fs, (const char *)path, mode, moonbit_uv_fs_cb);
   moonbit_decref(loop);
   moonbit_decref(path);
   return status;
@@ -2284,12 +2327,16 @@ moonbit_uv_thread_start_cb(void *arg) {
 
 MOONBIT_FFI_EXPORT
 int32_t
-moonbit_uv_thread_create(moonbit_uv_thread_t *thread, moonbit_uv_thread_callback_t *cb) {
+moonbit_uv_thread_create(
+  moonbit_uv_thread_t *thread,
+  moonbit_uv_thread_callback_t *cb
+) {
   thread->block = malloc(sizeof(*thread->block));
   thread->block->arc = 1;
   moonbit_uv_thread_data_t *data = moonbit_uv_thread_data_make();
   data->cb = cb;
-  int status = uv_thread_create(&thread->block->object, moonbit_uv_thread_start_cb, data);
+  int status =
+    uv_thread_create(&thread->block->object, moonbit_uv_thread_start_cb, data);
   if (status != 0) {
     moonbit_decref(data);
   }

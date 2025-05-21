@@ -20,6 +20,8 @@ fn disable_stdio_inheritance() -> Unit
 
 fn errno(Int) -> Errno
 
+fn fs_access[Ntbs : ToNtbs](Loop, Ntbs, AccessFlags, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+
 fn fs_close(Loop, File, (Fs) -> Unit) -> Unit!Errno
 
 fn fs_copyfile[Ntbs : ToNtbs](Loop, Ntbs, Ntbs, CopyFileFlags, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
@@ -97,6 +99,11 @@ fn stop(Loop) -> Unit
 fn write[Stream : ToStream](Stream, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) -> Unit!Errno
 
 // Types and methods
+type AccessFlags
+impl AccessFlags {
+  new(read~ : Bool = .., write~ : Bool = .., execute~ : Bool = ..) -> Self
+}
+
 type AddrInfo
 impl AddrInfo {
   addr(Self) -> Sockaddr
@@ -212,6 +219,7 @@ type Loop
 impl Loop {
   alive(Self) -> Bool
   close(Self) -> Unit!Errno
+  fs_access[Ntbs : ToNtbs](Self, Ntbs, AccessFlags, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   fs_close(Self, File, (Fs) -> Unit) -> Unit!Errno
   fs_copyfile[Ntbs : ToNtbs](Self, Ntbs, Ntbs, CopyFileFlags, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
   fs_fstat(Self, File, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
