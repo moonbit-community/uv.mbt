@@ -106,7 +106,7 @@ pub impl ToNtbs for @bytes.View with to_ntbs(self : @bytes.View) -> Bytes {
 }
 
 ///|
-pub fn fs_open[Ntbs : ToNtbs](
+pub fn[Ntbs : ToNtbs] fs_open(
   self : Loop,
   path : Ntbs,
   flags : OpenFlags,
@@ -279,7 +279,7 @@ extern "c" fn uv_fs_unlink(
 ) -> Int = "moonbit_uv_fs_unlink"
 
 ///|
-pub fn fs_unlink[Ntbs : ToNtbs](
+pub fn[Ntbs : ToNtbs] fs_unlink(
   self : Loop,
   path : Ntbs,
   k : (Fs) -> Unit,
@@ -311,7 +311,7 @@ extern "c" fn uv_fs_mkdir(
 ) -> Int = "moonbit_uv_fs_mkdir"
 
 ///|
-pub fn fs_mkdir[Ntbs : ToNtbs](
+pub fn[Ntbs : ToNtbs] fs_mkdir(
   self : Loop,
   path : Ntbs,
   mode : Int,
@@ -343,7 +343,7 @@ extern "c" fn uv_fs_rmdir(
 ) -> Int = "moonbit_uv_fs_rmdir"
 
 ///|
-pub fn fs_rmdir[Ntbs : ToNtbs](
+pub fn[Ntbs : ToNtbs] fs_rmdir(
   self : Loop,
   path : Ntbs,
   k : (Fs) -> Unit,
@@ -435,7 +435,7 @@ pub fn Dirent::type_(self : Dirent) -> DirentType {
 extern "c" fn uv_fs_scandir_next(req : Fs, ent : Dirent) -> Int = "moonbit_uv_fs_scandir_next"
 
 ///|
-pub fn fs_scandir[Ntbs : ToNtbs](
+pub fn[Ntbs : ToNtbs] fs_scandir(
   self : Loop,
   path : Ntbs,
   flags : Int,
@@ -476,7 +476,7 @@ extern "c" fn uv_fs_rename(
 ) -> Int = "moonbit_uv_fs_rename"
 
 ///|
-pub fn fs_rename[Ntbs : ToNtbs](
+pub fn[Ntbs : ToNtbs] fs_rename(
   self : Loop,
   path : Ntbs,
   new_path : Ntbs,
@@ -543,7 +543,7 @@ extern "c" fn uv_fs_copyfile(
 ) -> Int = "moonbit_uv_fs_copyfile"
 
 ///|
-pub fn fs_copyfile[Ntbs : ToNtbs](
+pub fn[Ntbs : ToNtbs] fs_copyfile(
   self : Loop,
   path : Ntbs,
   new_path : Ntbs,
@@ -861,7 +861,7 @@ extern "c" fn uv_fs_stat(
 ) -> Int = "moonbit_uv_fs_stat"
 
 ///|
-pub fn fs_stat[Ntbs : ToNtbs](
+pub fn[Ntbs : ToNtbs] fs_stat(
   self : Loop,
   path : Ntbs,
   k : (Fs, Stat) -> Unit,
@@ -893,7 +893,7 @@ extern "c" fn uv_fs_lstat(
 ) -> Int = "moonbit_uv_fs_lstat"
 
 ///|
-pub fn fs_lstat[Ntbs : ToNtbs](
+pub fn[Ntbs : ToNtbs] fs_lstat(
   self : Loop,
   path : Ntbs,
   k : (Fs, Stat) -> Unit,
@@ -949,7 +949,7 @@ pub fn fs_fstat(
 }
 
 ///|
-pub fn fs_realpath[Ntbs : ToNtbs](
+pub fn[Ntbs : ToNtbs] fs_realpath(
   self : Loop,
   path : Ntbs,
   k : (Fs, String) -> Unit,
@@ -1036,7 +1036,7 @@ extern "c" fn uv_fs_access(
 ) -> Int = "moonbit_uv_fs_access"
 
 ///|
-pub fn fs_access[Ntbs : ToNtbs](
+pub fn[Ntbs : ToNtbs] fs_access(
   self : Loop,
   path : Ntbs,
   mode : AccessFlags,

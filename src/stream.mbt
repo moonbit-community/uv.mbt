@@ -59,7 +59,7 @@ pub fn Stream::read_start(
 }
 
 ///|
-pub fn read_start[Stream : ToStream](
+pub fn[Stream : ToStream] read_start(
   stream : Stream,
   alloc_cb : (Stream, Int) -> @bytes.View,
   read_cb : (Stream, Int, @bytes.View) -> Unit,
@@ -80,7 +80,7 @@ pub fn Stream::read_stop(self : Stream) -> Unit!Errno {
 }
 
 ///|
-pub fn read_stop[Stream : ToStream](stream : Stream) -> Unit!Errno {
+pub fn[Stream : ToStream] read_stop(stream : Stream) -> Unit!Errno {
   stream.read_stop!()
 }
 
@@ -135,7 +135,7 @@ pub fn Stream::write(
 }
 
 ///|
-pub fn write[Stream : ToStream](
+pub fn[Stream : ToStream] write(
   stream : Stream,
   bufs : Array[@bytes.View],
   write_cb : (Write) -> Unit,
@@ -223,12 +223,12 @@ pub fn Stream::is_writable(self : Stream) -> Bool {
 }
 
 ///|
-pub fn is_readable[Stream : ToStream](stream : Stream) -> Bool {
+pub fn[Stream : ToStream] is_readable(stream : Stream) -> Bool {
   uv_is_readable(stream.to_stream())
 }
 
 ///|
-pub fn is_writable[Stream : ToStream](stream : Stream) -> Bool {
+pub fn[Stream : ToStream] is_writable(stream : Stream) -> Bool {
   uv_is_writable(stream.to_stream())
 }
 
@@ -280,7 +280,7 @@ pub fn Stream::shutdown(
 }
 
 ///|
-pub fn shutdown[Stream : ToStream](
+pub fn[Stream : ToStream] shutdown(
   stream : Stream,
   shutdown_cb : (Shutdown) -> Unit,
   error_cb : (Shutdown, Errno) -> Unit

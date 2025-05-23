@@ -66,7 +66,7 @@ pub fn PipeBindFlags::new(truncate~ : Bool = true) -> PipeBindFlags {
 }
 
 ///|
-pub fn Pipe::bind[Ntbs : ToNtbs](
+pub fn[Ntbs : ToNtbs] Pipe::bind(
   self : Pipe,
   name : Ntbs,
   flags : PipeBindFlags

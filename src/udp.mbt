@@ -27,7 +27,7 @@ pub fn Udp::new(loop_ : Loop) -> Udp!Errno {
 extern "c" fn uv_udp_connect(handle : Udp, addr : Sockaddr) -> Int = "moonbit_uv_udp_connect"
 
 ///|
-pub fn Udp::connect[Sockaddr : ToSockaddr](
+pub fn[Sockaddr : ToSockaddr] Udp::connect(
   self : Udp,
   addr : Sockaddr
 ) -> Unit!Errno {
@@ -41,7 +41,7 @@ pub fn Udp::connect[Sockaddr : ToSockaddr](
 extern "c" fn uv_udp_bind(handle : Udp, addr : Sockaddr, flags : UInt) -> Int = "moonbit_uv_udp_bind"
 
 ///|
-pub fn Udp::bind[Sockaddr : ToSockaddr](
+pub fn[Sockaddr : ToSockaddr] Udp::bind(
   self : Udp,
   addr : Sockaddr,
   flags : UdpFlags
@@ -73,7 +73,7 @@ extern "c" fn uv_udp_send(
 ) -> Int = "moonbit_uv_udp_send"
 
 ///| 
-pub fn Udp::send[Sockaddr : ToSockaddr](
+pub fn[Sockaddr : ToSockaddr] Udp::send(
   self : Udp,
   data : Array[@bytes.View],
   send_cb : (UdpSend) -> Unit,

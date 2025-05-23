@@ -23,9 +23,7 @@ test "tcp" {
           if error is Some(error) {
             errors.push(error)
           }
-          try {
-            server_client_socket.read_stop!()
-          } catch {
+          try server_client_socket.read_stop!() catch {
             e => errors.push(e)
           }
           server_client_socket.close(fn(_) {  })
@@ -75,9 +73,7 @@ test "tcp" {
         if error is Some(error) {
           errors.push(error)
         }
-        try {
-          client_socket.read_stop!()
-        } catch {
+        try client_socket.read_stop!() catch {
           e => errors.push(e)
         }
         client_close(None)

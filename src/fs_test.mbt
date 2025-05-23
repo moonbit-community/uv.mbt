@@ -1,5 +1,5 @@
 ///|
-fn raise_option[E : Error](option : E?) -> Unit!E {
+fn[E : Error] raise_option(option : E?) -> Unit!E {
   if option is Some(error) {
     raise error
   }
@@ -7,9 +7,7 @@ fn raise_option[E : Error](option : E?) -> Unit!E {
 
 ///|
 fn cat_do_close(uv : @uv.Loop, file : @uv.File, error : Ref[Errno?]) -> Unit {
-  try {
-    uv.fs_close!(file, fn(_) {  })
-  } catch {
+  try uv.fs_close!(file, fn(_) {  }) catch {
     e => error.val = Some(e)
   }
 }
@@ -23,7 +21,7 @@ fn cat_do_write(
   count : Int,
   error : Ref[Errno?]
 ) -> Unit {
-  try {
+  try
     uv.fs_write!(
       @uv.stdout(),
       [bytes[start:start + count]],
@@ -35,8 +33,7 @@ fn cat_do_write(
         }
       },
       fn(_, e) { error.val = Some(e) },
-    )
-  } catch {
+    ) catch {
     e => error.val = Some(e)
   }
 }
@@ -48,7 +45,7 @@ fn cat_do_read(
   bytes : Bytes,
   error : Ref[Errno?]
 ) -> Unit {
-  try {
+  try
     uv.fs_read!(
       file,
       [bytes[:]],
@@ -63,8 +60,7 @@ fn cat_do_read(
         error.val = Some(errno)
         cat_do_close(uv, file, error)
       },
-    )
-  } catch {
+    ) catch {
     e => {
       error.val = Some(e)
       cat_do_close(uv, file, error)
@@ -97,11 +93,10 @@ test "mkdir" {
     "test-dir",
     0,
     fn(_) {
-      try {
+      try
         uv.fs_rmdir!("test-dir", fn(_) {  }, fn(_, error) {
           rmdir_error = Some(error)
-        })
-      } catch {
+        }) catch {
         error => rmdir_error = Some(error)
       }
     },
@@ -128,9 +123,7 @@ test "scandir" {
     0,
     fn(req) {
       while true {
-        let dirent = try {
-          @uv.fs_scandir_next!(req)
-        } catch {
+        let dirent = try @uv.fs_scandir_next!(req) catch {
           e => {
             if not(e is Errno(EOF)) {
               error = Some(e)
@@ -159,11 +152,10 @@ test "copyfile_unlink" {
     "test/fixtures/example-copy.txt",
     @uv.CopyFileFlags::new(),
     fn(_) {
-      try {
+      try
         uv.fs_unlink!("test/fixtures/example-copy.txt", fn(_) {  }, fn(_, e) {
           error = Some(e)
-        })
-      } catch {
+        }) catch {
         e => error = Some(e)
       }
     },
@@ -184,9 +176,7 @@ test "realpath" {
   uv.fs_realpath!(
     "test/fixtures/example.txt",
     fn(_, p) {
-      try {
-        assert_eq!(@async.path!(p), @async.path!([cwd, file]))
-      } catch {
+      try assert_eq!(@async.path!(p), @async.path!([cwd, file])) catch {
         e => errors.push(e)
       }
     },

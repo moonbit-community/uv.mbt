@@ -398,7 +398,7 @@ extern "c" fn uv_getaddrinfo(
 ) -> Int = "moonbit_uv_getaddrinfo"
 
 ///|
-pub fn getaddrinfo[Node : ToNtbs, Service : ToNtbs](
+pub fn[Node : ToNtbs, Service : ToNtbs] getaddrinfo(
   self : Loop,
   getaddrinfo_cb : (GetAddrInfo, Iter[AddrInfo]) -> Unit,
   error_cb : (GetAddrInfo, Errno) -> Unit,

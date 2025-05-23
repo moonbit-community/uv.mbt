@@ -39,7 +39,7 @@ pub fn Tcp::new(loop_ : Loop) -> Tcp!Errno {
 extern "c" fn uv_ip4_addr(ip : Bytes, port : Int, addr : SockaddrIn) = "moonbit_uv_ip4_addr"
 
 ///|
-pub fn ip4_addr[Ntbs : ToNtbs](ip : Ntbs, port : Int) -> SockaddrIn {
+pub fn[Ntbs : ToNtbs] ip4_addr(ip : Ntbs, port : Int) -> SockaddrIn {
   let ip = ip.to_ntbs()
   let addr = uv_sockaddr_in_make()
   uv_ip4_addr(ip, port, addr)
@@ -83,7 +83,7 @@ pub fn TcpBindFlags::new(
 }
 
 ///|
-pub fn Tcp::bind[Sockaddr : ToSockaddr](
+pub fn[Sockaddr : ToSockaddr] Tcp::bind(
   self : Tcp,
   addr : Sockaddr,
   flags : TcpBindFlags
@@ -102,7 +102,7 @@ extern "c" fn uv_listen(
 ) -> Int = "moonbit_uv_listen"
 
 ///|
-pub fn listen[Stream : ToStream](
+pub fn[Stream : ToStream] listen(
   stream : Stream,
   backlog : Int,
   connection_cb : (Stream) -> Unit,
@@ -131,7 +131,7 @@ impl ToStream with listen(self, backlog, connection_cb, error_cb) {
 extern "c" fn uv_accept(server : Stream, client : Stream) -> Int = "moonbit_uv_accept"
 
 ///|
-pub fn accept[Server : ToStream, Client : ToStream](
+pub fn[Server : ToStream, Client : ToStream] accept(
   server : Server,
   client : Client
 ) -> Unit!Errno {
@@ -164,7 +164,7 @@ trait ToSockaddr {
 }
 
 ///|
-pub fn Tcp::connect[Sockaddr : ToSockaddr](
+pub fn[Sockaddr : ToSockaddr] Tcp::connect(
   self : Tcp,
   addr : Sockaddr,
   connect_cb : (Connect) -> Unit,

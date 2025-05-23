@@ -82,7 +82,7 @@ extern "c" fn uv_process_options_set_uid(self : ProcessOptions, uid : Uid) = "mo
 extern "c" fn uv_process_options_set_gid(self : ProcessOptions, gid : Gid) = "moonbit_uv_process_options_set_gid"
 
 ///|
-pub fn ProcessOptions::new[Ntbs : ToNtbs](
+pub fn[Ntbs : ToNtbs] ProcessOptions::new(
   file : Ntbs,
   args : Array[@string.View],
   env? : Array[@string.View],
@@ -150,7 +150,7 @@ extern "c" fn uv_stdio_container_create_pipe(
 ) -> StdioContainer = "moonbit_uv_stdio_container_create_pipe"
 
 ///|
-pub fn StdioContainer::create_pipe[Stream : ToStream](
+pub fn[Stream : ToStream] StdioContainer::create_pipe(
   stream : Stream,
   readable~ : Bool = false,
   writable~ : Bool = false,

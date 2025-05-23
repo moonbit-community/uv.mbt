@@ -10,7 +10,7 @@ pub fn Handle::close(self : Handle, cb : (Handle) -> Unit) -> Unit {
 }
 
 ///|
-pub fn close[Handle : ToHandle](handle : Handle, cb : (Handle) -> Unit) -> Unit {
+pub fn[Handle : ToHandle] close(handle : Handle, cb : (Handle) -> Unit) -> Unit {
   handle.close(cb)
 }
 
@@ -23,7 +23,7 @@ pub fn Handle::is_closing(self : Handle) -> Bool {
 }
 
 ///|
-pub fn is_closing[Handle : ToHandle](handle : Handle) -> Bool {
+pub fn[Handle : ToHandle] is_closing(handle : Handle) -> Bool {
   handle.is_closing()
 }
 
