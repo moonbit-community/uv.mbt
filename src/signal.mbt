@@ -127,10 +127,10 @@ pub fn Signum::sigwinch() -> Signum {
 }
 
 ///|
-pub fn Signum::sigpipe() -> Signum? {
+pub fn Signum::sigpipe() -> Signum!Errno {
   if _SIGPIPE == -1 {
-    None
+    raise Errno(Status::ENOSYS)
   } else {
-    Some(_SIGPIPE)
+    _SIGPIPE
   }
 }

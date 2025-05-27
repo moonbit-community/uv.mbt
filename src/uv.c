@@ -576,7 +576,11 @@ moonbit_uv_fs_S_IFLNK(void) {
 MOONBIT_FFI_EXPORT
 uint64_t
 moonbit_uv_fs_S_IFSOCK(void) {
+#ifdef S_IFSOCK
   return S_IFSOCK;
+#else
+  return UINT64_MAX;
+#endif
 }
 
 MOONBIT_FFI_EXPORT
@@ -588,7 +592,11 @@ moonbit_uv_fs_S_IFIFO(void) {
 MOONBIT_FFI_EXPORT
 uint64_t
 moonbit_uv_fs_S_IFBLK(void) {
+#ifdef S_IFBLK
   return S_IFBLK;
+#else
+  return UINT64_MAX;
+#endif
 }
 
 MOONBIT_FFI_EXPORT
