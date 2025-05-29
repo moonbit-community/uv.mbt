@@ -5,12 +5,12 @@ type Thread
 extern "c" fn uv_thread_make() -> Thread = "moonbit_uv_thread_make"
 
 ///|
-extern "c" fn uv_thread_create(thread : Thread, callback : () -> Unit) -> Int = "moonbit_uv_thread_create"
+extern "c" fn uv_thread_create(thread : Thread, cb : () -> Unit) -> Int = "moonbit_uv_thread_create"
 
 ///|
-pub fn Thread::new(callback : () -> Unit) -> Thread!Errno {
+pub fn Thread::new(cb : () -> Unit) -> Thread!Errno {
   let thread = uv_thread_make()
-  let status = uv_thread_create(thread, callback)
+  let status = uv_thread_create(thread, cb)
   if status != 0 {
     raise Errno::of_int(status)
   }
@@ -21,7 +21,7 @@ pub fn Thread::new(callback : () -> Unit) -> Thread!Errno {
 extern "c" fn uv_thread_join(thread : Thread) -> Int = "moonbit_uv_thread_join"
 
 ///|
-extern "c" fn uv_thread_self(thread : Thread) -> Unit = "moonbit_uv_thread_self"
+extern "c" fn uv_thread_self(thread : Thread) -> Int = "moonbit_uv_thread_self"
 
 ///|
 extern "c" fn uv_thread_equal(thread : Thread, other : Thread) -> Int = "moonbit_uv_thread_equal"
@@ -38,9 +38,12 @@ pub fn Thread::join(self : Thread) -> Unit!Errno {
 }
 
 ///|
-pub fn Thread::current() -> Thread {
+pub fn Thread::self() -> Thread!Errno {
   let thread = uv_thread_make()
-  uv_thread_self(thread)
+  let status = uv_thread_self(thread)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
   return thread
 }
 
