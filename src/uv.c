@@ -2270,6 +2270,7 @@ moonbit_uv_cwd(moonbit_bytes_t buffer, int32_t *length) {
 typedef struct moonbit_uv_thread_s {
   struct {
     int32_t arc;
+    uv_mutex_t mutex;
     uv_thread_t object;
   } *block;
 } moonbit_uv_thread_t;
@@ -2278,8 +2279,10 @@ static inline void
 moonbit_uv_thread_finalize(void *object) {
   moonbit_uv_thread_t *thread = object;
   if (thread->block) {
+    uv_mutex_lock(&thread->block->mutex);
     int32_t arc = thread->block->arc;
     thread->block->arc = arc - 1;
+    uv_mutex_unlock(&thread->block->mutex);
     if (arc > 1) {
       return;
     }
@@ -2298,12 +2301,12 @@ moonbit_uv_thread_make(void) {
   return thread;
 }
 
-typedef struct moonbit_uv_thread_callback_s {
-  void *(*code)(struct moonbit_uv_thread_callback_s *);
-} moonbit_uv_thread_callback_t;
+typedef struct moonbit_uv_thread_cb_s {
+  int32_t (*code)(struct moonbit_uv_thread_cb_s *);
+} moonbit_uv_thread_cb_t;
 
 typedef struct moonbit_uv_thread_data_s {
-  moonbit_uv_thread_callback_t *cb;
+  moonbit_uv_thread_cb_t *cb;
 } moonbit_uv_thread_data_t;
 
 static inline void
@@ -2325,26 +2328,25 @@ moonbit_uv_thread_data_make(void) {
 }
 
 static inline void
-moonbit_uv_thread_start_cb(void *arg) {
+moonbit_uv_thread_cb(void *arg) {
   moonbit_uv_thread_data_t *data = arg;
-  moonbit_uv_thread_callback_t *cb = data->cb;
+  moonbit_uv_thread_cb_t *cb = data->cb;
   data->cb = NULL;
   cb->code(cb);
-  moonbit_decref(data);
 }
 
 MOONBIT_FFI_EXPORT
 int32_t
 moonbit_uv_thread_create(
   moonbit_uv_thread_t *thread,
-  moonbit_uv_thread_callback_t *cb
+  moonbit_uv_thread_cb_t *cb
 ) {
   thread->block = malloc(sizeof(*thread->block));
   thread->block->arc = 1;
   moonbit_uv_thread_data_t *data = moonbit_uv_thread_data_make();
   data->cb = cb;
   int status =
-    uv_thread_create(&thread->block->object, moonbit_uv_thread_start_cb, data);
+    uv_thread_create(&thread->block->object, moonbit_uv_thread_cb, data);
   if (status != 0) {
     moonbit_decref(data);
   }
@@ -2370,18 +2372,22 @@ moonbit_uv_thread_equal(moonbit_uv_thread_t *t1, moonbit_uv_thread_t *t2) {
 }
 
 MOONBIT_FFI_EXPORT
-void
+int32_t
 moonbit_uv_thread_self(moonbit_uv_thread_t *thread) {
   thread->block = malloc(sizeof(*thread->block));
   thread->block->arc = 1;
+  int32_t status = uv_mutex_init(&thread->block->mutex);
   thread->block->object = uv_thread_self();
   moonbit_decref(thread);
+  return status;
 }
 
 MOONBIT_FFI_EXPORT
 void
 moonbit_uv_thread_copy(moonbit_uv_thread_t *self, moonbit_uv_thread_t *other) {
+  uv_mutex_lock(&self->block->mutex);
   self->block->arc += 1;
+  uv_mutex_unlock(&self->block->mutex);
   other->block = self->block;
   moonbit_decref(self);
   moonbit_decref(other);
