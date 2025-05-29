@@ -5,7 +5,7 @@ test "work" {
   let mut work_error = None
   let start = @uv.hrtime()
   for i in 0..<2 {
-    let mutex = mutex.copy()
+    let mutex = mutex.share()
     uv.queue_work!(fn(_) { @uv.sleep(50) }, fn(_) {  }, fn(_, error) {
       mutex.lock()
       work_error = Some(error)

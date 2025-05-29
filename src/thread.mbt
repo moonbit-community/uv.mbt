@@ -50,7 +50,7 @@ pub fn Thread::equal(self : Thread, other : Thread) -> Bool {
 }
 
 ///|
-pub impl Copy for Thread with copy(self : Thread) -> Thread {
+pub impl Share for Thread with share(self : Thread) -> Thread {
   let other = uv_thread_make()
   uv_thread_copy(self, other)
   return other

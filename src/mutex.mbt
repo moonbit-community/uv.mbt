@@ -48,12 +48,12 @@ pub fn Mutex::unlock(self : Mutex) -> Unit {
 }
 
 ///|
-pub trait Copy {
-  copy(Self) -> Self
+pub trait Share {
+  share(Self) -> Self
 }
 
 ///|
-pub impl Copy for Mutex with copy(self : Mutex) -> Mutex {
+pub impl Share for Mutex with share(self : Mutex) -> Mutex {
   let other = uv_mutex_make()
   uv_mutex_copy(self, other)
   return other
