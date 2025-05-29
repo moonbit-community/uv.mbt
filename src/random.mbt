@@ -6,7 +6,7 @@ extern "c" fn uv_random_make() -> Random = "moonbit_uv_random_make"
 
 ///|
 extern "c" fn uv_random(
-  self : Loop,
+  uv : Loop,
   req : Random,
   buffer : Bytes,
   buffer_offset : Int,

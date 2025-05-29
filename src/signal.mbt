@@ -5,7 +5,7 @@ type Signal
 extern "c" fn uv_signal_make() -> Signal = "moonbit_uv_signal_make"
 
 ///|
-extern "c" fn uv_signal_init(self : Loop, signal : Signal) -> Int = "moonbit_uv_signal_init"
+extern "c" fn uv_signal_init(uv : Loop, signal : Signal) -> Int = "moonbit_uv_signal_init"
 
 ///|
 pub fn Signal::new(self : Loop) -> Signal!Errno {

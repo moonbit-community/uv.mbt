@@ -17,3 +17,8 @@ pub fn Path::read(self : Path) -> Iter[@bytes.View] {
 pub fn Path::read_text(self : Path) -> String!Error {
   @async.start!(fn() { self._.read_text!() })
 }
+
+///|
+pub fn Path::read_bytes(self : Path) -> Bytes!Error {
+  @async.start!(fn() { self._.read_bytes!() })
+}

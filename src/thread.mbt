@@ -5,7 +5,7 @@ type Thread
 extern "c" fn uv_thread_make() -> Thread = "moonbit_uv_thread_make"
 
 ///|
-extern "c" fn uv_thread_create(self : Thread, callback : () -> Unit) -> Int = "moonbit_uv_thread_create"
+extern "c" fn uv_thread_create(thread : Thread, callback : () -> Unit) -> Int = "moonbit_uv_thread_create"
 
 ///|
 pub fn Thread::new(callback : () -> Unit) -> Thread!Errno {
@@ -18,16 +18,16 @@ pub fn Thread::new(callback : () -> Unit) -> Thread!Errno {
 }
 
 ///|
-extern "c" fn uv_thread_join(self : Thread) -> Int = "moonbit_uv_thread_join"
+extern "c" fn uv_thread_join(thread : Thread) -> Int = "moonbit_uv_thread_join"
 
 ///|
-extern "c" fn uv_thread_self(self : Thread) -> Unit = "moonbit_uv_thread_self"
+extern "c" fn uv_thread_self(thread : Thread) -> Unit = "moonbit_uv_thread_self"
 
 ///|
-extern "c" fn uv_thread_equal(self : Thread, other : Thread) -> Int = "moonbit_uv_thread_equal"
+extern "c" fn uv_thread_equal(thread : Thread, other : Thread) -> Int = "moonbit_uv_thread_equal"
 
 ///|
-extern "c" fn uv_thread_copy(self : Thread, other : Thread) -> Unit = "moonbit_uv_thread_copy"
+extern "c" fn uv_thread_copy(thread : Thread, other : Thread) -> Unit = "moonbit_uv_thread_copy"
 
 ///|
 pub fn Thread::join(self : Thread) -> Unit!Errno {

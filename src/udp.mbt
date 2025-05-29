@@ -11,7 +11,7 @@ pub impl ToHandle for Udp with of_handle(self : Handle) -> Udp = "%identity"
 extern "c" fn uv_udp_make() -> Udp = "moonbit_uv_udp_make"
 
 ///|
-extern "c" fn uv_udp_init(self : Loop, udp : Udp) -> Int = "moonbit_uv_udp_init"
+extern "c" fn uv_udp_init(uv : Loop, udp : Udp) -> Int = "moonbit_uv_udp_init"
 
 ///|
 pub fn Udp::new(loop_ : Loop) -> Udp!Errno {

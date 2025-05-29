@@ -128,9 +128,9 @@ extern "c" fn AddrInfoHints::nil() -> AddrInfoHints = "moonbit_c_null"
 priv type AddrInfoResults
 
 ///|
-#borrow(self, cb)
+#borrow(addrinfo_results, cb)
 extern "c" fn uv_addrinfo_results_iterate(
-  self : AddrInfoResults,
+  addrinfo_results : AddrInfoResults,
   cb : (Int, Int, Int, Int, Sockaddr, @c.Pointer[Byte]) -> Bool
 ) -> Bool = "moonbit_uv_addrinfo_results_iterate"
 
@@ -389,7 +389,7 @@ fn AddrInfoResults::iter(self : AddrInfoResults) -> Iter[AddrInfo] {
 
 ///|
 extern "c" fn uv_getaddrinfo(
-  self : Loop,
+  uv : Loop,
   req : GetAddrInfo,
   getaddrinfo_cb : (GetAddrInfo, Int, AddrInfoResults) -> Unit,
   node : Bytes,

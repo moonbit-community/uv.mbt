@@ -44,42 +44,57 @@ extern "c" fn uv_process_options_make() -> ProcessOptions = "moonbit_uv_process_
 
 ///|
 extern "c" fn uv_process_options_set_exit_cb(
-  self : ProcessOptions,
+  process_options : ProcessOptions,
   exit_cb : (Process, Int64, Int) -> Unit
 ) = "moonbit_uv_process_options_set_exit_cb"
 
 ///|
-extern "c" fn uv_process_options_set_file(self : ProcessOptions, file : Bytes) = "moonbit_uv_process_options_set_file"
+extern "c" fn uv_process_options_set_file(
+  process_options : ProcessOptions,
+  file : Bytes
+) = "moonbit_uv_process_options_set_file"
 
 ///|
 extern "c" fn uv_process_options_set_args(
-  self : ProcessOptions,
+  process_options : ProcessOptions,
   args : FixedArray[Bytes?]
 ) = "moonbit_uv_process_options_set_args"
 
 ///|
 extern "c" fn uv_process_options_set_env(
-  self : ProcessOptions,
+  process_options : ProcessOptions,
   env : FixedArray[Bytes?]
 ) = "moonbit_uv_process_options_set_env"
 
 ///|
-extern "c" fn uv_process_options_set_cwd(self : ProcessOptions, cwd : Bytes) = "moonbit_uv_process_options_set_cwd"
+extern "c" fn uv_process_options_set_cwd(
+  process_options : ProcessOptions,
+  cwd : Bytes
+) = "moonbit_uv_process_options_set_cwd"
 
 ///|
-extern "c" fn uv_process_options_set_flags(self : ProcessOptions, flags : UInt) = "moonbit_uv_process_options_set_flags"
+extern "c" fn uv_process_options_set_flags(
+  process_options : ProcessOptions,
+  flags : UInt
+) = "moonbit_uv_process_options_set_flags"
 
 ///|
 extern "c" fn uv_process_options_set_stdio(
-  self : ProcessOptions,
+  process_options : ProcessOptions,
   stdio : FixedArray[StdioContainer]
 ) = "moonbit_uv_process_options_set_stdio"
 
 ///|
-extern "c" fn uv_process_options_set_uid(self : ProcessOptions, uid : Uid) = "moonbit_uv_process_options_set_uid"
+extern "c" fn uv_process_options_set_uid(
+  process_options : ProcessOptions,
+  uid : Uid
+) = "moonbit_uv_process_options_set_uid"
 
 ///|
-extern "c" fn uv_process_options_set_gid(self : ProcessOptions, gid : Gid) = "moonbit_uv_process_options_set_gid"
+extern "c" fn uv_process_options_set_gid(
+  process_options : ProcessOptions,
+  gid : Gid
+) = "moonbit_uv_process_options_set_gid"
 
 ///|
 pub fn[Ntbs : ToNtbs] ProcessOptions::new(
@@ -185,7 +200,7 @@ type Gid Int
 
 ///|
 extern "c" fn uv_spawn(
-  self : Loop,
+  uv : Loop,
   process : Process,
   options : ProcessOptions
 ) -> Int = "moonbit_uv_spawn"
@@ -201,7 +216,7 @@ pub fn spawn(self : Loop, options : ProcessOptions) -> Process!Errno {
 }
 
 ///|
-extern "c" fn uv_process_kill(self : Process, signum : Int) -> Int = "moonbit_uv_process_kill"
+extern "c" fn uv_process_kill(process : Process, signum : Int) -> Int = "moonbit_uv_process_kill"
 
 ///|
 pub fn Process::kill(self : Process, signum : Signum) -> Unit!Errno {

@@ -63,7 +63,7 @@ let _O_CREAT : Int = uv_fs_O_CREAT()
 
 ///|
 extern "c" fn uv_fs_open(
-  self : Loop,
+  uv : Loop,
   req : Fs,
   path : Bytes,
   flags : Int,
@@ -133,7 +133,7 @@ pub fn[Ntbs : ToNtbs] fs_open(
 
 ///|
 extern "c" fn uv_fs_close(
-  self : Loop,
+  uv : Loop,
   req : Fs,
   file : File,
   cb : (Fs) -> Unit
@@ -161,7 +161,7 @@ type File Int
 
 ///|
 extern "c" fn uv_fs_read(
-  self : Loop,
+  uv : Loop,
   req : Fs,
   file : File,
   bufs_base : FixedArray[Bytes],
@@ -209,7 +209,7 @@ pub fn fs_read(
 
 ///|
 extern "c" fn uv_fs_write(
-  self : Loop,
+  uv : Loop,
   req : Fs,
   file : File,
   bufs_base : FixedArray[Bytes],
@@ -272,7 +272,7 @@ pub fn stderr() -> File {
 
 ///|
 extern "c" fn uv_fs_unlink(
-  self : Loop,
+  uv : Loop,
   req : Fs,
   path : Bytes,
   cb : (Fs) -> Unit
@@ -303,7 +303,7 @@ pub fn[Ntbs : ToNtbs] fs_unlink(
 
 ///|
 extern "c" fn uv_fs_mkdir(
-  self : Loop,
+  uv : Loop,
   req : Fs,
   path : Bytes,
   mode : Int,
@@ -336,7 +336,7 @@ pub fn[Ntbs : ToNtbs] fs_mkdir(
 
 ///|
 extern "c" fn uv_fs_rmdir(
-  self : Loop,
+  uv : Loop,
   req : Fs,
   path : Bytes,
   cb : (Fs) -> Unit
@@ -367,7 +367,7 @@ pub fn[Ntbs : ToNtbs] fs_rmdir(
 
 ///|
 extern "c" fn uv_fs_scandir(
-  self : Loop,
+  uv : Loop,
   req : Fs,
   path : Bytes,
   flags : Int,
@@ -410,7 +410,7 @@ fn init {
 extern "c" fn uv_dirent_make() -> Dirent = "moonbit_uv_dirent_make"
 
 ///|
-extern "c" fn uv_dirent_get_name(self : Dirent) -> @c.Pointer[Byte] = "moonbit_uv_dirent_get_name"
+extern "c" fn uv_dirent_get_name(dirent : Dirent) -> @c.Pointer[Byte] = "moonbit_uv_dirent_get_name"
 
 ///|
 pub fn Dirent::name(self : Dirent) -> String {
@@ -424,7 +424,7 @@ pub fn Dirent::name(self : Dirent) -> String {
 }
 
 ///|
-extern "c" fn uv_dirent_get_type(self : Dirent) -> DirentType = "moonbit_uv_dirent_get_type"
+extern "c" fn uv_dirent_get_type(dirent : Dirent) -> DirentType = "moonbit_uv_dirent_get_type"
 
 ///|
 pub fn Dirent::type_(self : Dirent) -> DirentType {
@@ -468,7 +468,7 @@ pub fn fs_scandir_next(req : Fs) -> Dirent!Errno {
 
 ///|
 extern "c" fn uv_fs_rename(
-  self : Loop,
+  uv : Loop,
   req : Fs,
   path : Bytes,
   new_path : Bytes,
@@ -534,7 +534,7 @@ pub fn CopyFileFlags::new(
 
 ///|
 extern "c" fn uv_fs_copyfile(
-  self : Loop,
+  uv : Loop,
   req : Fs,
   path : Bytes,
   new_path : Bytes,
@@ -860,7 +860,7 @@ extern "c" fn uv_fs_get_statbuf(req : Fs) -> Stat = "moonbit_uv_fs_get_statbuf"
 
 ///|
 extern "c" fn uv_fs_stat(
-  self : Loop,
+  uv : Loop,
   req : Fs,
   path : Bytes,
   cb : (Fs) -> Unit
@@ -892,7 +892,7 @@ pub fn[Ntbs : ToNtbs] fs_stat(
 
 ///|
 extern "c" fn uv_fs_lstat(
-  self : Loop,
+  uv : Loop,
   req : Fs,
   path : Bytes,
   cb : (Fs) -> Unit
@@ -924,7 +924,7 @@ pub fn[Ntbs : ToNtbs] fs_lstat(
 
 ///|
 extern "c" fn uv_fs_fstat(
-  self : Loop,
+  uv : Loop,
   req : Fs,
   file : File,
   cb : (Fs) -> Unit
@@ -1034,7 +1034,7 @@ pub fn AccessFlags::new(
 
 ///|
 extern "c" fn uv_fs_access(
-  self : Loop,
+  uv : Loop,
   req : Fs,
   path : Bytes,
   mode : Int,

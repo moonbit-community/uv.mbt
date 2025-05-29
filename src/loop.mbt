@@ -36,7 +36,7 @@ pub(all) enum RunMode {
 }
 
 ///|
-extern "c" fn uv_run(self : Loop, mode : RunMode) -> Int = "moonbit_uv_run"
+extern "c" fn uv_run(uv : Loop, mode : RunMode) -> Int = "moonbit_uv_run"
 
 ///|
 pub fn run(self : Loop, mode : RunMode) -> Unit!Errno {

@@ -2,7 +2,7 @@
 extern type Handle
 
 ///|
-extern "c" fn uv_close(self : Handle, cb : (Handle) -> Unit) = "moonbit_uv_close"
+extern "c" fn uv_close(handle : Handle, cb : (Handle) -> Unit) = "moonbit_uv_close"
 
 ///|
 pub fn Handle::close(self : Handle, cb : (Handle) -> Unit) -> Unit {
@@ -15,7 +15,7 @@ pub fn[Handle : ToHandle] close(handle : Handle, cb : (Handle) -> Unit) -> Unit 
 }
 
 ///|
-extern "c" fn uv_is_closing(self : Handle) -> Bool = "moonbit_uv_is_closing"
+extern "c" fn uv_is_closing(handle : Handle) -> Bool = "moonbit_uv_is_closing"
 
 ///|
 pub fn Handle::is_closing(self : Handle) -> Bool {

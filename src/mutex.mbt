@@ -5,7 +5,7 @@ type Mutex
 extern "c" fn uv_mutex_make() -> Mutex = "moonbit_uv_mutex_make"
 
 ///|
-extern "c" fn uv_mutex_init(self : Mutex) -> Int = "moonbit_uv_mutex_init"
+extern "c" fn uv_mutex_init(mutex : Mutex) -> Int = "moonbit_uv_mutex_init"
 
 ///|
 pub fn Mutex::new() -> Mutex!Errno {
@@ -18,16 +18,16 @@ pub fn Mutex::new() -> Mutex!Errno {
 }
 
 ///|
-extern "c" fn uv_mutex_copy(self : Mutex, other : Mutex) = "moonbit_uv_mutex_copy"
+extern "c" fn uv_mutex_copy(mutex : Mutex, other : Mutex) = "moonbit_uv_mutex_copy"
 
 ///|
-extern "c" fn uv_mutex_lock(self : Mutex) = "moonbit_uv_mutex_lock"
+extern "c" fn uv_mutex_lock(mutex : Mutex) = "moonbit_uv_mutex_lock"
 
 ///|
-extern "c" fn uv_mutex_trylock(self : Mutex) -> Int = "moonbit_uv_mutex_trylock"
+extern "c" fn uv_mutex_trylock(mutex : Mutex) -> Int = "moonbit_uv_mutex_trylock"
 
 ///|
-extern "c" fn uv_mutex_unlock(self : Mutex) = "moonbit_uv_mutex_unlock"
+extern "c" fn uv_mutex_unlock(mutex : Mutex) = "moonbit_uv_mutex_unlock"
 
 ///|
 pub fn Mutex::lock(self : Mutex) -> Unit {

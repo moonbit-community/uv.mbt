@@ -23,12 +23,12 @@ pub impl ToStream for Tcp with of_stream(self : Stream) -> Tcp = "%identity"
 extern "c" fn uv_tcp_make() -> Tcp = "moonbit_uv_tcp_make"
 
 ///|
-extern "c" fn uv_tcp_init(self : Loop, tcp : Tcp) -> Int = "moonbit_uv_tcp_init"
+extern "c" fn uv_tcp_init(uv : Loop, tcp : Tcp) -> Int = "moonbit_uv_tcp_init"
 
 ///|
-pub fn Tcp::new(loop_ : Loop) -> Tcp!Errno {
+pub fn Tcp::new(uv : Loop) -> Tcp!Errno {
   let tcp = uv_tcp_make()
-  let result = uv_tcp_init(loop_, tcp)
+  let result = uv_tcp_init(uv, tcp)
   if result < 0 {
     raise Errno::of_int(result)
   }

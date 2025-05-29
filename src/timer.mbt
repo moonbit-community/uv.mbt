@@ -11,7 +11,7 @@ pub impl ToHandle for Timer with of_handle(self : Handle) -> Timer = "%identity"
 extern "c" fn uv_timer_make() -> Timer = "moonbit_uv_timer_make"
 
 ///|
-extern "c" fn uv_timer_init(self : Loop, timer : Timer) -> Int = "moonbit_uv_timer_init"
+extern "c" fn uv_timer_init(uv : Loop, timer : Timer) -> Int = "moonbit_uv_timer_init"
 
 ///|
 pub fn Timer::new(self : Loop) -> Timer!Errno {

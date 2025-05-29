@@ -6,7 +6,7 @@ extern "c" fn uv_work_make() -> Work = "moonbit_uv_work_make"
 
 ///|
 extern "c" fn uv_queue_work(
-  self : Loop,
+  uv : Loop,
   req : Work,
   work_cb : (Work) -> Unit,
   after_cb : (Work, Int) -> Unit

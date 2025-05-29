@@ -11,7 +11,7 @@ pub impl ToHandle for FsEvent with of_handle(handle : Handle) -> FsEvent = "%ide
 extern "c" fn uv_fs_event_make() -> FsEvent = "moonbit_uv_fs_event_make"
 
 ///|
-extern "c" fn uv_fs_event_init(self : Loop, fs_event : FsEvent) -> Int = "moonbit_uv_fs_event_init"
+extern "c" fn uv_fs_event_init(uv : Loop, fs_event : FsEvent) -> Int = "moonbit_uv_fs_event_init"
 
 ///|
 pub fn FsEvent::new(self : Loop) -> FsEvent!Errno {

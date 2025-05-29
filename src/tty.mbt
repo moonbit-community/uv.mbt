@@ -17,7 +17,7 @@ pub impl ToStream for Tty with of_stream(stream : Stream) -> Tty = "%identity"
 extern "c" fn uv_tty_make() -> Tty = "moonbit_uv_tty_make"
 
 ///|
-extern "c" fn uv_tty_init(self : Loop, tty : Tty, fd : Int) -> Int = "moonbit_uv_tty_init"
+extern "c" fn uv_tty_init(uv : Loop, tty : Tty, fd : Int) -> Int = "moonbit_uv_tty_init"
 
 ///|
 pub fn Tty::new(self : Loop, file : File) -> Tty!Errno {
@@ -58,7 +58,7 @@ pub fn TtyMode::raw_vt() -> TtyMode {
 }
 
 ///|
-extern "c" fn uv_tty_set_mode(self : Tty, mode : TtyMode) -> Int = "moonbit_uv_tty_set_mode"
+extern "c" fn uv_tty_set_mode(tty : Tty, mode : TtyMode) -> Int = "moonbit_uv_tty_set_mode"
 
 ///|
 pub fn Tty::set_mode(self : Tty, mode : TtyMode) -> Unit!Errno {
