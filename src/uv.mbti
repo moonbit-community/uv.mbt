@@ -6,13 +6,13 @@ import(
 )
 
 // Values
-fn accept[Server : ToStream, Client : ToStream](Server, Client) -> Unit!Errno
+fn[Server : ToStream, Client : ToStream] accept(Server, Client) -> Unit!Errno
 
 fn args() -> Array[String]
 
 fn argv() -> Array[Bytes]
 
-fn close[Handle : ToHandle](Handle, (Handle) -> Unit) -> Unit
+fn[Handle : ToHandle] close(Handle, (Handle) -> Unit) -> Unit
 
 fn cwd() -> String!Errno
 
@@ -20,53 +20,53 @@ fn disable_stdio_inheritance() -> Unit
 
 fn errno(Int) -> Errno
 
-fn fs_access[Ntbs : ToNtbs](Loop, Ntbs, AccessFlags, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn[Ntbs : ToNtbs] fs_access(Loop, Ntbs, AccessFlags, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
 fn fs_close(Loop, File, (Fs) -> Unit) -> Unit!Errno
 
-fn fs_copyfile[Ntbs : ToNtbs](Loop, Ntbs, Ntbs, CopyFileFlags, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn[Ntbs : ToNtbs] fs_copyfile(Loop, Ntbs, Ntbs, CopyFileFlags, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
 fn fs_fstat(Loop, File, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
-fn fs_lstat[Ntbs : ToNtbs](Loop, Ntbs, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn[Ntbs : ToNtbs] fs_lstat(Loop, Ntbs, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
-fn fs_mkdir[Ntbs : ToNtbs](Loop, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn[Ntbs : ToNtbs] fs_mkdir(Loop, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
-fn fs_open[Ntbs : ToNtbs](Loop, Ntbs, OpenFlags, Int, (Fs, File) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn[Ntbs : ToNtbs] fs_open(Loop, Ntbs, OpenFlags, Int, (Fs, File) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
 fn fs_read(Loop, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
-fn fs_realpath[Ntbs : ToNtbs](Loop, Ntbs, (Fs, String) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn[Ntbs : ToNtbs] fs_realpath(Loop, Ntbs, (Fs, String) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
-fn fs_rename[Ntbs : ToNtbs](Loop, Ntbs, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn[Ntbs : ToNtbs] fs_rename(Loop, Ntbs, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
-fn fs_rmdir[Ntbs : ToNtbs](Loop, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn[Ntbs : ToNtbs] fs_rmdir(Loop, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
-fn fs_scandir[Ntbs : ToNtbs](Loop, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn[Ntbs : ToNtbs] fs_scandir(Loop, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
 fn fs_scandir_next(Fs) -> Dirent!Errno
 
-fn fs_stat[Ntbs : ToNtbs](Loop, Ntbs, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn[Ntbs : ToNtbs] fs_stat(Loop, Ntbs, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
-fn fs_unlink[Ntbs : ToNtbs](Loop, Ntbs, (Fs) -> Unit, (Fs, Error) -> Unit) -> Unit!Errno
+fn[Ntbs : ToNtbs] fs_unlink(Loop, Ntbs, (Fs) -> Unit, (Fs, Error) -> Unit) -> Unit!Errno
 
 fn fs_write(Loop, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
-fn getaddrinfo[Node : ToNtbs, Service : ToNtbs](Loop, (GetAddrInfo, Iter[AddrInfo]) -> Unit, (GetAddrInfo, Errno) -> Unit, Node, Service, hints? : AddrInfoHints) -> Unit!Errno
+fn[Node : ToNtbs, Service : ToNtbs] getaddrinfo(Loop, (GetAddrInfo, Iter[AddrInfo]) -> Unit, (GetAddrInfo, Errno) -> Unit, Node, Service, hints? : AddrInfoHints) -> Unit!Errno
 
 fn hrtime() -> UInt64
 
-fn ip4_addr[Ntbs : ToNtbs](Ntbs, Int) -> SockaddrIn
+fn[Ntbs : ToNtbs] ip4_addr(Ntbs, Int) -> SockaddrIn
 
 fn ip_name(Sockaddr) -> String!Errno
 
-fn is_closing[Handle : ToHandle](Handle) -> Bool
+fn[Handle : ToHandle] is_closing(Handle) -> Bool
 
-fn is_readable[Stream : ToStream](Stream) -> Bool
+fn[Stream : ToStream] is_readable(Stream) -> Bool
 
-fn is_writable[Stream : ToStream](Stream) -> Bool
+fn[Stream : ToStream] is_writable(Stream) -> Bool
 
-fn listen[Stream : ToStream](Stream, Int, (Stream) -> Unit, (Stream, Errno) -> Unit) -> Unit!Errno
+fn[Stream : ToStream] listen(Stream, Int, (Stream) -> Unit, (Stream, Errno) -> Unit) -> Unit!Errno
 
 fn os_uname() -> Utsname!Errno
 
@@ -76,13 +76,13 @@ fn queue_work(Loop, (Work) -> Unit, (Work) -> Unit, (Work, Errno) -> Unit) -> Un
 
 fn random(Loop, @bytes.View, Int, (Random, @bytes.View) -> Unit, (Random, Errno) -> Unit) -> Unit!Errno
 
-fn read_start[Stream : ToStream](Stream, (Stream, Int) -> @bytes.View, (Stream, Int, @bytes.View) -> Unit, (Stream, Errno) -> Unit) -> Unit!Errno
+fn[Stream : ToStream] read_start(Stream, (Stream, Int) -> @bytes.View, (Stream, Int, @bytes.View) -> Unit, (Stream, Errno) -> Unit) -> Unit!Errno
 
-fn read_stop[Stream : ToStream](Stream) -> Unit!Errno
+fn[Stream : ToStream] read_stop(Stream) -> Unit!Errno
 
 fn run(Loop, RunMode) -> Unit!Errno
 
-fn shutdown[Stream : ToStream](Stream, (Shutdown) -> Unit, (Shutdown, Errno) -> Unit) -> Unit!Errno
+fn[Stream : ToStream] shutdown(Stream, (Shutdown) -> Unit, (Shutdown, Errno) -> Unit) -> Unit!Errno
 
 fn sleep(UInt) -> Unit
 
@@ -96,50 +96,38 @@ fn stdout() -> File
 
 fn stop(Loop) -> Unit
 
-fn write[Stream : ToStream](Stream, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) -> Unit!Errno
+fn[Stream : ToStream] write(Stream, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) -> Unit!Errno
 
 // Types and methods
 type AccessFlags
-impl AccessFlags {
-  new(read~ : Bool = .., write~ : Bool = .., execute~ : Bool = ..) -> Self
-}
+fn AccessFlags::new(read~ : Bool = .., write~ : Bool = .., execute~ : Bool = ..) -> Self
 
 type AddrInfo
-impl AddrInfo {
-  addr(Self) -> Sockaddr
-  canonname(Self) -> String?
-  family(Self) -> AddressFamily!Errno
-  protocol(Self) -> Protocol!Errno
-  socktype(Self) -> SockType!Errno
-}
+fn AddrInfo::addr(Self) -> Sockaddr
+fn AddrInfo::canonname(Self) -> String?
+fn AddrInfo::family(Self) -> AddressFamily!Errno
+fn AddrInfo::protocol(Self) -> Protocol!Errno
+fn AddrInfo::socktype(Self) -> SockType!Errno
 
 type AddrInfoFlags
-impl AddrInfoFlags {
-  new(passive~ : Bool = .., canonname~ : Bool = .., numeric_host~ : Bool = .., numeric_serv~ : Bool = .., all~ : Bool = .., addrconfig~ : Bool = .., v4mapped~ : Bool = ..) -> Self
-}
+fn AddrInfoFlags::new(passive~ : Bool = .., canonname~ : Bool = .., numeric_host~ : Bool = .., numeric_serv~ : Bool = .., all~ : Bool = .., addrconfig~ : Bool = .., v4mapped~ : Bool = ..) -> Self
 
 type AddrInfoHints
-impl AddrInfoHints {
-  new(flags? : AddrInfoFlags, family? : AddressFamily, socktype? : SockType, protocol? : Protocol) -> Self
-}
+fn AddrInfoHints::new(flags? : AddrInfoFlags, family? : AddressFamily, socktype? : SockType, protocol? : Protocol) -> Self
 
 pub enum AddressFamily {
   INET
   INET6
 }
-impl AddressFamily {
-  inet() -> Self
-  inet6() -> Self
-}
+fn AddressFamily::inet() -> Self
+fn AddressFamily::inet6() -> Self
 impl Show for AddressFamily
 
 type Connect
 impl ToReq for Connect
 
 type CopyFileFlags
-impl CopyFileFlags {
-  new(allow_exists~ : Bool = .., copy_on_write~ : CopyOnWrite = ..) -> Self
-}
+fn CopyFileFlags::new(allow_exists~ : Bool = .., copy_on_write~ : CopyOnWrite = ..) -> Self
 
 pub(all) enum CopyOnWrite {
   False
@@ -148,10 +136,8 @@ pub(all) enum CopyOnWrite {
 }
 
 type Dirent
-impl Dirent {
-  name(Self) -> String
-  type_(Self) -> DirentType
-}
+fn Dirent::name(Self) -> String
+fn Dirent::type_(Self) -> DirentType
 
 pub enum DirentType {
   Unknown
@@ -177,18 +163,14 @@ type Fs
 impl ToReq for Fs
 
 type FsEvent
-impl FsEvent {
-  get_path(Self) -> String!Errno
-  new(Loop) -> Self!Errno
-  start(Self, String, FsEventFlags, (Self, String?, Array[FsEventType]) -> Unit, (Self, String?, Errno) -> Unit) -> Unit!Errno
-  stop(Self) -> Unit!Errno
-}
+fn FsEvent::get_path(Self) -> String!Errno
+fn FsEvent::new(Loop) -> Self!Errno
+fn FsEvent::start(Self, String, FsEventFlags, (Self, String?, Array[FsEventType]) -> Unit, (Self, String?, Errno) -> Unit) -> Unit!Errno
+fn FsEvent::stop(Self) -> Unit!Errno
 impl ToHandle for FsEvent
 
 type FsEventFlags
-impl FsEventFlags {
-  new(recursive~ : Bool = ..) -> Self
-}
+fn FsEventFlags::new(recursive~ : Bool = ..) -> Self
 
 pub enum FsEventType {
   Rename
@@ -202,98 +184,78 @@ type GetAddrInfo
 type Gid
 
 type Handle
-impl Handle {
-  close(Self, (Self) -> Unit) -> Unit
-  is_closing(Self) -> Bool
-}
+fn Handle::close(Self, (Self) -> Unit) -> Unit
+fn Handle::is_closing(Self) -> Bool
 
 type Idle
-impl Idle {
-  new(Loop) -> Self!Errno
-  start(Self, (Self) -> Unit) -> Unit!Errno
-  stop(Self) -> Unit!Errno
-}
+fn Idle::new(Loop) -> Self!Errno
+fn Idle::start(Self, (Self) -> Unit) -> Unit!Errno
+fn Idle::stop(Self) -> Unit!Errno
 impl ToHandle for Idle
 
 type Loop
-impl Loop {
-  alive(Self) -> Bool
-  close(Self) -> Unit!Errno
-  fs_access[Ntbs : ToNtbs](Self, Ntbs, AccessFlags, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-  fs_close(Self, File, (Fs) -> Unit) -> Unit!Errno
-  fs_copyfile[Ntbs : ToNtbs](Self, Ntbs, Ntbs, CopyFileFlags, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-  fs_fstat(Self, File, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-  fs_lstat[Ntbs : ToNtbs](Self, Ntbs, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-  fs_mkdir[Ntbs : ToNtbs](Self, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-  fs_open[Ntbs : ToNtbs](Self, Ntbs, OpenFlags, Int, (Fs, File) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-  fs_read(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-  fs_realpath[Ntbs : ToNtbs](Self, Ntbs, (Fs, String) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-  fs_rename[Ntbs : ToNtbs](Self, Ntbs, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-  fs_rmdir[Ntbs : ToNtbs](Self, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-  fs_scandir[Ntbs : ToNtbs](Self, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-  fs_stat[Ntbs : ToNtbs](Self, Ntbs, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-  fs_unlink[Ntbs : ToNtbs](Self, Ntbs, (Fs) -> Unit, (Fs, Error) -> Unit) -> Unit!Errno
-  fs_write(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-  getaddrinfo[Node : ToNtbs, Service : ToNtbs](Self, (GetAddrInfo, Iter[AddrInfo]) -> Unit, (GetAddrInfo, Errno) -> Unit, Node, Service, hints? : AddrInfoHints) -> Unit!Errno
-  new() -> Self!Errno
-  queue_work(Self, (Work) -> Unit, (Work) -> Unit, (Work, Errno) -> Unit) -> Unit!Errno
-  random(Self, @bytes.View, Int, (Random, @bytes.View) -> Unit, (Random, Errno) -> Unit) -> Unit!Errno
-  run(Self, RunMode) -> Unit!Errno
-  spawn(Self, ProcessOptions) -> Process!Errno
-  stop(Self) -> Unit
-}
+fn Loop::alive(Self) -> Bool
+fn Loop::close(Self) -> Unit!Errno
+fn[Ntbs : ToNtbs] Loop::fs_access(Self, Ntbs, AccessFlags, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn Loop::fs_close(Self, File, (Fs) -> Unit) -> Unit!Errno
+fn[Ntbs : ToNtbs] Loop::fs_copyfile(Self, Ntbs, Ntbs, CopyFileFlags, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn Loop::fs_fstat(Self, File, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn[Ntbs : ToNtbs] Loop::fs_lstat(Self, Ntbs, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn[Ntbs : ToNtbs] Loop::fs_mkdir(Self, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn[Ntbs : ToNtbs] Loop::fs_open(Self, Ntbs, OpenFlags, Int, (Fs, File) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn Loop::fs_read(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn[Ntbs : ToNtbs] Loop::fs_realpath(Self, Ntbs, (Fs, String) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn[Ntbs : ToNtbs] Loop::fs_rename(Self, Ntbs, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn[Ntbs : ToNtbs] Loop::fs_rmdir(Self, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn[Ntbs : ToNtbs] Loop::fs_scandir(Self, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn[Ntbs : ToNtbs] Loop::fs_stat(Self, Ntbs, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn[Ntbs : ToNtbs] Loop::fs_unlink(Self, Ntbs, (Fs) -> Unit, (Fs, Error) -> Unit) -> Unit!Errno
+fn Loop::fs_write(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn[Node : ToNtbs, Service : ToNtbs] Loop::getaddrinfo(Self, (GetAddrInfo, Iter[AddrInfo]) -> Unit, (GetAddrInfo, Errno) -> Unit, Node, Service, hints? : AddrInfoHints) -> Unit!Errno
+fn Loop::new() -> Self!Errno
+fn Loop::queue_work(Self, (Work) -> Unit, (Work) -> Unit, (Work, Errno) -> Unit) -> Unit!Errno
+fn Loop::random(Self, @bytes.View, Int, (Random, @bytes.View) -> Unit, (Random, Errno) -> Unit) -> Unit!Errno
+fn Loop::run(Self, RunMode) -> Unit!Errno
+fn Loop::spawn(Self, ProcessOptions) -> Process!Errno
+fn Loop::stop(Self) -> Unit
 
 type Mutex
-impl Mutex {
-  lock(Self) -> Unit
-  new() -> Self!Errno
-  trylock(Self) -> Unit!Errno
-  unlock(Self) -> Unit
-}
+fn Mutex::lock(Self) -> Unit
+fn Mutex::new() -> Self!Errno
+fn Mutex::trylock(Self) -> Unit!Errno
+fn Mutex::unlock(Self) -> Unit
 impl Copy for Mutex
 
 type OpenFlags
-impl OpenFlags {
-  read(create~ : Bool = ..) -> Self
-  read_write(create~ : Bool = ..) -> Self
-  write(create~ : Bool = ..) -> Self
-}
+fn OpenFlags::read(create~ : Bool = ..) -> Self
+fn OpenFlags::read_write(create~ : Bool = ..) -> Self
+fn OpenFlags::write(create~ : Bool = ..) -> Self
 
 type Pipe
-impl Pipe {
-  bind[Ntbs : ToNtbs](Self, Ntbs, PipeBindFlags) -> Unit!Errno
-  new(Loop, ipc~ : Bool = ..) -> Self!Errno
-  to_handle(Self) -> Handle
-  to_stream(Self) -> Stream
-}
+fn[Ntbs : ToNtbs] Pipe::bind(Self, Ntbs, PipeBindFlags) -> Unit!Errno
+fn Pipe::new(Loop, ipc~ : Bool = ..) -> Self!Errno
+fn Pipe::to_handle(Self) -> Handle
+fn Pipe::to_stream(Self) -> Stream
 impl ToHandle for Pipe
 impl ToStream for Pipe
 
 type PipeBindFlags
-impl PipeBindFlags {
-  new(truncate~ : Bool = ..) -> Self
-}
+fn PipeBindFlags::new(truncate~ : Bool = ..) -> Self
 
 type Process
-impl Process {
-  kill(Self, Int) -> Unit!Errno
-  pid(Self) -> Int
-}
+fn Process::kill(Self, Signum) -> Unit!Errno
+fn Process::pid(Self) -> Int
 impl ToHandle for Process
 
 type ProcessOptions
-impl ProcessOptions {
-  new[Ntbs : ToNtbs](Ntbs, Array[@string.StringView], env? : Array[@string.StringView], cwd? : @string.StringView, stdio? : Array[StdioContainer], uid? : Uid, gid? : Gid, (Process, Int64, Int) -> Unit) -> Self
-}
+fn[Ntbs : ToNtbs] ProcessOptions::new(Ntbs, Array[@string.StringView], env? : Array[@string.StringView], cwd? : @string.StringView, stdio? : Array[StdioContainer], uid? : Uid, gid? : Gid, (Process, Int64, Int) -> Unit) -> Self
 
 pub enum Protocol {
   TCP
   UDP
 }
-impl Protocol {
-  tcp() -> Self
-  udp() -> Self
-}
+fn Protocol::tcp() -> Self
+fn Protocol::udp() -> Self
 impl Show for Protocol
 
 type Random
@@ -310,70 +272,60 @@ type Shutdown
 impl ToReq for Shutdown
 
 type Signal
-impl Signal {
-  new(Loop) -> Self!Errno
-  start(Self, (Self, Signum) -> Unit, Signum) -> Unit!Errno
-  stop(Self) -> Unit!Errno
-}
+fn Signal::new(Loop) -> Self!Errno
+fn Signal::start(Self, (Self, Signum) -> Unit, Signum) -> Unit!Errno
+fn Signal::stop(Self) -> Unit!Errno
 
 type Signum
-impl Signum {
-  sigabrt() -> Self
-  sighup() -> Self
-  sigint() -> Self
-  sigpipe() -> Self?
-  sigquit() -> Self
-  sigterm() -> Self
-  sigwinch() -> Self
-}
+fn Signum::sigabrt() -> Self
+fn Signum::sighup() -> Self
+fn Signum::sigint() -> Self
+fn Signum::sigpipe() -> Self!Errno
+fn Signum::sigquit() -> Self
+fn Signum::sigterm() -> Self
+fn Signum::sigwinch() -> Self
 
 type SockType
-impl SockType {
-  dgram() -> Self
-  raw() -> Self
-  stream() -> Self
-}
+fn SockType::dgram() -> Self
+fn SockType::raw() -> Self
+fn SockType::stream() -> Self
 impl Show for SockType
 
 type Sockaddr
-impl Sockaddr {
-  ip_name(Self) -> String!Errno
-}
+fn Sockaddr::ip_name(Self) -> String!Errno
 impl ToSockaddr for Sockaddr
 
 type SockaddrIn
 impl ToSockaddr for SockaddrIn
 
 type Stat
-impl Stat {
-  atim_nsec(Self) -> Int64
-  atim_sec(Self) -> Int64
-  birthtim_nsec(Self) -> Int64
-  birthtim_sec(Self) -> Int64
-  blksize(Self) -> UInt64
-  blocks(Self) -> UInt64
-  ctim_nsec(Self) -> Int64
-  ctim_sec(Self) -> Int64
-  dev(Self) -> UInt64
-  flags(Self) -> UInt64
-  gen(Self) -> UInt64
-  gid(Self) -> UInt64
-  ino(Self) -> UInt64
-  is_block_device(Self) -> Bool
-  is_character_device(Self) -> Bool
-  is_directory(Self) -> Bool
-  is_file(Self) -> Bool
-  is_pipe(Self) -> Bool
-  is_socket(Self) -> Bool
-  is_symlink(Self) -> Bool
-  mode(Self) -> UInt64
-  mtim_nsec(Self) -> Int64
-  mtim_sec(Self) -> Int64
-  nlink(Self) -> UInt64
-  rdev(Self) -> UInt64
-  size(Self) -> UInt64
-  uid(Self) -> UInt64
-}
+fn Stat::atim_nsec(Self) -> Int64
+fn Stat::atim_sec(Self) -> Int64
+fn Stat::birthtim_nsec(Self) -> Int64
+fn Stat::birthtim_sec(Self) -> Int64
+fn Stat::blksize(Self) -> UInt64
+fn Stat::blocks(Self) -> UInt64
+fn Stat::ctim_nsec(Self) -> Int64
+fn Stat::ctim_sec(Self) -> Int64
+fn Stat::dev(Self) -> UInt64
+fn Stat::flags(Self) -> UInt64
+fn Stat::gen(Self) -> UInt64
+fn Stat::gid(Self) -> UInt64
+fn Stat::ino(Self) -> UInt64
+fn Stat::is_block_device(Self) -> Bool!Errno
+fn Stat::is_character_device(Self) -> Bool
+fn Stat::is_directory(Self) -> Bool
+fn Stat::is_file(Self) -> Bool
+fn Stat::is_pipe(Self) -> Bool
+fn Stat::is_socket(Self) -> Bool!Errno
+fn Stat::is_symlink(Self) -> Bool
+fn Stat::mode(Self) -> UInt64
+fn Stat::mtim_nsec(Self) -> Int64
+fn Stat::mtim_sec(Self) -> Int64
+fn Stat::nlink(Self) -> UInt64
+fn Stat::rdev(Self) -> UInt64
+fn Stat::size(Self) -> UInt64
+fn Stat::uid(Self) -> UInt64
 
 pub enum Status {
   E2BIG
@@ -466,92 +418,72 @@ impl Eq for Status
 impl Hash for Status
 
 type StdioContainer
-impl StdioContainer {
-  create_pipe[Stream : ToStream](Stream, readable~ : Bool = .., writable~ : Bool = .., non_block~ : Bool = ..) -> Self
-  ignore() -> Self
-  inherit_file(File) -> Self
-  inherit_stream(Stream) -> Self
-}
+fn[Stream : ToStream] StdioContainer::create_pipe(Stream, readable~ : Bool = .., writable~ : Bool = .., non_block~ : Bool = ..) -> Self
+fn StdioContainer::ignore() -> Self
+fn StdioContainer::inherit_file(File) -> Self
+fn StdioContainer::inherit_stream(Stream) -> Self
 
 type Stream
-impl Stream {
-  is_readable(Self) -> Bool
-  is_writable(Self) -> Bool
-  read_start(Self, (Handle, Int) -> @bytes.View, (Self, Int, @bytes.View) -> Unit, (Self, Errno) -> Unit) -> Unit!Errno
-  read_stop(Self) -> Unit!Errno
-  shutdown(Self, (Shutdown) -> Unit, (Shutdown, Errno) -> Unit) -> Unit!Errno
-  to_handle(Self) -> Handle
-  write(Self, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) -> Unit!Errno
-}
+fn Stream::is_readable(Self) -> Bool
+fn Stream::is_writable(Self) -> Bool
+fn Stream::read_start(Self, (Handle, Int) -> @bytes.View, (Self, Int, @bytes.View) -> Unit, (Self, Errno) -> Unit) -> Unit!Errno
+fn Stream::read_stop(Self) -> Unit!Errno
+fn Stream::shutdown(Self, (Shutdown) -> Unit, (Shutdown, Errno) -> Unit) -> Unit!Errno
+fn Stream::to_handle(Self) -> Handle
+fn Stream::write(Self, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) -> Unit!Errno
 impl ToHandle for Stream
 impl ToStream for Stream
 
 type Tcp
-impl Tcp {
-  bind[Sockaddr : ToSockaddr](Self, Sockaddr, TcpBindFlags) -> Unit!Errno
-  connect[Sockaddr : ToSockaddr](Self, Sockaddr, (Connect) -> Unit, (Connect, Errno) -> Unit) -> Unit!Errno
-  new(Loop) -> Self!Errno
-}
+fn[Sockaddr : ToSockaddr] Tcp::bind(Self, Sockaddr, TcpBindFlags) -> Unit!Errno
+fn[Sockaddr : ToSockaddr] Tcp::connect(Self, Sockaddr, (Connect) -> Unit, (Connect, Errno) -> Unit) -> Unit!Errno
+fn Tcp::new(Loop) -> Self!Errno
 impl ToHandle for Tcp
 impl ToStream for Tcp
 
 type TcpBindFlags
-impl TcpBindFlags {
-  new(ipv6_only~ : Bool = .., reuse_port~ : Bool = ..) -> Self
-}
+fn TcpBindFlags::new(ipv6_only~ : Bool = .., reuse_port~ : Bool = ..) -> Self
 
 type Thread
-impl Thread {
-  current() -> Self
-  equal(Self, Self) -> Bool
-  join(Self) -> Unit!Errno
-  new(() -> Unit) -> Self!Errno
-}
+fn Thread::current() -> Self
+fn Thread::equal(Self, Self) -> Bool
+fn Thread::join(Self) -> Unit!Errno
+fn Thread::new(() -> Unit) -> Self!Errno
 impl Copy for Thread
 
 type Timer
-impl Timer {
-  get_due_in(Self) -> UInt64
-  get_repeat(Self) -> UInt64
-  new(Loop) -> Self!Errno
-  set_repeat(Self, UInt64) -> Unit
-  start(Self, timeout~ : UInt64, repeat~ : UInt64, (Self) -> Unit) -> Unit!Errno
-  stop(Self) -> Unit!Errno
-}
+fn Timer::get_due_in(Self) -> UInt64
+fn Timer::get_repeat(Self) -> UInt64
+fn Timer::new(Loop) -> Self!Errno
+fn Timer::set_repeat(Self, UInt64) -> Unit
+fn Timer::start(Self, timeout~ : UInt64, repeat~ : UInt64, (Self) -> Unit) -> Unit!Errno
+fn Timer::stop(Self) -> Unit!Errno
 impl ToHandle for Timer
 
 type Tty
-impl Tty {
-  new(Loop, File) -> Self!Errno
-  reset_mode() -> Unit!Errno
-  set_mode(Self, TtyMode) -> Unit!Errno
-}
+fn Tty::new(Loop, File) -> Self!Errno
+fn Tty::reset_mode() -> Unit!Errno
+fn Tty::set_mode(Self, TtyMode) -> Unit!Errno
 impl ToHandle for Tty
 impl ToStream for Tty
 
 type TtyMode
-impl TtyMode {
-  io() -> Self
-  normal() -> Self
-  raw() -> Self
-  raw_vt() -> Self
-}
+fn TtyMode::io() -> Self
+fn TtyMode::normal() -> Self
+fn TtyMode::raw() -> Self
+fn TtyMode::raw_vt() -> Self
 
 type Udp
-impl Udp {
-  bind[Sockaddr : ToSockaddr](Self, Sockaddr, UdpFlags) -> Unit!Errno
-  connect[Sockaddr : ToSockaddr](Self, Sockaddr) -> Unit!Errno
-  new(Loop) -> Self!Errno
-  recv_start(Self, (Handle, Int) -> @bytes.View, (Self, Int, @bytes.View, Sockaddr, UdpFlags) -> Unit, (Self, Errno) -> Unit) -> Unit!Errno
-  recv_stop(Self) -> Unit!Errno
-  send[Sockaddr : ToSockaddr](Self, Array[@bytes.View], (UdpSend) -> Unit, (UdpSend, Errno) -> Unit, addr? : Sockaddr) -> Unit!Errno
-}
+fn[Sockaddr : ToSockaddr] Udp::bind(Self, Sockaddr, UdpFlags) -> Unit!Errno
+fn[Sockaddr : ToSockaddr] Udp::connect(Self, Sockaddr) -> Unit!Errno
+fn Udp::new(Loop) -> Self!Errno
+fn Udp::recv_start(Self, (Handle, Int) -> @bytes.View, (Self, Int, @bytes.View, Sockaddr, UdpFlags) -> Unit, (Self, Errno) -> Unit) -> Unit!Errno
+fn Udp::recv_stop(Self) -> Unit!Errno
+fn[Sockaddr : ToSockaddr] Udp::send(Self, Array[@bytes.View], (UdpSend) -> Unit, (UdpSend, Errno) -> Unit, addr? : Sockaddr) -> Unit!Errno
 impl ToHandle for Udp
 
 type UdpFlags
-impl UdpFlags {
-  new() -> Self
-}
+fn UdpFlags::new() -> Self
 
 type UdpSend
 impl ToReq for UdpSend
@@ -559,12 +491,10 @@ impl ToReq for UdpSend
 type Uid
 
 type Utsname
-impl Utsname {
-  machine(Self) -> String
-  release(Self) -> String
-  sysname(Self) -> String
-  version(Self) -> String
-}
+fn Utsname::machine(Self) -> String
+fn Utsname::release(Self) -> String
+fn Utsname::sysname(Self) -> String
+fn Utsname::version(Self) -> String
 
 type Work
 

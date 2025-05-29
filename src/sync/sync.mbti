@@ -1,0 +1,22 @@
+package "tonyfettes/uv/sync"
+
+import(
+  "moonbitlang/core/bytes"
+)
+
+// Values
+fn path(String) -> Path!
+
+// Types and methods
+type Iter[T]
+fn[T] Iter::each(Self[T], (T) -> Unit!) -> Unit!
+
+type Path
+fn Path::read(Self) -> Iter[@bytes.View]
+fn Path::read_bytes(Self) -> Bytes!
+fn Path::read_text(Self) -> String!
+
+// Type aliases
+
+// Traits
+
