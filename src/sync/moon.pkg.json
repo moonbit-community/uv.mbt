@@ -1,6 +1,5 @@
 {
   "import": [
-    "tonyfettes/uv/async",
-    "tonyfettes/encoding"
+    "tonyfettes/uv/async"
   ]
 }
