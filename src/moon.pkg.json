@@ -40,6 +40,9 @@
     "loop.mbt": [
       "native"
     ],
+    "mutex.mbt": [
+      "native"
+    ],
     "process.mbt": [
       "native"
     ],
