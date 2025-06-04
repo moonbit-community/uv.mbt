@@ -20,19 +20,31 @@ pub fn OpenFlags::read(create~ : Bool = false) -> OpenFlags {
 }
 
 ///|
-pub fn OpenFlags::write(create~ : Bool = false) -> OpenFlags {
+pub fn OpenFlags::write(
+  create~ : Bool = false,
+  truncate~ : Bool = false
+) -> OpenFlags {
   let mut flags = _O_WRONLY
   if create {
     flags = flags | _O_CREAT
+  }
+  if truncate {
+    flags = flags | _O_TRUNC
   }
   flags
 }
 
 ///|
-pub fn OpenFlags::read_write(create~ : Bool = false) -> OpenFlags {
+pub fn OpenFlags::read_write(
+  create~ : Bool = false,
+  truncate~ : Bool = false
+) -> OpenFlags {
   let mut flags = _O_RDWR
   if create {
     flags = flags | _O_CREAT
+  }
+  if truncate {
+    flags = flags | _O_TRUNC
   }
   flags
 }
@@ -60,6 +72,12 @@ extern "c" fn uv_fs_O_CREAT() -> Int = "moonbit_uv_fs_O_CREAT"
 
 ///|
 let _O_CREAT : Int = uv_fs_O_CREAT()
+
+///|
+extern "c" fn uv_fs_O_TRUNC() -> Int = "moonbit_uv_fs_O_TRUNC"
+
+///|
+let _O_TRUNC : Int = uv_fs_O_TRUNC()
 
 ///|
 extern "c" fn uv_fs_open(
