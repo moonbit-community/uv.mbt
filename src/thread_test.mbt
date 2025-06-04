@@ -1,15 +1,21 @@
 ///|
 test "native_thread_test" {
-  let thread = Thread::new!(fn() -> Unit { println("Hello from thread!") })
+  let buffer = []
+  let thread = Thread::new!(fn() -> Unit { buffer.push("thread!") })
+  buffer.push("main")
   thread.join!()
+  buffer.push("joined")
+  @json.inspect(buffer, content=["main", "thread!", "joined"])
+  assert_true(Thread::self() == Thread::self())
   let current = Thread::self()
-  let thread2 = Thread::new!(fn() {
-    try {
-      let self_thread = Thread::self()
-      println("Is it the main thread? \{Thread::equal(self_thread, current)}")
-    } catch {
-      e => println("Error: \{e}")
+  let mut error = None
+  let thread = Thread::new!(fn() {
+    try assert_false(Thread::self() == current) catch {
+      e => error = Some(e)
     }
   })
-  thread2.join!()
+  thread.join!()
+  if error is Some(e) {
+    raise e
+  }
 }
