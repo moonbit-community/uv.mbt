@@ -354,6 +354,39 @@ pub fn fs_write_sync(
 }
 
 ///|
+extern "c" fn uv_fs_ftruncate(
+  uv : Loop,
+  req : Fs,
+  file : File,
+  length : Int64,
+  cb : (Fs) -> Unit
+) -> Int = "moonbit_uv_fs_ftruncate"
+
+///|
+pub fn fs_ftruncate(
+  self : Loop,
+  file : File,
+  length : Int64,
+  k : (Fs) -> Unit,
+  e : (Fs, Errno) -> Unit
+) -> Unit!Errno {
+  fn cb(req : Fs) {
+    let status = req.result().to_int()
+    if status < 0 {
+      e(req, Errno::of_int(status))
+    } else {
+      k(req)
+    }
+  }
+
+  let req = uv_fs_make()
+  let status = uv_fs_ftruncate(self, req, file, length, cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
 pub fn stdin() -> File {
   0
 }

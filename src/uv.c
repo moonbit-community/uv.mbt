@@ -472,6 +472,21 @@ moonbit_uv_fs_write_sync(
 
 MOONBIT_FFI_EXPORT
 int32_t
+moonbit_uv_fs_ftruncate(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  int32_t file,
+  int64_t offset,
+  moonbit_uv_fs_cb_t *cb
+) {
+  moonbit_uv_fs_set_data(fs, cb);
+  int status = uv_fs_ftruncate(loop, &fs->fs, file, offset, moonbit_uv_fs_cb);
+  moonbit_decref(loop);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
 moonbit_uv_fs_mkdir(
   uv_loop_t *loop,
   moonbit_uv_fs_t *fs,
