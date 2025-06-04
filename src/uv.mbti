@@ -18,7 +18,7 @@ fn cwd() -> String!Errno
 
 fn disable_stdio_inheritance() -> Unit
 
-fn errno(Int) -> Errno
+fn errno(Status) -> Errno
 
 fn[Ntbs : ToNtbs] fs_access(Loop, Ntbs, AccessFlags, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
@@ -34,7 +34,11 @@ fn[Ntbs : ToNtbs] fs_mkdir(Loop, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -
 
 fn[Ntbs : ToNtbs] fs_open(Loop, Ntbs, OpenFlags, Int, (Fs, File) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
+fn[Ntbs : ToNtbs] fs_open_sync(Loop, Ntbs, OpenFlags, Int) -> File!Errno
+
 fn fs_read(Loop, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+
+fn fs_read_sync(Loop, File, Array[@bytes.View], offset~ : Int64 = ..) -> Int!Errno
 
 fn[Ntbs : ToNtbs] fs_realpath(Loop, Ntbs, (Fs, String) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
@@ -48,9 +52,13 @@ fn fs_scandir_next(Fs) -> Dirent!Errno
 
 fn[Ntbs : ToNtbs] fs_stat(Loop, Ntbs, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
+fn[Ntbs : ToNtbs] fs_stat_sync(Loop, Ntbs) -> Stat!Errno
+
 fn[Ntbs : ToNtbs] fs_unlink(Loop, Ntbs, (Fs) -> Unit, (Fs, Error) -> Unit) -> Unit!Errno
 
 fn fs_write(Loop, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+
+fn fs_write_sync(Loop, File, Array[@bytes.View], offset~ : Int64 = ..) -> Unit!Errno
 
 fn[Node : ToNtbs, Service : ToNtbs] getaddrinfo(Loop, (GetAddrInfo, Iter[AddrInfo]) -> Unit, (GetAddrInfo, Errno) -> Unit, Node, Service, hints? : AddrInfoHints) -> Unit!Errno
 
@@ -203,14 +211,18 @@ fn Loop::fs_fstat(Self, File, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!E
 fn[Ntbs : ToNtbs] Loop::fs_lstat(Self, Ntbs, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 fn[Ntbs : ToNtbs] Loop::fs_mkdir(Self, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 fn[Ntbs : ToNtbs] Loop::fs_open(Self, Ntbs, OpenFlags, Int, (Fs, File) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn[Ntbs : ToNtbs] Loop::fs_open_sync(Self, Ntbs, OpenFlags, Int) -> File!Errno
 fn Loop::fs_read(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn Loop::fs_read_sync(Self, File, Array[@bytes.View], offset~ : Int64 = ..) -> Int!Errno
 fn[Ntbs : ToNtbs] Loop::fs_realpath(Self, Ntbs, (Fs, String) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 fn[Ntbs : ToNtbs] Loop::fs_rename(Self, Ntbs, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 fn[Ntbs : ToNtbs] Loop::fs_rmdir(Self, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 fn[Ntbs : ToNtbs] Loop::fs_scandir(Self, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 fn[Ntbs : ToNtbs] Loop::fs_stat(Self, Ntbs, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn[Ntbs : ToNtbs] Loop::fs_stat_sync(Self, Ntbs) -> Stat!Errno
 fn[Ntbs : ToNtbs] Loop::fs_unlink(Self, Ntbs, (Fs) -> Unit, (Fs, Error) -> Unit) -> Unit!Errno
 fn Loop::fs_write(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn Loop::fs_write_sync(Self, File, Array[@bytes.View], offset~ : Int64 = ..) -> Unit!Errno
 fn[Node : ToNtbs, Service : ToNtbs] Loop::getaddrinfo(Self, (GetAddrInfo, Iter[AddrInfo]) -> Unit, (GetAddrInfo, Errno) -> Unit, Node, Service, hints? : AddrInfoHints) -> Unit!Errno
 fn Loop::new() -> Self!Errno
 fn Loop::queue_work(Self, (Work) -> Unit, (Work) -> Unit, (Work, Errno) -> Unit) -> Unit!Errno
@@ -224,7 +236,7 @@ fn Mutex::lock(Self) -> Unit
 fn Mutex::new() -> Self!Errno
 fn Mutex::trylock(Self) -> Unit!Errno
 fn Mutex::unlock(Self) -> Unit
-impl Copy for Mutex
+impl Share for Mutex
 
 type OpenFlags
 fn OpenFlags::read(create~ : Bool = ..) -> Self
@@ -327,7 +339,7 @@ fn Stat::rdev(Self) -> UInt64
 fn Stat::size(Self) -> UInt64
 fn Stat::uid(Self) -> UInt64
 
-pub enum Status {
+pub(all) enum Status {
   E2BIG
   EACCES
   EADDRINUSE
@@ -445,11 +457,12 @@ type TcpBindFlags
 fn TcpBindFlags::new(ipv6_only~ : Bool = .., reuse_port~ : Bool = ..) -> Self
 
 type Thread
-fn Thread::current() -> Self
 fn Thread::equal(Self, Self) -> Bool
 fn Thread::join(Self) -> Unit!Errno
 fn Thread::new(() -> Unit) -> Self!Errno
-impl Copy for Thread
+fn Thread::self() -> Self!Errno
+impl Eq for Thread
+impl Share for Thread
 
 type Timer
 fn Timer::get_due_in(Self) -> UInt64
@@ -504,8 +517,8 @@ impl ToReq for Write
 // Type aliases
 
 // Traits
-pub trait Copy {
-  copy(Self) -> Self
+pub trait Share {
+  share(Self) -> Self
 }
 
 pub trait ToHandle {
