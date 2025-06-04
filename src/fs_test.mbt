@@ -85,6 +85,24 @@ test "cat" {
 }
 
 ///|
+test "read/sync" {
+  let uv = @uv.Loop::new!()
+  let file = uv.fs_open_sync("README.md", @uv.OpenFlags::read(), 0)
+  let buffer = @buffer.new()
+  let bytes = Bytes::make(1024, 0)
+  for nread = uv.fs_read_sync(file, [bytes])
+      nread > 0
+      nread = uv.fs_read_sync(file, [bytes]) {
+    buffer.write_bytesview(bytes[:nread])
+  }
+  inspect(
+    @encoding.decode(buffer.contents(), encoding=UTF8).view(end_offset=15),
+    content="# tonyfettes/uv",
+  )
+  uv.close()
+}
+
+///|
 test "mkdir" {
   let uv = @uv.Loop::new!()
   let mut mkdir_error = None
@@ -176,7 +194,7 @@ test "realpath" {
   uv.fs_realpath!(
     "test/fixtures/example.txt",
     fn(_, p) {
-      try assert_eq!(@async.path!(p), @async.path!([cwd, file])) catch {
+      try assert_eq!(@async.path(p), @async.path([cwd, file])) catch {
         e => errors.push(e)
       }
     },
@@ -203,7 +221,7 @@ test "stat" {
         // It shouldn't be a directory
         assert_true!(not(stat.is_directory()))
         // Size should be greater than 0
-        assert_true!(stat.size() > 0)
+        @json.inspect!(stat.size(), content="14")
       } catch {
         e => errors.push(e)
       }
@@ -216,6 +234,16 @@ test "stat" {
   for e in errors {
     raise e
   }
+}
+
+///|
+test "stat/sync" {
+  let uv = @uv.Loop::new!()
+  let stat = uv.fs_stat_sync!("test/fixtures/example.txt")
+  uv.close!()
+  assert_true!(stat.is_file())
+  assert_true!(not(stat.is_directory()))
+  @json.inspect!(stat.size(), content="14")
 }
 
 ///|

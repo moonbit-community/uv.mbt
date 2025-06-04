@@ -16,7 +16,7 @@ fn strerror(errno : Int) -> @string.View {
 }
 
 ///|
-pub enum Status {
+pub(all) enum Status {
   E2BIG
   EACCES
   EADDRINUSE
@@ -209,8 +209,8 @@ fn init {
 }
 
 ///|
-pub fn errno(errno : Int) -> Errno {
-  errno_errors.get(errno).or(Errno(Status::UNKNOWN))
+pub fn errno(errno : Status) -> Errno {
+  Errno(errno)
 }
 
 ///|

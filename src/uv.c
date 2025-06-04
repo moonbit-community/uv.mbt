@@ -302,6 +302,26 @@ moonbit_uv_fs_open(
 
 MOONBIT_FFI_EXPORT
 int32_t
+moonbit_uv_fs_open_sync(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path,
+  int32_t flags,
+  int32_t mode
+) {
+  moonbit_uv_trace("loop = %p\n", (void *)loop);
+  moonbit_uv_trace("loop->rc = %d\n", Moonbit_object_header(loop)->rc);
+  moonbit_uv_trace("cb = %p\n", (void *)cb);
+  moonbit_uv_trace("cb->rc = %d\n", Moonbit_object_header(cb)->rc);
+  moonbit_uv_fs_set_data(fs, NULL);
+  int result = uv_fs_open(loop, &fs->fs, (const char *)path, flags, mode, NULL);
+  moonbit_decref(loop);
+  moonbit_decref(path);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
 moonbit_uv_fs_close(
   uv_loop_t *loop,
   moonbit_uv_fs_t *fs,
@@ -359,6 +379,41 @@ moonbit_uv_fs_read(
 
 MOONBIT_FFI_EXPORT
 int32_t
+moonbit_uv_fs_read_sync(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  int32_t file,
+  moonbit_bytes_t *bufs_base,
+  int32_t *bufs_offset,
+  int32_t *bufs_length,
+  int64_t offset
+) {
+  moonbit_uv_trace("cb = %p\n", (void *)cb);
+  moonbit_uv_trace("cb->rc = %d\n", Moonbit_object_header(cb)->rc);
+  int bufs_size = Moonbit_array_length(bufs_base);
+  uv_buf_t *bufs_data = malloc(sizeof(uv_buf_t) * bufs_size);
+  for (int i = 0; i < bufs_size; i++) {
+    bufs_data[i] =
+      uv_buf_init((char *)bufs_base[i] + bufs_offset[i], bufs_length[i]);
+  }
+  // The ownership of `cb` is transferred into `fs`.
+  moonbit_uv_fs_set_data(fs, NULL);
+  // The ownership of `bufs_base` is transferred into `fs`.
+  moonbit_uv_fs_set_bufs(fs, bufs_base);
+  // The ownership of `fs` is transferred into `loop`.
+  int result =
+    uv_fs_read(loop, &fs->fs, file, bufs_data, bufs_size, offset, NULL);
+  // Releasing `bufs` here, as it is only a box for the `bufs` array and should
+  // not causing the bufs to be decref'ed.
+  free(bufs_data);
+  moonbit_decref(loop);
+  moonbit_decref(bufs_offset);
+  moonbit_decref(bufs_length);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
 moonbit_uv_fs_write(
   uv_loop_t *loop,
   moonbit_uv_fs_t *fs,
@@ -380,6 +435,34 @@ moonbit_uv_fs_write(
   moonbit_uv_fs_set_bufs(fs, bufs_base);
   int result =
     uv_fs_write(loop, &fs->fs, file, bufs, bufs_size, offset, moonbit_uv_fs_cb);
+  free(bufs);
+  moonbit_decref(loop);
+  moonbit_decref(bufs_offset);
+  moonbit_decref(bufs_length);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_write_sync(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  int32_t file,
+  moonbit_bytes_t *bufs_base,
+  int32_t *bufs_offset,
+  int32_t *bufs_length,
+  int64_t offset
+) {
+  int bufs_size = Moonbit_array_length(bufs_base);
+  moonbit_uv_trace("bufs_size = %d\n", bufs_size);
+  uv_buf_t *bufs = malloc(sizeof(uv_buf_t) * bufs_size);
+  for (int i = 0; i < bufs_size; i++) {
+    bufs[i] =
+      uv_buf_init((char *)bufs_base[i] + bufs_offset[i], bufs_length[i]);
+  }
+  moonbit_uv_fs_set_data(fs, NULL);
+  moonbit_uv_fs_set_bufs(fs, bufs_base);
+  int result = uv_fs_write(loop, &fs->fs, file, bufs, bufs_size, offset, NULL);
   free(bufs);
   moonbit_decref(loop);
   moonbit_decref(bufs_offset);
@@ -624,6 +707,20 @@ moonbit_uv_fs_stat(
 ) {
   moonbit_uv_fs_set_data(fs, cb);
   int status = uv_fs_stat(loop, &fs->fs, (const char *)path, moonbit_uv_fs_cb);
+  moonbit_decref(loop);
+  moonbit_decref(path);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_stat_sync(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path
+) {
+  moonbit_uv_fs_set_data(fs, NULL);
+  int status = uv_fs_stat(loop, &fs->fs, (const char *)path, NULL);
   moonbit_decref(loop);
   moonbit_decref(path);
   return status;

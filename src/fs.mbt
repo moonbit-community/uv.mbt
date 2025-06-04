@@ -132,6 +132,31 @@ pub fn[Ntbs : ToNtbs] fs_open(
 }
 
 ///|
+extern "c" fn uv_fs_open_sync(
+  uv : Loop,
+  req : Fs,
+  path : Bytes,
+  flags : Int,
+  mode : Int
+) -> Int = "moonbit_uv_fs_open_sync"
+
+///|
+pub fn[Ntbs : ToNtbs] fs_open_sync(
+  self : Loop,
+  path : Ntbs,
+  flags : OpenFlags,
+  mode : Int
+) -> File!Errno {
+  let req = uv_fs_make()
+  let path = path.to_ntbs()
+  let status = uv_fs_open_sync(self, req, path, flags._, mode)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  File(status)
+}
+
+///|
 extern "c" fn uv_fs_close(
   uv : Loop,
   req : Fs,
@@ -208,6 +233,43 @@ pub fn fs_read(
 }
 
 ///|
+extern "c" fn uv_fs_read_sync(
+  uv : Loop,
+  req : Fs,
+  file : File,
+  bufs_base : FixedArray[Bytes],
+  bufs_offset : FixedArray[Int],
+  bufs_length : FixedArray[Int],
+  offset : Int64
+) -> Int = "moonbit_uv_fs_read_sync"
+
+///|
+pub fn fs_read_sync(
+  self : Loop,
+  file : File,
+  bufs : Array[@bytes.View],
+  offset~ : Int64 = -1
+) -> Int!Errno {
+  let req = uv_fs_make()
+  let bufs_size = bufs.length()
+  let bufs_base : FixedArray[Bytes] = FixedArray::make(bufs_size, [])
+  let bufs_offset = FixedArray::make(bufs_size, 0)
+  let bufs_length = FixedArray::make(bufs_size, 0)
+  for i in 0..<bufs.length() {
+    bufs_base[i] = bufs[i].data()
+    bufs_offset[i] = bufs[i].start_offset()
+    bufs_length[i] = bufs[i].length()
+  }
+  let status = uv_fs_read_sync(
+    self, req, file, bufs_base, bufs_offset, bufs_length, offset,
+  )
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  status
+}
+
+///|
 extern "c" fn uv_fs_write(
   uv : Loop,
   req : Fs,
@@ -249,6 +311,42 @@ pub fn fs_write(
   }
   let status = uv_fs_write(
     self, req, file, bufs_base, bufs_offset, bufs_length, offset, cb,
+  )
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
+extern "c" fn uv_fs_write_sync(
+  uv : Loop,
+  req : Fs,
+  file : File,
+  bufs_base : FixedArray[Bytes],
+  bufs_offset : FixedArray[Int],
+  bufs_length : FixedArray[Int],
+  offset : Int64
+) -> Int = "moonbit_uv_fs_write_sync"
+
+///|
+pub fn fs_write_sync(
+  self : Loop,
+  file : File,
+  bufs : Array[@bytes.View],
+  offset~ : Int64 = -1
+) -> Unit!Errno {
+  let req = uv_fs_make()
+  let bufs_size = bufs.length()
+  let bufs_base : FixedArray[Bytes] = FixedArray::make(bufs_size, [])
+  let bufs_offset = FixedArray::make(bufs_size, 0)
+  let bufs_length = FixedArray::make(bufs_size, 0)
+  for i in 0..<bufs_size {
+    bufs_base[i] = bufs[i].data()
+    bufs_offset[i] = bufs[i].start_offset()
+    bufs_length[i] = bufs[i].length()
+  }
+  let status = uv_fs_write_sync(
+    self, req, file, bufs_base, bufs_offset, bufs_length, offset,
   )
   if status < 0 {
     raise Errno::of_int(status)
@@ -888,6 +986,19 @@ pub fn[Ntbs : ToNtbs] fs_stat(
   if status < 0 {
     raise Errno::of_int(status)
   }
+}
+
+///|
+extern "c" fn uv_fs_stat_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "moonbit_uv_fs_stat_sync"
+
+///|
+pub fn[Ntbs : ToNtbs] fs_stat_sync(self : Loop, path : Ntbs) -> Stat!Errno {
+  let req = uv_fs_make()
+  let status = uv_fs_stat_sync(self, req, path.to_ntbs())
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  uv_fs_get_statbuf(req)
 }
 
 ///|
