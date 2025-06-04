@@ -2342,6 +2342,7 @@ moonbit_uv_thread_create(
   moonbit_uv_thread_cb_t *cb
 ) {
   thread->block = malloc(sizeof(*thread->block));
+  uv_mutex_init(&thread->block->mutex);
   thread->block->arc = 1;
   moonbit_uv_thread_data_t *data = moonbit_uv_thread_data_make();
   data->cb = cb;
