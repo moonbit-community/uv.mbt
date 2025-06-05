@@ -116,7 +116,7 @@ pub fn[Ntbs : ToNtbs] ProcessOptions::new(
     if i == args.length() {
       return None
     } else {
-      return Some(args[i].to_ntbs())
+      return Some(ToNtbs::to_ntbs(args[i]))
     }
   })
   uv_process_options_set_args(options, args)
@@ -125,13 +125,13 @@ pub fn[Ntbs : ToNtbs] ProcessOptions::new(
       if i == env.length() {
         return None
       } else {
-        return Some(env[i].to_ntbs())
+        return Some(ToNtbs::to_ntbs(env[i]))
       }
     })
     uv_process_options_set_env(options, env)
   }
   if cwd is Some(cwd) {
-    let cwd = cwd.to_ntbs()
+    let cwd = ToNtbs::to_ntbs(cwd)
     uv_process_options_set_cwd(options, cwd)
   }
   if stdio is Some(stdio) {

@@ -112,7 +112,8 @@ pub impl ToNtbs for Bytes with to_ntbs(self : Bytes) -> Bytes {
 
 ///|
 pub impl ToNtbs for @string.View with to_ntbs(self : @string.View) -> Bytes {
-  self.to_string().to_ntbs()
+  self.to_string()
+  |> ToNtbs::to_ntbs()
 }
 
 ///|
