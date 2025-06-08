@@ -28,6 +28,8 @@ fn[Ntbs : ToNtbs] fs_copyfile(Loop, Ntbs, Ntbs, CopyFileFlags, (Fs) -> Unit, (Fs
 
 fn fs_fstat(Loop, File, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
+fn fs_ftruncate(Loop, File, Int64, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+
 fn[Ntbs : ToNtbs] fs_lstat(Loop, Ntbs, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 
 fn[Ntbs : ToNtbs] fs_mkdir(Loop, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
@@ -208,6 +210,7 @@ fn[Ntbs : ToNtbs] Loop::fs_access(Self, Ntbs, AccessFlags, (Fs) -> Unit, (Fs, Er
 fn Loop::fs_close(Self, File, (Fs) -> Unit) -> Unit!Errno
 fn[Ntbs : ToNtbs] Loop::fs_copyfile(Self, Ntbs, Ntbs, CopyFileFlags, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 fn Loop::fs_fstat(Self, File, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn Loop::fs_ftruncate(Self, File, Int64, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 fn[Ntbs : ToNtbs] Loop::fs_lstat(Self, Ntbs, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 fn[Ntbs : ToNtbs] Loop::fs_mkdir(Self, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 fn[Ntbs : ToNtbs] Loop::fs_open(Self, Ntbs, OpenFlags, Int, (Fs, File) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
@@ -240,8 +243,8 @@ impl Share for Mutex
 
 type OpenFlags
 fn OpenFlags::read(create~ : Bool = ..) -> Self
-fn OpenFlags::read_write(create~ : Bool = ..) -> Self
-fn OpenFlags::write(create~ : Bool = ..) -> Self
+fn OpenFlags::read_write(create~ : Bool = .., truncate~ : Bool = ..) -> Self
+fn OpenFlags::write(create~ : Bool = .., truncate~ : Bool = ..) -> Self
 
 type Pipe
 fn[Ntbs : ToNtbs] Pipe::bind(Self, Ntbs, PipeBindFlags) -> Unit!Errno

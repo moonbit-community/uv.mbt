@@ -194,7 +194,7 @@ test "realpath" {
   uv.fs_realpath!(
     "test/fixtures/example.txt",
     fn(_, p) {
-      try assert_eq!(@async.path(p), @async.path([cwd, file])) catch {
+      try assert_eq!(@async.Path::new(p), @async.Path::new("\{cwd}/\{file}")) catch {
         e => errors.push(e)
       }
     },
