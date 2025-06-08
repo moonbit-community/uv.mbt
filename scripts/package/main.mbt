@@ -48,7 +48,9 @@ async fn publish(
   target
   .walk()
   .each(fn(path) {
-    if path.is_file() && path.name().has_suffix("_test.mbt") {
+    if path.is_file() &&
+      path.name() is Some(name) &&
+      name.has_suffix("_test.mbt") {
       path.unlink()
     }
   })
