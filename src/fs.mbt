@@ -112,8 +112,7 @@ pub impl ToNtbs for Bytes with to_ntbs(self : Bytes) -> Bytes {
 
 ///|
 pub impl ToNtbs for @string.View with to_ntbs(self : @string.View) -> Bytes {
-  self.to_string()
-  |> ToNtbs::to_ntbs()
+  self.to_string() |> ToNtbs::to_ntbs()
 }
 
 ///|
@@ -922,6 +921,11 @@ pub fn Stat::is_file(self : Stat) -> Bool {
 }
 
 ///|
+pub fn Stat::is_regular(self : Stat) -> Bool {
+  (self.mode() & _S_IFMT) == _S_IFREG
+}
+
+///|
 pub fn Stat::is_directory(self : Stat) -> Bool {
   (self.mode() & _S_IFMT) == _S_IFDIR
 }
@@ -940,7 +944,13 @@ pub fn Stat::is_socket(self : Stat) -> Bool!Errno {
 }
 
 ///|
+#deprecated("Use Stat::is_fifo instead")
 pub fn Stat::is_pipe(self : Stat) -> Bool {
+  (self.mode() & _S_IFMT) == _S_IFIFO
+}
+
+///|
+pub fn Stat::is_fifo(self : Stat) -> Bool {
   (self.mode() & _S_IFMT) == _S_IFIFO
 }
 
@@ -955,6 +965,28 @@ pub fn Stat::is_block_device(self : Stat) -> Bool!Errno {
 ///|
 pub fn Stat::is_character_device(self : Stat) -> Bool {
   (self.mode() & _S_IFMT) == _S_IFCHR
+}
+
+///|
+pub fn Stat::type_(self : Stat) -> DirentType {
+  let type_ = self.mode() & _S_IFMT
+  if type_ == _S_IFREG {
+    DirentType::File
+  } else if type_ == _S_IFDIR {
+    DirentType::Dir
+  } else if type_ == _S_IFLNK {
+    DirentType::Link
+  } else if type_ == _S_IFSOCK {
+    DirentType::Socket
+  } else if type_ == _S_IFIFO {
+    DirentType::Fifo
+  } else if type_ == _S_IFCHR {
+    DirentType::Char
+  } else if type_ == _S_IFBLK {
+    DirentType::Block
+  } else {
+    DirentType::Unknown
+  }
 }
 
 ///|
