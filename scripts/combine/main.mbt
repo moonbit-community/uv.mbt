@@ -19,7 +19,7 @@ fn Project::new(
 
 ///|
 fn Project::mangle(self : Project, path : @async.Path) -> @async.Path {
-  @async.path([self.prefix, ..path.parts()].map(_.to_string()).join("#"))
+  @async.Path::new([self.prefix, ..path.parts()].map(_.to_string()).join("#"))
 }
 
 ///|
@@ -59,7 +59,7 @@ async fn Project::copy(
   condition? : String
 ) -> Unit! {
   let target = self.mangle(source)
-  let mut content = (self.source / source).read_text(encoding=UTF8)
+  let mut content = self.source.join(source).read_text(encoding=UTF8)
   if prepare_defines {
     content = defines + content
   }
@@ -69,8 +69,8 @@ async fn Project::copy(
   if condition is Some(condition) {
     content = Project::condition(content, condition)
   }
-  println("COPY \{self.source / source} -> \{self.target / target}")
-  (self.target / target).write_text(content, encoding=UTF8)
+  println("COPY \{self.source.join(source)} -> \{self.target.join(target)}")
+  self.target.join(target).write_text(content, encoding=UTF8)
   self.copied.add(source)
 }
 
@@ -81,7 +81,7 @@ async fn Project::relocate(
   content : String
 ) -> String! {
   let include_directories = []
-  if (self.source / source).parent() is Some(source_directory) {
+  if self.source.join(source).parent() is Some(source_directory) {
     include_directories.push(source_directory)
   }
   include_directories.append(self.include)
@@ -89,17 +89,18 @@ async fn Project::relocate(
   async fn relocate(header : @async.Path) -> Result[@async.Path, Error] {
     try {
       for directory in include_directories {
-        if not((directory / header).exists()) {
+        if not(directory.join(header).exists()) {
           continue
         }
-        let resolved = (directory / header)
+        let resolved = directory
+          .join(header)
           .resolve()
           .relative_to(self.source.resolve())
-        if not((self.source / resolved).exists()) {
+        if not(self.source.join(resolved).exists()) {
           continue
         }
         let relocated = self.mangle(resolved)
-        if not((self.target / relocated).exists()) {
+        if not(self.target.join(relocated).exists()) {
           println("HERE")
           self.copy(resolved, prepare_defines=false, relocate=false)
           headers.push(resolved)
@@ -170,7 +171,7 @@ async fn Project::relocate(
           continue line
         }
       }
-      let filename = filename.to_string()
+      let filename = @async.Path::new(filename.to_string())
       match relocate(filename) {
         Ok(relocated) => {
           let relocated = relocated.to_posix_path().to_string()
@@ -200,7 +201,7 @@ async fn configure(project : Project) -> Unit! {
       "src/strtok.c", "src/thread-common.c", "src/threadpool.c", "src/timer.c", "src/uv-common.c",
       "src/uv-data-getter-setters.c", "src/version.c",
     ] {
-    project.copy(@async.PosixPath::new(source))
+    project.copy(@async.Path::parse_posix(source).to_path())
   }
   for
     source in [
@@ -211,7 +212,10 @@ async fn configure(project : Project) -> Unit! {
       "src/win/signal.c", "src/win/snprintf.c", "src/win/stream.c", "src/win/tcp.c",
       "src/win/tty.c", "src/win/udp.c", "src/win/util.c", "src/win/winapi.c", "src/win/winsock.c",
     ] {
-    project.copy(@async.PosixPath::new(source), condition="defined(_WIN32)")
+    project.copy(
+      @async.Path::parse_posix(source).to_path(),
+      condition="defined(_WIN32)",
+    )
   }
   for
     source in [
@@ -221,11 +225,14 @@ async fn configure(project : Project) -> Unit! {
       "src/unix/stream.c", "src/unix/tcp.c", "src/unix/thread.c", "src/unix/tty.c",
       "src/unix/udp.c",
     ] {
-    project.copy(@async.PosixPath::new(source), condition="!defined(_WIN32)")
+    project.copy(
+      @async.Path::parse_posix(source).to_path(),
+      condition="!defined(_WIN32)",
+    )
   }
   for source in ["src/unix/proctitle.c"] {
     project.copy(
-      @async.PosixPath::new(source),
+      @async.Path::parse_posix(source).to_path(),
       condition="defined(__APPLE__) || defined(__linux__)",
     )
   }
@@ -234,22 +241,25 @@ async fn configure(project : Project) -> Unit! {
       "src/unix/kqueue.c", "src/unix/random-getentropy.c", "src/unix/darwin-proctitle.c",
       "src/unix/darwin.c", "src/unix/fsevents.c",
     ] {
-    project.copy(@async.PosixPath::new(source), condition="defined(__APPLE__)")
+    project.copy(
+      @async.Path::parse_posix(source).to_path(),
+      condition="defined(__APPLE__)",
+    )
   }
   for
     source in [
       "src/unix/linux.c", "src/unix/procfs-exepath.c", "src/unix/random-getrandom.c",
       "src/unix/random-sysctl-linux.c",
     ] {
-    project.copy(@async.PosixPath::new(source), condition="defined(__linux__)")
+    project.copy(
+      @async.Path::parse_posix(source).to_path(),
+      condition="defined(__linux__)",
+    )
   }
 }
 
 ///|
-async fn update_moon_pkg_json(
-  project : Project,
-  path : @async.Path,
-) -> Unit! {
+async fn update_moon_pkg_json(project : Project, path : @async.Path) -> Unit! {
   @async.backtrace(fn() {
     let moon_pkg_json = @json.parse(path.read_text(encoding=UTF8))
       .as_object()

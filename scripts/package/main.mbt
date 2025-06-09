@@ -13,8 +13,8 @@ async fn remove_pre_build(path : &@async.ToPath) -> Unit! {
 
 ///|
 async fn publish(
-  source : &@async.ToPath,
-  target : &@async.ToPath,
+  source : @async.Path,
+  target : @async.Path,
   run_test~ : Bool = true,
   run_publish~ : Bool = false
 ) -> Unit!Error {
@@ -24,14 +24,14 @@ async fn publish(
     println("target \{target} removed")
   }
   target.mkdir()
-  (source / "src").copy_to(target / "src", recursive=true)
-  remove_pre_build(target / "src" / "moon.pkg.json")
-  (target / "src" / "uv").remove(recursive=true)
+  source.join("src").copy_to(target.join("src"), recursive=true)
+  remove_pre_build(target.join("src").join("moon.pkg.json"))
+  target.join("src").join("uv").remove(recursive=true)
   for file in ["README.md", "LICENSE", "moon.mod.json"] {
-    (source / file).copy_to(target / file)
+    source.join(file).copy_to(target.join(file))
   }
   if run_test {
-    (source / "test").copy_to(target / "test", recursive=true)
+    source.join("test").copy_to(target.join("test"), recursive=true)
     let process = @async.spawn(
       "moon",
       ["test", "--target", "native"],
@@ -42,8 +42,8 @@ async fn publish(
     assert_eq(process.status(), 0)
     let process = @async.spawn("moon", ["clean"], cwd=target)
     assert_eq(process.status(), 0)
-    (target / "target").remove(recursive=true)
-    (target / "test").remove(recursive=true)
+    target.join("target").remove(recursive=true)
+    target.join("test").remove(recursive=true)
   }
   target
   .walk()
@@ -93,14 +93,14 @@ fn main {
       let run_test = value.flags.get("test").or(true)
       let run_publish = value.flags.get("publish").or(false)
       let source = if value.positional_args.get(0) is Some(source) {
-        @async.path(source)
+        @async.Path::new(source)
       } else {
         @async.cwd()
       }
       let target = if value.args.get("target") is Some(target) {
-        @async.path(target)
+        @async.Path::new(target)
       } else {
-        source / "publish"
+        source.join("publish")
       }
       publish(source, target, run_test~, run_publish~)
     }) catch {
