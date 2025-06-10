@@ -1,11 +1,11 @@
 ///|
 test "spawn" {
-  let uv = @uv.Loop::new!()
+  let uv = @uv.Loop::new()
   let errors : Array[Error] = []
-  let stdout_pipe = @uv.Pipe::new!(uv, ipc=false)
+  let stdout_pipe = @uv.Pipe::new(uv, ipc=false)
   fn do_write(bytes : @bytes.View, start : Int, count : Int) -> Unit {
     try
-      uv.fs_write!(
+      uv.fs_write(
         @uv.stdout(),
         [bytes[start:start + count]],
         fn(_, delta) {
@@ -21,14 +21,14 @@ test "spawn" {
 
   fn do_read(pipe : @uv.Pipe) -> Unit {
     try
-      pipe.read_start!(
+      pipe.read_start(
         fn(_, size_hint) { return Bytes::make(size_hint, 0)[:] },
         fn(_, count, bytes) { do_write(bytes, 0, count) },
         fn(pipe, error) {
           if not(error is Errno(EOF)) {
             errors.push(error)
           }
-          try pipe.read_stop!() catch {
+          try pipe.read_stop() catch {
             error => errors.push(error)
           }
           pipe.close(fn(_) {  })
@@ -52,19 +52,19 @@ test "spawn" {
     stdio~,
     fn(child, exit_status, term_signal) {
       try {
-        assert_eq!(exit_status, 0)
-        assert_eq!(term_signal, 0)
+        assert_eq(exit_status, 0)
+        assert_eq(term_signal, 0)
       } catch {
         error => errors.push(error)
       }
       child.close(fn(_) {  })
     },
   )
-  let _ = uv.spawn!(options)
+  let _ = uv.spawn(options)
   do_read(stdout_pipe)
-  uv.run!(Default)
+  uv.run(Default)
   uv.stop()
-  uv.close!()
+  uv.close()
   for error in errors {
     raise error
   }

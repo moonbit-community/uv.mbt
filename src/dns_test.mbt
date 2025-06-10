@@ -1,13 +1,13 @@
 ///|
 test "dns" {
-  let uv = @uv.Loop::new!()
+  let uv = @uv.Loop::new()
   let resolved = []
   let mut error = None
-  uv.getaddrinfo!(
+  uv.getaddrinfo(
     fn(_, infos) {
       try {
         for info in infos {
-          resolved.push(info.addr().ip_name!())
+          resolved.push(info.addr().ip_name())
         }
       } catch {
         e => error = Some(e)
@@ -21,9 +21,9 @@ test "dns" {
       flags=@uv.AddrInfoFlags::new(canonname=true),
     ),
   )
-  uv.run!(Default)
+  uv.run(Default)
   uv.stop()
-  uv.close!()
-  raise_option!(error)
-  @json.inspect!(resolved, content=["::1", "127.0.0.1"])
+  uv.close()
+  raise_option(error)
+  @json.inspect(resolved, content=["::1", "127.0.0.1"])
 }

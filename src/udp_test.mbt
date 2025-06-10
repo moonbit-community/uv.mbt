@@ -1,11 +1,11 @@
 ///|
 test "udp" {
-  let uv = @uv.Loop::new!()
-  let in_socket = @uv.Udp::new!(uv)
-  let out_socket = @uv.Udp::new!(uv)
+  let uv = @uv.Loop::new()
+  let in_socket = @uv.Udp::new(uv)
+  let out_socket = @uv.Udp::new(uv)
   let addr : @uv.SockaddrIn = @uv.ip4_addr("127.0.0.1", 8543)
-  in_socket.bind!(addr, @uv.UdpFlags::new())
-  in_socket.recv_start!(
+  in_socket.bind(addr, @uv.UdpFlags::new())
+  in_socket.recv_start(
     fn(_udp, _size) { Bytes::make(100, '\x00')[:] },
     fn(_, nread, data, _, _) {
       guard data[:nread] is "Hello World!" else {
@@ -19,7 +19,7 @@ test "udp" {
       in_socket.close(fn(_) {  })
     },
   )
-  out_socket.send!(
+  out_socket.send(
     [b"Hello World!"],
     fn(_) { out_socket.close(fn(_) {  }) },
     fn(_, e) {
@@ -28,7 +28,7 @@ test "udp" {
     },
     addr~,
   )
-  uv.run!(Default)
+  uv.run(Default)
   uv.stop()
-  uv.close!()
+  uv.close()
 }

@@ -201,7 +201,7 @@ async fn configure(project : Project) -> Unit! {
       "src/strtok.c", "src/thread-common.c", "src/threadpool.c", "src/timer.c", "src/uv-common.c",
       "src/uv-data-getter-setters.c", "src/version.c",
     ] {
-    project.copy(@async.Path::parse_posix(source).to_path())
+    project.copy(@async.Path::posix(source).to_path())
   }
   for
     source in [
@@ -213,7 +213,7 @@ async fn configure(project : Project) -> Unit! {
       "src/win/tty.c", "src/win/udp.c", "src/win/util.c", "src/win/winapi.c", "src/win/winsock.c",
     ] {
     project.copy(
-      @async.Path::parse_posix(source).to_path(),
+      @async.Path::posix(source).to_path(),
       condition="defined(_WIN32)",
     )
   }
@@ -226,13 +226,13 @@ async fn configure(project : Project) -> Unit! {
       "src/unix/udp.c",
     ] {
     project.copy(
-      @async.Path::parse_posix(source).to_path(),
+      @async.Path::posix(source).to_path(),
       condition="!defined(_WIN32)",
     )
   }
   for source in ["src/unix/proctitle.c"] {
     project.copy(
-      @async.Path::parse_posix(source).to_path(),
+      @async.Path::posix(source).to_path(),
       condition="defined(__APPLE__) || defined(__linux__)",
     )
   }
@@ -242,7 +242,7 @@ async fn configure(project : Project) -> Unit! {
       "src/unix/darwin.c", "src/unix/fsevents.c",
     ] {
     project.copy(
-      @async.Path::parse_posix(source).to_path(),
+      @async.Path::posix(source).to_path(),
       condition="defined(__APPLE__)",
     )
   }
@@ -252,7 +252,7 @@ async fn configure(project : Project) -> Unit! {
       "src/unix/random-sysctl-linux.c",
     ] {
     project.copy(
-      @async.Path::parse_posix(source).to_path(),
+      @async.Path::posix(source).to_path(),
       condition="defined(__linux__)",
     )
   }
