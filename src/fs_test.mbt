@@ -7,7 +7,7 @@ fn[E : Error] raise_option(option : E?) -> Unit!E {
 
 ///|
 fn cat_do_close(uv : @uv.Loop, file : @uv.File, error : Ref[Errno?]) -> Unit {
-  try uv.fs_close!(file, fn(_) {  }) catch {
+  try uv.fs_close!(file, fn(_) {  }, fn(_, e) { error.val = Some(e) }) catch {
     e => error.val = Some(e)
   }
 }
@@ -74,7 +74,7 @@ test "cat" {
   let error = Ref::new(None)
   uv.fs_open!(
     "README.md",
-    @uv.OpenFlags::read(),
+    @uv.OpenFlags::read_only(),
     0,
     fn(_, file) { cat_do_read(uv, file, Bytes::make(1024, 0), error) },
     fn(_, e) { error.val = Some(e) },
@@ -87,7 +87,7 @@ test "cat" {
 ///|
 test "read/sync" {
   let uv = @uv.Loop::new!()
-  let file = uv.fs_open_sync("README.md", @uv.OpenFlags::read(), 0)
+  let file = uv.fs_open_sync("README.md", @uv.OpenFlags::read_only(), 0)
   let buffer = @buffer.new()
   let bytes = Bytes::make(1024, 0)
   for nread = uv.fs_read_sync(file, [bytes])
@@ -280,7 +280,7 @@ test "fstat" {
   let mut file_handle : @uv.File? = None
   uv.fs_open!(
     "test/fixtures/example.txt",
-    @uv.OpenFlags::read(),
+    @uv.OpenFlags::read_only(),
     0,
     fn(_, file) { file_handle = Some(file) },
     fn(_, e) { errors.push(e) },
@@ -304,7 +304,7 @@ test "fstat" {
       fn(_, e) { errors.push(e) },
     )
     uv.run!(Default)
-    uv.fs_close!(fh, fn(_) {  })
+    uv.fs_close!(fh, fn(_) {  }, fn(_, e) { errors.push(e) })
     uv.run!(Default)
   }
   uv.stop()

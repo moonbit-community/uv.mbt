@@ -285,6 +285,18 @@ moonbit_uv_fs_O_TRUNC(void) {
 
 MOONBIT_FFI_EXPORT
 int32_t
+moonbit_uv_fs_O_APPEND(void) {
+  return UV_FS_O_APPEND;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_O_EXCL(void) {
+  return UV_FS_O_EXCL;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
 moonbit_uv_fs_open(
   uv_loop_t *loop,
   moonbit_uv_fs_t *fs,

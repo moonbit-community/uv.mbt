@@ -18,7 +18,7 @@ test "fs_event" {
   )
   uv.fs_open!(
     "test/fixtures/test.txt",
-    @uv.OpenFlags::write(create=true),
+    @uv.OpenFlags::write_only(create=true),
     0o644,
     fn(_, file) {
       try
@@ -27,21 +27,25 @@ test "fs_event" {
           [b"Hello, world!"],
           fn(_, _) {
             try
-              uv.fs_close!(file, fn(_) {
-                try
-                  uv.fs_unlink!(
-                    "test/fixtures/test.txt",
-                    fn(_) {
-                      try fs_event.stop!() catch {
-                        e => errors.push(e)
-                      }
-                      fs_event.close(fn(_) {  })
-                    },
-                    fn(_, e) { errors.push(e) },
-                  ) catch {
-                  e => errors.push(e)
-                }
-              }) catch {
+              uv.fs_close!(
+                file,
+                fn(_) {
+                  try
+                    uv.fs_unlink!(
+                      "test/fixtures/test.txt",
+                      fn(_) {
+                        try fs_event.stop!() catch {
+                          e => errors.push(e)
+                        }
+                        fs_event.close(fn(_) {  })
+                      },
+                      fn(_, e) { errors.push(e) },
+                    ) catch {
+                    e => errors.push(e)
+                  }
+                },
+                fn(_, e) { errors.push(e) },
+              ) catch {
               e => errors.push(e)
             }
           },

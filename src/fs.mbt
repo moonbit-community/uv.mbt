@@ -11,40 +11,52 @@ extern "c" fn uv_fs_make() -> Fs = "moonbit_uv_fs_make"
 type OpenFlags Int
 
 ///|
-pub fn OpenFlags::read(create~ : Bool = false) -> OpenFlags {
-  let mut flags = _O_RDONLY
-  if create {
-    flags = flags | _O_CREAT
-  }
-  flags
+pub fn OpenFlags::read_only() -> OpenFlags {
+  _O_RDONLY
 }
 
 ///|
-pub fn OpenFlags::write(
+pub fn OpenFlags::write_only(
+  append~ : Bool = false,
   create~ : Bool = false,
-  truncate~ : Bool = false
+  truncate~ : Bool = false,
+  exclusive~ : Bool = false
 ) -> OpenFlags {
   let mut flags = _O_WRONLY
+  if append {
+    flags = flags | _O_APPEND
+  }
   if create {
     flags = flags | _O_CREAT
   }
   if truncate {
     flags = flags | _O_TRUNC
+  }
+  if exclusive {
+    flags = flags | _O_EXCL
   }
   flags
 }
 
 ///|
 pub fn OpenFlags::read_write(
+  append~ : Bool = false,
   create~ : Bool = false,
-  truncate~ : Bool = false
+  truncate~ : Bool = false,
+  exclusive~ : Bool = false
 ) -> OpenFlags {
   let mut flags = _O_RDWR
+  if append {
+    flags = flags | _O_APPEND
+  }
   if create {
     flags = flags | _O_CREAT
   }
   if truncate {
     flags = flags | _O_TRUNC
+  }
+  if exclusive {
+    flags = flags | _O_EXCL
   }
   flags
 }
@@ -78,6 +90,18 @@ extern "c" fn uv_fs_O_TRUNC() -> Int = "moonbit_uv_fs_O_TRUNC"
 
 ///|
 let _O_TRUNC : Int = uv_fs_O_TRUNC()
+
+///|
+extern "c" fn uv_fs_O_APPEND() -> Int = "moonbit_uv_fs_O_APPEND"
+
+///|
+let _O_APPEND : Int = uv_fs_O_APPEND()
+
+///|
+extern "c" fn uv_fs_O_EXCL() -> Int = "moonbit_uv_fs_O_EXCL"
+
+///|
+let _O_EXCL : Int = uv_fs_O_EXCL()
 
 ///|
 extern "c" fn uv_fs_open(
@@ -183,7 +207,21 @@ extern "c" fn uv_fs_close(
 ) -> Int = "moonbit_uv_fs_close"
 
 ///|
-pub fn fs_close(self : Loop, file : File, cb : (Fs) -> Unit) -> Unit!Errno {
+pub fn fs_close(
+  self : Loop,
+  file : File,
+  close_cb : (Fs) -> Unit,
+  error_cb : (Fs, Errno) -> Unit
+) -> Unit!Errno {
+  fn cb(req : Fs) {
+    let result = req.result()
+    if result < 0 {
+      error_cb(req, Errno::of_int(result.to_int()))
+    } else {
+      close_cb(req)
+    }
+  }
+
   let req = uv_fs_make()
   let status = uv_fs_close(self, req, file, cb)
   if status < 0 {
