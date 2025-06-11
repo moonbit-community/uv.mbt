@@ -20,49 +20,7 @@ fn disable_stdio_inheritance() -> Unit
 
 fn errno(Status) -> Errno
 
-fn[Ntbs : ToNtbs] fs_access(Loop, Ntbs, AccessFlags, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-
-fn fs_close(Loop, File, (Fs) -> Unit) -> Unit!Errno
-
-fn[Ntbs : ToNtbs] fs_copyfile(Loop, Ntbs, Ntbs, CopyFileFlags, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-
-fn fs_fstat(Loop, File, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-
-fn fs_ftruncate(Loop, File, Int64, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-
-fn[Ntbs : ToNtbs] fs_lstat(Loop, Ntbs, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-
-fn[Ntbs : ToNtbs] fs_mkdir(Loop, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-
-fn[Ntbs : ToNtbs] fs_open(Loop, Ntbs, OpenFlags, Int, (Fs, File) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-
-fn[Ntbs : ToNtbs] fs_open_sync(Loop, Ntbs, OpenFlags, Int) -> File!Errno
-
-fn fs_read(Loop, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-
-fn fs_read_sync(Loop, File, Array[@bytes.View], offset~ : Int64 = ..) -> Int!Errno
-
-fn[Ntbs : ToNtbs] fs_realpath(Loop, Ntbs, (Fs, String) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-
-fn[Ntbs : ToNtbs] fs_rename(Loop, Ntbs, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-
-fn[Ntbs : ToNtbs] fs_rmdir(Loop, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-
-fn[Ntbs : ToNtbs] fs_scandir(Loop, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-
 fn fs_scandir_next(Fs) -> Dirent!Errno
-
-fn[Ntbs : ToNtbs] fs_stat(Loop, Ntbs, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-
-fn[Ntbs : ToNtbs] fs_stat_sync(Loop, Ntbs) -> Stat!Errno
-
-fn[Ntbs : ToNtbs] fs_unlink(Loop, Ntbs, (Fs) -> Unit, (Fs, Error) -> Unit) -> Unit!Errno
-
-fn fs_write(Loop, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-
-fn fs_write_sync(Loop, File, Array[@bytes.View], offset~ : Int64 = ..) -> Unit!Errno
-
-fn[Node : ToNtbs, Service : ToNtbs] getaddrinfo(Loop, (GetAddrInfo, Iter[AddrInfo]) -> Unit, (GetAddrInfo, Errno) -> Unit, Node, Service, hints? : AddrInfoHints) -> Unit!Errno
 
 fn hrtime() -> UInt64
 
@@ -82,10 +40,6 @@ fn os_uname() -> Utsname!Errno
 
 fn pipe(Int, Int) -> (File, File)!Errno
 
-fn queue_work(Loop, (Work) -> Unit, (Work) -> Unit, (Work, Errno) -> Unit) -> Unit!Errno
-
-fn random(Loop, @bytes.View, Int, (Random, @bytes.View) -> Unit, (Random, Errno) -> Unit) -> Unit!Errno
-
 fn[Stream : ToStream] read_start(Stream, (Stream, Int) -> @bytes.View, (Stream, Int, @bytes.View) -> Unit, (Stream, Errno) -> Unit) -> Unit!Errno
 
 fn[Stream : ToStream] read_stop(Stream) -> Unit!Errno
@@ -95,8 +49,6 @@ fn run(Loop, RunMode) -> Unit!Errno
 fn[Stream : ToStream] shutdown(Stream, (Shutdown) -> Unit, (Shutdown, Errno) -> Unit) -> Unit!Errno
 
 fn sleep(UInt) -> Unit
-
-fn spawn(Loop, ProcessOptions) -> Process!Errno
 
 fn stderr() -> File
 
@@ -207,23 +159,29 @@ type Loop
 fn Loop::alive(Self) -> Bool
 fn Loop::close(Self) -> Unit!Errno
 fn[Ntbs : ToNtbs] Loop::fs_access(Self, Ntbs, AccessFlags, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-fn Loop::fs_close(Self, File, (Fs) -> Unit) -> Unit!Errno
+fn[Ntbs : ToNtbs] Loop::fs_access_sync(Self, Ntbs, AccessFlags) -> Unit!Errno
+fn Loop::fs_close(Self, File, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 fn[Ntbs : ToNtbs] Loop::fs_copyfile(Self, Ntbs, Ntbs, CopyFileFlags, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn[Ntbs : ToNtbs] Loop::fs_copyfile_sync(Self, Ntbs, Ntbs, CopyFileFlags) -> Unit!Errno
 fn Loop::fs_fstat(Self, File, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 fn Loop::fs_ftruncate(Self, File, Int64, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 fn[Ntbs : ToNtbs] Loop::fs_lstat(Self, Ntbs, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 fn[Ntbs : ToNtbs] Loop::fs_mkdir(Self, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn[Ntbs : ToNtbs] Loop::fs_mkdir_sync(Self, Ntbs, Int) -> Unit!Errno
 fn[Ntbs : ToNtbs] Loop::fs_open(Self, Ntbs, OpenFlags, Int, (Fs, File) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 fn[Ntbs : ToNtbs] Loop::fs_open_sync(Self, Ntbs, OpenFlags, Int) -> File!Errno
 fn Loop::fs_read(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 fn Loop::fs_read_sync(Self, File, Array[@bytes.View], offset~ : Int64 = ..) -> Int!Errno
 fn[Ntbs : ToNtbs] Loop::fs_realpath(Self, Ntbs, (Fs, String) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn[Ntbs : ToNtbs] Loop::fs_realpath_sync(Self, Ntbs) -> String!Errno
 fn[Ntbs : ToNtbs] Loop::fs_rename(Self, Ntbs, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 fn[Ntbs : ToNtbs] Loop::fs_rmdir(Self, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn[Ntbs : ToNtbs] Loop::fs_rmdir_sync(Self, Ntbs) -> Unit!Errno
 fn[Ntbs : ToNtbs] Loop::fs_scandir(Self, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 fn[Ntbs : ToNtbs] Loop::fs_stat(Self, Ntbs, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 fn[Ntbs : ToNtbs] Loop::fs_stat_sync(Self, Ntbs) -> Stat!Errno
 fn[Ntbs : ToNtbs] Loop::fs_unlink(Self, Ntbs, (Fs) -> Unit, (Fs, Error) -> Unit) -> Unit!Errno
+fn[Ntbs : ToNtbs] Loop::fs_unlink_sync(Self, Ntbs) -> Unit!Errno
 fn Loop::fs_write(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 fn Loop::fs_write_sync(Self, File, Array[@bytes.View], offset~ : Int64 = ..) -> Unit!Errno
 fn[Node : ToNtbs, Service : ToNtbs] Loop::getaddrinfo(Self, (GetAddrInfo, Iter[AddrInfo]) -> Unit, (GetAddrInfo, Errno) -> Unit, Node, Service, hints? : AddrInfoHints) -> Unit!Errno
@@ -242,9 +200,9 @@ fn Mutex::unlock(Self) -> Unit
 impl Share for Mutex
 
 type OpenFlags
-fn OpenFlags::read(create~ : Bool = ..) -> Self
-fn OpenFlags::read_write(create~ : Bool = .., truncate~ : Bool = ..) -> Self
-fn OpenFlags::write(create~ : Bool = .., truncate~ : Bool = ..) -> Self
+fn OpenFlags::read_only() -> Self
+fn OpenFlags::read_write(append~ : Bool = .., create~ : Bool = .., truncate~ : Bool = .., exclusive~ : Bool = ..) -> Self
+fn OpenFlags::write_only(append~ : Bool = .., create~ : Bool = .., truncate~ : Bool = .., exclusive~ : Bool = ..) -> Self
 
 type Pipe
 fn[Ntbs : ToNtbs] Pipe::bind(Self, Ntbs, PipeBindFlags) -> Unit!Errno
@@ -330,8 +288,11 @@ fn Stat::ino(Self) -> UInt64
 fn Stat::is_block_device(Self) -> Bool!Errno
 fn Stat::is_character_device(Self) -> Bool
 fn Stat::is_directory(Self) -> Bool
+fn Stat::is_fifo(Self) -> Bool
 fn Stat::is_file(Self) -> Bool
+#deprecated
 fn Stat::is_pipe(Self) -> Bool
+fn Stat::is_regular(Self) -> Bool
 fn Stat::is_socket(Self) -> Bool!Errno
 fn Stat::is_symlink(Self) -> Bool
 fn Stat::mode(Self) -> UInt64
@@ -340,6 +301,7 @@ fn Stat::mtim_sec(Self) -> Int64
 fn Stat::nlink(Self) -> UInt64
 fn Stat::rdev(Self) -> UInt64
 fn Stat::size(Self) -> UInt64
+fn Stat::type_(Self) -> DirentType
 fn Stat::uid(Self) -> UInt64
 
 pub(all) enum Status {

@@ -206,7 +206,7 @@ extern "c" fn uv_spawn(
 ) -> Int = "moonbit_uv_spawn"
 
 ///|
-pub fn spawn(self : Loop, options : ProcessOptions) -> Process!Errno {
+pub fn Loop::spawn(self : Loop, options : ProcessOptions) -> Process!Errno {
   let process = uv_process_make()
   let status = uv_spawn(self, process, options)
   if status < 0 {

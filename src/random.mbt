@@ -16,7 +16,7 @@ extern "c" fn uv_random(
 ) -> Int = "moonbit_uv_random"
 
 ///|
-pub fn random(
+pub fn Loop::random(
   self : Loop,
   buffer : @bytes.View,
   flags : Int,

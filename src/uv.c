@@ -522,6 +522,21 @@ moonbit_uv_fs_mkdir(
 
 MOONBIT_FFI_EXPORT
 int32_t
+moonbit_uv_fs_mkdir_sync(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path,
+  int32_t mode
+) {
+  moonbit_uv_fs_set_data(fs, NULL);
+  int status = uv_fs_mkdir(loop, &fs->fs, (const char *)path, mode, NULL);
+  moonbit_decref(loop);
+  moonbit_decref(path);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
 moonbit_uv_fs_rmdir(
   uv_loop_t *loop,
   moonbit_uv_fs_t *fs,
@@ -530,6 +545,20 @@ moonbit_uv_fs_rmdir(
 ) {
   moonbit_uv_fs_set_data(fs, cb);
   int status = uv_fs_rmdir(loop, &fs->fs, (const char *)path, moonbit_uv_fs_cb);
+  moonbit_decref(loop);
+  moonbit_decref(path);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_rmdir_sync(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path
+) {
+  moonbit_uv_fs_set_data(fs, NULL);
+  int status = uv_fs_rmdir(loop, &fs->fs, (const char *)path, NULL);
   moonbit_decref(loop);
   moonbit_decref(path);
   return status;
@@ -576,6 +605,25 @@ moonbit_uv_fs_copyfile(
 
 MOONBIT_FFI_EXPORT
 int32_t
+moonbit_uv_fs_copyfile_sync(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path,
+  moonbit_bytes_t new_path,
+  int32_t flags
+) {
+  moonbit_uv_fs_set_data(fs, NULL);
+  int status = uv_fs_copyfile(
+    loop, &fs->fs, (const char *)path, (const char *)new_path, flags, NULL
+  );
+  moonbit_decref(loop);
+  moonbit_decref(path);
+  moonbit_decref(new_path);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
 moonbit_uv_fs_unlink(
   uv_loop_t *loop,
   moonbit_uv_fs_t *fs,
@@ -585,6 +633,20 @@ moonbit_uv_fs_unlink(
   moonbit_uv_fs_set_data(fs, cb);
   int status =
     uv_fs_unlink(loop, &fs->fs, (const char *)path, moonbit_uv_fs_cb);
+  moonbit_decref(loop);
+  moonbit_decref(path);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_unlink_sync(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path
+) {
+  moonbit_uv_fs_set_data(fs, NULL);
+  int status = uv_fs_unlink(loop, &fs->fs, (const char *)path, NULL);
   moonbit_decref(loop);
   moonbit_decref(path);
   return status;
@@ -640,6 +702,21 @@ moonbit_uv_fs_scandir_next(moonbit_uv_fs_t *fs, uv_dirent_t *ent) {
 
 MOONBIT_FFI_EXPORT
 int32_t
+moonbit_uv_fs_scandir_sync(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path,
+  int32_t flags
+) {
+  moonbit_uv_fs_set_data(fs, NULL);
+  int status = uv_fs_scandir(loop, &fs->fs, (const char *)path, flags, NULL);
+  moonbit_decref(loop);
+  moonbit_decref(path);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
 moonbit_uv_fs_rename(
   uv_loop_t *loop,
   moonbit_uv_fs_t *req,
@@ -650,6 +727,24 @@ moonbit_uv_fs_rename(
   moonbit_uv_fs_set_data(req, cb);
   int status = uv_fs_rename(
     loop, &req->fs, (const char *)path, (const char *)new_path, moonbit_uv_fs_cb
+  );
+  moonbit_decref(loop);
+  moonbit_decref(path);
+  moonbit_decref(new_path);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_rename_sync(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *req,
+  moonbit_bytes_t path,
+  moonbit_bytes_t new_path
+) {
+  moonbit_uv_fs_set_data(req, NULL);
+  int status = uv_fs_rename(
+    loop, &req->fs, (const char *)path, (const char *)new_path, NULL
   );
   moonbit_decref(loop);
   moonbit_decref(path);
@@ -806,6 +901,20 @@ moonbit_uv_fs_realpath(
 
 MOONBIT_FFI_EXPORT
 int32_t
+moonbit_uv_fs_realpath_sync(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path
+) {
+  moonbit_uv_fs_set_data(fs, NULL);
+  int status = uv_fs_realpath(loop, &fs->fs, (const char *)path, NULL);
+  moonbit_decref(loop);
+  moonbit_decref(path);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
 moonbit_uv_F_OK(void) {
   return F_OK;
 }
@@ -840,6 +949,21 @@ moonbit_uv_fs_access(
   moonbit_uv_fs_set_data(fs, cb);
   int status =
     uv_fs_access(loop, &fs->fs, (const char *)path, mode, moonbit_uv_fs_cb);
+  moonbit_decref(loop);
+  moonbit_decref(path);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_access_sync(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path,
+  int32_t mode
+) {
+  moonbit_uv_fs_set_data(fs, NULL);
+  int status = uv_fs_access(loop, &fs->fs, (const char *)path, mode, NULL);
   moonbit_decref(loop);
   moonbit_decref(path);
   return status;

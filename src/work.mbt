@@ -13,7 +13,7 @@ extern "c" fn uv_queue_work(
 ) -> Int = "moonbit_uv_queue_work"
 
 ///|
-pub fn queue_work(
+pub fn Loop::queue_work(
   self : Loop,
   work_cb : (Work) -> Unit,
   after_cb : (Work) -> Unit,
