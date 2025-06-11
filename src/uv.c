@@ -360,6 +360,23 @@ moonbit_uv_fs_close(
 
 MOONBIT_FFI_EXPORT
 int32_t
+moonbit_uv_fs_close_sync(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  int32_t file
+) {
+  moonbit_uv_trace("loop = %p\n", (void *)loop);
+  moonbit_uv_trace("loop->rc = %d\n", Moonbit_object_header(loop)->rc);
+  moonbit_uv_trace("fs = %p\n", (void *)fs);
+  moonbit_uv_trace("fs->rc = %d\n", Moonbit_object_header(fs)->rc);
+  moonbit_uv_fs_set_data(fs, NULL);
+  int result = uv_fs_close(loop, &fs->fs, file, NULL);
+  moonbit_decref(loop);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
 moonbit_uv_fs_read(
   uv_loop_t *loop,
   moonbit_uv_fs_t *fs,

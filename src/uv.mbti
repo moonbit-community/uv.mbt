@@ -157,6 +157,7 @@ fn Loop::close(Self) -> Unit!Errno
 fn[Ntbs : ToNtbs] Loop::fs_access(Self, Ntbs, AccessFlags, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 fn[Ntbs : ToNtbs] Loop::fs_access_sync(Self, Ntbs, AccessFlags) -> Unit!Errno
 fn Loop::fs_close(Self, File, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
+fn Loop::fs_close_sync(Self, File) -> Unit!Errno
 fn[Ntbs : ToNtbs] Loop::fs_copyfile(Self, Ntbs, Ntbs, CopyFileFlags, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
 fn[Ntbs : ToNtbs] Loop::fs_copyfile_sync(Self, Ntbs, Ntbs, CopyFileFlags) -> Unit!Errno
 fn Loop::fs_fstat(Self, File, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno

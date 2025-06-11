@@ -230,6 +230,18 @@ pub fn Loop::fs_close(
 }
 
 ///|
+extern "c" fn uv_fs_close_sync(uv : Loop, req : Fs, file : File) -> Int = "moonbit_uv_fs_close_sync"
+
+///|
+pub fn Loop::fs_close_sync(self : Loop, file : File) -> Unit!Errno {
+  let req = uv_fs_make()
+  let status = uv_fs_close_sync(self, req, file)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
 extern "c" fn uv_fs_get_result(req : Fs) -> Int64 = "moonbit_uv_fs_get_result"
 
 ///|
