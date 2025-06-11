@@ -44,8 +44,6 @@ fn[Stream : ToStream] read_start(Stream, (Stream, Int) -> @bytes.View, (Stream, 
 
 fn[Stream : ToStream] read_stop(Stream) -> Unit!Errno
 
-fn run(Loop, RunMode) -> Unit!Errno
-
 fn[Stream : ToStream] shutdown(Stream, (Shutdown) -> Unit, (Shutdown, Errno) -> Unit) -> Unit!Errno
 
 fn sleep(UInt) -> Unit
@@ -55,8 +53,6 @@ fn stderr() -> File
 fn stdin() -> File
 
 fn stdout() -> File
-
-fn stop(Loop) -> Unit
 
 fn[Stream : ToStream] write(Stream, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) -> Unit!Errno
 

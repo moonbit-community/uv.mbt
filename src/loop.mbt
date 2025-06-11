@@ -21,8 +21,8 @@ pub fn Loop::new() -> Loop!Errno {
 extern "c" fn uv_loop_close(loop_ : Loop) -> Int = "moonbit_uv_loop_close"
 
 ///|
-pub fn Loop::close(loop_ : Loop) -> Unit!Errno {
-  let status = uv_loop_close(loop_)
+pub fn Loop::close(self : Loop) -> Unit!Errno {
+  let status = uv_loop_close(self)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -39,7 +39,7 @@ pub(all) enum RunMode {
 extern "c" fn uv_run(uv : Loop, mode : RunMode) -> Int = "moonbit_uv_run"
 
 ///|
-pub fn run(self : Loop, mode : RunMode) -> Unit!Errno {
+pub fn Loop::run(self : Loop, mode : RunMode) -> Unit!Errno {
   let status = uv_run(self, mode)
   if status < 0 {
     raise Errno::of_int(status)
@@ -50,7 +50,7 @@ pub fn run(self : Loop, mode : RunMode) -> Unit!Errno {
 extern "c" fn uv_stop(loop_ : Loop) = "moonbit_uv_stop"
 
 ///|
-pub fn stop(self : Loop) -> Unit {
+pub fn Loop::stop(self : Loop) -> Unit {
   uv_stop(self)
 }
 
