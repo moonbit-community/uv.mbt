@@ -22,3 +22,33 @@ test "write" {
   path.unlink()
   assert_false(path.exists())
 }
+
+///|
+test "write/stdio" {
+  @sync.stdout.write_text("Hello, world!\n", encoding=UTF8)
+}
+
+///|
+test "scandir" {
+  @json.inspect(@sync.Path::new(["test", "fixtures"]).iter().collect(), content=[
+    "test/fixtures/example.txt",
+  ])
+}
+
+///|
+test "copy_to/file" {
+  let src = @sync.Path::new(["test", "fixtures", "example.txt"])
+  assert_true(src.exists())
+  let dst = @sync.Path::new(["test", "fixtures", "example_copy.txt"])
+  assert_false(dst.exists())
+  try {
+    src.copy_to(dst)
+    assert_true(dst.is_file())
+    dst.unlink()
+  } catch {
+    error => {
+      dst.unlink()
+      raise error
+    }
+  }
+}

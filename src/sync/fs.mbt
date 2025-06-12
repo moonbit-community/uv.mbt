@@ -144,3 +144,82 @@ pub fn Path::exists(self : Path, loc~ : SourceLoc = _) -> Bool raise Error {
     }
   })
 }
+
+///|
+pub fn Path::iter(self : Path) -> Iter[Path] raise {
+  let uv = uv()
+  let req = uv.fs_scandir_sync(self.to_string(), 0)
+  fn(yield_) {
+    try {
+      while true {
+        let dirent = @uv.fs_scandir_next(req)
+        let name = dirent.name()
+        yield_(self / ToPath::to_path(name))
+      }
+    } catch {
+      @uv.Errno(EOF) => ()
+      e => raise e
+    }
+  }
+}
+
+///|
+pub fn Path::is_dir(self : Path, loc~ : SourceLoc = _) -> Bool raise Error {
+  backtrace(loc~, fn() {
+    let stat = self.stat()
+    stat.is_dir()
+  })
+}
+
+///|
+pub fn Path::is_file(self : Path, loc~ : SourceLoc = _) -> Bool raise Error {
+  backtrace(loc~, fn() {
+    let stat = self.stat()
+    stat.is_file()
+  })
+}
+
+///|
+pub fn Path::mkdir(
+  self : Path,
+  mode~ : Int = 0o777,
+  loc~ : SourceLoc = _
+) -> Unit raise {
+  let uv = uv()
+  backtrace(loc~, fn() { uv.fs_mkdir_sync(self.to_string(), mode) })
+}
+
+///|
+pub fn[Target : ToPath] Path::copy_to(
+  self : Path,
+  target : Target,
+  recursive~ : Bool = false,
+  overwrite~ : Bool = false,
+  loc~ : SourceLoc = _
+) -> Unit raise Error {
+  let uv = uv()
+  backtrace(loc~, fn() {
+    let target : Path = target.to_path()
+    if self.is_dir() {
+      if not(recursive) {
+        raise SystemError::is_directory(self)
+      }
+      if not(overwrite) && target.exists() {
+        raise SystemError::exists(target)
+      }
+      target.mkdir()
+      self
+      .iter()
+      .each(fn(entry) {
+        let target_entry = target / entry.relative_to(self)
+        entry.copy_to(target_entry, recursive~, overwrite~)
+      })
+    } else {
+      uv.fs_copyfile_sync(
+        self.to_string(),
+        target.to_string(),
+        @uv.CopyFileFlags::new(allow_exists=overwrite),
+      )
+    }
+  })
+}

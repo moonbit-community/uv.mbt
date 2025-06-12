@@ -19,7 +19,11 @@ struct Path {
   root : @string.View
   anchor : @string.View
   parts : ArrayView[@string.View]
-} derive(Eq, Hash, ToJson)
+} derive(Eq, Hash)
+
+pub impl ToJson for Path with to_json(self : Path) -> Json {
+  self.to_string().to_json()
+}
 
 ///|
 pub fn Path::parts(self : Path) -> ArrayView[@string.View] {

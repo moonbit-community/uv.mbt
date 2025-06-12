@@ -707,6 +707,29 @@ pub fn[Ntbs : ToNtbs] Loop::fs_scandir(
 }
 
 ///|
+extern "c" fn uv_fs_scandir_sync(
+  uv : Loop,
+  req : Fs,
+  path : Bytes,
+  flags : Int
+) -> Int = "moonbit_uv_fs_scandir_sync"
+
+///|
+pub fn[Ntbs : ToNtbs] fs_scandir_sync(
+  self : Loop,
+  path : Ntbs,
+  flags : Int
+) -> Fs raise Errno {
+  let req = uv_fs_make()
+  let path = path.to_ntbs()
+  let status = uv_fs_scandir_sync(self, req, path, flags)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  req
+}
+
+///|
 pub fn fs_scandir_next(req : Fs) -> Dirent raise Errno {
   let dirent = uv_dirent_make()
   let status = uv_fs_scandir_next(req, dirent)
