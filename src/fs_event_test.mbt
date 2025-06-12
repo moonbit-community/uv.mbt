@@ -10,7 +10,7 @@ test "fs_event" {
     fn(_, name, types) { events.push((name, types)) },
     fn(_, _, errno) {
       errors.push(errno)
-      try fs_event.stop() catch {
+      fs_event.stop() catch {
         e => errors.push(e)
       }
       fs_event.close(fn(_) {  })
@@ -21,36 +21,33 @@ test "fs_event" {
     @uv.OpenFlags::write_only(create=true),
     0o644,
     fn(_, file) {
-      try
-        uv.fs_write(
-          file,
-          [b"Hello, world!"],
-          fn(_, _) {
-            try
-              uv.fs_close(
-                file,
+      uv.fs_write(
+        file,
+        [b"Hello, world!"],
+        fn(_, _) {
+          uv.fs_close(
+            file,
+            fn(_) {
+              uv.fs_unlink(
+                "test/fixtures/test.txt",
                 fn(_) {
-                  try
-                    uv.fs_unlink(
-                      "test/fixtures/test.txt",
-                      fn(_) {
-                        try fs_event.stop() catch {
-                          e => errors.push(e)
-                        }
-                        fs_event.close(fn(_) {  })
-                      },
-                      fn(_, e) { errors.push(e) },
-                    ) catch {
+                  fs_event.stop() catch {
                     e => errors.push(e)
                   }
+                  fs_event.close(fn(_) {  })
                 },
                 fn(_, e) { errors.push(e) },
               ) catch {
-              e => errors.push(e)
-            }
-          },
-          fn(_, errno) { errors.push(errno) },
-        ) catch {
+                e => errors.push(e)
+              }
+            },
+            fn(_, e) { errors.push(e) },
+          ) catch {
+            e => errors.push(e)
+          }
+        },
+        fn(_, errno) { errors.push(errno) },
+      ) catch {
         e => errors.push(e)
       }
     },

@@ -1,5 +1,5 @@
 ///|
-fn[E : Error] raise_option(option : E?) -> Unit!E {
+fn[E : Error] raise_option(option : E?) -> Unit raise E {
   if option is Some(error) {
     raise error
   }
@@ -7,7 +7,7 @@ fn[E : Error] raise_option(option : E?) -> Unit!E {
 
 ///|
 fn cat_do_close(uv : @uv.Loop, file : @uv.File, error : Ref[Errno?]) -> Unit {
-  try uv.fs_close(file, fn(_) {  }, fn(_, e) { error.val = Some(e) }) catch {
+  uv.fs_close(file, fn(_) {  }, fn(_, e) { error.val = Some(e) }) catch {
     e => error.val = Some(e)
   }
 }
@@ -21,19 +21,18 @@ fn cat_do_write(
   count : Int,
   error : Ref[Errno?]
 ) -> Unit {
-  try
-    uv.fs_write(
-      @uv.stdout(),
-      [bytes[start:start + count]],
-      fn(_, delta) {
-        if delta < count {
-          cat_do_write(uv, file, bytes, start + delta, count - delta, error)
-        } else {
-          cat_do_read(uv, file, bytes, error)
-        }
-      },
-      fn(_, e) { error.val = Some(e) },
-    ) catch {
+  uv.fs_write(
+    @uv.stdout(),
+    [bytes[start:start + count]],
+    fn(_, delta) {
+      if delta < count {
+        cat_do_write(uv, file, bytes, start + delta, count - delta, error)
+      } else {
+        cat_do_read(uv, file, bytes, error)
+      }
+    },
+    fn(_, e) { error.val = Some(e) },
+  ) catch {
     e => error.val = Some(e)
   }
 }
@@ -45,22 +44,21 @@ fn cat_do_read(
   bytes : Bytes,
   error : Ref[Errno?]
 ) -> Unit {
-  try
-    uv.fs_read(
-      file,
-      [bytes[:]],
-      fn(_, count) {
-        if count == 0 {
-          cat_do_close(uv, file, error)
-        } else {
-          cat_do_write(uv, file, bytes, 0, count, error)
-        }
-      },
-      fn(_, errno) {
-        error.val = Some(errno)
+  uv.fs_read(
+    file,
+    [bytes[:]],
+    fn(_, count) {
+      if count == 0 {
         cat_do_close(uv, file, error)
-      },
-    ) catch {
+      } else {
+        cat_do_write(uv, file, bytes, 0, count, error)
+      }
+    },
+    fn(_, errno) {
+      error.val = Some(errno)
+      cat_do_close(uv, file, error)
+    },
+  ) catch {
     e => {
       error.val = Some(e)
       cat_do_close(uv, file, error)
@@ -73,7 +71,7 @@ test "cat" {
   let uv = @uv.Loop::new()
   let error = Ref::new(None)
   uv.fs_open(
-    "README.md",
+    b"README.md",
     @uv.OpenFlags::read_only(),
     0,
     fn(_, file) { cat_do_read(uv, file, Bytes::make(1024, 0), error) },
@@ -111,10 +109,9 @@ test "mkdir" {
     "test-dir",
     0,
     fn(_) {
-      try
-        uv.fs_rmdir("test-dir", fn(_) {  }, fn(_, error) {
-          rmdir_error = Some(error)
-        }) catch {
+      uv.fs_rmdir("test-dir", fn(_) {  }, fn(_, error) {
+        rmdir_error = Some(error)
+      }) catch {
         error => rmdir_error = Some(error)
       }
     },
@@ -141,7 +138,7 @@ test "scandir" {
     0,
     fn(req) {
       while true {
-        let dirent = try @uv.fs_scandir_next(req) catch {
+        let dirent = @uv.fs_scandir_next(req) catch {
           e => {
             if not(e is Errno(EOF)) {
               error = Some(e)
@@ -170,10 +167,9 @@ test "copyfile_unlink" {
     "test/fixtures/example-copy.txt",
     @uv.CopyFileFlags::new(),
     fn(_) {
-      try
-        uv.fs_unlink("test/fixtures/example-copy.txt", fn(_) {  }, fn(_, e) {
-          error = Some(e)
-        }) catch {
+      uv.fs_unlink("test/fixtures/example-copy.txt", fn(_) {  }, fn(_, e) {
+        error = Some(e)
+      }) catch {
         e => error = Some(e)
       }
     },
@@ -194,7 +190,7 @@ test "realpath" {
   uv.fs_realpath(
     "test/fixtures/example.txt",
     fn(_, p) {
-      try assert_eq(@async.Path::new(p), @async.Path::new("\{cwd}/\{file}")) catch {
+      assert_eq(@async.Path::new(p), @async.Path::new("\{cwd}/\{file}")) catch {
         e => errors.push(e)
       }
     },

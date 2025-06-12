@@ -41,7 +41,7 @@ extern "c" fn uv_pipe(
 ) -> Int = "moonbit_uv_pipe"
 
 ///|
-pub fn Pipe::new(self : Loop, ipc~ : Bool = false) -> Pipe!Errno {
+pub fn Pipe::new(self : Loop, ipc~ : Bool = false) -> Pipe raise Errno {
   let pipe = uv_pipe_make()
   let status = uv_pipe_init(self, pipe, ipc)
   if status < 0 {
@@ -70,7 +70,7 @@ pub fn[Ntbs : ToNtbs] Pipe::bind(
   self : Pipe,
   name : Ntbs,
   flags : PipeBindFlags
-) -> Unit!Errno {
+) -> Unit raise Errno {
   let name = name.to_ntbs()
   let status = uv_pipe_bind(self, name, flags._)
   if status < 0 {
@@ -79,7 +79,7 @@ pub fn[Ntbs : ToNtbs] Pipe::bind(
 }
 
 ///|
-pub fn pipe(read_flags : Int, write_flags : Int) -> (File, File)!Errno {
+pub fn pipe(read_flags : Int, write_flags : Int) -> (File, File) raise Errno {
   let fds : FixedArray[Int] = [0, 0]
   let status = uv_pipe(fds, read_flags, write_flags)
   if status < 0 {

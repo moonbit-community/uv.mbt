@@ -1,20 +1,20 @@
 ///|
-type Iter[T] ((T) -> Unit!Error) -> Unit!Error
+type Iter[T] ((T) -> Unit raise Error) -> Unit raise Error
 
 ///|
-pub fn[T] Iter::collect(self : Iter[T]) -> Array[T]!Error {
+pub fn[T] Iter::collect(self : Iter[T]) -> Array[T] raise Error {
   let array = []
   (self._)(fn(item) { array.push(item) })
   array
 }
 
 ///|
-pub fn[T] Iter::filter(self : Iter[T], f : (T) -> Bool!Error) -> Iter[T] {
+pub fn[T] Iter::filter(self : Iter[T], f : (T) -> Bool raise Error) -> Iter[T] {
   fn(submit) { (self._)(fn(item) { if f(item) { submit(item) } }) }
 }
 
 ///|
-pub fn[T, U] Iter::bind(self : Iter[T], f : (T) -> U?!Error) -> Iter[U] {
+pub fn[T, U] Iter::bind(self : Iter[T], f : (T) -> U? raise Error) -> Iter[U] {
   fn(submit) {
     (self._)(fn(item) { if f(item) is Some(value) { submit(value) } })
   }
@@ -24,7 +24,7 @@ pub fn[T, U] Iter::bind(self : Iter[T], f : (T) -> U?!Error) -> Iter[U] {
 pub fn Iter::text(
   self : Iter[@bytes.View],
   encoding~ : @encoding.Encoding = UTF8
-) -> String! {
+) -> String raise {
   let decoder = @encoding.decoder(encoding)
   let builder = StringBuilder::new()
   (self._)(fn(bytes) { decoder.decode_to(bytes, builder, stream=true) })
@@ -49,22 +49,25 @@ pub fn Iter::decode(
 }
 
 ///|
-pub fn Iter::bytes(self : Iter[@bytes.View]) -> Bytes!Error {
+pub fn Iter::bytes(self : Iter[@bytes.View]) -> Bytes raise Error {
   let buffer = @buffer.new()
   (self._)(buffer.write_bytesview(_))
   buffer.contents()
 }
 
 ///|
-pub fn[T] Iter::each(self : Iter[T], f : (T) -> Unit!Error) -> Unit!Error {
+pub fn[T] Iter::each(
+  self : Iter[T],
+  f : (T) -> Unit raise Error
+) -> Unit raise Error {
   (self._)(f)
 }
 
 ///|
 pub trait Readable {
-  read(Self) -> Iter[@bytes.View]!Error
-  read_text(Self, encoding~ : @encoding.Encoding) -> String!Error = _
-  read_bytes(Self) -> Bytes!Error = _
+  read(Self) -> Iter[@bytes.View] raise Error
+  read_text(Self, encoding~ : @encoding.Encoding) -> String raise Error = _
+  read_bytes(Self) -> Bytes raise Error = _
 }
 
 ///|
@@ -84,9 +87,9 @@ impl Readable with read_bytes(self : Self) {
 
 ///|
 pub trait Writable {
-  write(Self, Iter[@bytes.View]) -> Unit!Error
-  write_text(Self, @string.View, encoding~ : @encoding.Encoding) -> Unit!Error = _
-  write_bytes(Self, @bytes.View) -> Unit!Error = _
+  write(Self, Iter[@bytes.View]) -> Unit raise Error
+  write_text(Self, @string.View, encoding~ : @encoding.Encoding) -> Unit raise Error = _
+  write_bytes(Self, @bytes.View) -> Unit raise Error = _
 }
 
 ///|

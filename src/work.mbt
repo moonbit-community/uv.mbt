@@ -18,7 +18,7 @@ pub fn Loop::queue_work(
   work_cb : (Work) -> Unit,
   after_cb : (Work) -> Unit,
   error_cb : (Work, Errno) -> Unit
-) -> Unit!Errno {
+) -> Unit raise Errno {
   let req = uv_work_make()
   let status = uv_queue_work(self, req, fn(req) { work_cb(req) }, fn(
     req,

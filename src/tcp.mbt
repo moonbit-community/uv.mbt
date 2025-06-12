@@ -26,7 +26,7 @@ extern "c" fn uv_tcp_make() -> Tcp = "moonbit_uv_tcp_make"
 extern "c" fn uv_tcp_init(uv : Loop, tcp : Tcp) -> Int = "moonbit_uv_tcp_init"
 
 ///|
-pub fn Tcp::new(uv : Loop) -> Tcp!Errno {
+pub fn Tcp::new(uv : Loop) -> Tcp raise Errno {
   let tcp = uv_tcp_make()
   let result = uv_tcp_init(uv, tcp)
   if result < 0 {
@@ -87,7 +87,7 @@ pub fn[Sockaddr : ToSockaddr] Tcp::bind(
   self : Tcp,
   addr : Sockaddr,
   flags : TcpBindFlags
-) -> Unit!Errno {
+) -> Unit raise Errno {
   let status = uv_tcp_bind(self, addr.to_sockaddr(), flags._)
   if status < 0 {
     raise Errno::of_int(status)
@@ -107,8 +107,8 @@ pub fn[Stream : ToStream] listen(
   backlog : Int,
   connection_cb : (Stream) -> Unit,
   error_cb : (Stream, Errno) -> Unit
-) -> Unit!Errno {
-  stream.listen!(backlog, connection_cb, error_cb)
+) -> Unit raise Errno {
+  stream.listen(backlog, connection_cb, error_cb)
 }
 
 ///|
@@ -134,7 +134,7 @@ extern "c" fn uv_accept(server : Stream, client : Stream) -> Int = "moonbit_uv_a
 pub fn[Server : ToStream, Client : ToStream] accept(
   server : Server,
   client : Client
-) -> Unit!Errno {
+) -> Unit raise Errno {
   let status = uv_accept(server.to_stream(), client.to_stream())
   if status < 0 {
     raise Errno::of_int(status)
@@ -169,7 +169,7 @@ pub fn[Sockaddr : ToSockaddr] Tcp::connect(
   addr : Sockaddr,
   connect_cb : (Connect) -> Unit,
   error_cb : (Connect, Errno) -> Unit
-) -> Unit!Errno {
+) -> Unit raise Errno {
   fn cb(req : Connect, status : Int) {
     if status < 0 {
       error_cb(req, Errno::of_int(status))

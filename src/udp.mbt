@@ -14,7 +14,7 @@ extern "c" fn uv_udp_make() -> Udp = "moonbit_uv_udp_make"
 extern "c" fn uv_udp_init(uv : Loop, udp : Udp) -> Int = "moonbit_uv_udp_init"
 
 ///|
-pub fn Udp::new(loop_ : Loop) -> Udp!Errno {
+pub fn Udp::new(loop_ : Loop) -> Udp raise Errno {
   let udp = uv_udp_make()
   let result = uv_udp_init(loop_, udp)
   if result < 0 {
@@ -30,7 +30,7 @@ extern "c" fn uv_udp_connect(handle : Udp, addr : Sockaddr) -> Int = "moonbit_uv
 pub fn[Sockaddr : ToSockaddr] Udp::connect(
   self : Udp,
   addr : Sockaddr
-) -> Unit!Errno {
+) -> Unit raise Errno {
   let result = uv_udp_connect(self, addr.to_sockaddr())
   if result < 0 {
     raise Errno::of_int(result)
@@ -45,7 +45,7 @@ pub fn[Sockaddr : ToSockaddr] Udp::bind(
   self : Udp,
   addr : Sockaddr,
   flags : UdpFlags
-) -> Unit!Errno {
+) -> Unit raise Errno {
   let result = uv_udp_bind(self, addr.to_sockaddr(), flags._)
   if result < 0 {
     raise Errno::of_int(result)
@@ -79,7 +79,7 @@ pub fn[Sockaddr : ToSockaddr] Udp::send(
   send_cb : (UdpSend) -> Unit,
   error_cb : (UdpSend, Errno) -> Unit,
   addr? : Sockaddr
-) -> Unit!Errno {
+) -> Unit raise Errno {
   fn cb(req : UdpSend, status : Int) {
     if status < 0 {
       error_cb(req, Errno::of_int(status))
@@ -125,7 +125,7 @@ pub fn Udp::recv_start(
   alloc_cb : (Handle, Int) -> @bytes.View,
   read_cb : (Udp, Int, @bytes.View, Sockaddr, UdpFlags) -> Unit,
   error_cb : (Udp, Errno) -> Unit
-) -> Unit!Errno {
+) -> Unit raise Errno {
   fn uv_alloc_cb(
     handle : Handle,
     suggested_size : UInt64,
@@ -170,7 +170,7 @@ pub fn Udp::recv_start(
 extern "c" fn uv_udp_recv_stop(udp : Udp) -> Int = "moonbit_uv_udp_recv_stop"
 
 ///|
-pub fn Udp::recv_stop(self : Udp) -> Unit!Errno {
+pub fn Udp::recv_stop(self : Udp) -> Unit raise Errno {
   let result = uv_udp_recv_stop(self)
   if result < 0 {
     raise Errno::of_int(result)

@@ -25,7 +25,7 @@ pub fn Stream::read_start(
   alloc_cb : (Handle, Int) -> @bytes.View,
   read_cb : (Stream, Int, @bytes.View) -> Unit,
   error_cb : (Stream, Errno) -> Unit
-) -> Unit!Errno {
+) -> Unit raise Errno {
   fn uv_alloc_cb(
     handle : Handle,
     suggested_size : UInt64,
@@ -64,15 +64,15 @@ pub fn[Stream : ToStream] read_start(
   alloc_cb : (Stream, Int) -> @bytes.View,
   read_cb : (Stream, Int, @bytes.View) -> Unit,
   error_cb : (Stream, Errno) -> Unit
-) -> Unit!Errno {
-  stream.read_start!(alloc_cb, read_cb, error_cb)
+) -> Unit raise Errno {
+  stream.read_start(alloc_cb, read_cb, error_cb)
 }
 
 ///|
 extern "c" fn uv_read_stop(stream : Stream) -> Int = "moonbit_uv_read_stop"
 
 ///|
-pub fn Stream::read_stop(self : Stream) -> Unit!Errno {
+pub fn Stream::read_stop(self : Stream) -> Unit raise Errno {
   let result = uv_read_stop(self)
   if result < 0 {
     raise Errno::of_int(result)
@@ -80,8 +80,8 @@ pub fn Stream::read_stop(self : Stream) -> Unit!Errno {
 }
 
 ///|
-pub fn[Stream : ToStream] read_stop(stream : Stream) -> Unit!Errno {
-  stream.read_stop!()
+pub fn[Stream : ToStream] read_stop(stream : Stream) -> Unit raise Errno {
+  stream.read_stop()
 }
 
 ///|
@@ -109,7 +109,7 @@ pub fn Stream::write(
   bufs : Array[@bytes.View],
   write_cb : (Write) -> Unit,
   error_cb : (Write, Errno) -> Unit
-) -> Unit!Errno {
+) -> Unit raise Errno {
   fn cb(req : Write, status : Int) {
     if status < 0 {
       error_cb(req, Errno::of_int(status))
@@ -140,8 +140,8 @@ pub fn[Stream : ToStream] write(
   bufs : Array[@bytes.View],
   write_cb : (Write) -> Unit,
   error_cb : (Write, Errno) -> Unit
-) -> Unit!Errno {
-  stream.write!(bufs, write_cb, error_cb)
+) -> Unit raise Errno {
+  stream.write(bufs, write_cb, error_cb)
 }
 
 ///|
@@ -153,14 +153,13 @@ pub trait ToStream: ToHandle {
     (Self, Int) -> @bytes.View,
     (Self, Int, @bytes.View) -> Unit,
     (Self, Errno) -> Unit,
-  ) -> Unit!Errno = _
-  read_stop(Self) -> Unit!Errno = _
-  write(Self, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) ->
-       Unit!Errno = _
-  listen(Self, Int, (Self) -> Unit, (Self, Errno) -> Unit) -> Unit!Errno = _
+  ) -> Unit raise Errno = _
+  read_stop(Self) -> Unit raise Errno = _
+  write(Self, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) -> Unit raise Errno = _
+  listen(Self, Int, (Self) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno = _
   is_readable(Self) -> Bool = _
   is_writable(Self) -> Bool = _
-  shutdown(Self, (Shutdown) -> Unit, (Shutdown, Errno) -> Unit) -> Unit!Errno = _
+  shutdown(Self, (Shutdown) -> Unit, (Shutdown, Errno) -> Unit) -> Unit raise Errno = _
 }
 
 ///|
@@ -191,17 +190,17 @@ impl ToStream with read_start(self, alloc_cb, read_cb, error_cb) {
     error_cb(ToStream::of_stream(stream), errno)
   }
 
-  self.to_stream().read_start!(handle_alloc_cb, stream_read_cb, stream_error_cb)
+  self.to_stream().read_start(handle_alloc_cb, stream_read_cb, stream_error_cb)
 }
 
 ///|
 impl ToStream with read_stop(self) {
-  self.to_stream().read_stop!()
+  self.to_stream().read_stop()
 }
 
 ///|
 impl ToStream with write(self, bufs, write_cb, error_cb) {
-  self.to_stream().write!(bufs, write_cb, error_cb)
+  self.to_stream().write(bufs, write_cb, error_cb)
 }
 
 ///|
@@ -263,7 +262,7 @@ pub fn Stream::shutdown(
   self : Stream,
   shutdown_cb : (Shutdown) -> Unit,
   error_cb : (Shutdown, Errno) -> Unit
-) -> Unit!Errno {
+) -> Unit raise Errno {
   fn cb(req : Shutdown, status : Int) {
     if status < 0 {
       error_cb(req, Errno::of_int(status))
@@ -284,11 +283,11 @@ pub fn[Stream : ToStream] shutdown(
   stream : Stream,
   shutdown_cb : (Shutdown) -> Unit,
   error_cb : (Shutdown, Errno) -> Unit
-) -> Unit!Errno {
-  stream.shutdown!(shutdown_cb, error_cb)
+) -> Unit raise Errno {
+  stream.shutdown(shutdown_cb, error_cb)
 }
 
 ///|
 impl ToStream with shutdown(self, shutdown_cb, error_cb) {
-  self.to_stream().shutdown!(shutdown_cb, error_cb)
+  self.to_stream().shutdown(shutdown_cb, error_cb)
 }

@@ -14,7 +14,7 @@ extern "c" fn uv_idle_make() -> Idle = "moonbit_uv_idle_make"
 extern "c" fn uv_idle_init(loop_ : Loop, idle : Idle) -> Int = "moonbit_uv_idle_init"
 
 ///|
-pub fn Idle::new(self : Loop) -> Idle!Errno {
+pub fn Idle::new(self : Loop) -> Idle raise Errno {
   let idle = uv_idle_make()
   let status = uv_idle_init(self, idle)
   if status < 0 {
@@ -30,7 +30,7 @@ extern "c" fn uv_idle_start(idle : Idle, cb : (Idle) -> Unit) -> Int = "moonbit_
 extern "c" fn uv_idle_stop(idle : Idle) -> Int = "moonbit_uv_idle_stop"
 
 ///|
-pub fn Idle::start(self : Idle, cb : (Idle) -> Unit) -> Unit!Errno {
+pub fn Idle::start(self : Idle, cb : (Idle) -> Unit) -> Unit raise Errno {
   let status = uv_idle_start(self, fn(idle) { cb(idle) })
   if status < 0 {
     raise Errno::of_int(status)
@@ -38,7 +38,7 @@ pub fn Idle::start(self : Idle, cb : (Idle) -> Unit) -> Unit!Errno {
 }
 
 ///|
-pub fn Idle::stop(self : Idle) -> Unit!Errno {
+pub fn Idle::stop(self : Idle) -> Unit raise Errno {
   let status = uv_idle_stop(self)
   if status < 0 {
     raise Errno::of_int(status)

@@ -1,5 +1,6 @@
 ///|
-extern type Handle
+#external
+type Handle
 
 ///|
 extern "c" fn uv_close(handle : Handle, cb : (Handle) -> Unit) = "moonbit_uv_close"

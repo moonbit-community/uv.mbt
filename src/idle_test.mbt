@@ -15,6 +15,7 @@ test {
       e => error = Some(e)
     }
   }
+
   idler.start(fn(idle) { wait_for_a_while(idle) })
   println("Idling...")
   uv.run(Default)

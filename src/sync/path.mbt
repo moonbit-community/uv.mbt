@@ -1252,7 +1252,7 @@ trait ToPosixPath {
 }
 
 ///|
-pub typealias PosixPath = &ToPosixPath
+pub typealias &ToPosixPath as PosixPath
 
 ///|
 pub impl ToPosixPath for @string.View with to_posix_path(self : @string.View) -> Path {
@@ -1361,7 +1361,7 @@ trait ToWindowsPath {
 }
 
 ///|
-pub typealias WindowsPath = &ToWindowsPath
+pub typealias &ToWindowsPath as WindowsPath
 
 ///|
 pub impl ToWindowsPath for @string.View with to_windows_path(

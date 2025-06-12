@@ -25,5 +25,5 @@ test "dns" {
   uv.stop()
   uv.close()
   raise_option(error)
-  @json.inspect(resolved, content=["::1", "127.0.0.1"])
+  assert_eq(resolved, ["::1", "127.0.0.1"])
 }

@@ -20,7 +20,7 @@ extern "c" fn uv_tty_make() -> Tty = "moonbit_uv_tty_make"
 extern "c" fn uv_tty_init(uv : Loop, tty : Tty, fd : Int) -> Int = "moonbit_uv_tty_init"
 
 ///|
-pub fn Tty::new(self : Loop, file : File) -> Tty!Errno {
+pub fn Tty::new(self : Loop, file : File) -> Tty raise Errno {
   let tty = uv_tty_make()
   let result = uv_tty_init(self, tty, file._)
   if result < 0 {
@@ -61,7 +61,7 @@ pub fn TtyMode::raw_vt() -> TtyMode {
 extern "c" fn uv_tty_set_mode(tty : Tty, mode : TtyMode) -> Int = "moonbit_uv_tty_set_mode"
 
 ///|
-pub fn Tty::set_mode(self : Tty, mode : TtyMode) -> Unit!Errno {
+pub fn Tty::set_mode(self : Tty, mode : TtyMode) -> Unit raise Errno {
   let result = uv_tty_set_mode(self, mode)
   if result < 0 {
     raise Errno::of_int(result)
@@ -72,7 +72,7 @@ pub fn Tty::set_mode(self : Tty, mode : TtyMode) -> Unit!Errno {
 extern "c" fn uv_tty_reset_mode() -> Int = "moonbit_uv_tty_reset_mode"
 
 ///|
-pub fn Tty::reset_mode() -> Unit!Errno {
+pub fn Tty::reset_mode() -> Unit raise Errno {
   let result = uv_tty_reset_mode()
   if result < 0 {
     raise Errno::of_int(result)

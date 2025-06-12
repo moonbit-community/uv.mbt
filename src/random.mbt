@@ -22,7 +22,7 @@ pub fn Loop::random(
   flags : Int,
   random_cb : (Random, @bytes.View) -> Unit,
   error_cb : (Random, Errno) -> Unit
-) -> Unit!Errno {
+) -> Unit raise Errno {
   fn uv_random_cb(random, status, buffer : Bytes, offset, length) {
     if status < 0 {
       error_cb(random, Errno::of_int(status))

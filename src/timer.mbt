@@ -14,7 +14,7 @@ extern "c" fn uv_timer_make() -> Timer = "moonbit_uv_timer_make"
 extern "c" fn uv_timer_init(uv : Loop, timer : Timer) -> Int = "moonbit_uv_timer_init"
 
 ///|
-pub fn Timer::new(self : Loop) -> Timer!Errno {
+pub fn Timer::new(self : Loop) -> Timer raise Errno {
   let timer = uv_timer_make()
   let status = uv_timer_init(self, timer)
   if status < 0 {
@@ -38,7 +38,7 @@ pub fn Timer::start(
   timeout~ : UInt64,
   repeat~ : UInt64,
   cb : (Timer) -> Unit
-) -> Unit!Errno {
+) -> Unit raise Errno {
   let status = uv_timer_start(self, cb, timeout, repeat)
   if status < 0 {
     raise Errno::of_int(status)
@@ -49,7 +49,7 @@ pub fn Timer::start(
 extern "c" fn uv_timer_stop(timer : Timer) -> Int = "moonbit_uv_timer_stop"
 
 ///|
-pub fn Timer::stop(self : Timer) -> Unit!Errno {
+pub fn Timer::stop(self : Timer) -> Unit raise Errno {
   let status = uv_timer_stop(self)
   if status < 0 {
     raise Errno::of_int(status)

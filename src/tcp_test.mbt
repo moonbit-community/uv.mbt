@@ -12,6 +12,7 @@ test "tcp" {
     }
     server_socket.close(fn(_) {  })
   }
+
   server_socket.listen(
     128,
     fn(_) {
@@ -22,12 +23,13 @@ test "tcp" {
           if error is Some(error) {
             errors.push(error)
           }
-          try server_client_socket.read_stop() catch {
+          server_client_socket.read_stop() catch {
             e => errors.push(e)
           }
           server_client_socket.close(fn(_) {  })
           server_close(None)
         }
+
         server_client_socket.read_start(
           fn(_, _) { Bytes::make(32, 0)[:] },
           fn(_, nread, buf) {
@@ -63,6 +65,7 @@ test "tcp" {
     }
     client_socket.close(fn(_) {  })
   }
+
   client_socket.connect(
     addr,
     fn(_) {
@@ -70,11 +73,12 @@ test "tcp" {
         if error is Some(error) {
           errors.push(error)
         }
-        try client_socket.read_stop() catch {
+        client_socket.read_stop() catch {
           e => errors.push(e)
         }
         client_close(None)
       }
+
       try {
         client_socket.write([b"Request"], fn(_) { client_close(None) }, fn(
           _,

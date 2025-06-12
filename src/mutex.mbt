@@ -8,7 +8,7 @@ extern "c" fn uv_mutex_make() -> Mutex = "moonbit_uv_mutex_make"
 extern "c" fn uv_mutex_init(mutex : Mutex) -> Int = "moonbit_uv_mutex_init"
 
 ///|
-pub fn Mutex::new() -> Mutex!Errno {
+pub fn Mutex::new() -> Mutex raise Errno {
   let mutex = uv_mutex_make()
   let status = uv_mutex_init(mutex)
   if status != 0 {
@@ -35,7 +35,7 @@ pub fn Mutex::lock(self : Mutex) -> Unit {
 }
 
 ///|
-pub fn Mutex::trylock(self : Mutex) -> Unit!Errno {
+pub fn Mutex::trylock(self : Mutex) -> Unit raise Errno {
   let status = uv_mutex_trylock(self)
   if status < 0 {
     raise Errno::of_int(status)

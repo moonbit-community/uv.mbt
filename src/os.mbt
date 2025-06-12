@@ -30,7 +30,7 @@ pub fn Utsname::machine(self : Utsname) -> String {
 }
 
 ///|
-pub fn os_uname() -> Utsname!Errno {
+pub fn os_uname() -> Utsname raise Errno {
   fn decode(bytes : @bytes.View) -> String {
     let buffer = @buffer.new()
     for i in 0..<bytes.length() {

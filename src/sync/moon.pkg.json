@@ -1,6 +1,7 @@
 {
   "import": [
     "tonyfettes/uv",
-    "tonyfettes/encoding"
+    "tonyfettes/encoding",
+    "tonyfettes/uv/path"
   ]
 }

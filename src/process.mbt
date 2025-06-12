@@ -206,7 +206,10 @@ extern "c" fn uv_spawn(
 ) -> Int = "moonbit_uv_spawn"
 
 ///|
-pub fn Loop::spawn(self : Loop, options : ProcessOptions) -> Process!Errno {
+pub fn Loop::spawn(
+  self : Loop,
+  options : ProcessOptions
+) -> Process raise Errno {
   let process = uv_process_make()
   let status = uv_spawn(self, process, options)
   if status < 0 {
@@ -219,7 +222,7 @@ pub fn Loop::spawn(self : Loop, options : ProcessOptions) -> Process!Errno {
 extern "c" fn uv_process_kill(process : Process, signum : Int) -> Int = "moonbit_uv_process_kill"
 
 ///|
-pub fn Process::kill(self : Process, signum : Signum) -> Unit!Errno {
+pub fn Process::kill(self : Process, signum : Signum) -> Unit raise Errno {
   let status = uv_process_kill(self, signum._)
   if status < 0 {
     raise Errno::of_int(status)

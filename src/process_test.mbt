@@ -4,36 +4,34 @@ test "spawn" {
   let errors : Array[Error] = []
   let stdout_pipe = @uv.Pipe::new(uv, ipc=false)
   fn do_write(bytes : @bytes.View, start : Int, count : Int) -> Unit {
-    try
-      uv.fs_write(
-        @uv.stdout(),
-        [bytes[start:start + count]],
-        fn(_, delta) {
-          if delta < count {
-            do_write(bytes, start + delta, count - delta)
-          }
-        },
-        fn(_, error) { errors.push(error) },
-      ) catch {
+    uv.fs_write(
+      @uv.stdout(),
+      [bytes[start:start + count]],
+      fn(_, delta) {
+        if delta < count {
+          do_write(bytes, start + delta, count - delta)
+        }
+      },
+      fn(_, error) { errors.push(error) },
+    ) catch {
       error => errors.push(error)
     }
   }
 
   fn do_read(pipe : @uv.Pipe) -> Unit {
-    try
-      pipe.read_start(
-        fn(_, size_hint) { return Bytes::make(size_hint, 0)[:] },
-        fn(_, count, bytes) { do_write(bytes, 0, count) },
-        fn(pipe, error) {
-          if not(error is Errno(EOF)) {
-            errors.push(error)
-          }
-          try pipe.read_stop() catch {
-            error => errors.push(error)
-          }
-          pipe.close(fn(_) {  })
-        },
-      ) catch {
+    pipe.read_start(
+      fn(_, size_hint) { return Bytes::make(size_hint, 0)[:] },
+      fn(_, count, bytes) { do_write(bytes, 0, count) },
+      fn(pipe, error) {
+        if not(error is Errno(EOF)) {
+          errors.push(error)
+        }
+        pipe.read_stop() catch {
+          error => errors.push(error)
+        }
+        pipe.close(fn(_) {  })
+      },
+    ) catch {
       error => {
         errors.push(error)
         pipe.close(fn(_) {  })

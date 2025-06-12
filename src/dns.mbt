@@ -175,7 +175,7 @@ let _IF_NAMESIZE : Int = uv_IF_NAMESIZE()
 extern "c" fn uv_ip_name(src : Sockaddr, dst : Bytes) -> Int = "moonbit_uv_ip_name"
 
 ///|
-pub fn ip_name(self : Sockaddr) -> String!Errno {
+pub fn ip_name(self : Sockaddr) -> String raise Errno {
   let bytes = Bytes::make(_IF_NAMESIZE, 0)
   let status = uv_ip_name(self, bytes)
   if status < 0 {
@@ -232,7 +232,7 @@ pub fn AddressFamily::inet6() -> AddressFamily {
 }
 
 ///|
-fn AddressFamily::of_int(self : Int) -> AddressFamily!Errno {
+fn AddressFamily::of_int(self : Int) -> AddressFamily raise Errno {
   if self == _AF_INET {
     return INET
   }
@@ -251,8 +251,8 @@ fn AddressFamily::to_int(self : AddressFamily) -> Int {
 }
 
 ///|
-pub fn AddrInfo::family(self : AddrInfo) -> AddressFamily!Errno {
-  AddressFamily::of_int!(self.family)
+pub fn AddrInfo::family(self : AddrInfo) -> AddressFamily raise Errno {
+  AddressFamily::of_int(self.family)
 }
 
 ///|
@@ -283,7 +283,7 @@ pub fn SockType::dgram() -> SockType {
 }
 
 ///|
-fn SockType::of_int(self : Int) -> SockType!Errno {
+fn SockType::of_int(self : Int) -> SockType raise Errno {
   if self == _SOCK_STREAM {
     return STREAM
   }
@@ -306,8 +306,8 @@ fn SockType::to_int(self : SockType) -> Int {
 }
 
 ///|
-pub fn AddrInfo::socktype(self : AddrInfo) -> SockType!Errno {
-  return SockType::of_int!(self.socktype)
+pub fn AddrInfo::socktype(self : AddrInfo) -> SockType raise Errno {
+  return SockType::of_int(self.socktype)
 }
 
 ///|
@@ -327,7 +327,7 @@ pub fn Protocol::udp() -> Protocol {
 }
 
 ///|
-fn Protocol::of_int(self : Int) -> Protocol!Errno {
+fn Protocol::of_int(self : Int) -> Protocol raise Errno {
   if self == _IPPROTO_TCP {
     return TCP
   }
@@ -346,8 +346,8 @@ fn Protocol::to_int(self : Protocol) -> Int {
 }
 
 ///|
-pub fn AddrInfo::protocol(self : AddrInfo) -> Protocol!Errno {
-  Protocol::of_int!(self.protocol)
+pub fn AddrInfo::protocol(self : AddrInfo) -> Protocol raise Errno {
+  Protocol::of_int(self.protocol)
 }
 
 ///|
@@ -405,7 +405,7 @@ pub fn[Node : ToNtbs, Service : ToNtbs] Loop::getaddrinfo(
   node : Node,
   service : Service,
   hints? : AddrInfoHints
-) -> Unit!Errno {
+) -> Unit raise Errno {
   fn uv_cb(req : GetAddrInfo, status : Int, addrinfo : AddrInfoResults) {
     if status < 0 {
       error_cb(req, Errno::of_int(status))

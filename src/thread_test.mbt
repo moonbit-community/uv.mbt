@@ -1,4 +1,3 @@
-
 ///|
 test "native_thread_test" {
   let buffer = []
@@ -11,7 +10,7 @@ test "native_thread_test" {
   let current = Thread::self()
   let mut error = None
   let thread = Thread::new(fn() {
-    try assert_false(Thread::self() == current) catch {
+    assert_false(Thread::self() == current) catch {
       e => error = Some(e)
     }
   })

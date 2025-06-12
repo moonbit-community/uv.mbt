@@ -14,7 +14,7 @@ extern "c" fn uv_fs_event_make() -> FsEvent = "moonbit_uv_fs_event_make"
 extern "c" fn uv_fs_event_init(uv : Loop, fs_event : FsEvent) -> Int = "moonbit_uv_fs_event_init"
 
 ///|
-pub fn FsEvent::new(self : Loop) -> FsEvent!Errno {
+pub fn FsEvent::new(self : Loop) -> FsEvent raise Errno {
   let fs_event = uv_fs_event_make()
   let status = uv_fs_event_init(self, fs_event)
   if status < 0 {
@@ -73,7 +73,7 @@ pub fn[ToNtbs : ToNtbs] FsEvent::start(
   flags : FsEventFlags,
   event_cb : (FsEvent, String?, Array[FsEventType]) -> Unit,
   error_cb : (FsEvent, String?, Errno) -> Unit
-) -> Unit!Errno {
+) -> Unit raise Errno {
   fn uv_cb(
     fs_event : FsEvent,
     filename : @c.Pointer[Byte],
@@ -114,7 +114,7 @@ pub fn[ToNtbs : ToNtbs] FsEvent::start(
 extern "c" fn uv_fs_event_stop(fs_event : FsEvent) -> Int = "moonbit_uv_fs_event_stop"
 
 ///|
-pub fn FsEvent::stop(self : FsEvent) -> Unit!Errno {
+pub fn FsEvent::stop(self : FsEvent) -> Unit raise Errno {
   let status = uv_fs_event_stop(self)
   if status < 0 {
     raise Errno::of_int(status)
@@ -129,7 +129,7 @@ extern "c" fn uv_fs_event_getpath(
 ) -> Int = "moonbit_uv_fs_event_getpath"
 
 ///|
-pub fn FsEvent::get_path(self : FsEvent) -> String!Errno {
+pub fn FsEvent::get_path(self : FsEvent) -> String raise Errno {
   let buffer = Bytes::make(64, 0)
   let length : FixedArray[Int] = [buffer.length()]
   let mut status = uv_fs_event_getpath(self, buffer, length)

@@ -2,13 +2,13 @@
 type File @uv.File
 
 ///|
-pub fn File::close(self : File, loc~ : SourceLoc = _) -> Unit! {
+pub fn File::close(self : File, loc~ : SourceLoc = _) -> Unit raise {
   let uv = uv()
   backtrace(loc~, fn() { uv.fs_close_sync(self._) })
 }
 
 ///|
-pub impl Readable for File with read(self : File) -> Iter[@bytes.View]!Error {
+pub impl Readable for File with read(self : File) -> Iter[@bytes.View] raise Error {
   fn(yield_) {
     let uv = uv()
     let bytes = Bytes::make(256, 0)
@@ -23,23 +23,26 @@ pub impl Readable for File with read(self : File) -> Iter[@bytes.View]!Error {
 }
 
 ///|
-pub impl Writable for File with write(self : File, content : Iter[@bytes.View]) -> Unit!Error {
+pub impl Writable for File with write(self : File, content : Iter[@bytes.View]) -> Unit raise Error {
   let uv = uv()
   content.each(fn(bytes) { uv.fs_write_sync(self._, [bytes]) })
 }
 
 ///|
-pub fn Path::open(self : Path, loc~ : SourceLoc = _) -> File! {
+pub fn Path::open(self : Path, loc~ : SourceLoc = _) -> File raise {
   let uv = uv()
   backtrace(loc~, fn() {
-    try uv.fs_open_sync(self.to_string(), @uv.OpenFlags::read_only(), 0o644) catch {
+    uv.fs_open_sync(self.to_string(), @uv.OpenFlags::read_only(), 0o644) catch {
       error => raise error
     }
   })
 }
 
 ///|
-pub fn Path::read(self : Path, loc~ : SourceLoc = _) -> Iter[@bytes.View]!Error {
+pub fn Path::read(
+  self : Path,
+  loc~ : SourceLoc = _
+) -> Iter[@bytes.View] raise Error {
   let file = self.open()
   fn(yield_) {
     backtrace(loc~, fn() { file.read().each(yield_) })
@@ -48,7 +51,7 @@ pub fn Path::read(self : Path, loc~ : SourceLoc = _) -> Iter[@bytes.View]!Error 
 }
 
 ///|
-pub impl Readable for Path with read(self : Path) -> Iter[@bytes.View]!Error {
+pub impl Readable for Path with read(self : Path) -> Iter[@bytes.View] raise Error {
   self.read()
 }
 
@@ -57,7 +60,7 @@ pub fn Path::write(
   self : Path,
   content : Iter[@bytes.View],
   loc~ : SourceLoc = _
-) -> Unit!Error {
+) -> Unit raise Error {
   let uv = uv()
   backtrace(loc~, fn() {
     let file = uv.fs_open_sync(
@@ -72,18 +75,18 @@ pub fn Path::write(
 }
 
 ///|
-pub impl Writable for Path with write(self : Path, content : Iter[@bytes.View]) -> Unit!Error {
+pub impl Writable for Path with write(self : Path, content : Iter[@bytes.View]) -> Unit raise Error {
   self.write(content)
 }
 
 ///|
-pub fn Path::unlink(self : Path, loc~ : SourceLoc = _) -> Unit!Error {
+pub fn Path::unlink(self : Path, loc~ : SourceLoc = _) -> Unit raise Error {
   let uv = uv()
   backtrace(loc~, fn() { uv.fs_unlink_sync(self.to_string()) })
 }
 
 ///|
-pub fn Path::rmdir(self : Path, loc~ : SourceLoc = _) -> Unit!Error {
+pub fn Path::rmdir(self : Path, loc~ : SourceLoc = _) -> Unit raise Error {
   let uv = uv()
   backtrace(loc~, fn() { uv.fs_rmdir_sync(self.to_string()) })
 }
@@ -95,7 +98,7 @@ pub fn Path::access(
   write~ : Bool = false,
   execute~ : Bool = false,
   loc~ : SourceLoc = _
-) -> Unit!Error {
+) -> Unit raise Error {
   let uv = uv()
   backtrace(loc~, fn() {
     uv.fs_access_sync(
@@ -119,10 +122,10 @@ pub fn Stat::is_dir(self : Stat) -> Bool {
 }
 
 ///|
-pub fn Path::stat(self : Path, loc~ : SourceLoc = _) -> Stat!Error {
+pub fn Path::stat(self : Path, loc~ : SourceLoc = _) -> Stat raise Error {
   let uv = uv()
   backtrace(loc~, fn() {
-    try uv.fs_stat_sync(self.to_string()) catch {
+    uv.fs_stat_sync(self.to_string()) catch {
       @uv.Errno(ENOENT) => raise SystemError::not_found(self)
       error => raise error
     }
@@ -130,7 +133,7 @@ pub fn Path::stat(self : Path, loc~ : SourceLoc = _) -> Stat!Error {
 }
 
 ///|
-pub fn Path::exists(self : Path, loc~ : SourceLoc = _) -> Bool!Error {
+pub fn Path::exists(self : Path, loc~ : SourceLoc = _) -> Bool raise Error {
   backtrace(loc~, fn() {
     try {
       self.stat() |> ignore()

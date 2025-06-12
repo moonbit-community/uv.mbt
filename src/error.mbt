@@ -105,7 +105,7 @@ pub(all) enum Status {
 } derive(Eq, Hash)
 
 ///|
-pub type! Errno Status derive(Eq, Hash)
+pub suberror Errno Status derive(Eq, Hash)
 
 ///|
 let errno_messages : Map[Errno, @string.View] = Map::new()

@@ -8,7 +8,7 @@ extern "c" fn uv_signal_make() -> Signal = "moonbit_uv_signal_make"
 extern "c" fn uv_signal_init(uv : Loop, signal : Signal) -> Int = "moonbit_uv_signal_init"
 
 ///|
-pub fn Signal::new(self : Loop) -> Signal!Errno {
+pub fn Signal::new(self : Loop) -> Signal raise Errno {
   let signal = uv_signal_make()
   let status = uv_signal_init(self, signal)
   if status < 0 {
@@ -29,7 +29,7 @@ pub fn Signal::start(
   self : Signal,
   cb : (Signal, Signum) -> Unit,
   signum : Signum
-) -> Unit!Errno {
+) -> Unit raise Errno {
   fn uv_cb(signal : Signal, signum : Int) {
     cb(signal, signum)
   }
@@ -44,7 +44,7 @@ pub fn Signal::start(
 extern "c" fn uv_signal_stop(signal : Signal) -> Int = "moonbit_uv_signal_stop"
 
 ///|
-pub fn Signal::stop(self : Signal) -> Unit!Errno {
+pub fn Signal::stop(self : Signal) -> Unit raise Errno {
   let status = uv_signal_stop(self)
   if status < 0 {
     raise Errno::of_int(status)
@@ -127,7 +127,7 @@ pub fn Signum::sigwinch() -> Signum {
 }
 
 ///|
-pub fn Signum::sigpipe() -> Signum!Errno {
+pub fn Signum::sigpipe() -> Signum raise Errno {
   if _SIGPIPE == -1 {
     raise Errno(Status::ENOSYS)
   } else {

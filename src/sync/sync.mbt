@@ -1,6 +1,9 @@
 ///|
-pub fn[T] backtrace(loc~ : SourceLoc = _, f : () -> T!Error) -> T!Error {
-  try f() catch {
+pub fn[T] backtrace(
+  loc~ : SourceLoc = _,
+  f : () -> T raise Error
+) -> T raise Error {
+  f() catch {
     SystemError(_, trace) as system_error => {
       trace.push(loc)
       raise system_error
@@ -19,7 +22,7 @@ priv enum ErrorInfo {
 } derive(ToJson(repr(ext_tagged)))
 
 ///|
-priv type! SystemError {
+priv suberror SystemError {
   SystemError(ErrorInfo, Array[SourceLoc])
 }
 
@@ -75,7 +78,7 @@ fn SystemError::not_supported(
 let uv_ref : Ref[@uv.Loop?] = Ref::new(None)
 
 ///|
-fn uv() -> @uv.Loop!@uv.Errno {
+fn uv() -> @uv.Loop raise @uv.Errno {
   if uv_ref.val is Some(uv) {
     return uv
   }
