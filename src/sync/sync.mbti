@@ -7,7 +7,7 @@ import(
 )
 
 // Values
-fn[T] backtrace(loc~ : SourceLoc = _, () -> T!) -> T!
+fn[T] backtrace(loc~ : SourceLoc = _, () -> T raise) -> T raise
 
 fn[ToPath : ToPath] path(ToPath) -> &ToPath
 
@@ -17,45 +17,45 @@ fn[ToWindowsPath : ToWindowsPath] windows_path(ToWindowsPath) -> &ToWindowsPath
 
 // Types and methods
 type File
-fn File::close(Self, loc~ : SourceLoc = _) -> Unit!
+fn File::close(Self, loc~ : SourceLoc = _) -> Unit raise
 impl Readable for File
 impl Writable for File
 
 type Iter[T]
-fn[T, U] Iter::bind(Self[T], (T) -> U?!) -> Self[U]
-fn Iter::bytes(Self[@bytes.View]) -> Bytes!
-fn[T] Iter::collect(Self[T]) -> Array[T]!
+fn[T, U] Iter::bind(Self[T], (T) -> U? raise) -> Self[U]
+fn Iter::bytes(Self[@bytes.View]) -> Bytes raise
+fn[T] Iter::collect(Self[T]) -> Array[T] raise
 fn Iter::decode(Self[@bytes.View], encoding~ : @encoding.Encoding) -> Self[String]
-fn[T] Iter::each(Self[T], (T) -> Unit!) -> Unit!
-fn[T] Iter::filter(Self[T], (T) -> Bool!) -> Self[T]
-fn Iter::text(Self[@bytes.View], encoding~ : @encoding.Encoding = ..) -> String!
+fn[T] Iter::each(Self[T], (T) -> Unit raise) -> Unit raise
+fn[T] Iter::filter(Self[T], (T) -> Bool raise) -> Self[T]
+fn Iter::text(Self[@bytes.View], encoding~ : @encoding.Encoding = ..) -> String raise
 
 type Path
-fn Path::access(Self, read~ : Bool = .., write~ : Bool = .., execute~ : Bool = .., loc~ : SourceLoc = _) -> Unit!
+fn Path::access(Self, read~ : Bool = .., write~ : Bool = .., execute~ : Bool = .., loc~ : SourceLoc = _) -> Unit raise
 fn Path::anchor(Self) -> @string.StringView
 fn Path::drive(Self) -> @string.StringView
-fn Path::exists(Self, loc~ : SourceLoc = _) -> Bool!
+fn Path::exists(Self, loc~ : SourceLoc = _) -> Bool raise
 fn[ToPath : ToPath] Path::join(Self, ToPath) -> Self
 fn Path::name(Self) -> @string.StringView?
 fn[ToPath : ToPath] Path::new(ToPath) -> Self
-fn Path::open(Self, loc~ : SourceLoc = _) -> File!
+fn Path::open(Self, loc~ : SourceLoc = _) -> File raise
 fn Path::parent(Self) -> Self?
 fn Path::parse(@string.StringView) -> Self
 fn Path::parse_posix(@string.StringView) -> Self
 fn Path::parse_windows(@string.StringView) -> Self
 fn Path::parts(Self) -> ArrayView[@string.StringView]
 fn[ToPosixPath : ToPosixPath] Path::posix(ToPosixPath) -> Self
-fn Path::read(Self, loc~ : SourceLoc = _) -> Iter[@bytes.View]!
+fn Path::read(Self, loc~ : SourceLoc = _) -> Iter[@bytes.View] raise
 fn[ToPath : ToPath] Path::relative_to(Self, ToPath) -> Self
-fn Path::rmdir(Self, loc~ : SourceLoc = _) -> Unit!
+fn Path::rmdir(Self, loc~ : SourceLoc = _) -> Unit raise
 fn Path::root(Self) -> @string.StringView
-fn Path::stat(Self, loc~ : SourceLoc = _) -> Stat!
+fn Path::stat(Self, loc~ : SourceLoc = _) -> Stat raise
 fn Path::suffix(Self) -> @string.StringView?
 fn Path::to_posix_path(Self) -> Self
 fn Path::to_windows_path(Self) -> Self
-fn Path::unlink(Self, loc~ : SourceLoc = _) -> Unit!
+fn Path::unlink(Self, loc~ : SourceLoc = _) -> Unit raise
 fn[ToWindowsPath : ToWindowsPath] Path::windows(ToWindowsPath) -> Self
-fn Path::write(Self, Iter[@bytes.View], loc~ : SourceLoc = _) -> Unit!
+fn Path::write(Self, Iter[@bytes.View], loc~ : SourceLoc = _) -> Unit raise
 impl Compare for Path
 impl Eq for Path
 impl Hash for Path
@@ -119,9 +119,9 @@ pub typealias WindowsPath = &ToWindowsPath
 
 // Traits
 pub trait Readable {
-  read(Self) -> Iter[@bytes.View]!
-  read_text(Self, encoding~ : @encoding.Encoding) -> String!
-  read_bytes(Self) -> Bytes!
+  read(Self) -> Iter[@bytes.View] raise
+  read_text(Self, encoding~ : @encoding.Encoding) -> String raise
+  read_bytes(Self) -> Bytes raise
 }
 
 pub trait ToPath {
@@ -145,8 +145,8 @@ impl ToWindowsPath for @string.StringView
 impl ToWindowsPath for &ToPath
 
 pub trait Writable {
-  write(Self, Iter[@bytes.View]) -> Unit!
-  write_text(Self, @string.StringView, encoding~ : @encoding.Encoding) -> Unit!
-  write_bytes(Self, @bytes.View) -> Unit!
+  write(Self, Iter[@bytes.View]) -> Unit raise
+  write_text(Self, @string.StringView, encoding~ : @encoding.Encoding) -> Unit raise
+  write_bytes(Self, @bytes.View) -> Unit raise
 }
 

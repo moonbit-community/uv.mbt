@@ -314,29 +314,29 @@ pub fn Path::parse_windows(path : @string.View) -> Path {
     }
     ['/' | '\\', '/' | '\\', .. path] => {
       drive.write_string("\\\\")
-      unc~: loop Zero, path {
-        Zero, ['/' | '\\', .. path] => {
+      unc~: loop (Zero, path) {
+        (Zero, ['/' | '\\', .. path]) => {
           drive.write_char('\\')
-          continue unc~ One, path
+          continue unc~ (One, path)
         }
-        Zero, [char, .. path] => {
+        (Zero, [char, .. path]) => {
           drive.write_char(char)
-          continue unc~ Zero, path
+          continue unc~ (Zero, path)
         }
-        Zero, [] => {
+        (Zero, []) => {
           parts.push(drive.to_string())
           return make_path(parts)
         }
-        One, ['/' | '\\', .. path] => {
+        (One, ['/' | '\\', .. path]) => {
           root.write_char('\\')
           parts.push("\{drive.to_string()}\\")
           path
         }
-        One, [char, .. path] => {
+        (One, [char, .. path]) => {
           drive.write_char(char)
-          continue unc~ One, path
+          continue unc~ (One, path)
         }
-        One, [] => {
+        (One, []) => {
           let drive = drive.to_string()
           if drive is [.., '\\'] {
             parts.push(drive)

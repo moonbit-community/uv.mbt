@@ -6,7 +6,7 @@ import(
 )
 
 // Values
-fn[Server : ToStream, Client : ToStream] accept(Server, Client) -> Unit!Errno
+fn[Server : ToStream, Client : ToStream] accept(Server, Client) -> Unit raise Errno
 
 fn args() -> Array[String]
 
@@ -14,19 +14,19 @@ fn argv() -> Array[Bytes]
 
 fn[Handle : ToHandle] close(Handle, (Handle) -> Unit) -> Unit
 
-fn cwd() -> String!Errno
+fn cwd() -> String raise Errno
 
 fn disable_stdio_inheritance() -> Unit
 
 fn errno(Status) -> Errno
 
-fn fs_scandir_next(Fs) -> Dirent!Errno
+fn fs_scandir_next(Fs) -> Dirent raise Errno
 
 fn hrtime() -> UInt64
 
 fn[Ntbs : ToNtbs] ip4_addr(Ntbs, Int) -> SockaddrIn
 
-fn ip_name(Sockaddr) -> String!Errno
+fn ip_name(Sockaddr) -> Bytes raise Errno
 
 fn[Handle : ToHandle] is_closing(Handle) -> Bool
 
@@ -34,17 +34,17 @@ fn[Stream : ToStream] is_readable(Stream) -> Bool
 
 fn[Stream : ToStream] is_writable(Stream) -> Bool
 
-fn[Stream : ToStream] listen(Stream, Int, (Stream) -> Unit, (Stream, Errno) -> Unit) -> Unit!Errno
+fn[Stream : ToStream] listen(Stream, Int, (Stream) -> Unit, (Stream, Errno) -> Unit) -> Unit raise Errno
 
-fn os_uname() -> Utsname!Errno
+fn os_uname() -> Utsname raise Errno
 
-fn pipe(Int, Int) -> (File, File)!Errno
+fn pipe(Int, Int) -> (File, File) raise Errno
 
-fn[Stream : ToStream] read_start(Stream, (Stream, Int) -> @bytes.View, (Stream, Int, @bytes.View) -> Unit, (Stream, Errno) -> Unit) -> Unit!Errno
+fn[Stream : ToStream] read_start(Stream, (Stream, Int) -> @bytes.View, (Stream, Int, @bytes.View) -> Unit, (Stream, Errno) -> Unit) -> Unit raise Errno
 
-fn[Stream : ToStream] read_stop(Stream) -> Unit!Errno
+fn[Stream : ToStream] read_stop(Stream) -> Unit raise Errno
 
-fn[Stream : ToStream] shutdown(Stream, (Shutdown) -> Unit, (Shutdown, Errno) -> Unit) -> Unit!Errno
+fn[Stream : ToStream] shutdown(Stream, (Shutdown) -> Unit, (Shutdown, Errno) -> Unit) -> Unit raise Errno
 
 fn sleep(UInt) -> Unit
 
@@ -54,7 +54,7 @@ fn stdin() -> File
 
 fn stdout() -> File
 
-fn[Stream : ToStream] write(Stream, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) -> Unit!Errno
+fn[Stream : ToStream] write(Stream, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) -> Unit raise Errno
 
 // Types and methods
 type AccessFlags
@@ -63,9 +63,9 @@ fn AccessFlags::new(read~ : Bool = .., write~ : Bool = .., execute~ : Bool = ..)
 type AddrInfo
 fn AddrInfo::addr(Self) -> Sockaddr
 fn AddrInfo::canonname(Self) -> String?
-fn AddrInfo::family(Self) -> AddressFamily!Errno
-fn AddrInfo::protocol(Self) -> Protocol!Errno
-fn AddrInfo::socktype(Self) -> SockType!Errno
+fn AddrInfo::family(Self) -> AddressFamily raise Errno
+fn AddrInfo::protocol(Self) -> Protocol raise Errno
+fn AddrInfo::socktype(Self) -> SockType raise Errno
 
 type AddrInfoFlags
 fn AddrInfoFlags::new(passive~ : Bool = .., canonname~ : Bool = .., numeric_host~ : Bool = .., numeric_serv~ : Bool = .., all~ : Bool = .., addrconfig~ : Bool = .., v4mapped~ : Bool = ..) -> Self
@@ -110,7 +110,7 @@ pub enum DirentType {
 impl Show for DirentType
 impl ToJson for DirentType
 
-pub type! Errno Status
+pub suberror Errno Status
 impl Eq for Errno
 impl Hash for Errno
 impl Show for Errno
@@ -121,10 +121,10 @@ type Fs
 impl ToReq for Fs
 
 type FsEvent
-fn FsEvent::get_path(Self) -> String!Errno
-fn FsEvent::new(Loop) -> Self!Errno
-fn[ToNtbs : ToNtbs] FsEvent::start(Self, ToNtbs, FsEventFlags, (Self, String?, Array[FsEventType]) -> Unit, (Self, String?, Errno) -> Unit) -> Unit!Errno
-fn FsEvent::stop(Self) -> Unit!Errno
+fn FsEvent::get_path(Self) -> String raise Errno
+fn FsEvent::new(Loop) -> Self raise Errno
+fn[ToNtbs : ToNtbs] FsEvent::start(Self, ToNtbs, FsEventFlags, (Self, String?, Array[FsEventType]) -> Unit, (Self, String?, Errno) -> Unit) -> Unit raise Errno
+fn FsEvent::stop(Self) -> Unit raise Errno
 impl ToHandle for FsEvent
 
 type FsEventFlags
@@ -146,53 +146,53 @@ fn Handle::close(Self, (Self) -> Unit) -> Unit
 fn Handle::is_closing(Self) -> Bool
 
 type Idle
-fn Idle::new(Loop) -> Self!Errno
-fn Idle::start(Self, (Self) -> Unit) -> Unit!Errno
-fn Idle::stop(Self) -> Unit!Errno
+fn Idle::new(Loop) -> Self raise Errno
+fn Idle::start(Self, (Self) -> Unit) -> Unit raise Errno
+fn Idle::stop(Self) -> Unit raise Errno
 impl ToHandle for Idle
 
 type Loop
 fn Loop::alive(Self) -> Bool
-fn Loop::close(Self) -> Unit!Errno
-fn[Ntbs : ToNtbs] Loop::fs_access(Self, Ntbs, AccessFlags, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-fn[Ntbs : ToNtbs] Loop::fs_access_sync(Self, Ntbs, AccessFlags) -> Unit!Errno
-fn Loop::fs_close(Self, File, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-fn Loop::fs_close_sync(Self, File) -> Unit!Errno
-fn[Ntbs : ToNtbs] Loop::fs_copyfile(Self, Ntbs, Ntbs, CopyFileFlags, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-fn[Ntbs : ToNtbs] Loop::fs_copyfile_sync(Self, Ntbs, Ntbs, CopyFileFlags) -> Unit!Errno
-fn Loop::fs_fstat(Self, File, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-fn Loop::fs_ftruncate(Self, File, Int64, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-fn[Ntbs : ToNtbs] Loop::fs_lstat(Self, Ntbs, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-fn[Ntbs : ToNtbs] Loop::fs_mkdir(Self, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-fn[Ntbs : ToNtbs] Loop::fs_mkdir_sync(Self, Ntbs, Int) -> Unit!Errno
-fn[Ntbs : ToNtbs] Loop::fs_open(Self, Ntbs, OpenFlags, Int, (Fs, File) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-fn[Ntbs : ToNtbs] Loop::fs_open_sync(Self, Ntbs, OpenFlags, Int) -> File!Errno
-fn Loop::fs_read(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-fn Loop::fs_read_sync(Self, File, Array[@bytes.View], offset~ : Int64 = ..) -> Int!Errno
-fn[Ntbs : ToNtbs] Loop::fs_realpath(Self, Ntbs, (Fs, String) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-fn[Ntbs : ToNtbs] Loop::fs_realpath_sync(Self, Ntbs) -> String!Errno
-fn[Ntbs : ToNtbs] Loop::fs_rename(Self, Ntbs, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-fn[Ntbs : ToNtbs] Loop::fs_rmdir(Self, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-fn[Ntbs : ToNtbs] Loop::fs_rmdir_sync(Self, Ntbs) -> Unit!Errno
-fn[Ntbs : ToNtbs] Loop::fs_scandir(Self, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-fn[Ntbs : ToNtbs] Loop::fs_stat(Self, Ntbs, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-fn[Ntbs : ToNtbs] Loop::fs_stat_sync(Self, Ntbs) -> Stat!Errno
-fn[Ntbs : ToNtbs] Loop::fs_unlink(Self, Ntbs, (Fs) -> Unit, (Fs, Error) -> Unit) -> Unit!Errno
-fn[Ntbs : ToNtbs] Loop::fs_unlink_sync(Self, Ntbs) -> Unit!Errno
-fn Loop::fs_write(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit!Errno
-fn Loop::fs_write_sync(Self, File, Array[@bytes.View], offset~ : Int64 = ..) -> Unit!Errno
-fn[Node : ToNtbs, Service : ToNtbs] Loop::getaddrinfo(Self, (GetAddrInfo, Iter[AddrInfo]) -> Unit, (GetAddrInfo, Errno) -> Unit, Node, Service, hints? : AddrInfoHints) -> Unit!Errno
-fn Loop::new() -> Self!Errno
-fn Loop::queue_work(Self, (Work) -> Unit, (Work) -> Unit, (Work, Errno) -> Unit) -> Unit!Errno
-fn Loop::random(Self, @bytes.View, Int, (Random, @bytes.View) -> Unit, (Random, Errno) -> Unit) -> Unit!Errno
-fn Loop::run(Self, RunMode) -> Unit!Errno
-fn Loop::spawn(Self, ProcessOptions) -> Process!Errno
+fn Loop::close(Self) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_access(Self, Ntbs, AccessFlags, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_access_sync(Self, Ntbs, AccessFlags) -> Unit raise Errno
+fn Loop::fs_close(Self, File, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit raise Errno
+fn Loop::fs_close_sync(Self, File) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_copyfile(Self, Ntbs, Ntbs, CopyFileFlags, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_copyfile_sync(Self, Ntbs, Ntbs, CopyFileFlags) -> Unit raise Errno
+fn Loop::fs_fstat(Self, File, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit raise Errno
+fn Loop::fs_ftruncate(Self, File, Int64, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_lstat(Self, Ntbs, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_mkdir(Self, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_mkdir_sync(Self, Ntbs, Int) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_open(Self, Ntbs, OpenFlags, Int, (Fs, File) -> Unit, (Fs, Errno) -> Unit) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_open_sync(Self, Ntbs, OpenFlags, Int) -> File raise Errno
+fn Loop::fs_read(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit raise Errno
+fn Loop::fs_read_sync(Self, File, Array[@bytes.View], offset~ : Int64 = ..) -> Int raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_realpath(Self, Ntbs, (Fs, String) -> Unit, (Fs, Errno) -> Unit) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_realpath_sync(Self, Ntbs) -> String raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_rename(Self, Ntbs, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_rmdir(Self, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_rmdir_sync(Self, Ntbs) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_scandir(Self, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_stat(Self, Ntbs, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_stat_sync(Self, Ntbs) -> Stat raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_unlink(Self, Ntbs, (Fs) -> Unit, (Fs, Error) -> Unit) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_unlink_sync(Self, Ntbs) -> Unit raise Errno
+fn Loop::fs_write(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Fs, Int) -> Unit, (Fs, Errno) -> Unit) -> Unit raise Errno
+fn Loop::fs_write_sync(Self, File, Array[@bytes.View], offset~ : Int64 = ..) -> Unit raise Errno
+fn[Node : ToNtbs, Service : ToNtbs] Loop::getaddrinfo(Self, (GetAddrInfo, Iter[AddrInfo]) -> Unit, (GetAddrInfo, Errno) -> Unit, Node, Service, hints? : AddrInfoHints) -> Unit raise Errno
+fn Loop::new() -> Self raise Errno
+fn Loop::queue_work(Self, (Work) -> Unit, (Work) -> Unit, (Work, Errno) -> Unit) -> Unit raise Errno
+fn Loop::random(Self, @bytes.View, Int, (Random, @bytes.View) -> Unit, (Random, Errno) -> Unit) -> Unit raise Errno
+fn Loop::run(Self, RunMode) -> Unit raise Errno
+fn Loop::spawn(Self, ProcessOptions) -> Process raise Errno
 fn Loop::stop(Self) -> Unit
 
 type Mutex
 fn Mutex::lock(Self) -> Unit
-fn Mutex::new() -> Self!Errno
-fn Mutex::trylock(Self) -> Unit!Errno
+fn Mutex::new() -> Self raise Errno
+fn Mutex::trylock(Self) -> Unit raise Errno
 fn Mutex::unlock(Self) -> Unit
 impl Share for Mutex
 
@@ -202,8 +202,8 @@ fn OpenFlags::read_write(append~ : Bool = .., create~ : Bool = .., truncate~ : B
 fn OpenFlags::write_only(append~ : Bool = .., create~ : Bool = .., truncate~ : Bool = .., exclusive~ : Bool = ..) -> Self
 
 type Pipe
-fn[Ntbs : ToNtbs] Pipe::bind(Self, Ntbs, PipeBindFlags) -> Unit!Errno
-fn Pipe::new(Loop, ipc~ : Bool = ..) -> Self!Errno
+fn[Ntbs : ToNtbs] Pipe::bind(Self, Ntbs, PipeBindFlags) -> Unit raise Errno
+fn Pipe::new(Loop, ipc~ : Bool = ..) -> Self raise Errno
 fn Pipe::to_handle(Self) -> Handle
 fn Pipe::to_stream(Self) -> Stream
 impl ToHandle for Pipe
@@ -213,7 +213,7 @@ type PipeBindFlags
 fn PipeBindFlags::new(truncate~ : Bool = ..) -> Self
 
 type Process
-fn Process::kill(Self, Signum) -> Unit!Errno
+fn Process::kill(Self, Signum) -> Unit raise Errno
 fn Process::pid(Self) -> Int
 impl ToHandle for Process
 
@@ -242,15 +242,15 @@ type Shutdown
 impl ToReq for Shutdown
 
 type Signal
-fn Signal::new(Loop) -> Self!Errno
-fn Signal::start(Self, (Self, Signum) -> Unit, Signum) -> Unit!Errno
-fn Signal::stop(Self) -> Unit!Errno
+fn Signal::new(Loop) -> Self raise Errno
+fn Signal::start(Self, (Self, Signum) -> Unit, Signum) -> Unit raise Errno
+fn Signal::stop(Self) -> Unit raise Errno
 
 type Signum
 fn Signum::sigabrt() -> Self
 fn Signum::sighup() -> Self
 fn Signum::sigint() -> Self
-fn Signum::sigpipe() -> Self!Errno
+fn Signum::sigpipe() -> Self raise Errno
 fn Signum::sigquit() -> Self
 fn Signum::sigterm() -> Self
 fn Signum::sigwinch() -> Self
@@ -262,7 +262,7 @@ fn SockType::stream() -> Self
 impl Show for SockType
 
 type Sockaddr
-fn Sockaddr::ip_name(Self) -> String!Errno
+fn Sockaddr::ip_name(Self) -> Bytes raise Errno
 impl ToSockaddr for Sockaddr
 
 type SockaddrIn
@@ -282,7 +282,7 @@ fn Stat::flags(Self) -> UInt64
 fn Stat::gen(Self) -> UInt64
 fn Stat::gid(Self) -> UInt64
 fn Stat::ino(Self) -> UInt64
-fn Stat::is_block_device(Self) -> Bool!Errno
+fn Stat::is_block_device(Self) -> Bool raise Errno
 fn Stat::is_character_device(Self) -> Bool
 fn Stat::is_directory(Self) -> Bool
 fn Stat::is_fifo(Self) -> Bool
@@ -290,7 +290,7 @@ fn Stat::is_file(Self) -> Bool
 #deprecated
 fn Stat::is_pipe(Self) -> Bool
 fn Stat::is_regular(Self) -> Bool
-fn Stat::is_socket(Self) -> Bool!Errno
+fn Stat::is_socket(Self) -> Bool raise Errno
 fn Stat::is_symlink(Self) -> Bool
 fn Stat::mode(Self) -> UInt64
 fn Stat::mtim_nsec(Self) -> Int64
@@ -400,18 +400,18 @@ fn StdioContainer::inherit_stream(Stream) -> Self
 type Stream
 fn Stream::is_readable(Self) -> Bool
 fn Stream::is_writable(Self) -> Bool
-fn Stream::read_start(Self, (Handle, Int) -> @bytes.View, (Self, Int, @bytes.View) -> Unit, (Self, Errno) -> Unit) -> Unit!Errno
-fn Stream::read_stop(Self) -> Unit!Errno
-fn Stream::shutdown(Self, (Shutdown) -> Unit, (Shutdown, Errno) -> Unit) -> Unit!Errno
+fn Stream::read_start(Self, (Handle, Int) -> @bytes.View, (Self, Int, @bytes.View) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
+fn Stream::read_stop(Self) -> Unit raise Errno
+fn Stream::shutdown(Self, (Shutdown) -> Unit, (Shutdown, Errno) -> Unit) -> Unit raise Errno
 fn Stream::to_handle(Self) -> Handle
-fn Stream::write(Self, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) -> Unit!Errno
+fn Stream::write(Self, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) -> Unit raise Errno
 impl ToHandle for Stream
 impl ToStream for Stream
 
 type Tcp
-fn[Sockaddr : ToSockaddr] Tcp::bind(Self, Sockaddr, TcpBindFlags) -> Unit!Errno
-fn[Sockaddr : ToSockaddr] Tcp::connect(Self, Sockaddr, (Connect) -> Unit, (Connect, Errno) -> Unit) -> Unit!Errno
-fn Tcp::new(Loop) -> Self!Errno
+fn[Sockaddr : ToSockaddr] Tcp::bind(Self, Sockaddr, TcpBindFlags) -> Unit raise Errno
+fn[Sockaddr : ToSockaddr] Tcp::connect(Self, Sockaddr, (Connect) -> Unit, (Connect, Errno) -> Unit) -> Unit raise Errno
+fn Tcp::new(Loop) -> Self raise Errno
 impl ToHandle for Tcp
 impl ToStream for Tcp
 
@@ -420,25 +420,25 @@ fn TcpBindFlags::new(ipv6_only~ : Bool = .., reuse_port~ : Bool = ..) -> Self
 
 type Thread
 fn Thread::equal(Self, Self) -> Bool
-fn Thread::join(Self) -> Unit!Errno
-fn Thread::new(() -> Unit) -> Self!Errno
-fn Thread::self() -> Self!Errno
+fn Thread::join(Self) -> Unit raise Errno
+fn Thread::new(() -> Unit) -> Self raise Errno
+fn Thread::self() -> Self raise Errno
 impl Eq for Thread
 impl Share for Thread
 
 type Timer
 fn Timer::get_due_in(Self) -> UInt64
 fn Timer::get_repeat(Self) -> UInt64
-fn Timer::new(Loop) -> Self!Errno
+fn Timer::new(Loop) -> Self raise Errno
 fn Timer::set_repeat(Self, UInt64) -> Unit
-fn Timer::start(Self, timeout~ : UInt64, repeat~ : UInt64, (Self) -> Unit) -> Unit!Errno
-fn Timer::stop(Self) -> Unit!Errno
+fn Timer::start(Self, timeout~ : UInt64, repeat~ : UInt64, (Self) -> Unit) -> Unit raise Errno
+fn Timer::stop(Self) -> Unit raise Errno
 impl ToHandle for Timer
 
 type Tty
-fn Tty::new(Loop, File) -> Self!Errno
-fn Tty::reset_mode() -> Unit!Errno
-fn Tty::set_mode(Self, TtyMode) -> Unit!Errno
+fn Tty::new(Loop, File) -> Self raise Errno
+fn Tty::reset_mode() -> Unit raise Errno
+fn Tty::set_mode(Self, TtyMode) -> Unit raise Errno
 impl ToHandle for Tty
 impl ToStream for Tty
 
@@ -449,12 +449,12 @@ fn TtyMode::raw() -> Self
 fn TtyMode::raw_vt() -> Self
 
 type Udp
-fn[Sockaddr : ToSockaddr] Udp::bind(Self, Sockaddr, UdpFlags) -> Unit!Errno
-fn[Sockaddr : ToSockaddr] Udp::connect(Self, Sockaddr) -> Unit!Errno
-fn Udp::new(Loop) -> Self!Errno
-fn Udp::recv_start(Self, (Handle, Int) -> @bytes.View, (Self, Int, @bytes.View, Sockaddr, UdpFlags) -> Unit, (Self, Errno) -> Unit) -> Unit!Errno
-fn Udp::recv_stop(Self) -> Unit!Errno
-fn[Sockaddr : ToSockaddr] Udp::send(Self, Array[@bytes.View], (UdpSend) -> Unit, (UdpSend, Errno) -> Unit, addr? : Sockaddr) -> Unit!Errno
+fn[Sockaddr : ToSockaddr] Udp::bind(Self, Sockaddr, UdpFlags) -> Unit raise Errno
+fn[Sockaddr : ToSockaddr] Udp::connect(Self, Sockaddr) -> Unit raise Errno
+fn Udp::new(Loop) -> Self raise Errno
+fn Udp::recv_start(Self, (Handle, Int) -> @bytes.View, (Self, Int, @bytes.View, Sockaddr, UdpFlags) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
+fn Udp::recv_stop(Self) -> Unit raise Errno
+fn[Sockaddr : ToSockaddr] Udp::send(Self, Array[@bytes.View], (UdpSend) -> Unit, (UdpSend, Errno) -> Unit, addr? : Sockaddr) -> Unit raise Errno
 impl ToHandle for Udp
 
 type UdpFlags
@@ -507,12 +507,12 @@ trait ToSockaddr
 pub trait ToStream : ToHandle {
   to_stream(Self) -> Stream
   of_stream(Stream) -> Self
-  read_start(Self, (Self, Int) -> @bytes.View, (Self, Int, @bytes.View) -> Unit, (Self, Errno) -> Unit) -> Unit!Errno
-  read_stop(Self) -> Unit!Errno
-  write(Self, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) -> Unit!Errno
-  listen(Self, Int, (Self) -> Unit, (Self, Errno) -> Unit) -> Unit!Errno
+  read_start(Self, (Self, Int) -> @bytes.View, (Self, Int, @bytes.View) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
+  read_stop(Self) -> Unit raise Errno
+  write(Self, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) -> Unit raise Errno
+  listen(Self, Int, (Self) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
   is_readable(Self) -> Bool
   is_writable(Self) -> Bool
-  shutdown(Self, (Shutdown) -> Unit, (Shutdown, Errno) -> Unit) -> Unit!Errno
+  shutdown(Self, (Shutdown) -> Unit, (Shutdown, Errno) -> Unit) -> Unit raise Errno
 }
 

@@ -175,7 +175,7 @@ let _IF_NAMESIZE : Int = uv_IF_NAMESIZE()
 extern "c" fn uv_ip_name(src : Sockaddr, dst : Bytes) -> Int = "moonbit_uv_ip_name"
 
 ///|
-pub fn ip_name(self : Sockaddr) -> String raise Errno {
+pub fn ip_name(self : Sockaddr) -> Bytes raise Errno {
   let bytes = Bytes::make(_IF_NAMESIZE, 0)
   let status = uv_ip_name(self, bytes)
   if status < 0 {
@@ -185,7 +185,7 @@ pub fn ip_name(self : Sockaddr) -> String raise Errno {
   for i = 0; bytes[i] != 0; i = i + 1 {
     buffer.write_byte(bytes[i])
   }
-  return @encoding.decode_lossy(encoding=UTF8, buffer.contents())
+  return buffer.contents()
 }
 
 ///|
