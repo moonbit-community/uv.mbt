@@ -49,6 +49,7 @@ fn Path::read(Self, loc~ : SourceLoc = _) -> Iter[@bytes.View]!
 fn[ToPath : ToPath] Path::relative_to(Self, ToPath) -> Self
 fn Path::rmdir(Self, loc~ : SourceLoc = _) -> Unit!
 fn Path::root(Self) -> @string.StringView
+fn Path::stat(Self, loc~ : SourceLoc = _) -> Stat!
 fn Path::suffix(Self) -> @string.StringView?
 fn Path::to_posix_path(Self) -> Self
 fn Path::to_windows_path(Self) -> Self
@@ -63,6 +64,10 @@ impl ToJson for Path
 impl Readable for Path
 impl ToPath for Path
 impl Writable for Path
+
+type Stat
+fn Stat::is_dir(Self) -> Bool
+fn Stat::is_file(Self) -> Bool
 
 fn ToPath::anchor(&Self) -> @string.StringView
 fn ToPath::drive(&Self) -> @string.StringView

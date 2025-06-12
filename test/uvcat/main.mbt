@@ -4,7 +4,7 @@ fn main {
     let args = @uv.args()
     fn do_read(uv : @uv.Loop, file : @uv.File, bytes : Bytes) -> Unit {
       try {
-        uv.fs_read!(
+        uv.fs_read(
           file,
           [bytes[:]],
           fn(_, count) { do_write(uv, file, bytes, 0, count) },
@@ -24,9 +24,11 @@ fn main {
     ) -> Unit {
       try {
         if count == 0 {
-          uv.fs_close!(file, fn(_) {  })
+          uv.fs_close(file, fn(_) {  }, fn(_, e) {
+            println("Error closing file: \{e}")
+          })
         } else {
-          uv.fs_write!(
+          uv.fs_write(
             @uv.stdout(),
             [bytes[start:start + count]],
             fn(_, write_count) {
@@ -50,17 +52,17 @@ fn main {
       }
     }
 
-    let uv = @uv.Loop::new!()
-    uv.fs_open!(
+    let uv = @uv.Loop::new()
+    uv.fs_open(
       args[1],
-      @uv.OpenFlags::read(),
+      @uv.OpenFlags::read_only(),
       0,
       fn(_, file) { do_read(uv, file, Bytes::make(1024, 0)) },
       fn(_, error) { println("Error opening file: \{error}") },
     )
-    uv.run!(Default)
+    uv.run(Default)
     uv.stop()
-    uv.close!()
+    uv.close()
   } catch {
     error => println("Error: \{error}")
   }

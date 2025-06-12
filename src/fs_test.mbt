@@ -1,4 +1,3 @@
-
 ///|
 fn[E : Error] raise_option(option : E?) -> Unit!E {
   if option is Some(error) {
@@ -243,7 +242,7 @@ test "stat/sync" {
   let stat = uv.fs_stat_sync("test/fixtures/example.txt")
   uv.close()
   assert_true(stat.is_file())
-  assert_true(not(stat.is_directory()))
+  assert_false(stat.is_directory())
   @json.inspect(stat.size(), content="14")
 }
 

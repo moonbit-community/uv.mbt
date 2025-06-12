@@ -123,7 +123,7 @@ impl ToReq for Fs
 type FsEvent
 fn FsEvent::get_path(Self) -> String!Errno
 fn FsEvent::new(Loop) -> Self!Errno
-fn FsEvent::start(Self, String, FsEventFlags, (Self, String?, Array[FsEventType]) -> Unit, (Self, String?, Errno) -> Unit) -> Unit!Errno
+fn[ToNtbs : ToNtbs] FsEvent::start(Self, ToNtbs, FsEventFlags, (Self, String?, Array[FsEventType]) -> Unit, (Self, String?, Errno) -> Unit) -> Unit!Errno
 fn FsEvent::stop(Self) -> Unit!Errno
 impl ToHandle for FsEvent
 
