@@ -67,9 +67,9 @@ pub fn FsEventFlags::new(recursive~ : Bool = false) -> FsEventFlags {
 }
 
 ///|
-pub fn FsEvent::start(
+pub fn[ToNtbs : ToNtbs] FsEvent::start(
   self : FsEvent,
-  path : String,
+  path : ToNtbs,
   flags : FsEventFlags,
   event_cb : (FsEvent, String?, Array[FsEventType]) -> Unit,
   error_cb : (FsEvent, String?, Errno) -> Unit
