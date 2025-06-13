@@ -52,3 +52,13 @@ test "copy_to/file" {
     }
   }
 }
+
+///|
+test "copy_to/directory" {
+  let src = @sync.Path::new("src")
+  let dst = @sync.Path::new("src_copy")
+  src.copy_to(dst, recursive=true)
+  assert_true(dst.is_dir())
+  assert_true(dst.iter().collect().length() > 0)
+  dst.remove(recursive=true)
+}

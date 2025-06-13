@@ -223,3 +223,25 @@ pub fn[Target : ToPath] Path::copy_to(
     }
   })
 }
+
+///|
+pub fn Path::remove(
+  self : Path,
+  recursive~ : Bool = false,
+  loc~ : SourceLoc = _
+) -> Unit raise Error {
+  backtrace(loc~, fn() {
+    if self.is_dir() {
+      let entries = self.iter().collect()
+      if not(entries.is_empty()) {
+        if not(recursive) {
+          raise SystemError::not_empty(self)
+        }
+        entries.each(fn(entry) { entry.remove(recursive~, loc~) })
+      }
+      self.rmdir()
+    } else {
+      self.unlink()
+    }
+  })
+}
