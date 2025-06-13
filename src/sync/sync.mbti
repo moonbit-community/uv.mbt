@@ -13,6 +13,12 @@ fn[ToPath : ToPath] path(ToPath) -> &ToPath
 
 fn[ToPosixPath : ToPosixPath] posix_path(ToPosixPath) -> &ToPosixPath
 
+let stderr : File
+
+let stdin : File
+
+let stdout : File
+
 fn[ToWindowsPath : ToWindowsPath] windows_path(ToWindowsPath) -> &ToWindowsPath
 
 // Types and methods
@@ -33,9 +39,14 @@ fn Iter::text(Self[@bytes.View], encoding~ : @encoding.Encoding = ..) -> String 
 type Path
 fn Path::access(Self, read~ : Bool = .., write~ : Bool = .., execute~ : Bool = .., loc~ : SourceLoc = _) -> Unit raise
 fn Path::anchor(Self) -> @string.StringView
+fn[Target : ToPath] Path::copy_to(Self, Target, recursive~ : Bool = .., overwrite~ : Bool = .., loc~ : SourceLoc = _) -> Unit raise
 fn Path::drive(Self) -> @string.StringView
 fn Path::exists(Self, loc~ : SourceLoc = _) -> Bool raise
+fn Path::is_dir(Self, loc~ : SourceLoc = _) -> Bool raise
+fn Path::is_file(Self, loc~ : SourceLoc = _) -> Bool raise
+fn Path::iter(Self) -> Iter[Self] raise
 fn[ToPath : ToPath] Path::join(Self, ToPath) -> Self
+fn Path::mkdir(Self, mode~ : Int = .., loc~ : SourceLoc = _) -> Unit raise
 fn Path::name(Self) -> @string.StringView?
 fn[ToPath : ToPath] Path::new(ToPath) -> Self
 fn Path::open(Self, loc~ : SourceLoc = _) -> File raise
@@ -47,6 +58,7 @@ fn Path::parts(Self) -> ArrayView[@string.StringView]
 fn[ToPosixPath : ToPosixPath] Path::posix(ToPosixPath) -> Self
 fn Path::read(Self, loc~ : SourceLoc = _) -> Iter[@bytes.View] raise
 fn[ToPath : ToPath] Path::relative_to(Self, ToPath) -> Self
+fn Path::remove(Self, recursive~ : Bool = .., loc~ : SourceLoc = _) -> Unit raise
 fn Path::rmdir(Self, loc~ : SourceLoc = _) -> Unit raise
 fn Path::root(Self) -> @string.StringView
 fn Path::stat(Self, loc~ : SourceLoc = _) -> Stat raise

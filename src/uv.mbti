@@ -22,6 +22,8 @@ fn errno(Status) -> Errno
 
 fn fs_scandir_next(Fs) -> Dirent raise Errno
 
+fn[Ntbs : ToNtbs] fs_scandir_sync(Loop, Ntbs, Int) -> Fs raise Errno
+
 fn hrtime() -> UInt64
 
 fn[Ntbs : ToNtbs] ip4_addr(Ntbs, Int) -> SockaddrIn
@@ -175,6 +177,7 @@ fn[Ntbs : ToNtbs] Loop::fs_rename(Self, Ntbs, Ntbs, (Fs) -> Unit, (Fs, Errno) ->
 fn[Ntbs : ToNtbs] Loop::fs_rmdir(Self, Ntbs, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit raise Errno
 fn[Ntbs : ToNtbs] Loop::fs_rmdir_sync(Self, Ntbs) -> Unit raise Errno
 fn[Ntbs : ToNtbs] Loop::fs_scandir(Self, Ntbs, Int, (Fs) -> Unit, (Fs, Errno) -> Unit) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_scandir_sync(Self, Ntbs, Int) -> Fs raise Errno
 fn[Ntbs : ToNtbs] Loop::fs_stat(Self, Ntbs, (Fs, Stat) -> Unit, (Fs, Errno) -> Unit) -> Unit raise Errno
 fn[Ntbs : ToNtbs] Loop::fs_stat_sync(Self, Ntbs) -> Stat raise Errno
 fn[Ntbs : ToNtbs] Loop::fs_unlink(Self, Ntbs, (Fs) -> Unit, (Fs, Error) -> Unit) -> Unit raise Errno
