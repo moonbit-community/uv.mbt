@@ -55,6 +55,14 @@ pub fn Loop::stop(self : Loop) -> Unit {
 }
 
 ///|
+extern "c" fn uv_walk(loop_ : Loop, walk_cb : (Handle) -> Unit) = "moonbit_uv_walk"
+
+///|
+pub fn Loop::walk(self : Loop, walk_cb : (Handle) -> Unit) -> Unit {
+  uv_walk(self, walk_cb)
+}
+
+///|
 extern "c" fn uv_loop_alive(loop_ : Loop) -> Int = "moonbit_uv_loop_alive"
 
 ///|

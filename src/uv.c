@@ -113,6 +113,31 @@ moonbit_uv_run(uv_loop_t *loop, uv_run_mode mode) {
   return status;
 }
 
+typedef struct moonbit_uv_walk_cb_s {
+  int32_t (*code)(struct moonbit_uv_walk_cb_s *, uv_handle_t *);
+} moonbit_uv_walk_cb_t;
+
+static inline void
+moonbit_uv_walk_cb(uv_handle_t *handle, void *arg) {
+  moonbit_uv_trace("handle = %p\n", (void *)handle);
+  moonbit_uv_trace("handle->rc = %d\n", Moonbit_object_header(handle)->rc);
+  moonbit_uv_walk_cb_t *cb = arg;
+  moonbit_incref(handle);
+  moonbit_incref(cb);
+  cb->code(cb, handle);
+}
+
+MOONBIT_FFI_EXPORT
+void
+moonbit_uv_walk(uv_loop_t *loop, void *walk_cb) {
+  moonbit_uv_trace("loop = %p\n", (void *)loop);
+  moonbit_uv_trace("loop->rc = %d\n", Moonbit_object_header(loop)->rc);
+  moonbit_uv_trace("walk_cb = %p\n", walk_cb);
+  moonbit_uv_trace("walk_cb->rc = %d\n", Moonbit_object_header(walk_cb)->rc);
+  uv_walk(loop, moonbit_uv_walk_cb, walk_cb);
+  moonbit_decref(loop);
+}
+
 MOONBIT_FFI_EXPORT
 int32_t
 moonbit_uv_loop_alive(uv_loop_t *loop) {
@@ -329,8 +354,6 @@ moonbit_uv_fs_open_sync(
 ) {
   moonbit_uv_trace("loop = %p\n", (void *)loop);
   moonbit_uv_trace("loop->rc = %d\n", Moonbit_object_header(loop)->rc);
-  moonbit_uv_trace("cb = %p\n", (void *)cb);
-  moonbit_uv_trace("cb->rc = %d\n", Moonbit_object_header(cb)->rc);
   moonbit_uv_fs_set_data(fs, NULL);
   int result = uv_fs_open(loop, &fs->fs, (const char *)path, flags, mode, NULL);
   moonbit_decref(loop);
@@ -360,11 +383,7 @@ moonbit_uv_fs_close(
 
 MOONBIT_FFI_EXPORT
 int32_t
-moonbit_uv_fs_close_sync(
-  uv_loop_t *loop,
-  moonbit_uv_fs_t *fs,
-  int32_t file
-) {
+moonbit_uv_fs_close_sync(uv_loop_t *loop, moonbit_uv_fs_t *fs, int32_t file) {
   moonbit_uv_trace("loop = %p\n", (void *)loop);
   moonbit_uv_trace("loop->rc = %d\n", Moonbit_object_header(loop)->rc);
   moonbit_uv_trace("fs = %p\n", (void *)fs);
@@ -423,8 +442,6 @@ moonbit_uv_fs_read_sync(
   int32_t *bufs_length,
   int64_t offset
 ) {
-  moonbit_uv_trace("cb = %p\n", (void *)cb);
-  moonbit_uv_trace("cb->rc = %d\n", Moonbit_object_header(cb)->rc);
   int bufs_size = Moonbit_array_length(bufs_base);
   uv_buf_t *bufs_data = malloc(sizeof(uv_buf_t) * bufs_size);
   for (int i = 0; i < bufs_size; i++) {
@@ -2302,9 +2319,11 @@ int32_t
 moonbit_uv_pipe_init(uv_loop_t *loop, uv_pipe_t *handle, int32_t ipc) {
   moonbit_uv_trace("loop = %p\n", (void *)loop);
   moonbit_uv_trace("loop->rc = %d\n", Moonbit_object_header(loop)->rc);
-  moonbit_uv_trace("handle = %p\n", (void *)handle);
-  moonbit_uv_trace("handle->rc = %d\n", Moonbit_object_header(handle)->rc);
-  return uv_pipe_init(loop, handle, ipc);
+  moonbit_uv_trace("pipe = %p\n", (void *)handle);
+  moonbit_uv_trace("pipe->rc = %d\n", Moonbit_object_header(handle)->rc);
+  int32_t status = uv_pipe_init(loop, handle, ipc);
+  moonbit_decref(loop);
+  return status;
 }
 
 MOONBIT_FFI_EXPORT
