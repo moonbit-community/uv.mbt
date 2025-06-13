@@ -122,48 +122,12 @@ pub fn Path::parse_posix(path : @string.View) -> Path {
 
 ///|
 test "posix_path/root" {
-  @json.inspect(Path::parse_posix("/"), content={
-    "flavor": "posix",
-    "drive": "",
-    "root": "/",
-    "anchor": "/",
-    "parts": ["/"],
-  })
-  @json.inspect(Path::parse_posix("//"), content={
-    "flavor": "posix",
-    "drive": "",
-    "root": "//",
-    "anchor": "//",
-    "parts": ["//"],
-  })
-  @json.inspect(Path::parse_posix("///"), content={
-    "flavor": "posix",
-    "drive": "",
-    "root": "/",
-    "anchor": "/",
-    "parts": ["/"],
-  })
-  @json.inspect(Path::parse_posix("//usr//bin//"), content={
-    "flavor": "posix",
-    "drive": "",
-    "root": "//",
-    "anchor": "//",
-    "parts": ["//", "usr", "bin"],
-  })
-  @json.inspect(Path::parse_posix("////usr"), content={
-    "flavor": "posix",
-    "drive": "",
-    "root": "/",
-    "anchor": "/",
-    "parts": ["/", "usr"],
-  })
-  @json.inspect(Path::parse_posix("/usr/bin"), content={
-    "flavor": "posix",
-    "drive": "",
-    "root": "/",
-    "anchor": "/",
-    "parts": ["/", "usr", "bin"],
-  })
+  @json.inspect(Path::parse_posix("/"), content="/")
+  @json.inspect(Path::parse_posix("//"), content="//")
+  @json.inspect(Path::parse_posix("///"), content="/")
+  @json.inspect(Path::parse_posix("//usr//bin//"), content="//usr/bin")
+  @json.inspect(Path::parse_posix("////usr"), content="/usr")
+  @json.inspect(Path::parse_posix("/usr/bin"), content="/usr/bin")
 }
 
 ///|
@@ -173,102 +137,30 @@ pub fn[ToPosixPath : ToPosixPath] Path::posix(path : ToPosixPath) -> Path {
 
 ///|
 test "posix_path" {
-  @json.inspect(Path::parse_posix("usr/bin"), content={
-    "flavor": "posix",
-    "drive": "",
-    "root": "",
-    "anchor": "",
-    "parts": ["usr", "bin"],
-  })
-  @json.inspect(Path::parse_posix("usr/bin/"), content={
-    "flavor": "posix",
-    "drive": "",
-    "root": "",
-    "anchor": "",
-    "parts": ["usr", "bin"],
-  })
-  @json.inspect(Path::parse_posix("usr//bin"), content={
-    "flavor": "posix",
-    "drive": "",
-    "root": "",
-    "anchor": "",
-    "parts": ["usr", "bin"],
-  })
-  @json.inspect(Path::parse_posix("C:\\Windows"), content={
-    "flavor": "posix",
-    "drive": "",
-    "root": "",
-    "anchor": "",
-    "parts": ["C:\\Windows"],
-  })
+  @json.inspect(Path::parse_posix("usr/bin"), content="usr/bin")
+  @json.inspect(Path::parse_posix("usr/bin/"), content="usr/bin")
+  @json.inspect(Path::parse_posix("usr//bin"), content="usr/bin")
+  @json.inspect(Path::parse_posix("C:\\Windows"), content="C:\\Windows")
 }
 
 ///|
 test "posix_path/empty" {
-  @json.inspect(Path::parse_posix(""), content={
-    "flavor": "posix",
-    "drive": "",
-    "root": "",
-    "anchor": "",
-    "parts": [],
-  })
+  @json.inspect(Path::parse_posix(""), content="")
 }
 
 ///|
 test "posix_path/collapse_slashes" {
-  @json.inspect(Path::parse_posix("usr/////bin"), content={
-    "flavor": "posix",
-    "drive": "",
-    "root": "",
-    "anchor": "",
-    "parts": ["usr", "bin"],
-  })
-  @json.inspect(Path::parse_posix("usr//bin//"), content={
-    "flavor": "posix",
-    "drive": "",
-    "root": "",
-    "anchor": "",
-    "parts": ["usr", "bin"],
-  })
-  @json.inspect(Path::parse_posix("usr///bin//"), content={
-    "flavor": "posix",
-    "drive": "",
-    "root": "",
-    "anchor": "",
-    "parts": ["usr", "bin"],
-  })
+  @json.inspect(Path::parse_posix("usr/////bin"), content="usr/bin")
+  @json.inspect(Path::parse_posix("usr//bin//"), content="usr/bin")
+  @json.inspect(Path::parse_posix("usr///bin//"), content="usr/bin")
 }
 
 ///|
 test "posix_path/collapse_dots" {
-  @json.inspect(Path::parse_posix("usr/./bin"), content={
-    "flavor": "posix",
-    "drive": "",
-    "root": "",
-    "anchor": "",
-    "parts": ["usr", "bin"],
-  })
-  @json.inspect(Path::parse_posix("usr/../bin"), content={
-    "flavor": "posix",
-    "drive": "",
-    "root": "",
-    "anchor": "",
-    "parts": ["usr", "..", "bin"],
-  })
-  @json.inspect(Path::parse_posix("usr/.././bin"), content={
-    "flavor": "posix",
-    "drive": "",
-    "root": "",
-    "anchor": "",
-    "parts": ["usr", "..", "bin"],
-  })
-  @json.inspect(Path::parse_posix("usr/./../bin"), content={
-    "flavor": "posix",
-    "drive": "",
-    "root": "",
-    "anchor": "",
-    "parts": ["usr", "..", "bin"],
-  })
+  @json.inspect(Path::parse_posix("usr/./bin"), content="usr/bin")
+  @json.inspect(Path::parse_posix("usr/../bin"), content="usr/../bin")
+  @json.inspect(Path::parse_posix("usr/.././bin"), content="usr/../bin")
+  @json.inspect(Path::parse_posix("usr/./../bin"), content="usr/../bin")
 }
 
 ///|
@@ -411,320 +303,86 @@ pub fn[ToWindowsPath : ToWindowsPath] Path::windows(
 
 ///|
 test "parse_windows_path/empty" {
-  @json.inspect(Path::parse_windows(""), content={
-    "flavor": "windows",
-    "drive": "",
-    "root": "",
-    "anchor": "",
-    "parts": [],
-  })
+  @json.inspect(Path::parse_windows(""), content="")
 }
 
 ///|
 test "parse_windows_path/drive" {
-  @json.inspect(Path::parse_windows("C:"), content={
-    "flavor": "windows",
-    "drive": "C:",
-    "root": "",
-    "anchor": "C:",
-    "parts": ["C:"],
-  })
-  @json.inspect(Path::parse_windows("ABC:"), content={
-    "flavor": "windows",
-    "drive": "",
-    "root": "",
-    "anchor": "",
-    "parts": ["ABC:"],
-  })
-  @json.inspect(Path::parse_windows("C:\\"), content={
-    "flavor": "windows",
-    "drive": "C:",
-    "root": "\\",
-    "anchor": "C:\\",
-    "parts": ["C:\\"],
-  })
-  @json.inspect(Path::parse_windows("C:\\\\"), content={
-    "flavor": "windows",
-    "drive": "C:",
-    "root": "\\",
-    "anchor": "C:\\",
-    "parts": ["C:\\"],
-  })
-  @json.inspect(Path::parse_windows("C:\\Windows"), content={
-    "flavor": "windows",
-    "drive": "C:",
-    "root": "\\",
-    "anchor": "C:\\",
-    "parts": ["C:\\", "Windows"],
-  })
-  @json.inspect(Path::parse_windows("C:\\\\Windows"), content={
-    "flavor": "windows",
-    "drive": "C:",
-    "root": "\\",
-    "anchor": "C:\\",
-    "parts": ["C:\\", "Windows"],
-  })
-  @json.inspect(Path::parse_windows("C:/Windows"), content={
-    "flavor": "windows",
-    "drive": "C:",
-    "root": "\\",
-    "anchor": "C:\\",
-    "parts": ["C:\\", "Windows"],
-  })
-  @json.inspect(Path::parse_windows("C:/Windows/"), content={
-    "flavor": "windows",
-    "drive": "C:",
-    "root": "\\",
-    "anchor": "C:\\",
-    "parts": ["C:\\", "Windows"],
-  })
-  @json.inspect(Path::parse_windows("C:\\Windows\\"), content={
-    "flavor": "windows",
-    "drive": "C:",
-    "root": "\\",
-    "anchor": "C:\\",
-    "parts": ["C:\\", "Windows"],
-  })
-  @json.inspect(Path::parse_windows("C:Windows"), content={
-    "flavor": "windows",
-    "drive": "C:",
-    "root": "",
-    "anchor": "C:",
-    "parts": ["C:", "Windows"],
-  })
-  @json.inspect(Path::parse_windows("C:Windows/"), content={
-    "flavor": "windows",
-    "drive": "C:",
-    "root": "",
-    "anchor": "C:",
-    "parts": ["C:", "Windows"],
-  })
+  @json.inspect(Path::parse_windows("C:"), content="C:")
+  @json.inspect(Path::parse_windows("ABC:"), content="ABC:")
+  @json.inspect(Path::parse_windows("C:\\"), content="C:\\")
+  @json.inspect(Path::parse_windows("C:\\\\"), content="C:\\")
+  @json.inspect(Path::parse_windows("C:\\Windows"), content="C:\\Windows")
+  @json.inspect(Path::parse_windows("C:\\\\Windows"), content="C:\\Windows")
+  @json.inspect(Path::parse_windows("C:/Windows"), content="C:\\Windows")
+  @json.inspect(Path::parse_windows("C:/Windows/"), content="C:\\Windows")
+  @json.inspect(Path::parse_windows("C:\\Windows\\"), content="C:\\Windows")
+  @json.inspect(Path::parse_windows("C:Windows"), content="C:Windows")
+  @json.inspect(Path::parse_windows("C:Windows/"), content="C:Windows")
 }
 
 ///|
 test "parse_windows_path/root" {
-  @json.inspect(Path::parse_windows("/"), content={
-    "flavor": "windows",
-    "drive": "",
-    "root": "\\",
-    "anchor": "\\",
-    "parts": ["\\"],
-  })
-  @json.inspect(Path::parse_windows("\\"), content={
-    "flavor": "windows",
-    "drive": "",
-    "root": "\\",
-    "anchor": "\\",
-    "parts": ["\\"],
-  })
-  @json.inspect(Path::parse_windows("Windows"), content={
-    "flavor": "windows",
-    "drive": "",
-    "root": "",
-    "anchor": "",
-    "parts": ["Windows"],
-  })
-  @json.inspect(Path::parse_windows("/Windows"), content={
-    "flavor": "windows",
-    "drive": "",
-    "root": "\\",
-    "anchor": "\\",
-    "parts": ["\\", "Windows"],
-  })
-  @json.inspect(Path::parse_windows("\\Windows"), content={
-    "flavor": "windows",
-    "drive": "",
-    "root": "\\",
-    "anchor": "\\",
-    "parts": ["\\", "Windows"],
-  })
+  @json.inspect(Path::parse_windows("/"), content="\\")
+  @json.inspect(Path::parse_windows("\\"), content="\\")
+  @json.inspect(Path::parse_windows("Windows"), content="Windows")
+  @json.inspect(Path::parse_windows("/Windows"), content="\\Windows")
+  @json.inspect(Path::parse_windows("\\Windows"), content="\\Windows")
 }
 
 ///|
 test "parse_windows_path/unc" {
-  @json.inspect(Path::parse_windows("//"), content={
-    "flavor": "windows",
-    "drive": "\\\\",
-    "root": "",
-    "anchor": "\\\\",
-    "parts": ["\\\\"],
-  })
-  @json.inspect(Path::parse_windows("\\\\"), content={
-    "flavor": "windows",
-    "drive": "\\\\",
-    "root": "",
-    "anchor": "\\\\",
-    "parts": ["\\\\"],
-  })
-  @json.inspect(Path::parse_windows("/\\"), content={
-    "flavor": "windows",
-    "drive": "\\\\",
-    "root": "",
-    "anchor": "\\\\",
-    "parts": ["\\\\"],
-  })
-  @json.inspect(Path::parse_windows("///"), content={
-    "flavor": "windows",
-    "drive": "\\\\\\",
-    "root": "",
-    "anchor": "\\\\\\",
-    "parts": ["\\\\\\"],
-  })
-  @json.inspect(Path::parse_windows("////"), content={
-    "flavor": "windows",
-    "drive": "\\\\\\",
-    "root": "\\",
-    "anchor": "\\\\\\\\",
-    "parts": ["\\\\\\\\"],
-  })
-  @json.inspect(Path::parse_windows("/////"), content={
-    "flavor": "windows",
-    "drive": "\\\\\\",
-    "root": "\\",
-    "anchor": "\\\\\\\\",
-    "parts": ["\\\\\\\\"],
-  })
-  @json.inspect(Path::parse_windows("//unc"), content={
-    "flavor": "windows",
-    "drive": "\\\\unc",
-    "root": "",
-    "anchor": "\\\\unc",
-    "parts": ["\\\\unc"],
-  })
-  @json.inspect(Path::parse_windows("//unc/"), content={
-    "flavor": "windows",
-    "drive": "\\\\unc\\",
-    "root": "",
-    "anchor": "\\\\unc\\",
-    "parts": ["\\\\unc\\"],
-  })
-  @json.inspect(Path::parse_windows("//unc/share"), content={
-    "flavor": "windows",
-    "drive": "\\\\unc\\share",
-    "root": "\\",
-    "anchor": "\\\\unc\\share\\",
-    "parts": ["\\\\unc\\share\\"],
-  })
-  @json.inspect(Path::parse_windows("//unc/share/"), content={
-    "flavor": "windows",
-    "drive": "\\\\unc\\share",
-    "root": "\\",
-    "anchor": "\\\\unc\\share\\",
-    "parts": ["\\\\unc\\share\\"],
-  })
-  @json.inspect(Path::parse_windows("\\\\unc\\share"), content={
-    "flavor": "windows",
-    "drive": "\\\\unc\\share",
-    "root": "\\",
-    "anchor": "\\\\unc\\share\\",
-    "parts": ["\\\\unc\\share\\"],
-  })
-  @json.inspect(Path::parse_windows("\\\\unc\\share\\"), content={
-    "flavor": "windows",
-    "drive": "\\\\unc\\share",
-    "root": "\\",
-    "anchor": "\\\\unc\\share\\",
-    "parts": ["\\\\unc\\share\\"],
-  })
-  @json.inspect(Path::parse_windows("//unc/share/a/b"), content={
-    "flavor": "windows",
-    "drive": "\\\\unc\\share",
-    "root": "\\",
-    "anchor": "\\\\unc\\share\\",
-    "parts": ["\\\\unc\\share\\", "a", "b"],
-  })
-  @json.inspect(Path::parse_windows("\\\\unc\\share\\a\\b"), content={
-    "flavor": "windows",
-    "drive": "\\\\unc\\share",
-    "root": "\\",
-    "anchor": "\\\\unc\\share\\",
-    "parts": ["\\\\unc\\share\\", "a", "b"],
-  })
+  @json.inspect(Path::parse_windows("//"), content="\\\\")
+  @json.inspect(Path::parse_windows("\\\\"), content="\\\\")
+  @json.inspect(Path::parse_windows("/\\"), content="\\\\")
+  @json.inspect(Path::parse_windows("///"), content="\\\\\\")
+  @json.inspect(Path::parse_windows("////"), content="\\\\\\\\")
+  @json.inspect(Path::parse_windows("/////"), content="\\\\\\\\")
+  @json.inspect(Path::parse_windows("//unc"), content="\\\\unc")
+  @json.inspect(Path::parse_windows("//unc/"), content="\\\\unc\\")
+  @json.inspect(Path::parse_windows("//unc/share"), content="\\\\unc\\share\\")
+  @json.inspect(Path::parse_windows("//unc/share/"), content="\\\\unc\\share\\")
+  @json.inspect(
+    Path::parse_windows("\\\\unc\\share"),
+    content="\\\\unc\\share\\",
+  )
+  @json.inspect(
+    Path::parse_windows("\\\\unc\\share\\"),
+    content="\\\\unc\\share\\",
+  )
+  @json.inspect(
+    Path::parse_windows("//unc/share/a/b"),
+    content="\\\\unc\\share\\a\\b",
+  )
+  @json.inspect(
+    Path::parse_windows("\\\\unc\\share\\a\\b"),
+    content="\\\\unc\\share\\a\\b",
+  )
 }
 
 ///|
 test "parse_windows_path/collapse_slashes" {
-  @json.inspect(Path::parse_windows("a//b///c////d"), content={
-    "flavor": "windows",
-    "drive": "",
-    "root": "",
-    "anchor": "",
-    "parts": ["a", "b", "c", "d"],
-  })
-  @json.inspect(Path::parse_windows("a\\\\b\\\\\\c\\\\\\\\d"), content={
-    "flavor": "windows",
-    "drive": "",
-    "root": "",
-    "anchor": "",
-    "parts": ["a", "b", "c", "d"],
-  })
-  @json.inspect(Path::parse_windows("a/b/c/d"), content={
-    "flavor": "windows",
-    "drive": "",
-    "root": "",
-    "anchor": "",
-    "parts": ["a", "b", "c", "d"],
-  })
+  @json.inspect(Path::parse_windows("a//b///c////d"), content="a\\b\\c\\d")
+  @json.inspect(
+    Path::parse_windows("a\\\\b\\\\\\c\\\\\\\\d"),
+    content="a\\b\\c\\d",
+  )
+  @json.inspect(Path::parse_windows("a/b/c/d"), content="a\\b\\c\\d")
 }
 
 ///|
 test "parse_windows_path/collapse_dots" {
-  @json.inspect(Path::parse_windows("./a/b/c"), content={
-    "flavor": "windows",
-    "drive": "",
-    "root": "",
-    "anchor": "",
-    "parts": ["a", "b", "c"],
-  })
-  @json.inspect(Path::parse_windows("a/b/c/."), content={
-    "flavor": "windows",
-    "drive": "",
-    "root": "",
-    "anchor": "",
-    "parts": ["a", "b", "c"],
-  })
-  @json.inspect(Path::parse_windows("a/b/c/./d"), content={
-    "flavor": "windows",
-    "drive": "",
-    "root": "",
-    "anchor": "",
-    "parts": ["a", "b", "c", "d"],
-  })
-  @json.inspect(Path::parse_windows("a/b/c/././d"), content={
-    "flavor": "windows",
-    "drive": "",
-    "root": "",
-    "anchor": "",
-    "parts": ["a", "b", "c", "d"],
-  })
-  @json.inspect(Path::parse_windows("a/b/c/./././d"), content={
-    "flavor": "windows",
-    "drive": "",
-    "root": "",
-    "anchor": "",
-    "parts": ["a", "b", "c", "d"],
-  })
-  @json.inspect(Path::parse_windows("//./"), content={
-    "flavor": "windows",
-    "drive": "\\\\.\\",
-    "root": "",
-    "anchor": "\\\\.\\",
-    "parts": ["\\\\.\\"],
-  })
-  @json.inspect(Path::parse_windows("//./."), content={
-    "flavor": "windows",
-    "drive": "\\\\.\\.",
-    "root": "\\",
-    "anchor": "\\\\.\\.\\",
-    "parts": ["\\\\.\\.\\"],
-  })
-  @json.inspect(Path::parse_windows("//./././a/b/c"), content={
-    "flavor": "windows",
-    "drive": "\\\\.\\.",
-    "root": "\\",
-    "anchor": "\\\\.\\.\\",
-    "parts": ["\\\\.\\.\\", "a", "b", "c"],
-  })
+  @json.inspect(Path::parse_windows("./a/b/c"), content="a\\b\\c")
+  @json.inspect(Path::parse_windows("a/b/c/."), content="a\\b\\c")
+  @json.inspect(Path::parse_windows("a/b/c/./d"), content="a\\b\\c\\d")
+  @json.inspect(Path::parse_windows("a/b/c/././d"), content="a\\b\\c\\d")
+  @json.inspect(Path::parse_windows("a/b/c/./././d"), content="a\\b\\c\\d")
+  @json.inspect(Path::parse_windows("//./"), content="\\\\.\\")
+  @json.inspect(Path::parse_windows("//./."), content="\\\\.\\.\\")
+  @json.inspect(
+    Path::parse_windows("//./././a/b/c"),
+    content="\\\\.\\.\\a\\b\\c",
+  )
 }
 
 ///|
@@ -776,15 +434,7 @@ test "BasicPath::parent" {
     anchor: "",
     parts: ["usr", "bin"],
   }
-  @json.inspect(path.parent(), content=[
-    {
-      "flavor": "posix",
-      "drive": "",
-      "root": "",
-      "anchor": "",
-      "parts": ["usr"],
-    },
-  ])
+  @json.inspect(path.parent(), content=["usr"])
   let path = Path::{
     flavor: Posix,
     drive: "",
@@ -792,15 +442,7 @@ test "BasicPath::parent" {
     anchor: "/",
     parts: ["/", "usr", "bin"],
   }
-  @json.inspect(path.parent(), content=[
-    {
-      "flavor": "posix",
-      "drive": "",
-      "root": "/",
-      "anchor": "/",
-      "parts": ["/", "usr"],
-    },
-  ])
+  @json.inspect(path.parent(), content=["/usr"])
   let path = Path::{
     flavor: Windows,
     drive: "C:",
@@ -808,15 +450,7 @@ test "BasicPath::parent" {
     anchor: "C:\\",
     parts: ["C:\\", "Windows", "System32"],
   }
-  @json.inspect(path.parent(), content=[
-    {
-      "flavor": "windows",
-      "drive": "C:",
-      "root": "\\",
-      "anchor": "C:\\",
-      "parts": ["C:\\", "Windows"],
-    },
-  ])
+  @json.inspect(path.parent(), content=["C:\\Windows"])
   let path = Path::{
     flavor: Windows,
     drive: "C:",
