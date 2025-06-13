@@ -30,8 +30,8 @@ test "write/stdio" {
 
 ///|
 test "scandir" {
-  @json.inspect(@sync.Path::new(["test", "fixtures"]).iter().collect(), content=[
-    "test/fixtures/example.txt",
+  assert_eq(@sync.Path::new(["test", "fixtures"]).iter().collect(), [
+    @sync.Path::new(["test", "fixtures", "example.txt"]),
   ])
 }
 
