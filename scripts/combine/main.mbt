@@ -1,6 +1,6 @@
 ///|
 struct Project {
-  include : Array[@async.Path]
+  incdir : Array[@async.Path]
   source : @async.Path
   target : @async.Path
   prefix : @string.View
@@ -11,10 +11,10 @@ struct Project {
 fn Project::new(
   source : @async.Path,
   target : @async.Path,
-  include~ : Array[@async.Path] = [],
+  incdir~ : Array[@async.Path] = [],
   prefix~ : @string.View = ""
 ) -> Project {
-  Project::{ include, source, target, prefix, copied: Set::new() }
+  Project::{ incdir, source, target, prefix, copied: Set::new() }
 }
 
 ///|
@@ -57,7 +57,7 @@ async fn Project::copy(
   prepare_defines~ : Bool = true,
   relocate~ : Bool = true,
   condition? : String
-) -> Unit! {
+) -> Unit raise {
   let target = self.mangle(source)
   let mut content = self.source.join(source).read_text(encoding=UTF8)
   if prepare_defines {
@@ -79,12 +79,12 @@ async fn Project::relocate(
   self : Project,
   source : @async.Path,
   content : String
-) -> String! {
+) -> String raise {
   let include_directories = []
   if self.source.join(source).parent() is Some(source_directory) {
     include_directories.push(source_directory)
   }
-  include_directories.append(self.include)
+  include_directories.append(self.incdir)
   let headers = []
   async fn relocate(header : @async.Path) -> Result[@async.Path, Error] {
     try {
@@ -194,14 +194,14 @@ async fn Project::relocate(
 }
 
 ///|
-async fn configure(project : Project) -> Unit! {
+async fn configure(project : Project) -> Unit raise {
   for
     source in [
       "src/fs-poll.c", "src/idna.c", "src/inet.c", "src/random.c", "src/strscpy.c",
       "src/strtok.c", "src/thread-common.c", "src/threadpool.c", "src/timer.c", "src/uv-common.c",
       "src/uv-data-getter-setters.c", "src/version.c",
     ] {
-    project.copy(@async.Path::posix(source).to_path())
+    project.copy(@async.Path::parse(source).to_path())
   }
   for
     source in [
@@ -213,7 +213,7 @@ async fn configure(project : Project) -> Unit! {
       "src/win/tty.c", "src/win/udp.c", "src/win/util.c", "src/win/winapi.c", "src/win/winsock.c",
     ] {
     project.copy(
-      @async.Path::posix(source).to_path(),
+      @async.Path::parse(source).to_path(),
       condition="defined(_WIN32)",
     )
   }
@@ -226,13 +226,13 @@ async fn configure(project : Project) -> Unit! {
       "src/unix/udp.c",
     ] {
     project.copy(
-      @async.Path::posix(source).to_path(),
+      @async.Path::parse(source).to_path(),
       condition="!defined(_WIN32)",
     )
   }
   for source in ["src/unix/proctitle.c"] {
     project.copy(
-      @async.Path::posix(source).to_path(),
+      @async.Path::parse(source).to_path(),
       condition="defined(__APPLE__) || defined(__linux__)",
     )
   }
@@ -242,7 +242,7 @@ async fn configure(project : Project) -> Unit! {
       "src/unix/darwin.c", "src/unix/fsevents.c",
     ] {
     project.copy(
-      @async.Path::posix(source).to_path(),
+      @async.Path::parse(source).to_path(),
       condition="defined(__APPLE__)",
     )
   }
@@ -252,14 +252,17 @@ async fn configure(project : Project) -> Unit! {
       "src/unix/random-sysctl-linux.c",
     ] {
     project.copy(
-      @async.Path::posix(source).to_path(),
+      @async.Path::parse(source).to_path(),
       condition="defined(__linux__)",
     )
   }
 }
 
 ///|
-async fn update_moon_pkg_json(project : Project, path : @async.Path) -> Unit! {
+async fn update_moon_pkg_json(
+  project : Project,
+  path : @async.Path
+) -> Unit raise {
   @async.backtrace(fn() {
     let moon_pkg_json = @json.parse(path.read_text(encoding=UTF8))
       .as_object()
@@ -279,18 +282,17 @@ async fn update_moon_pkg_json(project : Project, path : @async.Path) -> Unit! {
 
 ///|
 fn main {
-  try
-    @async.start(fn() {
-      let source = @async.Path::new(["src", "uv"])
-      let target = @async.Path::new("src")
-      let include : Array[@async.Path] = [
-        source.join("include"),
-        source.join("src"),
-      ]
-      let project = Project::new(source, target, include~, prefix="uv")
-      configure(project)
-      update_moon_pkg_json(project, @async.Path::new(["src", "moon.pkg.json"]))
-    }) catch {
+  @async.start(fn() {
+    let source = @async.Path::new(["src", "uv"])
+    let target = @async.Path::new("src")
+    let incdir : Array[@async.Path] = [
+      source.join("include"),
+      source.join("src"),
+    ]
+    let project = Project::new(source, target, incdir~, prefix="uv")
+    configure(project)
+    update_moon_pkg_json(project, @async.Path::new(["src", "moon.pkg.json"]))
+  }) catch {
     e => println("Error: \{e}")
   }
 }
