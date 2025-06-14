@@ -191,6 +191,7 @@ fn Loop::random(Self, @bytes.View, Int, (Random, @bytes.View) -> Unit, (Random, 
 fn Loop::run(Self, RunMode) -> Unit raise Errno
 fn Loop::spawn(Self, ProcessOptions) -> Process raise Errno
 fn Loop::stop(Self) -> Unit
+fn Loop::walk(Self, (Handle) -> Unit) -> Unit
 
 type Mutex
 fn Mutex::lock(Self) -> Unit

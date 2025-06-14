@@ -1,6 +1,11 @@
 {
-  "import": [
-    "tonyfettes/uv",
-    "tonyfettes/encoding"
-  ]
+  "targets": {
+    "fs_test.mbt": ["native"],
+    "fs.mbt": ["native"],
+    "path.mbt": ["native"],
+    "stdio.mbt": ["native"],
+    "stream.mbt": ["native"],
+    "sync.mbt": ["native"]
+  },
+  "import": ["tonyfettes/uv", "tonyfettes/encoding"]
 }
