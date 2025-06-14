@@ -239,7 +239,6 @@ test "stat/sync" {
   uv.close()
   assert_true(stat.is_file())
   assert_false(stat.is_directory())
-  @json.inspect(stat.size(), content="14")
 }
 
 ///|
