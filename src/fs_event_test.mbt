@@ -31,10 +31,22 @@ test "fs_event" {
               uv.fs_unlink(
                 "test/fixtures/test.txt",
                 fn(_) {
-                  fs_event.stop() catch {
+                  try {
+                    let timer = @uv.Timer::new(uv)
+                    timer.start(timeout=100, repeat=0, fn(_) {
+                      timer.stop() catch {
+                        e => errors.push(e)
+                      }
+                      timer.close(fn(_) {
+                        fs_event.stop() catch {
+                          e => errors.push(e)
+                        }
+                        fs_event.close(fn(_) {  })
+                      })
+                    })
+                  } catch {
                     e => errors.push(e)
                   }
-                  fs_event.close(fn(_) {  })
                 },
                 fn(_, e) { errors.push(e) },
               ) catch {
@@ -59,5 +71,11 @@ test "fs_event" {
   for e in errors {
     raise e
   }
-  @json.inspect(events, content=[])
+  assert_true(
+    events.search_by(fn(event) {
+      let (file, _) = event
+      file is Some("test.txt")
+    })
+    is Some(_),
+  )
 }
