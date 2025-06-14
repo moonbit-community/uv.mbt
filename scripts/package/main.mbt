@@ -25,6 +25,7 @@ async fn publish(
   }
   target.mkdir()
   source.join("src").copy_to(target.join("src"), recursive=true)
+  target.join("src").join(".gitignore").remove()
   remove_pre_build(target.join("src").join("moon.pkg.json"))
   target.join("src").join("uv").remove(recursive=true)
   for file in ["README.md", "LICENSE", "moon.mod.json"] {
