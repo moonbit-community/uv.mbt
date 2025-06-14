@@ -86,34 +86,29 @@ async fn Project::relocate(
   }
   include_directories.append(self.incdir)
   let headers = []
-  async fn relocate(header : @async.Path) -> Result[@async.Path, Error] {
-    try {
-      for directory in include_directories {
-        if not(directory.join(header).exists()) {
-          continue
-        }
-        let resolved = directory
-          .join(header)
-          .resolve()
-          .relative_to(self.source.resolve())
-        if not(self.source.join(resolved).exists()) {
-          continue
-        }
-        let relocated = self.mangle(resolved)
-        if not(self.target.join(relocated).exists()) {
-          println("HERE")
-          self.copy(resolved, prepare_defines=false, relocate=false)
-          headers.push(resolved)
-        }
-        return Ok(relocated)
+  async fn relocate(header : @async.Path) -> @async.Path raise {
+    for directory in include_directories {
+      if not(directory.join(header).exists()) {
+        continue
       }
-      return Ok(header)
-    } catch {
-      e => return Err(e)
+      let resolved = directory
+        .join(header)
+        .resolve()
+        .relative_to(self.source.resolve())
+      if not(self.source.join(resolved).exists()) {
+        continue
+      }
+      let relocated = self.mangle(resolved)
+      if not(self.target.join(relocated).exists()) {
+        self.copy(resolved, prepare_defines=false, relocate=false)
+        headers.push(resolved)
+      }
+      return relocated
     }
+    return header
   }
 
-  async fn replace(source : String) -> Result[String, Error] {
+  async fn replace(source : String) -> String raise {
     let target = StringBuilder::new()
     let lines : Array[@string.View] = source.split("\n").collect()
     for i = 0; i < lines.length(); i = i + 1 {
@@ -172,21 +167,18 @@ async fn Project::relocate(
         }
       }
       let filename = @async.Path::new(filename.to_string())
-      match relocate(filename) {
-        Ok(relocated) => {
-          let relocated = relocated.to_posix_path().to_string()
-          target.write_string(relocated)
-          for char in line {
-            target.write_char(char)
-          }
-        }
-        Err(error) => return Err(error)
+      let relocated = relocate(filename)
+      let relocated = relocated.to_posix_path().to_string()
+      target.write_string(relocated)
+      for char in line {
+        target.write_char(char)
       }
+      target.write_char('\n')
     }
-    return Ok(target.to_string())
+    return target.to_string()
   }
 
-  let content = replace(content).unwrap_or_error()
+  let content = replace(content)
   for source in headers {
     self.copy(source, prepare_defines=false)
   }
