@@ -54,3 +54,24 @@ pub fn os_uname() -> Utsname raise Errno {
   let machine = decode([..buffer[768:1024]])
   { sysname, release, version, machine }
 }
+
+///|
+extern "c" fn uv_os_tmpdir(bytes : Bytes, size : FixedArray[Int]) -> Int = "moonbit_uv_os_tmpdir"
+
+///|
+pub fn os_tmpdir() -> String raise Errno {
+  let size = 64
+  let mut bytes = Bytes::make(size, 0)
+  let size : FixedArray[Int] = [size]
+  let status = uv_os_tmpdir(bytes, size)
+  if status < 0 {
+    let errno = Errno::of_int(status)
+    guard errno is Errno(ENOBUFS) else { raise errno }
+    bytes = Bytes::make(size[0] + 1, 0)
+    let status = uv_os_tmpdir(bytes, size)
+    if status < 0 {
+      raise Errno::of_int(status)
+    }
+  }
+  @encoding.decode_lossy(encoding=UTF8, bytes[:size[0]])
+}

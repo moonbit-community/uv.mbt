@@ -2923,6 +2923,17 @@ moonbit_uv_os_uname(moonbit_bytes_t buffer) {
   return status;
 }
 
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_os_tmpdir(moonbit_bytes_t buffer, int32_t *size) {
+  size_t size_value = *size;
+  int32_t status = uv_os_tmpdir((char *)buffer, &size_value);
+  *size = size_value;
+  moonbit_decref(buffer);
+  moonbit_decref(size);
+  return status;
+}
+
 typedef struct moonbit_uv_shutdown_s {
   uv_shutdown_t shutdown;
 } moonbit_uv_shutdown_t;
