@@ -1,25 +1,25 @@
 ///|
 struct Project {
-  incdir : Array[@async.Path]
-  source : @async.Path
-  target : @async.Path
+  incdir : Array[@nasty.Path]
+  source : @nasty.Path
+  target : @nasty.Path
   prefix : @string.View
-  copied : Set[@async.Path]
+  copied : Set[@nasty.Path]
 }
 
 ///|
 fn Project::new(
-  source : @async.Path,
-  target : @async.Path,
-  incdir~ : Array[@async.Path] = [],
+  source : @nasty.Path,
+  target : @nasty.Path,
+  incdir~ : Array[@nasty.Path] = [],
   prefix~ : @string.View = ""
 ) -> Project {
   Project::{ incdir, source, target, prefix, copied: Set::new() }
 }
 
 ///|
-fn Project::mangle(self : Project, path : @async.Path) -> @async.Path {
-  @async.Path::new([self.prefix, ..path.parts()].map(_.to_string()).join("#"))
+fn Project::mangle(self : Project, path : @nasty.Path) -> @nasty.Path {
+  @nasty.Path::new([self.prefix, ..path.parts()].map(_.to_string()).join("#"))
 }
 
 ///|
@@ -53,7 +53,7 @@ fn Project::condition(content : String, condition : String) -> String {
 ///|
 async fn Project::copy(
   self : Project,
-  source : @async.Path,
+  source : @nasty.Path,
   prepare_defines~ : Bool = true,
   relocate~ : Bool = true,
   condition? : String
@@ -77,7 +77,7 @@ async fn Project::copy(
 ///|
 async fn Project::relocate(
   self : Project,
-  source : @async.Path,
+  source : @nasty.Path,
   content : String
 ) -> String raise {
   let include_directories = []
@@ -86,7 +86,7 @@ async fn Project::relocate(
   }
   include_directories.append(self.incdir)
   let headers = []
-  async fn relocate(header : @async.Path) -> @async.Path raise {
+  async fn relocate(header : @nasty.Path) -> @nasty.Path raise {
     for directory in include_directories {
       if not(directory.join(header).exists()) {
         continue
@@ -166,7 +166,7 @@ async fn Project::relocate(
           continue line
         }
       }
-      let filename = @async.Path::new(filename.to_string())
+      let filename = @nasty.Path::new(filename.to_string())
       let relocated = relocate(filename)
       let relocated = relocated.to_posix_path().to_string()
       target.write_string(relocated)
@@ -193,7 +193,7 @@ async fn configure(project : Project) -> Unit raise {
       "src/strtok.c", "src/thread-common.c", "src/threadpool.c", "src/timer.c", "src/uv-common.c",
       "src/uv-data-getter-setters.c", "src/version.c",
     ] {
-    project.copy(@async.Path::parse(source).to_path())
+    project.copy(@nasty.Path::parse(source).to_path())
   }
   for
     source in [
@@ -205,7 +205,7 @@ async fn configure(project : Project) -> Unit raise {
       "src/win/tty.c", "src/win/udp.c", "src/win/util.c", "src/win/winapi.c", "src/win/winsock.c",
     ] {
     project.copy(
-      @async.Path::parse(source).to_path(),
+      @nasty.Path::parse(source).to_path(),
       condition="defined(_WIN32)",
     )
   }
@@ -218,13 +218,13 @@ async fn configure(project : Project) -> Unit raise {
       "src/unix/udp.c",
     ] {
     project.copy(
-      @async.Path::parse(source).to_path(),
+      @nasty.Path::parse(source).to_path(),
       condition="!defined(_WIN32)",
     )
   }
   for source in ["src/unix/proctitle.c"] {
     project.copy(
-      @async.Path::parse(source).to_path(),
+      @nasty.Path::parse(source).to_path(),
       condition="defined(__APPLE__) || defined(__linux__)",
     )
   }
@@ -234,7 +234,7 @@ async fn configure(project : Project) -> Unit raise {
       "src/unix/darwin.c", "src/unix/fsevents.c",
     ] {
     project.copy(
-      @async.Path::parse(source).to_path(),
+      @nasty.Path::parse(source).to_path(),
       condition="defined(__APPLE__)",
     )
   }
@@ -244,7 +244,7 @@ async fn configure(project : Project) -> Unit raise {
       "src/unix/random-sysctl-linux.c",
     ] {
     project.copy(
-      @async.Path::parse(source).to_path(),
+      @nasty.Path::parse(source).to_path(),
       condition="defined(__linux__)",
     )
   }
@@ -253,9 +253,9 @@ async fn configure(project : Project) -> Unit raise {
 ///|
 async fn update_moon_pkg_json(
   project : Project,
-  path : @async.Path
+  path : @nasty.Path
 ) -> Unit raise {
-  @async.backtrace(fn() {
+  @nasty.backtrace(fn() {
     let moon_pkg_json = @json.parse(path.read_text(encoding=UTF8))
       .as_object()
       .unwrap()
@@ -274,16 +274,16 @@ async fn update_moon_pkg_json(
 
 ///|
 fn main {
-  @async.start(fn() {
-    let source = @async.Path::new(["src", "uv"])
-    let target = @async.Path::new("src")
-    let incdir : Array[@async.Path] = [
+  @nasty.start(fn() {
+    let source = @nasty.Path::new(["src", "uv"])
+    let target = @nasty.Path::new("src")
+    let incdir : Array[@nasty.Path] = [
       source.join("include"),
       source.join("src"),
     ]
     let project = Project::new(source, target, incdir~, prefix="uv")
     configure(project)
-    update_moon_pkg_json(project, @async.Path::new(["src", "moon.pkg.json"]))
+    update_moon_pkg_json(project, @nasty.Path::new(["src", "moon.pkg.json"]))
   }) catch {
     e => println("Error: \{e}")
   }

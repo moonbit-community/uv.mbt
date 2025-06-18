@@ -1,5 +1,4 @@
 {
-  "warn-list": "-15+15",
   "targets": {
     "args.mbt": [
       "native"
@@ -257,8 +256,5 @@
       ],
       "command": "python3 scripts/prepare.py"
     }
-  ],
-  "test-import": [
-    "tonyfettes/uv/async"
   ]
 }

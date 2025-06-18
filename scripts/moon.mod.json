@@ -2,7 +2,9 @@
   "name": "tonyfettes/uv/scripts",
   "version": "0.1.0",
   "deps": {
-    "tonyfettes/uv": "0.8.1",
+    "tonyfettes/nasty": {
+      "path": "../../nasty.mbt"
+    },
     "TheWaWaR/clap": "0.2.2"
   },
   "readme": "README.md",

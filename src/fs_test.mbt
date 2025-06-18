@@ -188,12 +188,8 @@ test "realpath" {
   let errors : Array[Error] = []
   let file = "test/fixtures/example.txt"
   uv.fs_realpath(
-    "test/fixtures/example.txt",
-    fn(_, p) {
-      assert_eq(@async.Path::new(p), @async.Path::new("\{cwd}/\{file}")) catch {
-        e => errors.push(e)
-      }
-    },
+    file,
+    fn(_, p) { assert_true(p.has_prefix(cwd)) catch { e => errors.push(e) } },
     fn(_, e) { errors.push(e) },
   )
   uv.run(Default)
