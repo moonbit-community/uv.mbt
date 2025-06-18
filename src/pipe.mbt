@@ -71,7 +71,7 @@ pub fn[Ntbs : ToNtbs] Pipe::bind(
   flags : PipeBindFlags
 ) -> Unit raise Errno {
   let name = name.to_ntbs()
-  let status = uv_pipe_bind(self, name, flags._)
+  let status = uv_pipe_bind(self, name, flags.inner())
   if status < 0 {
     raise Errno::of_int(status)
   }

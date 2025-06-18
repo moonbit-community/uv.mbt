@@ -46,7 +46,7 @@ pub fn[Sockaddr : ToSockaddr] Udp::bind(
   addr : Sockaddr,
   flags : UdpFlags
 ) -> Unit raise Errno {
-  let result = uv_udp_bind(self, addr.to_sockaddr(), flags._)
+  let result = uv_udp_bind(self, addr.to_sockaddr(), flags.inner())
   if result < 0 {
     raise Errno::of_int(result)
   }

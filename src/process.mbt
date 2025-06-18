@@ -184,7 +184,7 @@ extern "c" fn uv_stdio_container_inherit_fd(fd : Int) -> StdioContainer = "moonb
 
 ///|
 pub fn StdioContainer::inherit_file(file : File) -> StdioContainer {
-  return uv_stdio_container_inherit_fd(file._)
+  return uv_stdio_container_inherit_fd(file.inner())
 }
 
 ///|
@@ -223,7 +223,7 @@ extern "c" fn uv_process_kill(process : Process, signum : Int) -> Int = "moonbit
 
 ///|
 pub fn Process::kill(self : Process, signum : Signum) -> Unit raise Errno {
-  let status = uv_process_kill(self, signum._)
+  let status = uv_process_kill(self, signum.inner())
   if status < 0 {
     raise Errno::of_int(status)
   }

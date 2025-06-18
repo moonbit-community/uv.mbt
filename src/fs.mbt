@@ -167,7 +167,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_open(
 
   let req = uv_fs_make()
   let path = path.to_ntbs()
-  let status = uv_fs_open(self, req, path, flags._, mode, cb)
+  let status = uv_fs_open(self, req, path, flags.inner(), mode, cb)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -191,7 +191,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_open_sync(
 ) -> File raise Errno {
   let req = uv_fs_make()
   let path = path.to_ntbs()
-  let status = uv_fs_open_sync(self, req, path, flags._, mode)
+  let status = uv_fs_open_sync(self, req, path, flags.inner(), mode)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -839,7 +839,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_copyfile(
     req,
     path.to_ntbs(),
     new_path.to_ntbs(),
-    flags._,
+    flags.inner(),
     cb,
   )
   if status < 0 {
@@ -869,7 +869,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_copyfile_sync(
     req,
     path.to_ntbs(),
     new_path.to_ntbs(),
-    flags._,
+    flags.inner(),
   )
   if status < 0 {
     raise Errno::of_int(status)
@@ -1432,7 +1432,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_access(
   }
 
   let req = uv_fs_make()
-  let status = uv_fs_access(self, req, path.to_ntbs(), mode._, cb)
+  let status = uv_fs_access(self, req, path.to_ntbs(), mode.inner(), cb)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -1453,7 +1453,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_access_sync(
   mode : AccessFlags
 ) -> Unit raise Errno {
   let req = uv_fs_make()
-  let status = uv_fs_access_sync(self, req, path.to_ntbs(), mode._)
+  let status = uv_fs_access_sync(self, req, path.to_ntbs(), mode.inner())
   if status < 0 {
     raise Errno::of_int(status)
   }

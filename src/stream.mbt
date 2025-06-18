@@ -59,6 +59,20 @@ pub fn Stream::read_start(
 }
 
 ///|
+/// Starts reading from a stream with custom allocation and data handling
+/// callbacks.
+///
+/// Parameters:
+///
+/// * `stream` : The stream to read from.
+/// * `alloc_cb` : Callback function to allocate buffer space for incoming data.
+/// Takes the stream and suggested buffer size, returns a bytes view.
+/// * `read_cb` : Callback function to handle successfully read data. Takes the
+/// stream, number of bytes read, and the data as a bytes view.
+/// * `error_cb` : Callback function to handle read errors. Takes the stream and
+/// the error code.
+///
+/// Throws an error of type `Errno` if the operation fails to start.
 pub fn[Stream : ToStream] read_start(
   stream : Stream,
   alloc_cb : (Stream, Int) -> @bytes.View,

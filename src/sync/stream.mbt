@@ -4,19 +4,19 @@ type Iter[T] ((T) -> Unit raise Error) -> Unit raise Error
 ///|
 pub fn[T] Iter::collect(self : Iter[T]) -> Array[T] raise Error {
   let array = []
-  (self._)(fn(item) { array.push(item) })
+  self.inner()(fn(item) { array.push(item) })
   array
 }
 
 ///|
 pub fn[T] Iter::filter(self : Iter[T], f : (T) -> Bool raise Error) -> Iter[T] {
-  fn(submit) { (self._)(fn(item) { if f(item) { submit(item) } }) }
+  fn(submit) { self.inner()(fn(item) { if f(item) { submit(item) } }) }
 }
 
 ///|
 pub fn[T, U] Iter::bind(self : Iter[T], f : (T) -> U? raise Error) -> Iter[U] {
   fn(submit) {
-    (self._)(fn(item) { if f(item) is Some(value) { submit(value) } })
+    self.inner()(fn(item) { if f(item) is Some(value) { submit(value) } })
   }
 }
 
@@ -27,7 +27,7 @@ pub fn Iter::text(
 ) -> String raise {
   let decoder = @encoding.decoder(encoding)
   let builder = StringBuilder::new()
-  (self._)(fn(bytes) { decoder.decode_to(bytes, builder, stream=true) })
+  self.inner()(fn(bytes) { decoder.decode_to(bytes, builder, stream=true) })
   builder.to_string()
 }
 
@@ -39,7 +39,7 @@ pub fn Iter::decode(
   let decoder = @encoding.decoder(encoding)
   let builder = StringBuilder::new()
   fn(submit) {
-    (self._)(fn(bytes) {
+    self.inner()(fn(bytes) {
       decoder.decode_to(bytes, builder, stream=true)
       let content = builder.to_string()
       submit(content)
@@ -51,7 +51,7 @@ pub fn Iter::decode(
 ///|
 pub fn Iter::bytes(self : Iter[@bytes.View]) -> Bytes raise Error {
   let buffer = @buffer.new()
-  (self._)(buffer.write_bytesview(_))
+  self.inner()(buffer.write_bytesview(_))
   buffer.contents()
 }
 
@@ -60,7 +60,7 @@ pub fn[T] Iter::each(
   self : Iter[T],
   f : (T) -> Unit raise Error
 ) -> Unit raise Error {
-  (self._)(f)
+  self.inner()(f)
 }
 
 ///|
@@ -74,14 +74,14 @@ pub trait Readable {
 impl Readable with read_text(self : Self, encoding~ : @encoding.Encoding) {
   let decoder = @encoding.decoder(encoding)
   let builder = StringBuilder::new()
-  (self.read()._)(decoder.decode_to(_, builder, stream=true))
+  self.read().inner()(decoder.decode_to(_, builder, stream=true))
   builder.to_string()
 }
 
 ///|
 impl Readable with read_bytes(self : Self) {
   let buffer = @buffer.new()
-  (self.read()._)(buffer.write_bytesview(_))
+  self.read().inner()(buffer.write_bytesview(_))
   buffer.contents()
 }
 

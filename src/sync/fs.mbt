@@ -4,7 +4,7 @@ type File @uv.File
 ///|
 pub fn File::close(self : File, loc~ : SourceLoc = _) -> Unit raise {
   let uv = uv()
-  backtrace(loc~, fn() { uv.fs_close_sync(self._) })
+  backtrace(loc~, fn() { uv.fs_close_sync(self.inner()) })
 }
 
 ///|
@@ -13,7 +13,7 @@ pub impl Readable for File with read(self : File) -> Iter[@bytes.View] raise Err
     let uv = uv()
     let bytes = Bytes::make(256, 0)
     while true {
-      let count = uv.fs_read_sync(self._, [bytes[:]])
+      let count = uv.fs_read_sync(self.inner(), [bytes[:]])
       if count == 0 {
         break
       }
@@ -25,7 +25,7 @@ pub impl Readable for File with read(self : File) -> Iter[@bytes.View] raise Err
 ///|
 pub impl Writable for File with write(self : File, content : Iter[@bytes.View]) -> Unit raise Error {
   let uv = uv()
-  content.each(fn(bytes) { uv.fs_write_sync(self._, [bytes]) })
+  content.each(fn(bytes) { uv.fs_write_sync(self.inner(), [bytes]) })
 }
 
 ///|
@@ -113,12 +113,12 @@ type Stat @uv.Stat
 
 ///|
 pub fn Stat::is_file(self : Stat) -> Bool {
-  self._.is_regular()
+  self.inner().is_regular()
 }
 
 ///|
 pub fn Stat::is_dir(self : Stat) -> Bool {
-  self._.is_directory()
+  self.inner().is_directory()
 }
 
 ///|

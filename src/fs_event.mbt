@@ -104,7 +104,7 @@ pub fn[ToNtbs : ToNtbs] FsEvent::start(
   }
 
   let path = ToNtbs::to_ntbs(path)
-  let status = uv_fs_event_start(self, uv_cb, path, flags._)
+  let status = uv_fs_event_start(self, uv_cb, path, flags.inner())
   if status < 0 {
     raise Errno::of_int(status)
   }

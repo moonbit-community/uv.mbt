@@ -34,7 +34,7 @@ pub fn Signal::start(
     cb(signal, signum)
   }
 
-  let status = uv_signal_start(self, uv_cb, signum._)
+  let status = uv_signal_start(self, uv_cb, signum.inner())
   if status < 0 {
     raise Errno::of_int(status)
   }
