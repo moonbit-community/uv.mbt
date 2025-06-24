@@ -21,7 +21,7 @@ fn[E : Error] raise_option(option : E?) -> Unit raise E {
 
 ///|
 fn test_close(uv : @uv.Loop, file : @uv.File, error : Ref[Errno?]) -> Unit {
-  uv.fs_close(file, () => (), e => error.val = Some(e)) catch {
+  try uv.fs_close(file, () => (), e => error.val = Some(e)) |> ignore() catch {
     e => error.val = Some(e)
   }
 }
@@ -48,19 +48,22 @@ fn test_read(
   bytes : Bytes,
   error : Ref[Errno?]
 ) -> Unit {
-  uv.fs_read(
-    file,
-    [bytes[:]],
-    count => if count == 0 {
-      test_close(uv, file, error)
-    } else {
-      test_write(uv, file, buffer, bytes, 0, count, error)
-    },
-    errno => {
-      error.val = Some(errno)
-      test_close(uv, file, error)
-    },
-  ) catch {
+  try
+    uv.fs_read(
+      file,
+      [bytes[:]],
+      count => if count == 0 {
+        test_close(uv, file, error)
+      } else {
+        test_write(uv, file, buffer, bytes, 0, count, error)
+      },
+      errno => {
+        error.val = Some(errno)
+        test_close(uv, file, error)
+      },
+    )
+    |> ignore()
+  catch {
     e => {
       error.val = Some(e)
       test_close(uv, file, error)
@@ -153,12 +156,16 @@ test "mkdir" {
     "test-dir",
     0,
     fn() {
-      uv.fs_rmdir("test-dir", () => (), error => rmdir_error = Some(error)) catch {
+      try
+        uv.fs_rmdir("test-dir", () => (), error => rmdir_error = Some(error))
+        |> ignore()
+      catch {
         error => rmdir_error = Some(error)
       }
     },
     error => mkdir_error = Some(error),
   )
+  |> ignore()
   uv.run(Default)
   uv.stop()
   uv.close()
@@ -187,6 +194,7 @@ test "scandir" {
     },
     e => if not(e is Errno(EOF)) { error = Some(e) },
   )
+  |> ignore()
   uv.run(Default)
   uv.stop()
   uv.close()
@@ -206,14 +214,18 @@ test "copyfile_unlink" {
     "test/fixtures/example-copy.txt",
     @uv.CopyFileFlags::new(),
     fn() {
-      uv.fs_unlink("test/fixtures/example-copy.txt", fn() {  }, fn(e) {
-        error = Some(e)
-      }) catch {
+      try
+        uv.fs_unlink("test/fixtures/example-copy.txt", fn() {  }, fn(e) {
+          error = Some(e)
+        })
+        |> ignore()
+      catch {
         e => error = Some(e)
       }
     },
     e => error = Some(e),
   )
+  |> ignore()
   uv.run(Default)
   uv.stop()
   uv.close()
@@ -231,6 +243,7 @@ test "realpath" {
     p => assert_true(p.has_prefix(cwd)) catch { e => errors.push(e) },
     e => errors.push(e),
   )
+  |> ignore()
   uv.run(Default)
   uv.close()
   for e in errors {
@@ -287,6 +300,7 @@ test "lstat" {
     },
     e => errors.push(e),
   )
+  |> ignore()
   uv.run(Default)
   uv.stop()
   uv.close()
@@ -324,8 +338,9 @@ test "fstat" {
       },
       e => errors.push(e),
     )
+    |> ignore()
     uv.run(Default)
-    uv.fs_close(fh, () => (), e => errors.push(e))
+    uv.fs_close(fh, () => (), e => errors.push(e)) |> ignore()
     uv.run(Default)
   }
   uv.stop()
@@ -352,6 +367,7 @@ test "fs_mkdtemp" {
     },
     e => error = Some(e),
   )
+  |> ignore()
   uv.run(Default)
   uv.close()
   if error is Some(error) {
@@ -388,6 +404,7 @@ test "fs_mkstemp" {
     },
     e => error = Some(e),
   )
+  |> ignore()
   uv.run(Default)
   uv.close()
   if error is Some(error) {
@@ -418,7 +435,7 @@ test "opendir-readdir-closedir" {
 
   fn read_cb(dir : @uv.Dir, dirents : Array[@uv.Dirent]) {
     if dirents.is_empty() {
-      uv.fs_closedir(dir, () => (), error_cb) catch {
+      try uv.fs_closedir(dir, () => (), error_cb) |> ignore() catch {
         e => error = Some(e)
       }
       return
@@ -429,18 +446,18 @@ test "opendir-readdir-closedir" {
       guard name.has_suffix(".mbt") else { continue }
       sources.push(name)
     }
-    uv.fs_readdir(dir, 1, read_cb(dir, _), error_cb) catch {
+    try uv.fs_readdir(dir, 1, read_cb(dir, _), error_cb) |> ignore() catch {
       e => error = Some(e)
     }
   }
 
   fn open_cb(dir) {
-    uv.fs_readdir(dir, 1, read_cb(dir, _), error_cb) catch {
+    try uv.fs_readdir(dir, 1, read_cb(dir, _), error_cb) |> ignore() catch {
       e => error = Some(e)
     }
   }
 
-  uv.fs_opendir("src", open_cb, error_cb) catch {
+  try uv.fs_opendir("src", open_cb, error_cb) |> ignore() catch {
     e => error = Some(e)
   }
   uv.run(Default)

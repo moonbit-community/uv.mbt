@@ -412,6 +412,7 @@ extern "c" fn uv_fs_close(
 ///   fn() { println("File closed successfully") },
 ///   fn(error) { println("Failed to close file: \{error}") }
 /// )
+/// |> ignore()
 /// uv.run(Default)
 /// uv.close()
 /// ```
@@ -420,7 +421,7 @@ pub fn Loop::fs_close(
   file : File,
   close_cb : () -> Unit,
   error_cb : (Errno) -> Unit
-) -> Unit raise Errno {
+) -> Fs raise Errno {
   fn cb(req : Fs) {
     let result = req.result()
     uv_fs_req_cleanup(req)
@@ -436,6 +437,7 @@ pub fn Loop::fs_close(
   if status < 0 {
     raise Errno::of_int(status)
   }
+  return req
 }
 
 ///|
@@ -511,6 +513,7 @@ extern "c" fn uv_fs_read(
 ///   fn(bytes_read) { println("Read \{bytes_read} bytes") },
 ///   fn(error) { println("Error: \{error}") }
 /// )
+/// |> ignore()
 /// uv.run(Default)
 /// uv.close()
 /// ```
@@ -521,7 +524,7 @@ pub fn Loop::fs_read(
   offset~ : Int64 = -1,
   read_cb : (Int) -> Unit,
   error_cb : (Errno) -> Unit
-) -> Unit raise Errno {
+) -> Fs raise Errno {
   fn cb(req : Fs) {
     let result = req.result()
     uv_fs_req_cleanup(req)
@@ -548,6 +551,7 @@ pub fn Loop::fs_read(
   if status < 0 {
     raise Errno::of_int(status)
   }
+  return req
 }
 
 ///|
@@ -644,6 +648,7 @@ extern "c" fn uv_fs_write(
 ///   fn(written) { println("Wrote \{written} bytes") },
 ///   fn(error) { println("Error: \{error}") }
 /// )
+/// |> ignore()
 /// uv.run(Default)
 /// uv.fs_close_sync(file)
 /// uv.fs_unlink_sync(path)
@@ -656,7 +661,7 @@ pub fn Loop::fs_write(
   offset~ : Int64 = -1,
   write_cb : (Int) -> Unit,
   error_cb : (Errno) -> Unit
-) -> Unit raise Errno {
+) -> Fs raise Errno {
   fn cb(req : Fs) {
     let result = req.result().to_int()
     uv_fs_req_cleanup(req)
@@ -683,6 +688,7 @@ pub fn Loop::fs_write(
   if status < 0 {
     raise Errno::of_int(status)
   }
+  return req
 }
 
 ///|
@@ -775,7 +781,7 @@ pub fn Loop::fs_ftruncate(
   length : Int64,
   k : () -> Unit,
   e : (Errno) -> Unit
-) -> Unit raise Errno {
+) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
     uv_fs_req_cleanup(req)
@@ -791,6 +797,7 @@ pub fn Loop::fs_ftruncate(
   if status < 0 {
     raise Errno::of_int(status)
   }
+  return req
 }
 
 ///|
@@ -822,7 +829,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_unlink(
   path : Ntbs,
   k : () -> Unit,
   e : (Error) -> Unit
-) -> Unit raise Errno {
+) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
     uv_fs_req_cleanup(req)
@@ -838,6 +845,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_unlink(
   if status < 0 {
     raise Errno::of_int(status)
   }
+  return req
 }
 
 ///|
@@ -901,6 +909,7 @@ extern "c" fn uv_fs_mkdir(
 ///     println("Failed to create directory: \{error} (expected)")
 ///   }
 /// )
+/// |> ignore()
 /// uv.run(Default)
 /// uv.fs_rmdir_sync(dir)
 /// uv.close()
@@ -911,7 +920,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_mkdir(
   mode : Int,
   mkdir_cb : () -> Unit,
   error_cb : (Errno) -> Unit
-) -> Unit raise Errno {
+) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
     uv_fs_req_cleanup(req)
@@ -927,6 +936,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_mkdir(
   if status < 0 {
     raise Errno::of_int(status)
   }
+  return req
 }
 
 ///|
@@ -993,7 +1003,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_rmdir(
   path : Ntbs,
   rmdir_cb : () -> Unit,
   error_cb : (Errno) -> Unit
-) -> Unit raise Errno {
+) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
     uv_fs_req_cleanup(req)
@@ -1009,6 +1019,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_rmdir(
   if status < 0 {
     raise Errno::of_int(status)
   }
+  return req
 }
 
 ///|
@@ -1147,7 +1158,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_scandir(
   flags : Int,
   scandir_cb : (Scandir) -> Unit,
   error_cb : (Errno) -> Unit
-) -> Unit raise Errno {
+) -> Fs raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_scandir(self, req, path.to_ntbs(), flags, fn(req) {
     let status = uv_fs_get_result(req).to_int()
@@ -1161,6 +1172,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_scandir(
   if status < 0 {
     raise Errno::of_int(status)
   }
+  return req
 }
 
 ///|
@@ -1203,7 +1215,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_rename(
   new_path : Ntbs,
   rename_cb : () -> Unit,
   error_cb : (Errno) -> Unit
-) -> Unit raise Errno {
+) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
     uv_fs_req_cleanup(req)
@@ -1219,6 +1231,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_rename(
   if status < 0 {
     raise Errno::of_int(status)
   }
+  return req
 }
 
 ///|
@@ -1272,7 +1285,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_copyfile(
   flags : CopyFileFlags,
   copy_cb : () -> Unit,
   error_cb : (Errno) -> Unit
-) -> Unit raise Errno {
+) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
     uv_fs_req_cleanup(req)
@@ -1295,6 +1308,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_copyfile(
   if status < 0 {
     raise Errno::of_int(status)
   }
+  return req
 }
 
 ///|
@@ -1714,7 +1728,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_lstat(
   path : Ntbs,
   lstat_cb : (Stat) -> Unit,
   error_cb : (Errno) -> Unit
-) -> Unit raise Errno {
+) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
     if status < 0 {
@@ -1732,6 +1746,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_lstat(
   if status < 0 {
     raise Errno::of_int(status)
   }
+  return req
 }
 
 ///|
@@ -1748,7 +1763,7 @@ pub fn Loop::fs_fstat(
   file : File,
   fstat_cb : (Stat) -> Unit,
   error_cb : (Errno) -> Unit
-) -> Unit raise Errno {
+) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
     if status < 0 {
@@ -1766,6 +1781,7 @@ pub fn Loop::fs_fstat(
   if status < 0 {
     raise Errno::of_int(status)
   }
+  return req
 }
 
 ///|
@@ -1801,6 +1817,7 @@ pub fn Loop::fs_fstat(
 ///   realpath => println("Resolved: \{realpath}"),
 ///   error => println("Failed to resolve path: \{error}")
 /// )
+/// |> ignore()
 /// uv.run(Default)
 /// uv.close()
 /// ```
@@ -1809,7 +1826,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_realpath(
   path : Ntbs,
   path_cb : (String) -> Unit,
   error_cb : (Errno) -> Unit
-) -> Unit raise Errno {
+) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
     if status < 0 {
@@ -1832,6 +1849,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_realpath(
   if status < 0 {
     raise Errno::of_int(status)
   }
+  return req
 }
 
 ///|
@@ -1922,7 +1940,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_access(
   mode : AccessFlags,
   access_cb : () -> Unit,
   error_cb : (Errno) -> Unit
-) -> Unit raise Errno {
+) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
     uv_fs_req_cleanup(req)
@@ -1938,6 +1956,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_access(
   if status < 0 {
     raise Errno::of_int(status)
   }
+  return req
 }
 
 ///|
@@ -1984,7 +2003,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_mkdtemp(
   template : Ntbs,
   mkdtemp_cb : (String) -> Unit,
   error_cb : (Errno) -> Unit
-) -> Unit raise Errno {
+) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
     if status < 0 {
@@ -2002,6 +2021,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_mkdtemp(
   if status < 0 {
     raise Errno::of_int(status)
   }
+  return req
 }
 
 ///|
@@ -2036,7 +2056,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_mkstemp(
   template : Ntbs,
   mkstemp_cb : (String) -> Unit,
   error_cb : (Errno) -> Unit
-) -> Unit raise Errno {
+) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
     if status < 0 {
@@ -2053,6 +2073,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_mkstemp(
   if status < 0 {
     raise Errno::of_int(status)
   }
+  return req
 }
 
 ///|
@@ -2095,7 +2116,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_opendir(
   path : Ntbs,
   opendir_cb : (Dir) -> Unit,
   error_cb : (Errno) -> Unit
-) -> Unit raise Errno {
+) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
     if status < 0 {
@@ -2113,6 +2134,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_opendir(
   if status < 0 {
     raise Errno::of_int(status)
   }
+  return req
 }
 
 ///|
@@ -2130,7 +2152,7 @@ pub fn Loop::fs_readdir(
   n : Int,
   readdir_cb : (Array[Dirent]) -> Unit,
   error_cb : (Errno) -> Unit
-) -> Unit raise Errno {
+) -> Fs raise Errno {
   let uv_dirents = uv_dirent_make(n)
   fn cb(req : Fs) {
     let status = req.result().to_int()
@@ -2154,6 +2176,7 @@ pub fn Loop::fs_readdir(
   if status < 0 {
     raise Errno::of_int(status)
   }
+  return req
 }
 
 ///|
@@ -2170,7 +2193,7 @@ pub fn Loop::fs_closedir(
   dir : Dir,
   closedir_cb : () -> Unit,
   error_cb : (Errno) -> Unit
-) -> Unit raise Errno {
+) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
     uv_fs_req_cleanup(req)
@@ -2186,4 +2209,5 @@ pub fn Loop::fs_closedir(
   if status < 0 {
     raise Errno::of_int(status)
   }
+  return req
 }

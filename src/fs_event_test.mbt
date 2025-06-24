@@ -27,57 +27,58 @@ test "fs_event" {
       fs_event.stop() catch {
         e => errors.push(e)
       }
-      fs_event.close(fn(_) {  })
+      fs_event.close(_ => ())
     },
   )
   uv.fs_open(
     "test/fixtures/test.txt",
     @uv.OpenFlags::write_only(create=true),
     0o644,
-    fn(file) {
+    file => try
       uv.fs_write(
         file,
         [b"Hello, world!"],
-        fn(_) {
+        _ => try
           uv.fs_close(
             file,
-            fn() {
+            () => try
               uv.fs_unlink(
                 "test/fixtures/test.txt",
-                fn() {
-                  try {
-                    let timer = @uv.Timer::new(uv)
-                    timer.start(timeout=100, repeat=0, fn(_) {
-                      timer.stop() catch {
+                () => try {
+                  let timer = @uv.Timer::new(uv)
+                  timer.start(timeout=100, repeat=0, _ => {
+                    timer.stop() catch {
+                      e => errors.push(e)
+                    }
+                    timer.close(_ => {
+                      fs_event.stop() catch {
                         e => errors.push(e)
                       }
-                      timer.close(fn(_) {
-                        fs_event.stop() catch {
-                          e => errors.push(e)
-                        }
-                        fs_event.close(fn(_) {  })
-                      })
+                      fs_event.close(_ => ())
                     })
-                  } catch {
-                    e => errors.push(e)
-                  }
+                  })
+                } catch {
+                  e => errors.push(e)
                 },
-                fn(e) { errors.push(e) },
-              ) catch {
-                e => errors.push(e)
-              }
+                e => errors.push(e),
+              )
+              |> ignore()
+            catch {
+              e => errors.push(e)
             },
-            fn(e) { errors.push(e) },
-          ) catch {
-            e => errors.push(e)
-          }
+            e => errors.push(e),
+          )
+          |> ignore()
+        catch {
+          e => errors.push(e)
         },
-        fn(errno) { errors.push(errno) },
-      ) catch {
-        e => errors.push(e)
-      }
+        e => errors.push(e),
+      )
+      |> ignore()
+    catch {
+      e => errors.push(e)
     },
-    fn(errno) { errors.push(errno) },
+    e => errors.push(e),
   )
   |> ignore()
   uv.run(Default)
