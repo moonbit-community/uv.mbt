@@ -17,9 +17,12 @@ let buffer : Bytes = Bytes::make(1024, 0)
 
 ///|
 fn on_write(uv : @uv.Loop, file : @uv.File) -> Unit {
-  uv.fs_read(file, [buffer], on_read(uv, file, _), fn(errno) {
-    println("error reading file: \{errno}")
-  }) catch {
+  try
+    uv.fs_read(file, [buffer], on_read(uv, file, _), fn(errno) {
+      println("error reading file: \{errno}")
+    })
+    |> ignore()
+  catch {
     error => println("error reading file: \{error}")
   }
 }
@@ -27,17 +30,23 @@ fn on_write(uv : @uv.Loop, file : @uv.File) -> Unit {
 ///|
 fn on_read(uv : @uv.Loop, file : @uv.File, count : Int) -> Unit {
   if count == 0 {
-    uv.fs_close(file, () => (), fn(errno) {
-      println("error closing file: \{errno}")
-    }) catch {
+    try
+      uv.fs_close(file, () => (), fn(errno) {
+        println("error closing file: \{errno}")
+      })
+      |> ignore()
+    catch {
       error => println("error closing file: \{error}")
     }
   } else {
-    uv.fs_write(@uv.stdout(), [buffer[:count]], _ => on_write(uv, file), fn(
-      errno
-    ) {
-      println("error writing file: \{errno}")
-    }) catch {
+    try
+      uv.fs_write(@uv.stdout(), [buffer[:count]], _ => on_write(uv, file), fn(
+        errno
+      ) {
+        println("error writing file: \{errno}")
+      })
+      |> ignore()
+    catch {
       error => println("error writing file: \{error}")
     }
   }
@@ -45,9 +54,14 @@ fn on_read(uv : @uv.Loop, file : @uv.File, count : Int) -> Unit {
 
 ///|
 fn on_open(uv : @uv.Loop, file : @uv.File) -> Unit {
-  uv.fs_read(file, [buffer], fn(count) { on_read(uv, file, count) }, fn(errno) {
-    println("error reading file: \{errno}")
-  }) catch {
+  try
+    uv.fs_read(file, [buffer], fn(count) { on_read(uv, file, count) }, fn(
+      errno
+    ) {
+      println("error reading file: \{errno}")
+    })
+    |> ignore()
+  catch {
     error => println("error reading file: \{error}")
   }
 }
