@@ -40,15 +40,15 @@ pub fn Stream::read_start(
 
   fn uv_read_cb(
     stream : Stream,
-    nread : Int64,
+    count : Int64,
     buf_data : Bytes?,
     buf_offset : Int,
     buf_length : Int
   ) -> Unit {
-    if nread < 0 {
-      error_cb(stream, Errno::of_int(nread.to_int()))
+    if count < 0 {
+      error_cb(stream, Errno::of_int(count.to_int()))
     } else {
-      read_cb(stream, nread.to_int(), buf_data.unwrap()[buf_offset:buf_length])
+      read_cb(stream, count.to_int(), buf_data.unwrap()[buf_offset:buf_length])
     }
   }
 

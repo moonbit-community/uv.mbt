@@ -140,19 +140,19 @@ pub fn Udp::recv_start(
 
   fn uv_recv_cb(
     udp : Udp,
-    nread : Int64,
+    count : Int64,
     buf_data : Bytes?,
     buf_offset : Int,
     buf_length : Int,
     sockaddr : Sockaddr,
     flags : UInt
   ) -> Unit {
-    if nread < 0 {
-      error_cb(udp, Errno::of_int(nread.to_int()))
+    if count < 0 {
+      error_cb(udp, Errno::of_int(count.to_int()))
     } else {
       read_cb(
         udp,
-        nread.to_int(),
+        count.to_int(),
         buf_data.unwrap()[buf_offset:buf_length],
         sockaddr,
         UdpFlags(flags),
