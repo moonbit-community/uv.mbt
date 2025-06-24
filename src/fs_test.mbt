@@ -115,10 +115,10 @@ test "read/sync" {
   )
   let buffer = @buffer.new()
   let bytes = Bytes::make(1024, 0)
-  for nread = uv.fs_read_sync(file, [bytes])
-      nread > 0
-      nread = uv.fs_read_sync(file, [bytes]) {
-    buffer.write_bytesview(bytes[:nread])
+  for count = uv.fs_read_sync(file, [bytes])
+      count > 0
+      count = uv.fs_read_sync(file, [bytes]) {
+    buffer.write_bytesview(bytes[:count])
   }
   inspect(
     @encoding.decode(buffer.contents(), encoding=UTF8),
