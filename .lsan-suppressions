@@ -1,2 +1,4 @@
 leak:libobjc.A.dylib
 leak:libsystem_malloc.dylib
+leak:uv__cf_loop_cb
+leak:CoreFoundation
