@@ -1,4 +1,4 @@
-name: Test (Stable)
+name: test (stable)
 
 on:
   push:

@@ -18,6 +18,7 @@
 from pathlib import Path
 from datetime import datetime
 import fnmatch
+import sys
 
 MOONBIT_LICENSE_HEADER = """\
 // Copyright {year} International Digital Economy Academy
@@ -166,7 +167,8 @@ def check(path: Path, ignored: list[str] = []) -> bool:
         for entry in path.iterdir():
             if should_ignore(entry, ignored):
                 continue
-            check(entry, ignored=ignored)
+            if check(entry, ignored=ignored) == False:
+                failed = True
     elif path.is_file():
         if check_license_header(path) == False:
             print(f"File {path} does not have the correct license header.")
@@ -176,7 +178,9 @@ def check(path: Path, ignored: list[str] = []) -> bool:
 
 def main():
     root = Path(".")
-    check(root)
+    if check(root) == False:
+        print("Some files do not have the correct license header.")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
