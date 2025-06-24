@@ -24,3 +24,7 @@ fn[T : Show] println(value : T) -> Unit {
     @builtin.println(value)
   }
 }
+
+fn init {
+  ignore((println : (Unit) -> Unit))
+}
