@@ -123,7 +123,7 @@ def check_license_header(file: Path, year: int = datetime.now().year) -> bool | 
     moonbit_header = MOONBIT_LICENSE_HEADER.format(year=year)
     c_header = C_LICENSE_HEADER.format(year=year)
     python_header = PYTHON_LICENSE_HEADER.format(year=year)
-    if file.suffix in [".mbt", ".mbti"]:
+    if file.suffix in [".mbt"]:
         return check_moonbit_license_header(file, moonbit_header)
     elif file.suffix in [".c", ".h"]:
         return check_c_license_header(file, c_header)
