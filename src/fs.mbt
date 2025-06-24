@@ -412,6 +412,7 @@ extern "c" fn uv_fs_close(
 ///   fn() { println("File closed successfully") },
 ///   fn(error) { println("Failed to close file: \{error}") }
 /// )
+/// |> ignore()
 /// uv.run(Default)
 /// uv.close()
 /// ```
@@ -512,6 +513,7 @@ extern "c" fn uv_fs_read(
 ///   fn(bytes_read) { println("Read \{bytes_read} bytes") },
 ///   fn(error) { println("Error: \{error}") }
 /// )
+/// |> ignore()
 /// uv.run(Default)
 /// uv.close()
 /// ```
@@ -646,6 +648,7 @@ extern "c" fn uv_fs_write(
 ///   fn(written) { println("Wrote \{written} bytes") },
 ///   fn(error) { println("Error: \{error}") }
 /// )
+/// |> ignore()
 /// uv.run(Default)
 /// uv.fs_close_sync(file)
 /// uv.fs_unlink_sync(path)
@@ -906,6 +909,7 @@ extern "c" fn uv_fs_mkdir(
 ///     println("Failed to create directory: \{error} (expected)")
 ///   }
 /// )
+/// |> ignore()
 /// uv.run(Default)
 /// uv.fs_rmdir_sync(dir)
 /// uv.close()
@@ -1813,6 +1817,7 @@ pub fn Loop::fs_fstat(
 ///   realpath => println("Resolved: \{realpath}"),
 ///   error => println("Failed to resolve path: \{error}")
 /// )
+/// |> ignore()
 /// uv.run(Default)
 /// uv.close()
 /// ```
