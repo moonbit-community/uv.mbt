@@ -12,5 +12,4 @@
   "description": "MoonBit binding to libuv",
   "source": "src",
   "preferred-target": "native"
-  
 }
