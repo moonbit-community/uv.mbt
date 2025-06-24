@@ -1,0 +1,266 @@
+{
+  "targets": {
+    "args.mbt": [
+      "native"
+    ],
+    "dns_test.mbt": [
+      "native"
+    ],
+    "dns.mbt": [
+      "native"
+    ],
+    "buf.mbt": [
+      "native"
+    ],
+    "error.mbt": [
+      "native"
+    ],
+    "fs_event_test.mbt": [
+      "native"
+    ],
+    "fs_event.mbt": [
+      "native"
+    ],
+    "fs.mbt": [
+      "native"
+    ],
+    "fs_test.mbt": [
+      "native"
+    ],
+    "handle.mbt": [
+      "native"
+    ],
+    "idle.mbt": [
+      "native"
+    ],
+    "idle_test.mbt": [
+      "native"
+    ],
+    "loop_test.mbt": [
+      "native"
+    ],
+    "loop.mbt": [
+      "native"
+    ],
+    "mutex.mbt": [
+      "native"
+    ],
+    "process.mbt": [
+      "native"
+    ],
+    "process_test.mbt": [
+      "native"
+    ],
+    "os_test.mbt": [
+      "native"
+    ],
+    "os.mbt": [
+      "native"
+    ],
+    "pipe.mbt": [
+      "native"
+    ],
+    "random_test.mbt": [
+      "native"
+    ],
+    "random.mbt": [
+      "native"
+    ],
+    "req.mbt": [
+      "native"
+    ],
+    "signal.mbt": [
+      "native"
+    ],
+    "stream_test.mbt": [
+      "native"
+    ],
+    "stream.mbt": [
+      "native"
+    ],
+    "tcp_test.mbt": [
+      "native"
+    ],
+    "tcp.mbt": [
+      "native"
+    ],
+    "thread.mbt": [
+      "native"
+    ],
+    "thread_alt.mbt": [
+      "native"
+    ],
+    "thread_test.mbt": [
+      "native"
+    ],
+    "time.mbt": [
+      "native"
+    ],
+    "timer.mbt": [
+      "native"
+    ],
+    "timer_test.mbt": [
+      "native"
+    ],
+    "tty.mbt": [
+      "native"
+    ],
+    "udp_test.mbt": [
+      "native"
+    ],
+    "udp.mbt": [
+      "native"
+    ],
+    "work.mbt": [
+      "native"
+    ],
+    "work_test.mbt": [
+      "native"
+    ]
+  },
+  "import": [
+    "tonyfettes/c",
+    "tonyfettes/encoding"
+  ],
+  "native-stub": [
+    "uv#src#fs-poll.c",
+    "uv#src#idna.c",
+    "uv#src#inet.c",
+    "uv#src#random.c",
+    "uv#src#strscpy.c",
+    "uv#src#strtok.c",
+    "uv#src#thread-common.c",
+    "uv#src#threadpool.c",
+    "uv#src#timer.c",
+    "uv#src#unix#async.c",
+    "uv#src#unix#core.c",
+    "uv#src#unix#darwin-proctitle.c",
+    "uv#src#unix#darwin.c",
+    "uv#src#unix#dl.c",
+    "uv#src#unix#fs.c",
+    "uv#src#unix#fsevents.c",
+    "uv#src#unix#getaddrinfo.c",
+    "uv#src#unix#getnameinfo.c",
+    "uv#src#unix#kqueue.c",
+    "uv#src#unix#linux.c",
+    "uv#src#unix#loop-watcher.c",
+    "uv#src#unix#loop.c",
+    "uv#src#unix#pipe.c",
+    "uv#src#unix#poll.c",
+    "uv#src#unix#process.c",
+    "uv#src#unix#procfs-exepath.c",
+    "uv#src#unix#proctitle.c",
+    "uv#src#unix#random-devurandom.c",
+    "uv#src#unix#random-getentropy.c",
+    "uv#src#unix#random-getrandom.c",
+    "uv#src#unix#random-sysctl-linux.c",
+    "uv#src#unix#signal.c",
+    "uv#src#unix#stream.c",
+    "uv#src#unix#tcp.c",
+    "uv#src#unix#thread.c",
+    "uv#src#unix#tty.c",
+    "uv#src#unix#udp.c",
+    "uv#src#uv-common.c",
+    "uv#src#uv-data-getter-setters.c",
+    "uv#src#version.c",
+    "uv#src#win#async.c",
+    "uv#src#win#core.c",
+    "uv#src#win#detect-wakeup.c",
+    "uv#src#win#dl.c",
+    "uv#src#win#error.c",
+    "uv#src#win#fs-event.c",
+    "uv#src#win#fs.c",
+    "uv#src#win#getaddrinfo.c",
+    "uv#src#win#getnameinfo.c",
+    "uv#src#win#handle.c",
+    "uv#src#win#loop-watcher.c",
+    "uv#src#win#pipe.c",
+    "uv#src#win#poll.c",
+    "uv#src#win#process-stdio.c",
+    "uv#src#win#process.c",
+    "uv#src#win#signal.c",
+    "uv#src#win#snprintf.c",
+    "uv#src#win#stream.c",
+    "uv#src#win#tcp.c",
+    "uv#src#win#thread.c",
+    "uv#src#win#tty.c",
+    "uv#src#win#udp.c",
+    "uv#src#win#util.c",
+    "uv#src#win#winapi.c",
+    "uv#src#win#winsock.c",
+    "uv.c"
+  ],
+  "pre-build": [
+    {
+      "input": [],
+      "output": [
+        "uv#src#fs-poll.c",
+        "uv#src#idna.c",
+        "uv#src#inet.c",
+        "uv#src#random.c",
+        "uv#src#strscpy.c",
+        "uv#src#strtok.c",
+        "uv#src#thread-common.c",
+        "uv#src#threadpool.c",
+        "uv#src#timer.c",
+        "uv#src#unix#async.c",
+        "uv#src#unix#core.c",
+        "uv#src#unix#darwin-proctitle.c",
+        "uv#src#unix#darwin.c",
+        "uv#src#unix#dl.c",
+        "uv#src#unix#fs.c",
+        "uv#src#unix#fsevents.c",
+        "uv#src#unix#getaddrinfo.c",
+        "uv#src#unix#getnameinfo.c",
+        "uv#src#unix#kqueue.c",
+        "uv#src#unix#linux.c",
+        "uv#src#unix#loop-watcher.c",
+        "uv#src#unix#loop.c",
+        "uv#src#unix#pipe.c",
+        "uv#src#unix#poll.c",
+        "uv#src#unix#process.c",
+        "uv#src#unix#procfs-exepath.c",
+        "uv#src#unix#proctitle.c",
+        "uv#src#unix#random-devurandom.c",
+        "uv#src#unix#random-getentropy.c",
+        "uv#src#unix#random-getrandom.c",
+        "uv#src#unix#random-sysctl-linux.c",
+        "uv#src#unix#signal.c",
+        "uv#src#unix#stream.c",
+        "uv#src#unix#tcp.c",
+        "uv#src#unix#thread.c",
+        "uv#src#unix#tty.c",
+        "uv#src#unix#udp.c",
+        "uv#src#uv-common.c",
+        "uv#src#uv-data-getter-setters.c",
+        "uv#src#version.c",
+        "uv#src#win#async.c",
+        "uv#src#win#core.c",
+        "uv#src#win#detect-wakeup.c",
+        "uv#src#win#dl.c",
+        "uv#src#win#error.c",
+        "uv#src#win#fs-event.c",
+        "uv#src#win#fs.c",
+        "uv#src#win#getaddrinfo.c",
+        "uv#src#win#getnameinfo.c",
+        "uv#src#win#handle.c",
+        "uv#src#win#loop-watcher.c",
+        "uv#src#win#pipe.c",
+        "uv#src#win#poll.c",
+        "uv#src#win#process-stdio.c",
+        "uv#src#win#process.c",
+        "uv#src#win#signal.c",
+        "uv#src#win#snprintf.c",
+        "uv#src#win#stream.c",
+        "uv#src#win#tcp.c",
+        "uv#src#win#thread.c",
+        "uv#src#win#tty.c",
+        "uv#src#win#udp.c",
+        "uv#src#win#util.c",
+        "uv#src#win#winapi.c",
+        "uv#src#win#winsock.c"
+      ],
+      "command": "python3 scripts/prepare.py"
+    }
+  ]
+}

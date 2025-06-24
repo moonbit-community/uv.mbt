@@ -1,0 +1,9 @@
+{
+  "name": "tonyfettes/uv/test",
+  "version": "0.0.1",
+  "deps": {
+    "tonyfettes/uv": {
+      "path": ".."
+    }
+  }
+}

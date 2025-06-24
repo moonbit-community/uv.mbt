@@ -1,0 +1,580 @@
+package "tonyfettes/uv"
+
+import(
+  "moonbitlang/core/bytes"
+  "moonbitlang/core/string"
+)
+
+// Values
+fn[Server : ToStream, Client : ToStream] accept(Server, Client) -> Unit raise Errno
+
+fn args() -> Array[String]
+
+#deprecated
+fn argv() -> Array[Bytes]
+
+fn[Ntbs : ToNtbs] chdir(Ntbs) -> Unit raise Errno
+
+#deprecated
+fn[Handle : ToHandle] close(Handle, (Handle) -> Unit) -> Unit
+
+fn cwd() -> String raise Errno
+
+fn disable_stdio_inheritance() -> Unit
+
+#deprecated
+fn errno(Status) -> Errno
+
+fn exepath() -> String raise Errno
+
+fn hrtime() -> UInt64
+
+fn[Ntbs : ToNtbs] ip4_addr(Ntbs, Int) -> SockaddrIn raise Errno
+
+fn[Ntbs : ToNtbs] ip6_addr(Ntbs, Int) -> SockaddrIn6 raise Errno
+
+#deprecated
+fn[Handle : ToHandle] is_closing(Handle) -> Bool
+
+#deprecated
+fn[Stream : ToStream] is_readable(Stream) -> Bool
+
+#deprecated
+fn[Stream : ToStream] is_writable(Stream) -> Bool
+
+fn[Stream : ToStream] listen(Stream, Int, (Stream) -> Unit, (Stream, Errno) -> Unit) -> Unit raise Errno
+
+fn os_environ() -> Environ raise Errno
+
+fn[ToNtbs : ToNtbs] os_getenv(ToNtbs) -> String? raise Errno
+
+fn os_homedir() -> String raise Errno
+
+fn[Name : ToNtbs, Value : ToNtbs] os_setenv(Name, Value) -> Unit raise Errno
+
+fn os_tmpdir() -> String raise Errno
+
+fn os_uname() -> Utsname raise Errno
+
+fn[Name : ToNtbs] os_unsetenv(Name) -> Unit raise Errno
+
+fn pipe(Int, Int) -> (File, File) raise Errno
+
+#deprecated
+fn[Stream : ToStream] read_start(Stream, (Stream, Int) -> @bytes.View, (Stream, Int, @bytes.View) -> Unit, (Stream, Errno) -> Unit) -> Unit raise Errno
+
+#deprecated
+fn[Stream : ToStream] read_stop(Stream) -> Unit raise Errno
+
+#deprecated
+fn[Stream : ToStream] shutdown(Stream, () -> Unit, (Errno) -> Unit) -> Shutdown raise Errno
+
+fn sleep(UInt) -> Unit
+
+fn stderr() -> File
+
+fn stdin() -> File
+
+fn stdout() -> File
+
+#deprecated
+fn[Stream : ToStream] write(Stream, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) -> Unit raise Errno
+
+// Types and methods
+type AccessFlags
+fn AccessFlags::new(read~ : Bool = .., write~ : Bool = .., execute~ : Bool = ..) -> Self
+
+type AddrInfo
+fn AddrInfo::addr(Self) -> Sockaddr
+fn AddrInfo::canonname(Self) -> String?
+fn AddrInfo::family(Self) -> AddressFamily raise Errno
+fn AddrInfo::protocol(Self) -> Protocol raise Errno
+fn AddrInfo::socktype(Self) -> SockType raise Errno
+
+type AddrInfoFlags
+fn AddrInfoFlags::new(passive~ : Bool = .., canonname~ : Bool = .., numeric_host~ : Bool = .., numeric_serv~ : Bool = .., all~ : Bool = .., addrconfig~ : Bool = .., v4mapped~ : Bool = ..) -> Self
+
+type AddrInfoHints
+fn AddrInfoHints::new(flags? : AddrInfoFlags, family? : AddressFamily, socktype? : SockType, protocol? : Protocol) -> Self
+
+pub enum AddressFamily {
+  Inet
+  Inet6
+}
+fn AddressFamily::inet() -> Self
+fn AddressFamily::inet6() -> Self
+impl Show for AddressFamily
+
+type Connect
+impl ToReq for Connect
+
+type CopyFileFlags
+fn CopyFileFlags::new(allow_exists~ : Bool = .., copy_on_write~ : CopyOnWrite = ..) -> Self
+
+pub(all) enum CopyOnWrite {
+  False
+  True
+  Force
+}
+
+type Dir
+
+pub struct Dirent {
+  name : String
+  type_ : DirentType
+}
+#deprecated
+fn Dirent::name(Self) -> String
+#deprecated
+fn Dirent::type_(Self) -> DirentType
+impl ToJson for Dirent
+
+pub enum DirentType {
+  Unknown
+  File
+  Dir
+  Link
+  Fifo
+  Socket
+  Char
+  Block
+}
+impl Show for DirentType
+impl ToJson for DirentType
+
+type Environ
+fn Environ::iter2(Self) -> Iter2[String, String]
+
+pub suberror Errno Status
+impl Eq for Errno
+impl Hash for Errno
+impl Show for Errno
+
+type File
+
+type Fs
+impl Cancelable for Fs
+impl ToReq for Fs
+
+type FsEvent
+fn FsEvent::get_path(Self) -> String raise Errno
+fn FsEvent::new(Loop) -> Self raise Errno
+fn[ToNtbs : ToNtbs] FsEvent::start(Self, ToNtbs, FsEventFlags, (Self, String?, Array[FsEventType]) -> Unit, (Self, String?, Errno) -> Unit) -> Unit raise Errno
+fn FsEvent::stop(Self) -> Unit raise Errno
+impl ToHandle for FsEvent
+
+type FsEventFlags
+fn FsEventFlags::new(recursive~ : Bool = ..) -> Self
+
+pub enum FsEventType {
+  Rename
+  Change
+}
+impl Show for FsEventType
+impl ToJson for FsEventType
+
+type GetAddrInfo
+
+type Gid
+
+type Handle
+fn Handle::close(Self, (Self) -> Unit) -> Unit
+fn Handle::is_closing(Self) -> Bool
+
+type Idle
+fn Idle::new(Loop) -> Self raise Errno
+fn Idle::start(Self, (Self) -> Unit) -> Unit raise Errno
+fn Idle::stop(Self) -> Unit raise Errno
+impl ToHandle for Idle
+
+type Loop
+fn Loop::alive(Self) -> Bool
+fn Loop::close(Self) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_access(Self, Ntbs, AccessFlags, () -> Unit, (Errno) -> Unit) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_access_sync(Self, Ntbs, AccessFlags) -> Unit raise Errno
+fn Loop::fs_close(Self, File, () -> Unit, (Errno) -> Unit) -> Unit raise Errno
+fn Loop::fs_close_sync(Self, File) -> Unit raise Errno
+fn Loop::fs_closedir(Self, Dir, () -> Unit, (Errno) -> Unit) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_copyfile(Self, Ntbs, Ntbs, CopyFileFlags, () -> Unit, (Errno) -> Unit) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_copyfile_sync(Self, Ntbs, Ntbs, CopyFileFlags) -> Unit raise Errno
+fn Loop::fs_fstat(Self, File, (Stat) -> Unit, (Errno) -> Unit) -> Unit raise Errno
+fn Loop::fs_ftruncate(Self, File, Int64, () -> Unit, (Errno) -> Unit) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_lstat(Self, Ntbs, (Stat) -> Unit, (Errno) -> Unit) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_mkdir(Self, Ntbs, Int, () -> Unit, (Errno) -> Unit) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_mkdir_sync(Self, Ntbs, Int) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_mkdtemp(Self, Ntbs, (String) -> Unit, (Errno) -> Unit) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_mkdtemp_sync(Self, Ntbs) -> String raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_mkstemp(Self, Ntbs, (String) -> Unit, (Errno) -> Unit) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_mkstemp_sync(Self, Ntbs) -> String raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_open(Self, Ntbs, OpenFlags, Int, (File) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_open_sync(Self, Ntbs, OpenFlags, Int) -> File raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_opendir(Self, Ntbs, (Dir) -> Unit, (Errno) -> Unit) -> Unit raise Errno
+fn Loop::fs_read(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Int) -> Unit, (Errno) -> Unit) -> Unit raise Errno
+fn Loop::fs_read_sync(Self, File, Array[@bytes.View], offset~ : Int64 = ..) -> Int raise Errno
+fn Loop::fs_readdir(Self, Dir, Int, (Array[Dirent]) -> Unit, (Errno) -> Unit) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_realpath(Self, Ntbs, (String) -> Unit, (Errno) -> Unit) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_realpath_sync(Self, Ntbs) -> String raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_rename(Self, Ntbs, Ntbs, () -> Unit, (Errno) -> Unit) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_rmdir(Self, Ntbs, () -> Unit, (Errno) -> Unit) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_rmdir_sync(Self, Ntbs) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_scandir(Self, Ntbs, Int, (Scandir) -> Unit, (Errno) -> Unit) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_scandir_sync(Self, Ntbs, Int) -> Scandir raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_stat(Self, Ntbs, (Stat) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_stat_sync(Self, Ntbs) -> Stat raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_unlink(Self, Ntbs, () -> Unit, (Error) -> Unit) -> Unit raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_unlink_sync(Self, Ntbs) -> Unit raise Errno
+fn Loop::fs_write(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Int) -> Unit, (Errno) -> Unit) -> Unit raise Errno
+fn Loop::fs_write_sync(Self, File, Array[@bytes.View], offset~ : Int64 = ..) -> Unit raise Errno
+fn[Node : ToNtbs, Service : ToNtbs] Loop::getaddrinfo(Self, (GetAddrInfo, Iter[AddrInfo]) -> Unit, (GetAddrInfo, Errno) -> Unit, Node, Service, hints? : AddrInfoHints) -> Unit raise Errno
+fn Loop::new() -> Self raise Errno
+fn Loop::print_all_handles(Self, File) -> Unit
+fn Loop::queue_work(Self, () -> Unit, () -> Unit, (Errno) -> Unit) -> Work raise Errno
+fn Loop::random(Self, @bytes.View, Int, (Random, @bytes.View) -> Unit, (Random, Errno) -> Unit) -> Unit raise Errno
+fn Loop::run(Self, RunMode) -> Unit raise Errno
+fn Loop::spawn(Self, ProcessOptions) -> Process raise Errno
+fn Loop::stop(Self) -> Unit
+fn Loop::walk(Self, (Handle) -> Unit) -> Unit
+
+type Mutex
+fn Mutex::lock(Self) -> Unit
+fn Mutex::new() -> Self raise Errno
+fn Mutex::trylock(Self) -> Unit raise Errno
+fn Mutex::unlock(Self) -> Unit
+impl Share for Mutex
+
+type OpenFlags
+fn OpenFlags::read_only() -> Self
+fn OpenFlags::read_write(append~ : Bool = .., create~ : Bool = .., truncate~ : Bool = .., exclusive~ : Bool = ..) -> Self
+fn OpenFlags::write_only(append~ : Bool = .., create~ : Bool = .., truncate~ : Bool = .., exclusive~ : Bool = ..) -> Self
+
+type Pipe
+fn[Ntbs : ToNtbs] Pipe::bind(Self, Ntbs, PipeBindFlags) -> Unit raise Errno
+fn Pipe::new(Loop, ipc~ : Bool = ..) -> Self raise Errno
+fn Pipe::open(Self, File) -> Unit raise Errno
+fn Pipe::to_handle(Self) -> Handle
+fn Pipe::to_stream(Self) -> Stream
+impl ToHandle for Pipe
+impl ToStream for Pipe
+
+type PipeBindFlags
+fn PipeBindFlags::new(truncate~ : Bool = ..) -> Self
+
+type Process
+fn Process::kill(Self, Signum) -> Unit raise Errno
+fn Process::pid(Self) -> Int
+impl ToHandle for Process
+
+type ProcessOptions
+fn[Ntbs : ToNtbs] ProcessOptions::new(Ntbs, Array[@string.StringView], env? : Array[@string.StringView], cwd? : @string.StringView, stdio? : Array[StdioContainer], uid? : Uid, gid? : Gid, (Process, Int64, Int) -> Unit) -> Self
+
+pub enum Protocol {
+  Tcp
+  Udp
+}
+fn Protocol::tcp() -> Self
+fn Protocol::udp() -> Self
+impl Show for Protocol
+
+type Random
+
+type Req
+
+pub(all) enum RunMode {
+  Default
+  Once
+  NoWait
+}
+
+type Scandir
+fn Scandir::next(Self) -> Dirent raise Errno
+
+type Shutdown
+impl ToReq for Shutdown
+
+type Signal
+fn Signal::new(Loop) -> Self raise Errno
+fn Signal::start(Self, (Self, Signum) -> Unit, Signum) -> Unit raise Errno
+fn Signal::stop(Self) -> Unit raise Errno
+
+type Signum
+fn Signum::sigabrt() -> Self
+fn Signum::sighup() -> Self
+fn Signum::sigint() -> Self
+fn Signum::sigpipe() -> Self raise Errno
+fn Signum::sigquit() -> Self
+fn Signum::sigterm() -> Self
+fn Signum::sigwinch() -> Self
+
+type SockType
+fn SockType::datagram() -> Self
+#deprecated
+fn SockType::dgram() -> Self
+fn SockType::raw() -> Self
+fn SockType::stream() -> Self
+impl Show for SockType
+
+type Sockaddr
+impl ToSockaddr for Sockaddr
+
+type SockaddrIn
+impl ToSockaddr for SockaddrIn
+
+type SockaddrIn6
+impl ToSockaddr for SockaddrIn6
+
+type Stat
+fn Stat::atim_nsec(Self) -> Int64
+fn Stat::atim_sec(Self) -> Int64
+fn Stat::birthtim_nsec(Self) -> Int64
+fn Stat::birthtim_sec(Self) -> Int64
+fn Stat::blksize(Self) -> UInt64
+fn Stat::blocks(Self) -> UInt64
+fn Stat::ctim_nsec(Self) -> Int64
+fn Stat::ctim_sec(Self) -> Int64
+fn Stat::dev(Self) -> UInt64
+fn Stat::flags(Self) -> UInt64
+fn Stat::gen(Self) -> UInt64
+fn Stat::gid(Self) -> UInt64
+fn Stat::ino(Self) -> UInt64
+fn Stat::is_block_device(Self) -> Bool raise Errno
+fn Stat::is_character_device(Self) -> Bool
+fn Stat::is_directory(Self) -> Bool
+fn Stat::is_fifo(Self) -> Bool
+fn Stat::is_file(Self) -> Bool
+#deprecated
+fn Stat::is_pipe(Self) -> Bool
+fn Stat::is_regular(Self) -> Bool
+fn Stat::is_socket(Self) -> Bool raise Errno
+fn Stat::is_symlink(Self) -> Bool
+fn Stat::mode(Self) -> UInt64
+fn Stat::mtim_nsec(Self) -> Int64
+fn Stat::mtim_sec(Self) -> Int64
+fn Stat::nlink(Self) -> UInt64
+fn Stat::rdev(Self) -> UInt64
+fn Stat::size(Self) -> UInt64
+fn Stat::type_(Self) -> DirentType
+fn Stat::uid(Self) -> UInt64
+
+pub(all) enum Status {
+  E2BIG
+  EACCES
+  EADDRINUSE
+  EADDRNOTAVAIL
+  EAFNOSUPPORT
+  EAGAIN
+  EAI_ADDRFAMILY
+  EAI_AGAIN
+  EAI_BADFLAGS
+  EAI_BADHINTS
+  EAI_CANCELED
+  EAI_FAIL
+  EAI_FAMILY
+  EAI_MEMORY
+  EAI_NODATA
+  EAI_NONAME
+  EAI_OVERFLOW
+  EAI_PROTOCOL
+  EAI_SERVICE
+  EAI_SOCKTYPE
+  EALREADY
+  EBADF
+  EBUSY
+  ECANCELED
+  ECHARSET
+  ECONNABORTED
+  ECONNREFUSED
+  ECONNRESET
+  EDESTADDRREQ
+  EEXIST
+  EFAULT
+  EFBIG
+  EHOSTUNREACH
+  EINTR
+  EINVAL
+  EIO
+  EISCONN
+  EISDIR
+  ELOOP
+  EMFILE
+  EMSGSIZE
+  ENAMETOOLONG
+  ENETDOWN
+  ENETUNREACH
+  ENFILE
+  ENOBUFS
+  ENODEV
+  ENOENT
+  ENOMEM
+  ENONET
+  ENOPROTOOPT
+  ENOSPC
+  ENOSYS
+  ENOTCONN
+  ENOTDIR
+  ENOTEMPTY
+  ENOTSOCK
+  ENOTSUP
+  EOVERFLOW
+  EPERM
+  EPIPE
+  EPROTO
+  EPROTONOSUPPORT
+  EPROTOTYPE
+  ERANGE
+  EROFS
+  ESHUTDOWN
+  ESPIPE
+  ESRCH
+  ETIMEDOUT
+  ETXTBSY
+  EXDEV
+  UNKNOWN
+  EOF
+  ENXIO
+  EMLINK
+  EHOSTDOWN
+  EREMOTEIO
+  ENOTTY
+  EFTYPE
+  EILSEQ
+  ESOCKTNOSUPPORT
+  ENODATA
+  EUNATCH
+  ENOEXEC
+}
+impl Eq for Status
+impl Hash for Status
+
+type StdioContainer
+fn[Stream : ToStream] StdioContainer::create_pipe(Stream, readable~ : Bool = .., writable~ : Bool = .., non_block~ : Bool = ..) -> Self
+fn StdioContainer::ignore() -> Self
+fn StdioContainer::inherit_file(File) -> Self
+fn StdioContainer::inherit_stream(Stream) -> Self
+
+type Stream
+fn Stream::is_readable(Self) -> Bool
+fn Stream::is_writable(Self) -> Bool
+fn Stream::read_start(Self, (Handle, Int) -> @bytes.View, (Self, Int, @bytes.View) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
+fn Stream::read_stop(Self) -> Unit raise Errno
+fn Stream::shutdown(Self, () -> Unit, (Errno) -> Unit) -> Shutdown raise Errno
+fn Stream::to_handle(Self) -> Handle
+fn Stream::write(Self, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) -> Unit raise Errno
+impl ToHandle for Stream
+impl ToStream for Stream
+
+type Tcp
+fn[Sockaddr : ToSockaddr] Tcp::bind(Self, Sockaddr, TcpBindFlags) -> Unit raise Errno
+fn[Sockaddr : ToSockaddr] Tcp::connect(Self, Sockaddr, (Connect) -> Unit, (Connect, Errno) -> Unit) -> Unit raise Errno
+fn Tcp::new(Loop) -> Self raise Errno
+impl ToHandle for Tcp
+impl ToStream for Tcp
+
+type TcpBindFlags
+fn TcpBindFlags::new(ipv6_only~ : Bool = .., reuse_port~ : Bool = ..) -> Self
+
+type Thread
+fn Thread::equal(Self, Self) -> Bool
+fn Thread::join(Self) -> Unit raise Errno
+fn Thread::new(() -> Unit) -> Self raise Errno
+fn Thread::self() -> Self raise Errno
+impl Eq for Thread
+impl Share for Thread
+
+type Timer
+fn Timer::get_due_in(Self) -> UInt64
+fn Timer::get_repeat(Self) -> UInt64
+fn Timer::new(Loop) -> Self raise Errno
+fn Timer::set_repeat(Self, UInt64) -> Unit
+fn Timer::start(Self, timeout~ : UInt64, repeat~ : UInt64, (Self) -> Unit) -> Unit raise Errno
+fn Timer::stop(Self) -> Unit raise Errno
+impl ToHandle for Timer
+
+type Tty
+fn Tty::get_winsize(Self) -> (Int, Int) raise Errno
+fn Tty::new(Loop, File) -> Self raise Errno
+fn Tty::reset_mode() -> Unit raise Errno
+fn Tty::set_mode(Self, TtyMode) -> Unit raise Errno
+impl ToHandle for Tty
+impl ToStream for Tty
+
+type TtyMode
+fn TtyMode::io() -> Self
+fn TtyMode::normal() -> Self
+fn TtyMode::raw() -> Self
+fn TtyMode::raw_vt() -> Self
+
+type Udp
+fn[Sockaddr : ToSockaddr] Udp::bind(Self, Sockaddr, UdpFlags) -> Unit raise Errno
+fn[Sockaddr : ToSockaddr] Udp::connect(Self, Sockaddr) -> Unit raise Errno
+fn Udp::new(Loop) -> Self raise Errno
+fn Udp::recv_start(Self, (Handle, Int) -> @bytes.View, (Self, Int, @bytes.View, Sockaddr, UdpFlags) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
+fn Udp::recv_stop(Self) -> Unit raise Errno
+fn[Sockaddr : ToSockaddr] Udp::send(Self, Array[@bytes.View], (UdpSend) -> Unit, (UdpSend, Errno) -> Unit, addr? : Sockaddr) -> Unit raise Errno
+impl ToHandle for Udp
+
+type UdpFlags
+fn UdpFlags::new() -> Self
+
+type UdpSend
+impl ToReq for UdpSend
+
+type Uid
+
+type Utsname
+fn Utsname::machine(Self) -> String
+fn Utsname::release(Self) -> String
+fn Utsname::sysname(Self) -> String
+fn Utsname::version(Self) -> String
+
+type Work
+impl Cancelable for Work
+impl ToReq for Work
+
+type Write
+impl ToReq for Write
+
+// Type aliases
+
+// Traits
+pub trait Cancelable : ToReq {
+  cancel(Self) -> Unit raise Errno
+}
+
+pub trait Share {
+  share(Self) -> Self
+}
+
+pub trait ToHandle {
+  to_handle(Self) -> Handle
+  of_handle(Handle) -> Self
+  close(Self, (Self) -> Unit) -> Unit
+  is_closing(Self) -> Bool
+}
+
+trait ToNtbs
+impl ToNtbs for String
+impl ToNtbs for Bytes
+impl ToNtbs for @bytes.View
+impl ToNtbs for @string.StringView
+
+pub trait ToReq {
+  to_req(Self) -> Req
+}
+
+pub trait ToSockaddr {
+  to_sockaddr(Self) -> Sockaddr
+  ip_name(Self) -> String raise Errno
+}
+
+pub trait ToStream : ToHandle {
+  to_stream(Self) -> Stream
+  of_stream(Stream) -> Self
+  read_start(Self, (Self, Int) -> @bytes.View, (Self, Int, @bytes.View) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
+  read_stop(Self) -> Unit raise Errno
+  write(Self, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) -> Unit raise Errno
+  listen(Self, Int, (Self) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
+  is_readable(Self) -> Bool
+  is_writable(Self) -> Bool
+  shutdown(Self, () -> Unit, (Errno) -> Unit) -> Shutdown raise Errno
+}
+

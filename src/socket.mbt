@@ -1,0 +1,98 @@
+///|
+type SockaddrIn Bytes
+
+///|
+extern "c" fn uv_sockaddr_in_make() -> SockaddrIn = "moonbit_uv_sockaddr_in_make"
+
+///|
+type SockaddrIn6 Bytes
+
+///|
+extern "c" fn uv_sockaddr_in6_make() -> SockaddrIn6 = "moonbit_uv_sockaddr_in6_make"
+
+///|
+type Sockaddr Bytes
+
+///|
+pub trait ToSockaddr {
+  to_sockaddr(self : Self) -> Sockaddr
+  ip_name(self : Self) -> String raise Errno
+}
+
+///|
+pub impl ToSockaddr for Sockaddr with to_sockaddr(self : Sockaddr) -> Sockaddr = "%identity"
+
+///|
+pub impl ToSockaddr for SockaddrIn with to_sockaddr(addr : SockaddrIn) -> Sockaddr = "%identity"
+
+///|
+pub impl ToSockaddr for SockaddrIn6 with to_sockaddr(addr : SockaddrIn6) -> Sockaddr = "%identity"
+
+///|
+enum SockType {
+  Stream
+  Raw
+  Datagram
+} derive(Show)
+
+///|
+pub fn SockType::stream() -> SockType {
+  return Stream
+}
+
+///|
+pub fn SockType::raw() -> SockType {
+  return Raw
+}
+
+///|
+#deprecated("Use SockType::datagram() instead")
+pub fn SockType::dgram() -> SockType {
+  return Datagram
+}
+
+///|
+pub fn SockType::datagram() -> SockType {
+  return Datagram
+}
+
+///|
+extern "c" fn uv_SOCK_STREAM() -> Int = "moonbit_uv_SOCK_STREAM"
+
+///|
+let _SOCK_STREAM : Int = uv_SOCK_STREAM()
+
+///|
+extern "c" fn uv_SOCK_DGRAM() -> Int = "moonbit_uv_SOCK_DGRAM"
+
+///|
+let _SOCK_DGRAM : Int = uv_SOCK_DGRAM()
+
+///|
+extern "c" fn uv_SOCK_RAW() -> Int = "moonbit_uv_SOCK_RAW"
+
+///|
+let _SOCK_RAW : Int = uv_SOCK_RAW()
+
+///|
+fn SockType::of_int(self : Int) -> SockType raise Errno {
+  if self == _SOCK_STREAM {
+    return Stream
+  }
+  if self == _SOCK_RAW {
+    return Raw
+  }
+  if self == _SOCK_DGRAM {
+    return Datagram
+  }
+  raise Errno(EINVAL)
+}
+
+///|
+fn SockType::to_int(self : SockType) -> Int {
+  match self {
+    Stream => _SOCK_STREAM
+    Raw => _SOCK_RAW
+    Datagram => _SOCK_DGRAM
+  }
+}
