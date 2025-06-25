@@ -1433,6 +1433,7 @@ MOONBIT_FFI_EXPORT
 uv_loop_t *
 moonbit_uv_handle_loop(uv_handle_t *handle) {
   uv_loop_t *loop = handle->loop;
+  moonbit_incref(loop);
   moonbit_decref(handle);
   return loop;
 }
