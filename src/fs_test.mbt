@@ -13,13 +13,6 @@
 // limitations under the License.
 
 ///|
-fn[E : Error] raise_option(option : E?) -> Unit raise E {
-  if option is Some(error) {
-    raise error
-  }
-}
-
-///|
 fn test_close(uv : @uv.Loop, file : @uv.File, error : Ref[Errno?]) -> Unit {
   try uv.fs_close(file, () => (), e => error.val = Some(e)) |> ignore() catch {
     e => error.val = Some(e)
@@ -150,27 +143,26 @@ test "read/sync" {
 ///|
 test "mkdir" {
   let uv = @uv.Loop::new()
-  let mut mkdir_error = None
-  let mut rmdir_error = None
+  let errors : Array[Error] = []
   uv.fs_mkdir(
     "test-dir",
     0,
     fn() {
       try
-        uv.fs_rmdir("test-dir", () => (), error => rmdir_error = Some(error))
-        |> ignore()
+        uv.fs_rmdir("test-dir", () => (), e => errors.push(e)) |> ignore()
       catch {
-        error => rmdir_error = Some(error)
+        e => errors.push(e)
       }
     },
-    error => mkdir_error = Some(error),
+    e => errors.push(e),
   )
   |> ignore()
   uv.run(Default)
   uv.stop()
   uv.close()
-  raise_option(mkdir_error)
-  raise_option(rmdir_error)
+  for e in errors {
+    raise e
+  }
 }
 
 ///|
@@ -202,7 +194,9 @@ test "scandir" {
     { "name": ".gitattributes", "type": "file" },
     { "name": "example.txt", "type": "file" },
   ])
-  raise_option(error)
+  if error is Some(e) {
+    raise e
+  }
 }
 
 ///|
@@ -229,7 +223,9 @@ test "copyfile_unlink" {
   uv.run(Default)
   uv.stop()
   uv.close()
-  raise_option(error)
+  if error is Some(e) {
+    raise e
+  }
 }
 
 ///|

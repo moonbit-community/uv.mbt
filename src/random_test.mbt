@@ -25,5 +25,7 @@ test "random" {
   uv.stop()
   uv.close()
   assert_true(result is Some(result) && result.length() == buffer.length())
-  raise_option(error)
+  if error is Some(errno) {
+    raise errno
+  }
 }
