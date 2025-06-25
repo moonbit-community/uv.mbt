@@ -161,3 +161,114 @@ pub fn[Ntbs : ToNtbs] chdir(path : Ntbs) -> Unit raise Errno {
     raise Errno::of_int(status)
   }
 }
+
+///|
+pub struct CpuInfo {
+  model : String
+  speed : Int
+  cpu_times : CpuTimes
+} derive(Show, ToJson)
+
+///|
+pub struct CpuTimes {
+  user : UInt64
+  nice : UInt64
+  sys : UInt64
+  idle : UInt64
+  irq : UInt64
+} derive(Show, ToJson)
+
+///|
+extern "c" fn uv_cpu_info(
+  cpu_infos : FixedArray[@c.Pointer[CpuInfo]],
+  count : FixedArray[Int]
+) -> Int = "moonbit_uv_cpu_info"
+
+///|
+extern "c" fn uv_cpu_info_get_model(
+  cpu_info : @c.Pointer[CpuInfo],
+  index : Int
+) -> @c.Pointer[Byte] = "moonbit_uv_cpu_info_get_model"
+
+///|
+extern "c" fn uv_cpu_info_get_speed(
+  cpu_info : @c.Pointer[CpuInfo],
+  index : Int
+) -> Int = "moonbit_uv_cpu_info_get_speed"
+
+///|
+extern "c" fn uv_cpu_info_get_cpu_times_user(
+  cpu_info : @c.Pointer[CpuInfo],
+  index : Int
+) -> UInt64 = "moonbit_uv_cpu_info_get_cpu_times_user"
+
+///|
+extern "c" fn uv_cpu_info_get_cpu_times_nice(
+  cpu_info : @c.Pointer[CpuInfo],
+  index : Int
+) -> UInt64 = "moonbit_uv_cpu_info_get_cpu_times_nice"
+
+///|
+extern "c" fn uv_cpu_info_get_cpu_times_sys(
+  cpu_info : @c.Pointer[CpuInfo],
+  index : Int
+) -> UInt64 = "moonbit_uv_cpu_info_get_cpu_times_sys"
+
+///|
+extern "c" fn uv_cpu_info_get_cpu_times_idle(
+  cpu_info : @c.Pointer[CpuInfo],
+  index : Int
+) -> UInt64 = "moonbit_uv_cpu_info_get_cpu_times_idle"
+
+///|
+extern "c" fn uv_cpu_info_get_cpu_times_irq(
+  cpu_info : @c.Pointer[CpuInfo],
+  index : Int
+) -> UInt64 = "moonbit_uv_cpu_info_get_cpu_times_irq"
+
+///|
+impl @c.Load for CpuInfo with load(self : @c.Pointer[CpuInfo], index : Int) -> CpuInfo {
+  let model = {
+    let buffer = @buffer.new()
+    let pointer = uv_cpu_info_get_model(self, index)
+    for i = 0; pointer[i] != 0; i = i + 1 {
+      buffer.write_byte(pointer[i])
+    }
+    @encoding.decode_lossy(encoding=UTF8, buffer.contents())
+  }
+  let speed = uv_cpu_info_get_speed(self, index)
+  let cpu_times = {
+    user: uv_cpu_info_get_cpu_times_user(self, index),
+    nice: uv_cpu_info_get_cpu_times_nice(self, index),
+    sys: uv_cpu_info_get_cpu_times_sys(self, index),
+    idle: uv_cpu_info_get_cpu_times_idle(self, index),
+    irq: uv_cpu_info_get_cpu_times_irq(self, index),
+  }
+  { model, speed, cpu_times }
+}
+
+///|
+extern "c" fn uv_free_cpu_info(cpu_infos : @c.Pointer[CpuInfo], count : Int) = "moonbit_uv_free_cpu_info"
+
+///|
+/// Returns current CPU information.
+///
+/// Example:
+///
+/// ```moonbit
+/// let cpu_infos = @uv.cpu_info()
+/// println(cpu_infos)
+/// ```
+pub fn cpu_info() -> Array[CpuInfo] raise Errno {
+  let cpu_infos : FixedArray[@c.Pointer[CpuInfo]] = [@c.null()]
+  let count : FixedArray[Int] = [0]
+  let status = uv_cpu_info(cpu_infos, count)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  let cpu_infos = cpu_infos[0]
+  let count = count[0]
+  let result = Array::makei(count, cpu_infos[_])
+  uv_free_cpu_info(cpu_infos, count)
+  result
+}
