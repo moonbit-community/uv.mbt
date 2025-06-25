@@ -49,6 +49,7 @@ pub trait ToHandle {
   of_handle(Handle) -> Self
   close(Self, (Self) -> Unit) -> Unit = _
   is_closing(Self) -> Bool = _
+  loop_(Self) -> Loop = _
 }
 
 ///|
@@ -63,4 +64,12 @@ impl ToHandle with close(self, cb) {
 ///|
 impl ToHandle with is_closing(self) {
   self.to_handle().is_closing()
+}
+
+///|
+extern "c" fn uv_handle_loop(handle : Handle) -> Loop = "moonbit_uv_handle_loop"
+
+///|
+impl ToHandle with loop_(self) {
+  uv_handle_loop(self.to_handle())
 }
