@@ -52,8 +52,8 @@ test "tcp" {
               inspect(request, content="Request")
               server_client_socket.write(
                 [b"Response"],
-                fn(_) { server_stop_read(None) },
-                fn(_, e) { server_stop_read(Some(e)) },
+                () => server_stop_read(None),
+                e => server_stop_read(Some(e)),
               )
             } catch {
               e => server_stop_read(Some(e))
@@ -94,10 +94,7 @@ test "tcp" {
       }
 
       try {
-        client_socket.write([b"Request"], fn(_) { client_close(None) }, fn(
-          _,
-          e
-        ) {
+        client_socket.write([b"Request"], () => client_close(None), fn(e) {
           client_close(Some(e))
         })
         client_socket.read_start(

@@ -137,14 +137,14 @@ extern "c" fn uv_write(
 pub fn Stream::write(
   self : Stream,
   bufs : Array[@bytes.View],
-  write_cb : (Write) -> Unit,
-  error_cb : (Write, Errno) -> Unit
+  write_cb : () -> Unit,
+  error_cb : (Errno) -> Unit
 ) -> Unit raise Errno {
-  fn cb(req : Write, status : Int) {
+  fn cb(_ : Write, status : Int) {
     if status < 0 {
-      error_cb(req, Errno::of_int(status))
+      error_cb(Errno::of_int(status))
     } else {
-      write_cb(req)
+      write_cb()
     }
   }
 
@@ -169,8 +169,8 @@ pub fn Stream::write(
 pub fn[Stream : ToStream] write(
   stream : Stream,
   bufs : Array[@bytes.View],
-  write_cb : (Write) -> Unit,
-  error_cb : (Write, Errno) -> Unit
+  write_cb : () -> Unit,
+  error_cb : (Errno) -> Unit
 ) -> Unit raise Errno {
   stream.write(bufs, write_cb, error_cb)
 }
@@ -186,7 +186,7 @@ pub trait ToStream: ToHandle {
     (Self, Errno) -> Unit,
   ) -> Unit raise Errno = _
   read_stop(Self) -> Unit raise Errno = _
-  write(Self, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) -> Unit raise Errno = _
+  write(Self, Array[@bytes.View], () -> Unit, (Errno) -> Unit) -> Unit raise Errno = _
   listen(Self, Int, (Self) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno = _
   is_readable(Self) -> Bool = _
   is_writable(Self) -> Bool = _
