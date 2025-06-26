@@ -4024,3 +4024,16 @@ moonbit_uv_write2(
   moonbit_decref(send_handle);
   return result;
 }
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_fileno(uv_handle_t *handle) {
+  uv_os_fd_t os_fd;
+  uv_fileno(handle, &os_fd);
+  moonbit_decref(handle);
+#ifdef _WIN32
+  return (uint64_t)(uintptr_t)os_fd;
+#else
+  return (uint64_t)os_fd;
+#endif
+}

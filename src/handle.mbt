@@ -48,6 +48,7 @@ pub trait ToHandle {
   to_handle(Self) -> Handle
   of_handle(Handle) -> Self
   close(Self, (Self) -> Unit) -> Unit = _
+  fileno(Self) -> UInt64 raise Errno = _
   is_closing(Self) -> Bool = _
   loop_(Self) -> Loop = _
 }
@@ -75,6 +76,11 @@ impl ToHandle with loop_(self) {
 }
 
 ///|
+impl ToHandle with fileno(self) {
+  self.to_handle().fileno()
+}
+
+///|
 pub enum HandleType {
   Unknown = 0
   Async = 1
@@ -95,3 +101,11 @@ pub enum HandleType {
   Signal = 16
   File = 17
 } derive(Eq, Hash)
+
+///|
+extern "c" fn uv_fileno(handle : Handle) -> UInt64 = "moonbit_uv_fileno"
+
+///|
+pub fn Handle::fileno(self : Handle) -> UInt64 {
+  return uv_fileno(self)
+}
