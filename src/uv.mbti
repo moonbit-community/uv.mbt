@@ -18,6 +18,8 @@ fn[Ntbs : ToNtbs] chdir(Ntbs) -> Unit raise Errno
 #deprecated
 fn[Handle : ToHandle] close(Handle, (Handle) -> Unit) -> Unit
 
+fn cpu_info() -> Array[CpuInfo] raise Errno
+
 fn cwd() -> String raise Errno
 
 fn disable_stdio_inheritance() -> Unit
@@ -78,7 +80,7 @@ fn stdin() -> File
 fn stdout() -> File
 
 #deprecated
-fn[Stream : ToStream] write(Stream, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) -> Unit raise Errno
+fn[Stream : ToStream] write(Stream, Array[@bytes.View], () -> Unit, (Errno) -> Unit) -> Unit raise Errno
 
 // Types and methods
 type AccessFlags
@@ -116,6 +118,24 @@ pub(all) enum CopyOnWrite {
   True
   Force
 }
+
+pub struct CpuInfo {
+  model : String
+  speed : Int
+  cpu_times : CpuTimes
+}
+impl Show for CpuInfo
+impl ToJson for CpuInfo
+
+pub struct CpuTimes {
+  user : UInt64
+  nice : UInt64
+  sys : UInt64
+  idle : UInt64
+  irq : UInt64
+}
+impl Show for CpuTimes
+impl ToJson for CpuTimes
 
 type Dir
 
@@ -180,6 +200,29 @@ type Gid
 type Handle
 fn Handle::close(Self, (Self) -> Unit) -> Unit
 fn Handle::is_closing(Self) -> Bool
+
+pub enum HandleType {
+  Unknown
+  Async
+  Check
+  FsEvent
+  FsPoll
+  Handle
+  Idle
+  Pipe
+  Poll
+  Prepare
+  Process
+  Stream
+  Tcp
+  Timer
+  Tty
+  Udp
+  Signal
+  File
+}
+impl Eq for HandleType
+impl Hash for HandleType
 
 type Idle
 fn Idle::new(Loop) -> Self raise Errno
@@ -251,6 +294,8 @@ type Pipe
 fn[Ntbs : ToNtbs] Pipe::bind(Self, Ntbs, PipeBindFlags) -> Unit raise Errno
 fn Pipe::new(Loop, ipc~ : Bool = ..) -> Self raise Errno
 fn Pipe::open(Self, File) -> Unit raise Errno
+fn Pipe::pending_count(Self) -> UInt
+fn Pipe::pending_type(Self) -> HandleType
 fn Pipe::to_handle(Self) -> Handle
 fn Pipe::to_stream(Self) -> Stream
 impl ToHandle for Pipe
@@ -458,7 +503,8 @@ fn Stream::read_start(Self, (Handle, Int) -> @bytes.View, (Self, Int, @bytes.Vie
 fn Stream::read_stop(Self) -> Unit raise Errno
 fn Stream::shutdown(Self, () -> Unit, (Errno) -> Unit) -> Shutdown raise Errno
 fn Stream::to_handle(Self) -> Handle
-fn Stream::write(Self, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) -> Unit raise Errno
+fn Stream::write(Self, Array[@bytes.View], () -> Unit, (Errno) -> Unit) -> Unit raise Errno
+fn Stream::write2(Self, Array[@bytes.View], Self, () -> Unit, (Errno) -> Unit) -> Unit raise Errno
 impl ToHandle for Stream
 impl ToStream for Stream
 
@@ -549,6 +595,7 @@ pub trait ToHandle {
   of_handle(Handle) -> Self
   close(Self, (Self) -> Unit) -> Unit
   is_closing(Self) -> Bool
+  loop_(Self) -> Loop
 }
 
 trait ToNtbs
@@ -571,7 +618,7 @@ pub trait ToStream : ToHandle {
   of_stream(Stream) -> Self
   read_start(Self, (Self, Int) -> @bytes.View, (Self, Int, @bytes.View) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
   read_stop(Self) -> Unit raise Errno
-  write(Self, Array[@bytes.View], (Write) -> Unit, (Write, Errno) -> Unit) -> Unit raise Errno
+  write(Self, Array[@bytes.View], () -> Unit, (Errno) -> Unit) -> Unit raise Errno
   listen(Self, Int, (Self) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
   is_readable(Self) -> Bool
   is_writable(Self) -> Bool
