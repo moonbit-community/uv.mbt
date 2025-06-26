@@ -73,3 +73,25 @@ extern "c" fn uv_handle_loop(handle : Handle) -> Loop = "moonbit_uv_handle_loop"
 impl ToHandle with loop_(self) {
   uv_handle_loop(self.to_handle())
 }
+
+///|
+pub enum HandleType {
+  Unknown = 0
+  Async = 1
+  Check = 2
+  FsEvent = 3
+  FsPoll = 4
+  Handle = 5
+  Idle = 6
+  Pipe = 7
+  Poll = 8
+  Prepare = 9
+  Process = 10
+  Stream = 11
+  Tcp = 12
+  Timer = 13
+  Tty = 14
+  Udp = 15
+  Signal = 16
+  File = 17
+} derive(Eq, Hash)
