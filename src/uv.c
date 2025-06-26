@@ -3992,3 +3992,35 @@ moonbit_uv_pipe_pending_type(uv_pipe_t *handle) {
   moonbit_decref(handle);
   return (int32_t)type;
 }
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_write2(
+  moonbit_uv_write_t *req,
+  uv_stream_t *handle,
+  moonbit_bytes_t *bufs,
+  int32_t *bufs_offset,
+  int32_t *bufs_length,
+  uv_stream_t *send_handle,
+  moonbit_uv_write_cb_t *cb
+) {
+  int bufs_size = Moonbit_array_length(bufs);
+  uv_buf_t *bufs_data = malloc(sizeof(uv_buf_t) * bufs_size);
+  for (int i = 0; i < bufs_size; i++) {
+    bufs_data[i] =
+      uv_buf_init((char *)bufs[i] + bufs_offset[i], bufs_length[i]);
+  }
+  moonbit_uv_write_data_t *data = moonbit_uv_write_data_make();
+  data->bufs = bufs;
+  data->cb = cb;
+  moonbit_uv_write_set_data(req, data);
+  int result = uv_write2(
+    &req->write, handle, bufs_data, bufs_size, send_handle, moonbit_uv_write_cb
+  );
+  free(bufs_data);
+  moonbit_decref(handle);
+  moonbit_decref(bufs_offset);
+  moonbit_decref(bufs_length);
+  moonbit_decref(send_handle);
+  return result;
+}
