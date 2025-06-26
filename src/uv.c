@@ -3976,3 +3976,19 @@ void
 moonbit_uv_free_cpu_info(uv_cpu_info_t *cpu_info, int32_t count) {
   uv_free_cpu_info(cpu_info, count);
 }
+
+MOONBIT_FFI_EXPORT
+uint32_t
+moonbit_uv_pipe_pending_count(uv_pipe_t *handle) {
+  uint32_t count = uv_pipe_pending_count(handle);
+  moonbit_decref(handle);
+  return count;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_pipe_pending_type(uv_pipe_t *handle) {
+  uv_handle_type type = uv_pipe_pending_type(handle);
+  moonbit_decref(handle);
+  return (int32_t)type;
+}

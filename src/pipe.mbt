@@ -111,3 +111,19 @@ pub fn Pipe::open(self : Pipe, file : File) -> Unit raise Errno {
     raise Errno::of_int(status)
   }
 }
+
+///|
+extern "c" fn uv_pipe_pending_count(pipe : Pipe) -> UInt = "moonbit_uv_pipe_pending_count"
+
+///|
+pub fn Pipe::pending_count(self : Pipe) -> UInt {
+  uv_pipe_pending_count(self)
+}
+
+///|
+extern "c" fn uv_pipe_pending_type(pipe : Pipe) -> HandleType = "moonbit_uv_pipe_pending_type"
+
+///|
+pub fn Pipe::pending_type(self : Pipe) -> HandleType {
+  return uv_pipe_pending_type(self)
+}
