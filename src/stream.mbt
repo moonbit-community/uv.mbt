@@ -176,6 +176,49 @@ pub fn[Stream : ToStream] write(
 }
 
 ///|
+extern "c" fn uv_write2(
+  write : Write,
+  handle : Stream,
+  bufs_base : FixedArray[Bytes],
+  bufs_offset : FixedArray[Int],
+  bufs_length : FixedArray[Int],
+  send_handle : Stream,
+  cb : (Write, Int) -> Unit
+) -> Int = "moonbit_uv_write2"
+
+///|
+pub fn Stream::write2(
+  self : Stream,
+  bufs : Array[@bytes.View],
+  send_handle : Stream,
+  write_cb : () -> Unit,
+  error_cb : (Errno) -> Unit
+) -> Unit raise Errno {
+  fn cb(_ : Write, status : Int) {
+    if status < 0 {
+      error_cb(Errno::of_int(status))
+    } else {
+      write_cb()
+    }
+  }
+
+  let req = uv_write_make()
+  let bufs_size = bufs.length()
+  let bufs_base : FixedArray[Bytes] = FixedArray::make(bufs_size, [])
+  let bufs_offset = FixedArray::make(bufs_size, 0)
+  let bufs_length = FixedArray::make(bufs_size, 0)
+  for i in 0..<bufs.length() {
+    bufs_base[i] = bufs[i].data()
+    bufs_offset[i] = bufs[i].start_offset()
+    bufs_length[i] = bufs[i].length()
+  }
+  let result = uv_write2(req, self, bufs_base, bufs_offset, bufs_length, send_handle, cb)
+  if result < 0 {
+    raise Errno::of_int(result)
+  }
+}
+
+///|
 pub trait ToStream: ToHandle {
   to_stream(Self) -> Stream
   of_stream(Stream) -> Self
