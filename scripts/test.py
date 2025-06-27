@@ -55,6 +55,16 @@ def windows_flags():
     }
 
 
+def modify_moon_pkg_json(moon_pkg_path: Path, flags: dict[str, str]) -> str:
+    moon_pkg_text = moon_pkg_path.read_text()
+    moon_pkg_json = json.loads(moon_pkg_text)
+    if "link" not in moon_pkg_json:
+        moon_pkg_json["link"] = {}
+    moon_pkg_json["link"]["native"] = flags
+    moon_pkg_path.write_text(json.dumps(moon_pkg_json, indent=2))
+    return moon_pkg_text
+
+
 def main():
     subprocess.run(["moon", "check", "--target", "native"], check=True)
     test_path = Path("src")
@@ -67,21 +77,18 @@ def main():
         flags = windows_flags()
     if flags is None:
         raise Exception("Unsupported platform")
-    moon_pkg_path = test_path / "moon.pkg.json"
-    moon_pkg_text = moon_pkg_path.read_text()
-    moon_pkg_json = json.loads(moon_pkg_text)
-    if "link" not in moon_pkg_json:
-        moon_pkg_json["link"] = {}
-    moon_pkg_json["link"]["native"] = flags
-    moon_pkg_path.write_text(json.dumps(moon_pkg_json, indent=2))
+    uv_pkg_path = test_path / "moon.pkg.json"
+    uv_pkg_text = modify_moon_pkg_json(uv_pkg_path, flags)
+    async_pkg_path = test_path / "async" / "moon.pkg.json"
+    async_pkg_text = modify_moon_pkg_json(async_pkg_path, flags)
     print("==============================================")
     print("Running test with the following configuration:")
     print("----------------------------------------------")
-    print(moon_pkg_path.read_text())
+    print(json.dumps(flags, indent=2))
     print("----------------------------------------------")
     env = os.environ.copy()
     if platform.system() != "Windows":
-        env["MOON_CC"] = flags["cc"] + " -g -fsanitize=address"
+        env["MOON_CC"] = flags["cc"] + " -DDEBUG -g -fsanitize=address"
         env["MOON_AR"] = "/usr/bin/ar"
     if platform.system() != "Windows":
         env["ASAN_OPTIONS"] = "detect_leaks=1"
@@ -89,12 +96,19 @@ def main():
         env["LSAN_OPTIONS"] = f"suppressions={lsan_suppressions}"
     try:
         subprocess.run(
-            ["moon", "test", "--target", "native", "-v"],
+            [
+                "moon",
+                "test",
+                "--target",
+                "native",
+                "-v",
+            ],
             check=True,
             env=env,
         )
     finally:
-        moon_pkg_path.write_text(moon_pkg_text)
+        uv_pkg_path.write_text(uv_pkg_text)
+        async_pkg_path.write_text(async_pkg_text)
 
 
 if __name__ == "__main__":
