@@ -1,8 +1,14 @@
 {
   "targets": {
     "async.mbt": ["native"],
+    "env_test.mbt": ["native"],
+    "env.mbt": ["native"],
+    "error.mbt": ["native"],
     "fs_test.mbt": ["native"],
     "fs.mbt": ["native"],
+    "glob_test.mbt": ["native"],
+    "glob.mbt": ["native"],
+    "path_test.mbt": ["native"],
     "path.mbt": ["native"],
     "pipe.mbt": ["native"],
     "platform.mbt": ["native"],
