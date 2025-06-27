@@ -84,6 +84,8 @@ pub fn Mutex::unlock(self : Mutex) -> Unit {
 /// the mutex to ensure thread safety.
 ///
 /// Diagram:
+///
+/// ```plaintext
 ///                (thread 0)                 (thread 1)
 ///                +--------+                 +--------+
 ///                | rc (M) |                 | rc (M) |
@@ -96,6 +98,7 @@ pub fn Mutex::unlock(self : Mutex) -> Unit {
 ///                             +---------+
 ///                             | payload |
 ///                             +----+----+
+/// ```
 ///
 /// The `Share` trait provides a `share` method to allow implementor of this
 /// trait to create a new MoonBit object pointing to the same shared payload,
