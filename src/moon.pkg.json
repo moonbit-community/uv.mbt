@@ -1,6 +1,12 @@
 {
   "targets": {
+    "args_test.mbt": [
+      "native"
+    ],
     "args.mbt": [
+      "native"
+    ],
+    "debug.mbt": [
       "native"
     ],
     "dns_test.mbt": [
@@ -9,7 +15,10 @@
     "dns.mbt": [
       "native"
     ],
-    "buf.mbt": [
+    "env_test.mbt": [
+      "native"
+    ],
+    "env.mbt": [
       "native"
     ],
     "error.mbt": [
@@ -34,6 +43,12 @@
       "native"
     ],
     "idle_test.mbt": [
+      "native"
+    ],
+    "ip_test.mbt": [
+      "native"
+    ],
+    "ip.mbt": [
       "native"
     ],
     "loop_test.mbt": [
@@ -70,6 +85,9 @@
       "native"
     ],
     "signal.mbt": [
+      "native"
+    ],
+    "socket.mbt": [
       "native"
     ],
     "stream_test.mbt": [
