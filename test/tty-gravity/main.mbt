@@ -42,9 +42,12 @@ fn update(timer : @uv.Timer, tty : @uv.Tty, width : Int, height : Int) -> Unit {
   buffer.write_bytes(message)
   buffer.write_byte(0)
   let data = buffer.contents()
-  tty.write([data], fn() {  }, fn(errno) {
-    println("error writing to TTY: \{errno}")
-  }) catch {
+  try
+    tty.write([data], fn() {  }, fn(errno) {
+      println("error writing to TTY: \{errno}")
+    })
+    |> ignore()
+  catch {
     error => println("error writing to TTY: \{error}")
   }
   pos.val += 1
