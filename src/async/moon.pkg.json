@@ -1,0 +1,15 @@
+{
+  "targets": {
+    "async.mbt": ["native"],
+    "fs_test.mbt": ["native"],
+    "fs.mbt": ["native"],
+    "path.mbt": ["native"],
+    "pipe.mbt": ["native"],
+    "platform.mbt": ["native"],
+    "spawn_test.mbt": ["native"],
+    "spawn.mbt": ["native"],
+    "stdio.mbt": ["native"],
+    "stream.mbt": ["native"]
+  },
+  "import": ["tonyfettes/uv", "tonyfettes/encoding"]
+}
