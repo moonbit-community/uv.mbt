@@ -38,13 +38,14 @@ test "udp" {
   )
   out_socket.send(
     [b"Hello World!"],
-    fn(_) { out_socket.close(fn(_) {  }) },
-    fn(_, e) {
+    fn() { out_socket.close(fn(_) {  }) },
+    fn(e) {
       error = Some(e)
       out_socket.close(ignore)
     },
     addr~,
   )
+  |> ignore()
   uv.run(Default)
   uv.close()
   if error is Some(e) {

@@ -18,7 +18,7 @@ test "dns/ipv4" {
   let resolved = []
   let mut error = None
   uv.getaddrinfo(
-    fn(_, infos) {
+    fn(infos) {
       try {
         for info in infos {
           resolved.push(info.addr().ip_name())
@@ -27,7 +27,7 @@ test "dns/ipv4" {
         e => error = Some(e)
       }
     },
-    fn(_, e) { error = Some(e) },
+    fn(e) { error = Some(e) },
     "localhost",
     "http",
     hints=@uv.AddrInfoHints::new(
@@ -36,6 +36,7 @@ test "dns/ipv4" {
       family=@uv.AddressFamily::inet(),
     ),
   )
+  |> ignore()
   uv.run(Default)
   uv.close()
   if error is Some(error) {
@@ -51,7 +52,7 @@ test "dns/ipv6" {
   let resolved = []
   let mut error = None
   uv.getaddrinfo(
-    fn(_, infos) {
+    fn(infos) {
       try {
         for info in infos {
           resolved.push(info.addr().ip_name())
@@ -60,7 +61,7 @@ test "dns/ipv6" {
         e => error = Some(e)
       }
     },
-    fn(_, e) { error = Some(e) },
+    fn(e) { error = Some(e) },
     "localhost",
     "http",
     hints=@uv.AddrInfoHints::new(
@@ -69,6 +70,7 @@ test "dns/ipv6" {
       family=@uv.AddressFamily::inet6(),
     ),
   )
+  |> ignore()
   uv.run(Default)
   uv.close()
   if error is Some(error) {

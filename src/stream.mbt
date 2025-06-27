@@ -139,7 +139,7 @@ pub fn Stream::write(
   bufs : Array[@bytes.View],
   write_cb : () -> Unit,
   error_cb : (Errno) -> Unit
-) -> Unit raise Errno {
+) -> Write raise Errno {
   fn cb(_ : Write, status : Int) {
     if status < 0 {
       error_cb(Errno::of_int(status))
@@ -162,6 +162,7 @@ pub fn Stream::write(
   if result < 0 {
     raise Errno::of_int(result)
   }
+  return req
 }
 
 ///|
@@ -171,7 +172,7 @@ pub fn[Stream : ToStream] write(
   bufs : Array[@bytes.View],
   write_cb : () -> Unit,
   error_cb : (Errno) -> Unit
-) -> Unit raise Errno {
+) -> Write raise Errno {
   stream.write(bufs, write_cb, error_cb)
 }
 
@@ -193,7 +194,7 @@ pub fn Stream::write2(
   send_handle : Stream,
   write_cb : () -> Unit,
   error_cb : (Errno) -> Unit
-) -> Unit raise Errno {
+) -> Write raise Errno {
   fn cb(_ : Write, status : Int) {
     if status < 0 {
       error_cb(Errno::of_int(status))
@@ -212,10 +213,13 @@ pub fn Stream::write2(
     bufs_offset[i] = bufs[i].start_offset()
     bufs_length[i] = bufs[i].length()
   }
-  let result = uv_write2(req, self, bufs_base, bufs_offset, bufs_length, send_handle, cb)
+  let result = uv_write2(
+    req, self, bufs_base, bufs_offset, bufs_length, send_handle, cb,
+  )
   if result < 0 {
     raise Errno::of_int(result)
   }
+  return req
 }
 
 ///|
@@ -229,7 +233,7 @@ pub trait ToStream: ToHandle {
     (Self, Errno) -> Unit,
   ) -> Unit raise Errno = _
   read_stop(Self) -> Unit raise Errno = _
-  write(Self, Array[@bytes.View], () -> Unit, (Errno) -> Unit) -> Unit raise Errno = _
+  write(Self, Array[@bytes.View], () -> Unit, (Errno) -> Unit) -> Write raise Errno = _
   listen(Self, Int, (Self) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno = _
   is_readable(Self) -> Bool = _
   is_writable(Self) -> Bool = _

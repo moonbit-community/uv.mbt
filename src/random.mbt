@@ -16,6 +16,9 @@
 type Random
 
 ///|
+pub impl ToReq for Random with to_req(self : Random) -> Req = "%identity"
+
+///|
 extern "c" fn uv_random_make() -> Random = "moonbit_uv_random_make"
 
 ///|
@@ -34,14 +37,14 @@ pub fn Loop::random(
   self : Loop,
   buffer : @bytes.View,
   flags : Int,
-  random_cb : (Random, @bytes.View) -> Unit,
-  error_cb : (Random, Errno) -> Unit
-) -> Unit raise Errno {
-  fn uv_random_cb(random, status, buffer : Bytes, offset, length) {
+  random_cb : (@bytes.View) -> Unit,
+  error_cb : (Errno) -> Unit
+) -> Random raise Errno {
+  fn uv_random_cb(_, status, buffer : Bytes, offset, length) {
     if status < 0 {
-      error_cb(random, Errno::of_int(status))
+      error_cb(Errno::of_int(status))
     } else {
-      random_cb(random, buffer[offset:offset + length])
+      random_cb(buffer[offset:offset + length])
     }
   }
 
@@ -55,4 +58,5 @@ pub fn Loop::random(
   if status < 0 {
     raise Errno::of_int(status)
   }
+  return req
 }

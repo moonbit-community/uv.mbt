@@ -150,14 +150,14 @@ extern "c" fn uv_tcp_connect(
 pub fn[Sockaddr : ToSockaddr] Tcp::connect(
   self : Tcp,
   addr : Sockaddr,
-  connect_cb : (Connect) -> Unit,
-  error_cb : (Connect, Errno) -> Unit
-) -> Unit raise Errno {
-  fn cb(req : Connect, status : Int) {
+  connect_cb : () -> Unit,
+  error_cb : (Errno) -> Unit
+) -> Connect raise Errno {
+  fn cb(_ : Connect, status : Int) {
     if status < 0 {
-      error_cb(req, Errno::of_int(status))
+      error_cb(Errno::of_int(status))
     } else {
-      connect_cb(req)
+      connect_cb()
     }
   }
 
@@ -166,4 +166,5 @@ pub fn[Sockaddr : ToSockaddr] Tcp::connect(
   if status < 0 {
     raise Errno::of_int(status)
   }
+  return req
 }
