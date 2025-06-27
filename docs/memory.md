@@ -134,3 +134,177 @@ with an `incref` introduced by the calling convention.
 
 Rest of the APIs should following the normal callee-saved calling convention to
 `incref`/`decref` corresponding objects.
+
+## Callee-Saved Calling Convention
+
+MoonBit uses a callee-saved ownership system, which means that functions are
+responsible for managing the reference counts of their parameters. This has
+several important implications for the C binding code:
+
+### Basic Rules
+
+1. **Function Entry**: When a function receives parameters, it takes a shared
+   reference of them. In the callee-saved convention, all parameters are
+   `incref`'d before being passed to the function.
+2. **Function Exit**: Before a function returns, it must `decref` all parameters
+   it received, as required by the callee-saved convention.
+3. **Ownership Transfer**: When storing a parameter into a data structure or
+   passing it to another system (like libuv), the function must `incref` the
+   object to take ownership.
+
+### Move Optimization
+
+A common optimization in the callee-saved convention is that if the last usage
+of an object is to pass it as a function parameter, the `incref` before entering
+the function can be eliminated. In this case, the object can be seen as
+**moved** into the function rather than shared. This optimization can affect
+program behavior and reference counting analysis.
+
+For example, instead of:
+
+```c
+// Normal case: object is still used after function call
+moonbit_incref(obj);
+some_function(obj);
+moonbit_decref(obj);  // Required by callee-saved convention
+// obj is still used here...
+```
+
+The move optimization allows:
+
+```c
+// Last usage: object is moved into function
+some_function(obj);  // No incref needed, obj is moved
+// obj cannot be used after this point
+```
+
+This optimization means that the actual `incref`/`decref` pattern seen in the
+implementation may differ from the theoretical model, depending on whether
+parameters are shared references or moved references.
+
+### Reference Count Cancellation
+
+In many cases, the `incref` and `decref` operations cancel each other out,
+leading to simplified code. This is particularly common in initialization
+functions and callback handlers.
+
+#### Example 1: Initialization Functions
+
+Consider the theoretical implementation of `moonbit_uv_tcp_init`:
+
+```c
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_tcp_init(uv_loop_t *loop, moonbit_uv_tcp_t *tcp) {
+  // Store tcp into event-loop (ownership transfer)
+  moonbit_incref(tcp);
+  // Store loop reference in tcp (ownership transfer)
+  moonbit_incref(loop);
+
+  int result = uv_tcp_init(loop, &tcp->tcp);
+
+  // Callee-saved convention requires decref of parameters
+  moonbit_decref(loop);
+  moonbit_decref(tcp);
+
+  return result;
+}
+```
+
+Since the `incref` and `decref` for each parameter cancel out, this simplifies
+to:
+
+```c
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_tcp_init(uv_loop_t *loop, moonbit_uv_tcp_t *tcp) {
+  return uv_tcp_init(loop, &tcp->tcp);
+}
+```
+
+#### Example 2: Callback Functions
+
+Consider the theoretical implementation of a callback:
+
+```c
+static inline void
+moonbit_uv_some_cb(uv_handle_t *handle) {
+  callback_t *cb = handle->data;
+
+  // Resource cleanup (ownership removal)
+  moonbit_decref(handle);
+  moonbit_decref(cb);
+
+  // Callee-saved convention for user callback
+  moonbit_incref(cb);
+  moonbit_incref(handle);
+
+  cb->code(cb, handle);
+}
+```
+
+In cases where the resource cleanup `decref` and callee-saved `incref` cancel
+out, this can be simplified to:
+
+```c
+static inline void
+moonbit_uv_some_cb(uv_handle_t *handle) {
+  callback_t *cb = handle->data;
+  handle->data = NULL;
+  cb->code(cb, handle);
+}
+```
+
+### Move Optimization for Callbacks
+
+The move optimization also applies to callback functions. If the callback
+invocation is the **last call** of the callback (i.e., the callback will not be
+used again after this call), then there is no need to `incref` the callback
+object before calling it - the callback can be moved into the user function.
+
+Consider a one-shot callback scenario:
+
+```c
+static inline void
+moonbit_uv_oneshot_cb(uv_handle_t *handle) {
+  callback_t *cb = handle->data;
+  handle->data = NULL;
+
+  // Resource cleanup (ownership removal)
+  moonbit_decref(handle);
+  moonbit_decref(cb);
+
+  // Last call optimization: move cb instead of sharing
+  // No incref needed since this is cb's last usage
+  cb->code(cb, handle);  // cb is moved here
+}
+```
+
+Without the move optimization, we would need:
+
+```c
+static inline void
+moonbit_uv_oneshot_cb(uv_handle_t *handle) {
+  callback_t *cb = handle->data;
+  handle->data = NULL;
+
+  // Resource cleanup (ownership removal)
+  moonbit_decref(handle);
+  moonbit_decref(cb);
+
+  // Callee-saved convention for user callback
+  moonbit_incref(cb);
+  moonbit_incref(handle);
+
+  cb->code(cb, handle);
+}
+```
+
+However, for **multi-shot callbacks** (callbacks that can be invoked multiple
+times), the move optimization cannot be applied since the callback object must
+remain valid for future invocations. In such cases, the callback must be shared
+rather than moved, requiring the `incref` before the call.
+
+This distinction is crucial for understanding the reference counting behavior in
+different callback scenarios and explains why some callback implementations may
+not follow the explicit `incref` pattern before calling user code.
