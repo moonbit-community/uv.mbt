@@ -2268,6 +2268,10 @@ moonbit_uv_process_finalize(void *object) {
     moonbit_decref(process->process.data);
     process->process.data = NULL;
   }
+  if (process->process.loop) {
+    moonbit_decref(process->process.loop);
+    process->process.loop = NULL;
+  }
 }
 
 MOONBIT_FFI_EXPORT
@@ -2313,8 +2317,6 @@ moonbit_uv_exit_cb(
     process->data = NULL;
     moonbit_incref(moonbit_process);
     cb->code(cb, moonbit_process, exit_status, term_signal);
-  } else {
-    moonbit_decref(moonbit_process);
   }
 }
 
@@ -2328,6 +2330,7 @@ moonbit_uv_stdio_container_finalize(void *object) {
     (moonbit_uv_stdio_container_t *)object;
   if (container->container.data.stream) {
     moonbit_decref(container->container.data.stream);
+    container->container.data.stream = NULL;
   }
 }
 
@@ -2590,7 +2593,6 @@ moonbit_uv_spawn(
   // The ownership of `options` is transferred into `loop`.
   // We need to set the `exit_cb` to NULL so it doesn't get decref'd.
   options->options.exit_cb = NULL;
-  moonbit_decref(loop);
   moonbit_decref(options);
   return result;
 }
@@ -2645,40 +2647,62 @@ moonbit_uv_tty_get_winsize(uv_tty_t *handle, int32_t *width, int32_t *height) {
   return status;
 }
 
+typedef struct moonbit_uv_pipe_s {
+  uv_pipe_t pipe;
+} moonbit_uv_pipe_t;
+
+static inline void
+moonbit_uv_pipe_finalize(void *object) {
+  moonbit_uv_pipe_t *pipe = (moonbit_uv_pipe_t *)object;
+  if (pipe->pipe.data) {
+    moonbit_decref(pipe->pipe.data);
+    pipe->pipe.data = NULL;
+  }
+  if (pipe->pipe.loop) {
+    moonbit_decref(pipe->pipe.loop);
+    pipe->pipe.loop = NULL;
+  }
+}
+
 MOONBIT_FFI_EXPORT
-uv_pipe_t *
+moonbit_uv_pipe_t *
 moonbit_uv_pipe_make(void) {
-  uv_pipe_t *pipe = (uv_pipe_t *)moonbit_make_bytes(sizeof(uv_pipe_t), 0);
-  memset(pipe, 0, sizeof(uv_pipe_t));
+  moonbit_uv_pipe_t *pipe = moonbit_make_external_object(
+    moonbit_uv_pipe_finalize, sizeof(moonbit_uv_pipe_t)
+  );
+  memset(pipe, 0, sizeof(moonbit_uv_pipe_t));
   moonbit_uv_tracef("pipe = %p\n", (void *)pipe);
   return pipe;
 }
 
 MOONBIT_FFI_EXPORT
 int32_t
-moonbit_uv_pipe_init(uv_loop_t *loop, uv_pipe_t *handle, int32_t ipc) {
+moonbit_uv_pipe_init(uv_loop_t *loop, moonbit_uv_pipe_t *handle, int32_t ipc) {
   moonbit_uv_tracef("loop = %p\n", (void *)loop);
   moonbit_uv_tracef("loop->rc = %d\n", Moonbit_object_header(loop)->rc);
   moonbit_uv_tracef("pipe = %p\n", (void *)handle);
   moonbit_uv_tracef("pipe->rc = %d\n", Moonbit_object_header(handle)->rc);
-  int32_t status = uv_pipe_init(loop, handle, ipc);
-  moonbit_decref(loop);
-  return status;
+  return uv_pipe_init(loop, &handle->pipe, ipc);
 }
 
 MOONBIT_FFI_EXPORT
 int32_t
-moonbit_uv_pipe_open(uv_pipe_t *handle, int32_t fd) {
-  int result = uv_pipe_open(handle, fd);
+moonbit_uv_pipe_open(moonbit_uv_pipe_t *handle, int32_t fd) {
+  int result = uv_pipe_open(&handle->pipe, fd);
   moonbit_decref(handle);
   return result;
 }
 
 MOONBIT_FFI_EXPORT
 int32_t
-moonbit_uv_pipe_bind(uv_pipe_t *handle, moonbit_bytes_t name, uint32_t flags) {
+moonbit_uv_pipe_bind(
+  moonbit_uv_pipe_t *handle,
+  moonbit_bytes_t name,
+  uint32_t flags
+) {
   size_t name_length = Moonbit_array_length(name);
-  int result = uv_pipe_bind2(handle, (const char *)name, name_length, flags);
+  int result =
+    uv_pipe_bind2(&handle->pipe, (const char *)name, name_length, flags);
   moonbit_decref(handle);
   moonbit_decref(name);
   return result;
