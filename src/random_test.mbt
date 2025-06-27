@@ -18,9 +18,10 @@ test "random" {
   let buffer = Bytes::make(16, 0)
   let mut result = None
   let mut error = None
-  uv.random(buffer[:], 0, fn(_, bytes) { result = Some(bytes) }, fn(_, errno) {
+  uv.random(buffer[:], 0, fn(bytes) { result = Some(bytes) }, fn(errno) {
     error = Some(errno)
   })
+  |> ignore()
   uv.run(Default)
   uv.stop()
   uv.close()

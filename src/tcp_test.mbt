@@ -55,6 +55,7 @@ test "tcp" {
                 () => server_stop_read(None),
                 e => server_stop_read(Some(e)),
               )
+              |> ignore()
             } catch {
               e => server_stop_read(Some(e))
             }
@@ -82,7 +83,7 @@ test "tcp" {
 
   client_socket.connect(
     addr,
-    fn(_) {
+    fn() {
       fn client_stop_read(error : Error?) {
         if error is Some(error) {
           errors.push(error)
@@ -97,6 +98,7 @@ test "tcp" {
         client_socket.write([b"Request"], () => client_close(None), fn(e) {
           client_close(Some(e))
         })
+        |> ignore()
         client_socket.read_start(
           fn(_, _) { Bytes::make(32, 0)[:] },
           fn(_, nread, buf) {
@@ -119,8 +121,9 @@ test "tcp" {
         e => client_close(Some(e))
       }
     },
-    fn(_, e) { client_close(Some(e)) },
+    fn(e) { client_close(Some(e)) },
   )
+  |> ignore()
   uv.run(Default)
   uv.stop()
   uv.close()

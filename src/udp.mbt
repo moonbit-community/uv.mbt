@@ -90,15 +90,15 @@ extern "c" fn uv_udp_send(
 pub fn[Sockaddr : ToSockaddr] Udp::send(
   self : Udp,
   data : Array[@bytes.View],
-  send_cb : (UdpSend) -> Unit,
-  error_cb : (UdpSend, Errno) -> Unit,
+  send_cb : () -> Unit,
+  error_cb : (Errno) -> Unit,
   addr? : Sockaddr
-) -> Unit raise Errno {
-  fn cb(req : UdpSend, status : Int) {
+) -> UdpSend raise Errno {
+  fn cb(_ : UdpSend, status : Int) {
     if status < 0 {
-      error_cb(req, Errno::of_int(status))
+      error_cb(Errno::of_int(status))
     } else {
-      send_cb(req)
+      send_cb()
     }
   }
 
@@ -124,6 +124,7 @@ pub fn[Sockaddr : ToSockaddr] Udp::send(
   if result < 0 {
     raise Errno::of_int(result)
   }
+  return req
 }
 
 ///|

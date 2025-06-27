@@ -19,6 +19,9 @@ type GetAddrInfo
 extern "c" fn uv_getaddrinfo_make() -> GetAddrInfo = "moonbit_uv_getaddrinfo_make"
 
 ///|
+pub impl ToReq for GetAddrInfo with to_req(self : GetAddrInfo) -> Req = "%identity"
+
+///|
 type AddrInfoHints
 
 ///|
@@ -302,17 +305,17 @@ extern "c" fn uv_getaddrinfo(
 ///|
 pub fn[Node : ToNtbs, Service : ToNtbs] Loop::getaddrinfo(
   self : Loop,
-  getaddrinfo_cb : (GetAddrInfo, Iter[AddrInfo]) -> Unit,
-  error_cb : (GetAddrInfo, Errno) -> Unit,
+  getaddrinfo_cb : (Iter[AddrInfo]) -> Unit,
+  error_cb : (Errno) -> Unit,
   node : Node,
   service : Service,
   hints? : AddrInfoHints
-) -> Unit raise Errno {
-  fn uv_cb(req : GetAddrInfo, status : Int, addrinfo : AddrInfoResults) {
+) -> GetAddrInfo raise Errno {
+  fn uv_cb(_ : GetAddrInfo, status : Int, addrinfo : AddrInfoResults) {
     if status < 0 {
-      error_cb(req, Errno::of_int(status))
+      error_cb(Errno::of_int(status))
     } else {
-      getaddrinfo_cb(req, addrinfo.iter())
+      getaddrinfo_cb(addrinfo.iter())
     }
   }
 
@@ -328,4 +331,5 @@ pub fn[Node : ToNtbs, Service : ToNtbs] Loop::getaddrinfo(
   if status < 0 {
     raise Errno::of_int(status)
   }
+  return req
 }
