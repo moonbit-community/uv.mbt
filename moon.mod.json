@@ -6,7 +6,7 @@
     "tonyfettes/encoding": "0.3.3"
   },
   "readme": "README.md",
-  "repository": "https://github.com/tonyfettes/uv.mbt",
+  "repository": "https://github.com/moonbit-community/uv.mbt",
   "license": "Apache-2.0",
   "keywords": [],
   "description": "MoonBit binding to libuv",
