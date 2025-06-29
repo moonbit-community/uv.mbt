@@ -176,7 +176,7 @@ test "scandir" {
     scandir => while true {
       let dirent = scandir.next() catch {
         e => {
-          if not(e is Errno(EOF)) {
+          if not(e is EOF) {
             error = Some(e)
           }
           break
@@ -184,7 +184,7 @@ test "scandir" {
       }
       entries.push(dirent)
     },
-    e => if not(e is Errno(EOF)) { error = Some(e) },
+    e => if not(e is EOF) { error = Some(e) },
   )
   |> ignore()
   uv.run(Default)

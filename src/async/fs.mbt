@@ -138,8 +138,7 @@ pub async fn Path::open(self : Path, loc~ : SourceLoc = _) -> File raise {
         e => reject(e)
       }
     }) catch {
-      @uv.Errno(ENOENT) =>
-        raise ErrorTrace::new(FileSystemError::NotFound(self))
+      @uv.ENOENT => raise ErrorTrace::new(FileSystemError::NotFound(self))
       error => raise error
     }
   })
@@ -180,9 +179,8 @@ pub fn Path::read(self : Path, loc~ : SourceLoc = _) -> Iter[@bytes.View] raise 
           e => reject(e)
         }
       }) catch {
-        @uv.Errno(ENOENT) =>
-          raise ErrorTrace::new(FileSystemError::NotFound(self))
-        @uv.Errno(EISDIR) => raise ErrorTrace::new(IsDirectory(self))
+        @uv.ENOENT => raise ErrorTrace::new(FileSystemError::NotFound(self))
+        @uv.EISDIR => raise ErrorTrace::new(IsDirectory(self))
         error => raise error
       }
     })
@@ -229,9 +227,8 @@ pub async fn Path::write(
         e => reject(e)
       }
     }) catch {
-      @uv.Errno(ENOENT) =>
-        raise ErrorTrace::new(FileSystemError::NotFound(self))
-      @uv.Errno(EISDIR) => raise ErrorTrace::new(IsDirectory(self))
+      @uv.ENOENT => raise ErrorTrace::new(FileSystemError::NotFound(self))
+      @uv.EISDIR => raise ErrorTrace::new(IsDirectory(self))
       error => raise error
     }
   })
@@ -262,7 +259,7 @@ pub async fn Path::iter(self : Path) -> Iter[Path] raise {
                 yield_(self.join(name))
               }
             } catch {
-              @uv.Errno(EOF) => ()
+              @uv.EOF => ()
               e => raise e
             }
           }
@@ -301,7 +298,7 @@ pub async fn Path::walk(self : Path, loc~ : SourceLoc = _) -> Iter[Path] raise {
                     }
                   }
                 } catch {
-                  @uv.Errno(EOF) => resolve(())
+                  @uv.EOF => resolve(())
                   e => reject(e)
                 }
               })
@@ -424,9 +421,8 @@ pub async fn Path::resolve(self : Path, loc~ : SourceLoc = _) -> Path raise {
     async_suspend_with_error(fn(resolve, reject : (Error) -> Unit) {
       let reject = fn(error : Error) -> Unit {
         match error {
-          @uv.Errno(ENOENT) =>
-            reject(ErrorTrace::new(FileSystemError::NotFound(self)))
-          @uv.Errno(ENOTDIR) => reject(ErrorTrace::new(NotDirectory(self)))
+          @uv.ENOENT => reject(ErrorTrace::new(FileSystemError::NotFound(self)))
+          @uv.ENOTDIR => reject(ErrorTrace::new(NotDirectory(self)))
           e => reject(e)
         }
       }
@@ -524,9 +520,8 @@ pub async fn Path::unlink(self : Path, loc~ : SourceLoc = _) -> Unit raise {
         e => reject(e)
       }
     }) catch {
-      @uv.Errno(ENOENT) =>
-        raise ErrorTrace::new(FileSystemError::NotFound(self))
-      @uv.Errno(EISDIR) => raise ErrorTrace::new(IsDirectory(self))
+      @uv.ENOENT => raise ErrorTrace::new(FileSystemError::NotFound(self))
+      @uv.EISDIR => raise ErrorTrace::new(IsDirectory(self))
       error => raise error
     }
   })
@@ -544,9 +539,8 @@ pub async fn Path::rmdir(self : Path, loc~ : SourceLoc = _) -> Unit raise {
         e => reject(e)
       }
     }) catch {
-      @uv.Errno(ENOTEMPTY) => raise ErrorTrace::new(NotEmpty(self))
-      @uv.Errno(ENOENT) =>
-        raise ErrorTrace::new(FileSystemError::NotFound(self))
+      @uv.ENOTEMPTY => raise ErrorTrace::new(NotEmpty(self))
+      @uv.ENOENT => raise ErrorTrace::new(FileSystemError::NotFound(self))
       error => raise error
     }
   })
@@ -570,7 +564,7 @@ pub async fn Path::mkdir(
         e => reject(e)
       }
     }) catch {
-      @uv.Errno(EEXIST) => raise ErrorTrace::new(AlreadyExists(self))
+      @uv.EEXIST => raise ErrorTrace::new(AlreadyExists(self))
       error => raise error
     }
   })
@@ -599,8 +593,7 @@ pub async fn Path::access(
         e => reject(e)
       }
     }) catch {
-      @uv.Errno(ENOENT) =>
-        raise ErrorTrace::new(FileSystemError::NotFound(self))
+      @uv.ENOENT => raise ErrorTrace::new(FileSystemError::NotFound(self))
       error => raise error
     }
   })

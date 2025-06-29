@@ -145,13 +145,7 @@ impl Readable for @uv.Stream with read(self : @uv.Stream) {
         },
         fn(_, e) {
           let _ = try? self.read_stop()
-          self.close(fn() {
-            if e is Errno(EOF) {
-              resolve(())
-            } else {
-              reject(e)
-            }
-          })
+          self.close(() => if e is EOF { resolve(()) } else { reject(e) })
         },
       ) catch {
         e => self.close(() => reject(e))
