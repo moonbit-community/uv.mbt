@@ -42,33 +42,51 @@ impl Show for FileSystemError with output(
 }
 
 ///|
-priv suberror ErrorTrace {
-  ErrorTrace(Error, trace~ : Array[SourceLoc])
+priv type StackTrace @deque.T[SourceLoc]
+
+///|
+priv struct Context {
+  stack_trace : StackTrace
+  error_trace : StackTrace
 }
 
 ///|
-fn ErrorTrace::new(error : Error, loc~ : SourceLoc = _) -> ErrorTrace {
-  let trace = [loc]
-  ErrorTrace(error, trace~)
+async fn[T, E : Error] Context::backtrace(
+  self : Context,
+  loc~ : SourceLoc,
+  f : async () -> T raise E
+) -> T raise E {
+  self.stack_trace.inner().push_back(loc)
+  try {
+    let value = f()
+    self.stack_trace.inner().pop_back() |> ignore()
+    value
+  } catch {
+    error => {
+      self.stack_trace.inner().pop_back() |> ignore()
+      self.error_trace.inner().push_back(loc)
+      raise error
+    }
+  }
 }
+
+///|
+let context : Ref[Context] = Ref::new({
+  stack_trace: @deque.new(),
+  error_trace: @deque.new(),
+})
 
 ///|
 pub async fn[T] backtrace(
   loc~ : SourceLoc = _,
   f : async () -> T raise Error
 ) -> T raise Error {
-  f() catch {
-    ErrorTrace(_, trace~) as error_trace => {
-      trace.push(loc)
-      raise error_trace
-    }
-    error => raise ErrorTrace::new(error, loc~)
-  }
+  context.val.backtrace(loc~, f)
 }
 
 ///|
-impl Show for ErrorTrace with output(self : ErrorTrace, logger : &Logger) -> Unit {
-  let ErrorTrace(error, trace~) = self
+impl Show for StackTrace with output(self : StackTrace, logger : &Logger) -> Unit {
+  let trace = self.inner()
   logger.write_string("Trace:\n")
   let uv = try? uv()
   let cwd = try? @uv.cwd()
@@ -77,7 +95,6 @@ impl Show for ErrorTrace with output(self : ErrorTrace, logger : &Logger) -> Uni
       let loc = trace[i].to_string()
       logger.write_string("  \{loc}\n")
     }
-    logger.write_string(error.to_string())
   }
   fn write_file_content(file : Path, start_row : @string.View) raise {
     let start_row = @strconv.parse_int(start_row.to_string())
@@ -134,11 +151,11 @@ impl Show for ErrorTrace with output(self : ErrorTrace, logger : &Logger) -> Uni
       }
     }
   }
-  logger.write_string(error.to_string())
 }
 
 ///|
-impl ToJson for ErrorTrace with to_json(self : ErrorTrace) -> Json {
-  let ErrorTrace(error, trace~) = self
-  { "error": error, "trace": trace.map(fn(loc) { loc.to_string() }) }
+pub fn backtrace_to_string() -> String {
+  let logger = StringBuilder::new()
+  context.val.error_trace.output(logger)
+  logger.to_string()
 }

@@ -174,7 +174,10 @@ test "trace" {
       @async.Path::new(["test", "fixtures"]).mkdir()
       fail("Should not be able to create a directory that already exists")
     } catch {
-      error => println(error)
+      error => {
+        println(backtrace_to_string())
+        println(error)
+      }
     }
   })
 }
