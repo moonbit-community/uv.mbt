@@ -20,7 +20,7 @@ test "spawn: capture stdout and stderr" {
     @json.inspect(process.status(), content=0)
     inspect(
       stdout.read_text(encoding=UTF8),
-      content=
+      content=(
         #|The build system and package manager for MoonBit.
         #|
         #|Usage: moon [OPTIONS] <COMMAND>
@@ -64,7 +64,7 @@ test "spawn: capture stdout and stderr" {
         #|      --dry-run                  Do not actually run the command
         #|      --build-graph              Generate build graph
         #|
-      ,
+      ),
     )
   })
 }
