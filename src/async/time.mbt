@@ -16,7 +16,7 @@
 pub async fn delay(ms : Int) -> Unit raise {
   let uv = uv()
   let timer = @uv.Timer::new(uv)
-  async_suspend_with_error((accept, reject) => timer.start(
+  suspend_with_error((accept, reject) => timer.start(
     timeout=ms.to_uint64(),
     repeat=0,
     fn(_) {

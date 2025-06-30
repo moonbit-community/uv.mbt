@@ -19,7 +19,7 @@ type File @uv.File
 pub async fn File::close(self : File, loc~ : SourceLoc = _) -> Unit raise {
   let uv = uv()
   backtrace(loc~, fn() {
-    async_suspend_with_error(fn(resolve, reject : (Error) -> Unit) {
+    suspend_with_error(fn(resolve, reject : (Error) -> Unit) {
       try
         uv.fs_close(self.inner(), fn() { resolve(()) }, fn(e) { reject(e) })
         |> ignore()
@@ -80,7 +80,7 @@ pub impl Readable for File with read(self : File) {
 
   fn(yield_) {
     let uv = uv()
-    async_suspend_with_error(fn(resolve, reject) {
+    suspend_with_error(fn(resolve, reject) {
       read(uv, self.inner(), yield_, resolve, reject)
     })
   }
@@ -104,7 +104,7 @@ pub impl Writable for File with write(self : File, bytes : Iter[@bytes.View]) {
         file,
         [bytes[:]],
         fn(count) { write(uv, file, bytes[count:], resolve, reject) },
-        fn(e) { reject(e) },
+        reject(_),
       )
       |> ignore()
     catch {
@@ -114,7 +114,7 @@ pub impl Writable for File with write(self : File, bytes : Iter[@bytes.View]) {
 
   let uv = uv()
   bytes.each(fn(bytes) {
-    async_suspend_with_error(fn(resolve, reject) {
+    suspend_with_error(fn(resolve, reject) {
       write(uv, self.inner(), bytes, resolve, reject)
     })
   })
@@ -124,7 +124,7 @@ pub impl Writable for File with write(self : File, bytes : Iter[@bytes.View]) {
 pub async fn Path::open(self : Path, loc~ : SourceLoc = _) -> File raise {
   let uv = uv()
   backtrace(loc~, fn() {
-    async_suspend_with_error(fn(resolve, reject) {
+    suspend_with_error(fn(resolve, reject) {
       try
         uv.fs_open(
           self.to_string(),
@@ -150,7 +150,10 @@ pub fn Path::read(self : Path, loc~ : SourceLoc = _) -> Iter[@bytes.View] raise 
   fn(yield_) {
     backtrace(loc~, fn() {
       let mut user_error : Error? = None
-      async_suspend_with_error(fn(resolve, reject) {
+      suspend_with_error(fn(
+        resolve : (Unit) -> Unit,
+        reject : (@uv.Errno) -> Unit
+      ) {
         try
           uv.fs_open(
             self.to_string(),
@@ -205,7 +208,7 @@ pub async fn Path::write(
   backtrace(loc~, fn() {
     let uv = uv()
     let mut user_error : Error? = None
-    async_suspend_with_error(fn(resolve, reject) {
+    suspend_with_error(fn(resolve, reject : (@uv.Errno) -> Unit) {
       try
         uv.fs_open(
           self.to_string(),
@@ -253,7 +256,7 @@ pub impl Writable for Path with write(self : Path, bytes : Iter[@bytes.View]) ->
 ///|
 pub async fn Path::iter(self : Path) -> Iter[Path] raise {
   let uv = uv()
-  async_suspend_with_error(fn(
+  suspend_with_error(fn(
     resolve : (Iter[Path]) -> Unit,
     reject : (Error) -> Unit
   ) {
@@ -290,7 +293,7 @@ pub async fn Path::walk(self : Path, loc~ : SourceLoc = _) -> Iter[Path] raise {
   let uv = uv()
   fn(yield_) {
     backtrace(loc~, fn() {
-      async_suspend_with_error(fn(resolve, reject) {
+      suspend_with_error(fn(resolve, reject) {
         try
           uv.fs_scandir(
             self.to_string(),
@@ -346,17 +349,21 @@ pub fn Stat::last_changed(self : Stat) -> Int64 {
 ///|
 pub async fn Path::stat(self : Path, loc~ : SourceLoc = _) -> Stat raise {
   backtrace(loc~, fn() {
-    let uv = uv()
-    async_suspend_with_error(fn(resolve, reject) {
-      try
-        uv.fs_stat(self.to_string(), fn(stat) { resolve(Stat(stat)) }, fn(e) {
-          reject(e)
-        })
-        |> ignore()
-      catch {
-        e => reject(e)
-      }
-    })
+    try {
+      let uv = uv()
+      suspend_with_error(fn(resolve, reject) {
+        try
+          uv.fs_stat(self.to_string(), fn(stat) { resolve(Stat(stat)) }, fn(e) {
+            reject(e)
+          })
+          |> ignore()
+        catch {
+          e => reject(e)
+        }
+      })
+    } catch {
+      error => raise FileSystemError::Unknown(error)
+    }
   })
 }
 
@@ -425,7 +432,7 @@ pub async fn Path::resolve(self : Path, loc~ : SourceLoc = _) -> Path raise {
       }
     }
     let resolved_path = Path::{ ..self, parts: resolved_parts }
-    async_suspend_with_error(fn(resolve, reject : (Error) -> Unit) {
+    suspend_with_error(fn(resolve, reject : (Error) -> Unit) {
       let reject = fn(error : Error) -> Unit {
         match error {
           @uv.ENOENT => reject(FileSystemError::NotFound(self))
@@ -473,7 +480,7 @@ pub async fn[Target : ToPath] Path::copy_to(
         entry.copy_to(target_entry, recursive~, overwrite~)
       })
     } else {
-      async_suspend_with_error(fn(resolve, reject : (Error) -> Unit) {
+      suspend_with_error(fn(resolve, reject : (Error) -> Unit) {
         try
           uv.fs_copyfile(
             self.to_string(),
@@ -499,7 +506,7 @@ pub async fn[Target : ToPath] Path::move_to(
 ) -> Unit raise {
   let uv = uv()
   backtrace(loc~, fn() {
-    async_suspend_with_error(fn(resolve, reject : (Error) -> Unit) {
+    suspend_with_error(fn(resolve, reject : (Error) -> Unit) {
       try
         uv.fs_rename(
           self.to_string(),
@@ -519,7 +526,7 @@ pub async fn[Target : ToPath] Path::move_to(
 pub async fn Path::unlink(self : Path, loc~ : SourceLoc = _) -> Unit raise {
   let uv = uv()
   backtrace(loc~, fn() {
-    async_suspend_with_error(fn(resolve, reject : (@uv.Errno) -> Unit) {
+    suspend_with_error(fn(resolve, reject : (@uv.Errno) -> Unit) {
       try
         uv.fs_unlink(self.to_string(), () => resolve(()), e => reject(e))
         |> ignore()
@@ -538,7 +545,7 @@ pub async fn Path::unlink(self : Path, loc~ : SourceLoc = _) -> Unit raise {
 pub async fn Path::rmdir(self : Path, loc~ : SourceLoc = _) -> Unit raise {
   let uv = uv()
   backtrace(loc~, fn() {
-    async_suspend_with_error(fn(resolve, reject) {
+    suspend_with_error(fn(resolve, reject : (@uv.Errno) -> Unit) {
       try
         uv.fs_rmdir(self.to_string(), fn() { resolve(()) }, fn(e) { reject(e) })
         |> ignore()
@@ -561,7 +568,7 @@ pub async fn Path::mkdir(
 ) -> Unit raise {
   let uv = uv()
   backtrace(loc~, fn() {
-    async_suspend_with_error(fn(resolve, reject) {
+    suspend_with_error(fn(resolve, reject : (@uv.Errno) -> Unit) {
       try
         uv.fs_mkdir(self.to_string(), mode, fn() { resolve(()) }, fn(e) {
           reject(e)
@@ -587,7 +594,7 @@ pub async fn Path::access(
 ) -> Unit raise {
   let uv = uv()
   backtrace(loc~, fn() {
-    async_suspend_with_error(fn(resolve, reject) {
+    suspend_with_error(fn(resolve, reject : (@uv.Errno) -> Unit) {
       try
         uv.fs_access(
           self.to_string(),
@@ -632,10 +639,8 @@ pub async fn Path::remove(
         if not(recursive) {
           raise NotEmpty(self)
         }
-        Scope::new(fn(scope) {
-          for entry in entries {
-            scope.launch(fn() { entry.remove(recursive~) })
-          }
+        scope(() => for entry in entries {
+          launch(() => entry.remove(recursive~))
         })
       }
       self.rmdir()
@@ -651,7 +656,7 @@ pub async fn[R] with_temporary_directory(
   loc~ : SourceLoc = _
 ) -> R raise {
   let uv = uv()
-  let path = backtrace(loc~, () => async_suspend_with_error((resolve, reject) => try {
+  let path = backtrace(loc~, () => suspend_with_error((resolve, reject) => try {
     let tmpdir = Path::new(@uv.os_tmpdir())
     uv.fs_mkdtemp(tmpdir.join("moonbit-XXXXXXXX").to_string(), resolve, reject)
     |> ignore()

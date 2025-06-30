@@ -137,7 +137,7 @@ impl Writable with write_text(
 ///|
 impl Readable for @uv.Stream with read(self : @uv.Stream) {
   fn(yield_) {
-    async_suspend_with_error(fn(resolve, reject) {
+    suspend_with_error(fn(resolve, reject) {
       self.read_start(
         fn(_, _) { Bytes::make(256, 0)[:] },
         fn(_, count, bytes) {
@@ -160,7 +160,7 @@ impl Writable for @uv.Stream with write(
   bytes : Iter[@bytes.View]
 ) -> Unit raise Error {
   bytes.each(fn(bytes) {
-    async_suspend_with_error(fn(resolve, reject) {
+    suspend_with_error(fn(resolve, reject) {
       try
         self.write([bytes], fn() { resolve(()) }, fn(e) { reject(e) })
         |> ignore()
