@@ -19,6 +19,8 @@ from typing import Literal, Optional
 from pathlib import Path, PurePosixPath
 import re
 import json
+import subprocess
+
 
 System = Literal["macos", "linux", "win32"]
 
@@ -259,6 +261,9 @@ def update_moon_pkg_json(project: Project, path: Path):
 
 
 def main():
+    subprocess.run(
+        ["git", "submodule", "update", "--init", "--recursive"],
+    )
     source = Path("src") / "uv"
     target = Path("src")
     target.mkdir(parents=True, exist_ok=True)
