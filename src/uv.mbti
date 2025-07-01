@@ -96,6 +96,10 @@ fn AddrInfoFlags::new(passive~ : Bool = .., canonname~ : Bool = .., numeric_host
 type AddrInfoHints
 fn AddrInfoHints::new(flags? : AddrInfoFlags, family? : AddressFamily, socktype? : SockType, protocol? : Protocol) -> Self
 
+type Async
+fn Async::new(Loop, (Async) -> Unit) -> Self raise Errno
+fn Async::send(Self) -> Unit raise Errno
+impl ToHandle for Async
 pub enum AddressFamily {
   Inet
   Inet6

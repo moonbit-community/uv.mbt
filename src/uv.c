@@ -242,6 +242,90 @@ moonbit_uv_idle_stop(moonbit_uv_idle_t *idle) {
   return status;
 }
 
+typedef struct moonbit_uv_async_s {
+  uv_async_t async;
+} moonbit_uv_async_t;
+
+typedef struct moonbit_uv_async_cb {
+  int32_t (*code)(
+    struct moonbit_uv_async_cb *,
+    moonbit_uv_async_t *async_handle
+  );
+} moonbit_uv_async_cb_t;
+
+static inline void
+moonbit_uv_async_finalize(void *object) {
+  moonbit_uv_async_t *async_handle = (moonbit_uv_async_t *)object;
+  moonbit_uv_tracef("async_handle = %p\n", (void *)async_handle);
+  moonbit_decref(async_handle->async.loop);
+  if (async_handle->async.data) {
+    moonbit_decref(async_handle->async.data);
+  }
+}
+
+static inline void
+moonbit_uv_async_set_data(moonbit_uv_async_t *async_handle, void *data) {
+  if (async_handle->async.data) {
+    moonbit_decref(async_handle->async.data);
+  }
+  async_handle->async.data = data;
+}
+
+MOONBIT_FFI_EXPORT
+moonbit_uv_async_t *
+moonbit_uv_async_make(void) {
+  moonbit_uv_async_t *async_handle = moonbit_make_external_object(
+    moonbit_uv_async_finalize, sizeof(moonbit_uv_async_t)
+  );
+  memset(async_handle, 0, sizeof(moonbit_uv_async_t));
+  moonbit_uv_tracef("async_handle = %p\n", (void *)async_handle);
+  return async_handle;
+}
+
+static inline void
+moonbit_uv_async_cb(uv_async_t *async) {
+  moonbit_uv_async_t *moonbit_async =
+    containerof(async, moonbit_uv_async_t, async);
+  moonbit_uv_tracef("moonbit_async = %p\n", (void *)moonbit_async);
+  moonbit_uv_tracef(
+    "moonbit_async->rc = %d\n", Moonbit_object_header(moonbit_async)->rc
+  );
+  moonbit_uv_async_cb_t *cb = moonbit_async->async.data;
+  moonbit_uv_tracef("cb = %p\n", (void *)cb);
+  if (cb) {
+    moonbit_uv_tracef("cb->rc = %d\n", Moonbit_object_header(cb)->rc);
+    moonbit_incref(cb);
+    moonbit_incref(moonbit_async);
+    cb->code(cb, moonbit_async);
+  }
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_async_init(
+  uv_loop_t *loop,
+  moonbit_uv_async_t *async_handle,
+  moonbit_uv_async_cb_t *cb
+) {
+  moonbit_uv_tracef("loop = %p\n", (void *)loop);
+  moonbit_uv_tracef("async_handle = %p\n", (void *)async_handle);
+  moonbit_uv_tracef("cb = %p\n", (void *)cb);
+  moonbit_uv_async_set_data(async_handle, cb);
+  return uv_async_init(loop, &async_handle->async, moonbit_uv_async_cb);
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_async_send(moonbit_uv_async_t *async_handle) {
+  moonbit_uv_tracef("async_handle = %p\n", (void *)async_handle);
+  moonbit_uv_tracef(
+    "async_handle->rc = %d\n", Moonbit_object_header(async_handle)->rc
+  );
+  int status = uv_async_send(&async_handle->async);
+  moonbit_decref(async_handle);
+  return status;
+}
+
 typedef struct moonbit_uv_fs_s {
   uv_fs_t fs;
   moonbit_bytes_t *bufs_base;
