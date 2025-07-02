@@ -47,7 +47,7 @@ pub fn[T] start(f : async () -> T raise) -> T raise {
     } catch {
       e => error = Some(e)
     }
-    uv.walk(fn(handle) { handle.close(fn(_) {  }) })
+    uv.walk(_.close(() => ()))
   })
   uv.run(Default)
   uv_ref.val = None

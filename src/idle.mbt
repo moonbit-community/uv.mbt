@@ -29,7 +29,7 @@
 ///   idle.stop() catch {
 ///     error => println("Error stopping idle watcher: \{error}")
 ///   }
-///   idle.close(_ => ())
+///   idle.close(() => ())
 /// })
 /// uv.run(Default)
 /// uv.close()

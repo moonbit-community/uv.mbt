@@ -43,12 +43,12 @@ test "spawn" {
         pipe.read_stop() catch {
           e => if error is None { error = Some(e) }
         }
-        pipe.close(fn(_) {  })
+        pipe.close(() => ())
       },
     ) catch {
       e => {
         error = Some(e)
-        pipe.close(fn(_) {  })
+        pipe.close(() => ())
       }
     }
   }
@@ -69,7 +69,7 @@ test "spawn" {
       } catch {
         e => error = Some(e)
       }
-      child.close(fn(_) {  })
+      child.close(() => ())
     },
   )
   let _ = uv.spawn(options)

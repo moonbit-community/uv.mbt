@@ -23,7 +23,7 @@ test {
       counter += 1
       if counter >= 2 {
         handle.stop()
-        handle.close(fn(_) {  })
+        handle.close(() => ())
       }
     } catch {
       e => error = Some(e)

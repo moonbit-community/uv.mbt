@@ -26,22 +26,22 @@ test "udp" {
       assert_eq(data[:nread], b"Hello World!") catch {
         e => {
           error = Some(e)
-          in_socket.close(fn(_) {  })
+          in_socket.close(() => ())
         }
       }
-      in_socket.close(fn(_) {  })
+      in_socket.close(() => ())
     },
     fn(_, errno) {
       error = Some(errno)
-      in_socket.close(fn(_) {  })
+      in_socket.close(() => ())
     },
   )
   out_socket.send(
     [b"Hello World!"],
-    fn() { out_socket.close(fn(_) {  }) },
+    fn() { out_socket.close(() => ()) },
     fn(e) {
       error = Some(e)
-      out_socket.close(ignore)
+      out_socket.close(() => ())
     },
     addr~,
   )

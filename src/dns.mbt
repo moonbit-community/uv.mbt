@@ -320,13 +320,17 @@ pub fn[Node : ToNtbs, Service : ToNtbs] Loop::getaddrinfo(
   }
 
   let req = uv_getaddrinfo_make()
+  let hints = match hints {
+    Some(hints) => hints
+    None => AddrInfoHints::nil()
+  }
   let status = uv_getaddrinfo(
     self,
     req,
     uv_cb,
     node.to_ntbs(),
     service.to_ntbs(),
-    hints.or_else(AddrInfoHints::nil),
+    hints,
   )
   if status < 0 {
     raise Errno::of_int(status)

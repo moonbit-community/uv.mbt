@@ -21,9 +21,9 @@ pub async fn delay(ms : Int) -> Unit raise {
     repeat=0,
     fn(_) {
       timer.stop() catch {
-        error => timer.close(_ => reject(error))
+        error => timer.close(() => reject(error))
       }
-      timer.close(_ => accept(()))
+      timer.close(() => accept(()))
     },
   ) catch {
     error => reject(error)
