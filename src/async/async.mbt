@@ -75,6 +75,9 @@ fn uv() -> @uv.Loop raise @uv.Errno {
 }
 
 ///|
+pub suberror Dead
+
+///|
 pub fn[T] start(f : async () -> T raise) -> T raise {
   let uv = uv()
   let mut value = None
@@ -93,7 +96,7 @@ pub fn[T] start(f : async () -> T raise) -> T raise {
   if error is Some(error) {
     raise error
   }
-  guard value is Some(value)
+  guard value is Some(value) else { raise Dead }
   value
 }
 
@@ -102,9 +105,9 @@ let id_gen : Ref[Int] = Ref::new(0)
 
 ///|
 pub struct Scope {
-  id : Int
+  id : Id
   parent : Scope?
-  scopes : Set[Scope]
+  scopes : Map[Id, () -> Unit]
   mut launched : Int
   mut canceled : Bool
   mut accept : (Unit) -> Unit
@@ -122,16 +125,6 @@ fn Scope::ignore_accept(_ : Unit) -> Unit {
 fn Scope::ignore_reject(_ : Error) -> Unit {
   // This is a no-op function use to untie the reference cycle
   // between the scope and its accept/reject callbacks.
-}
-
-///|
-impl Hash for Scope with hash_combine(self : Scope, hasher : Hasher) -> Unit {
-  hasher.combine(self.id)
-}
-
-///|
-impl Eq for Scope with op_equal(self : Scope, other : Scope) -> Bool {
-  self.id == other.id
 }
 
 ///|
@@ -154,11 +147,21 @@ fn MultiError::flatten(errors : Array[Error]) -> Array[Error] {
 }
 
 ///|
+type Id Int derive(Show, Hash, Eq)
+
+///|
+pub fn Id::new() -> Id {
+  let id = id_gen.val
+  id_gen.val += 1
+  id
+}
+
+///|
 fn Scope::accept(self : Scope) -> Unit {
   self.launched -= 1
   if self.launched == 0 {
     if self.parent is Some(parent) {
-      parent.scopes.remove(self)
+      parent.scopes.remove(self.id)
     }
     let accept = self.accept
     let reject = self.reject
@@ -199,8 +202,8 @@ fn Scope::cancel(self : Scope) -> Unit {
     return
   }
   self.canceled = true
-  for child in self.scopes {
-    child.cancel()
+  for _, child in self.scopes {
+    child()
   }
 }
 
@@ -231,7 +234,7 @@ pub async fn[T] scope(f : async () -> T raise) -> T raise {
     scope.launch(() => value = Some(f()))
     active_scope.val = parent
   })
-  guard value is Some(value)
+  guard value is Some(value) else { raise Dead }
   value
 }
 
@@ -241,12 +244,11 @@ fn Scope::new(
   accept : (Unit) -> Unit,
   reject : (Error) -> Unit
 ) -> Scope {
-  let id = id_gen.val
-  id_gen.val += 1
+  let id = Id::new()
   let scope = Scope::{
     id,
     parent,
-    scopes: Set::new(),
+    scopes: Map::new(),
     launched: 0,
     canceled: false,
     accept,
@@ -254,7 +256,7 @@ fn Scope::new(
     errors: [],
   }
   if parent is Some(parent) {
-    parent.scopes.add(scope)
+    parent.scopes[id] = () => scope.cancel()
   }
   scope
 }
