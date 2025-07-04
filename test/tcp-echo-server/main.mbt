@@ -48,7 +48,7 @@ fn echo_read_error(client : @uv.Tcp, errno : @uv.Errno) -> Unit {
   if not(errno is Errno(EOF)) {
     println("Read error: \{errno}")
   }
-  client.close(_ => ())
+  client.close(() => ())
 }
 
 ///|
@@ -66,7 +66,7 @@ fn on_new_connection(server : @uv.Tcp) -> Unit {
     } catch {
       error => {
         println("Error accepting new connection: \{error}")
-        client.close(_ => ())
+        client.close(() => ())
       }
     }
   } catch {
