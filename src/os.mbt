@@ -260,15 +260,18 @@ extern "c" fn uv_free_cpu_info(cpu_infos : @c.Pointer[CpuInfo], count : Int) = "
 /// println(cpu_infos)
 /// ```
 pub fn cpu_info() -> Array[CpuInfo] raise Errno {
-  let cpu_infos : FixedArray[@c.Pointer[CpuInfo]] = [@c.null()]
+  let uv_cpu_infos : FixedArray[@c.Pointer[CpuInfo]] = [@c.null()]
   let count : FixedArray[Int] = [0]
-  let status = uv_cpu_info(cpu_infos, count)
+  let status = uv_cpu_info(uv_cpu_infos, count)
   if status < 0 {
     raise Errno::of_int(status)
   }
-  let cpu_infos = cpu_infos[0]
+  let uv_cpu_infos = uv_cpu_infos[0]
   let count = count[0]
-  let result = Array::makei(count, cpu_infos[_])
-  uv_free_cpu_info(cpu_infos, count)
-  result
+  let cpu_infos = []
+  for i in 0..<count {
+    cpu_infos.push(uv_cpu_infos[i])
+  }
+  uv_free_cpu_info(uv_cpu_infos, count)
+  cpu_infos
 }
