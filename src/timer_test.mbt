@@ -23,7 +23,7 @@ test "timer" {
     if count > 10 {
       try {
         timer.stop()
-        timer.close(fn(_) {  })
+        timer.close(() => ())
       } catch {
         errno => error = Some(errno)
       }

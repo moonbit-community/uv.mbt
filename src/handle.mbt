@@ -16,16 +16,16 @@
 type Handle
 
 ///|
-extern "c" fn uv_close(handle : Handle, cb : (Handle) -> Unit) = "moonbit_uv_close"
+extern "c" fn uv_close(handle : Handle, cb : () -> Unit) = "moonbit_uv_close"
 
 ///|
-pub fn Handle::close(self : Handle, cb : (Handle) -> Unit) -> Unit {
+pub fn Handle::close(self : Handle, cb : () -> Unit) -> Unit {
   uv_close(self, cb)
 }
 
 ///|
 #deprecated("Use Handle::close() instead")
-pub fn[Handle : ToHandle] close(handle : Handle, cb : (Handle) -> Unit) -> Unit {
+pub fn[Handle : ToHandle] close(handle : Handle, cb : () -> Unit) -> Unit {
   handle.close(cb)
 }
 
@@ -47,18 +47,14 @@ pub fn[Handle : ToHandle] is_closing(handle : Handle) -> Bool {
 pub trait ToHandle {
   to_handle(Self) -> Handle
   of_handle(Handle) -> Self
-  close(Self, (Self) -> Unit) -> Unit = _
+  close(Self, () -> Unit) -> Unit = _
   is_closing(Self) -> Bool = _
   loop_(Self) -> Loop = _
 }
 
 ///|
 impl ToHandle with close(self, cb) {
-  fn uv_cb(handle : Handle) {
-    cb(ToHandle::of_handle(handle))
-  }
-
-  self.to_handle().close(uv_cb)
+  self.to_handle().close(cb)
 }
 
 ///|

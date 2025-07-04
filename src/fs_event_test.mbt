@@ -27,7 +27,7 @@ test "fs_event" {
       fs_event.stop() catch {
         e => errors.push(e)
       }
-      fs_event.close(_ => ())
+      fs_event.close(() => ())
     },
   )
   uv.fs_open(
@@ -50,11 +50,11 @@ test "fs_event" {
                     timer.stop() catch {
                       e => errors.push(e)
                     }
-                    timer.close(_ => {
+                    timer.close(() => {
                       fs_event.stop() catch {
                         e => errors.push(e)
                       }
-                      fs_event.close(_ => ())
+                      fs_event.close(() => ())
                     })
                   })
                 } catch {

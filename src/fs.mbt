@@ -2162,7 +2162,10 @@ pub fn Loop::fs_readdir(
       uv_dirent_delete(uv_dirents)
       error_cb(Errno::of_int(status))
     } else {
-      let dirents = Array::makei(status, uv_dirents[_])
+      let dirents = []
+      for i in 0..<status {
+        dirents.push(uv_dirents[i])
+      }
       uv_fs_req_cleanup(req)
       uv_dir_set(dir, @c.null(), 0)
       uv_dirent_delete(uv_dirents)

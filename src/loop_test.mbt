@@ -26,7 +26,7 @@ test "walk" {
   let mut count = 0
   uv.walk(fn(handle) {
     count += 1
-    handle.close(_ => ())
+    handle.close(() => ())
   })
   @json.inspect(count, content=1)
   uv.run(Default)

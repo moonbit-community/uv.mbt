@@ -212,7 +212,7 @@ pub impl Executable for String with spawn(
     process.status = Some(exit_status.to_int())
     process.signal = Some(term_signal)
     if process.process is Some(child) {
-      child.close(_ => while process.resolve.pop() is Some(resolve) {
+      child.close(() => while process.resolve.pop() is Some(resolve) {
         resolve(())
       })
     }

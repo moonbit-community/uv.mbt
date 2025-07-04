@@ -23,7 +23,7 @@ pub fn Pipe::new(ipc~ : Bool = false) -> Pipe raise {
 
 ///|
 pub async fn Pipe::close(self : Pipe) -> Unit {
-  async_suspend(fn(resolve) { self.inner().close(fn(_) { resolve(()) }) })
+  async_suspend(resolve => self.inner().close(() => resolve(())))
 }
 
 ///|

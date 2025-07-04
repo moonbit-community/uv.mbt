@@ -1378,7 +1378,7 @@ moonbit_uv_listen(
 }
 
 typedef struct moonbit_uv_close_cb {
-  int32_t (*code)(struct moonbit_uv_close_cb *, uv_handle_t *handle);
+  int32_t (*code)(struct moonbit_uv_close_cb *);
 } moonbit_uv_close_cb_t;
 
 static inline void
@@ -1394,8 +1394,7 @@ moonbit_uv_close_cb(uv_handle_t *handle) {
   moonbit_uv_tracef("cb->rc = %d\n", Moonbit_object_header(cb)->rc);
   handle->data = NULL;
   moonbit_decref(handle);
-  // The callback will be called only once, so there is no need to incref here.
-  cb->code(cb, handle);
+  cb->code(cb);
 }
 
 static inline void
@@ -1419,6 +1418,7 @@ moonbit_uv_close(uv_handle_t *handle, moonbit_uv_close_cb_t *close_cb) {
     "uv_has_ref(handle) = %s\n", uv_has_ref(handle) ? "true" : "false"
   );
   uv_close(handle, moonbit_uv_close_cb);
+  moonbit_decref(handle);
 }
 
 MOONBIT_FFI_EXPORT
