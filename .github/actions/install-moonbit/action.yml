@@ -22,16 +22,31 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Install MoonBit (Unix)
-      if: runner.os != 'Windows'
+    - name: Install MoonBit (Linux)
+      if: runner.os == 'Linux'
       shell: bash
+      env:
+        CHANNEL: ${{ inputs.channel }}
       run: |
-        if [ "${{ inputs.channel }}" = "stable" ]; then
+        if [ "$CHANNEL" = "stable" ]; then
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s
         else
-          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s '${{ inputs.channel }}'
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s "$CHANNEL"
         fi
-        echo "$HOME/.moon/bin" >> $GITHUB_PATH
+        echo "/home/runner/.moon/bin" >> $GITHUB_PATH
+
+    - name: Install MoonBit (macOS)
+      if: runner.os == 'macOS'
+      shell: bash
+      env:
+        CHANNEL: ${{ inputs.channel }}
+      run: |
+        if [ "$CHANNEL" = "stable" ]; then
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s
+        else
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s "$CHANNEL"
+        fi
+        echo "/Users/runner/.moon/bin" >> $GITHUB_PATH
 
     - name: Install MoonBit (Windows)
       if: runner.os == 'Windows'
@@ -41,3 +56,29 @@ runs:
       run: |
         Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
         "C:\Users\runneradmin\.moon\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+
+    - name: Bundle LLVM (Linux)
+      if: runner.os == 'Linux' && inputs.channel == 'bleeding'
+      shell: bash
+      working-directory: "/home/runner/.moon/lib/core"
+      run: |
+        moon bundle --target llvm
+
+    - name: Bundle LLVM (Windows)
+      if: runner.os == 'Windows' && inputs.channel == 'bleeding'
+      shell: powershell
+      working-directory: "C:\\Users\\runneradmin\\.moon\\lib\\core"
+      run: |
+        moon bundle --target llvm
+
+    - name: Bundle LLVM (macOS)
+      if: runner.os == 'macOS' && inputs.channel == 'bleeding'
+      shell: bash
+      working-directory: "/Users/runner/.moon/lib/core"
+      run: |
+        moon bundle --target llvm
+
+    - name: Update mooncakes.io index (Unix)
+      shell: bash
+      run: |
+        moon update

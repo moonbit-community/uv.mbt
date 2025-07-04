@@ -21,11 +21,10 @@ on:
     branches: ["main"]
 
 jobs:
-  test:
+  stable-native:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        channel: [pre-release, bleeding]
     runs-on: ${{ matrix.os }}
     continue-on-error: true
     steps:
@@ -36,14 +35,11 @@ jobs:
       - name: Install MoonBit
         uses: ./.github/actions/install-moonbit
         with:
-          channel: ${{ matrix.channel }}
+          channel: stable
 
       - name: Inspect MoonBit version
         run: |
           moon version --all
-
-      - name: Update mooncakes.io index
-        run: moon update
 
       - name: Setup MSVC
         if: ${{ matrix.os == 'windows-latest' }}
@@ -51,4 +47,32 @@ jobs:
 
       - name: Run tests
         run: |
-          python3 scripts/test.py
+          python3 scripts/test.py --target=native
+
+  bleeding-llvm:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install MoonBit
+        uses: ./.github/actions/install-moonbit
+        with:
+          channel: bleeding
+
+      - name: Inspect MoonBit version
+        run: |
+          moon version --all
+
+      - name: Setup MSVC
+        if: ${{ matrix.os == 'windows-latest' }}
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Run tests
+        run: |
+          python3 scripts/test.py --target=llvm
