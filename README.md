@@ -34,7 +34,7 @@ This is a MoonBit binding to the [libuv](https://libuv.org) library.
            println(
              "Process exited with status \{exit_status} and signal \{term_signal}",
            )
-           process.close(fn(_) {  })
+           process.close(() => ())
          },
        )
        let process = uv.spawn(options)
