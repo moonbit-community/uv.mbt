@@ -3,7 +3,7 @@
   "version": "0.10.1",
   "deps": {
     "tonyfettes/c": "0.2.0",
-    "tonyfettes/encoding": "0.3.3"
+    "tonyfettes/encoding": "0.3.4"
   },
   "readme": "README.md",
   "repository": "https://github.com/moonbit-community/uv.mbt",
