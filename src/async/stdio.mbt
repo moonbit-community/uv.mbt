@@ -13,10 +13,10 @@
 // limitations under the License.
 
 ///|
-pub let stdin : File = @uv.stdin()
+pub let stdin : File = File::new(@uv.stdin())
 
 ///|
-pub let stdout : File = @uv.stdout()
+pub let stdout : File = File::new(@uv.stdout())
 
 ///|
-pub let stderr : File = @uv.stderr()
+pub let stderr : File = File::new(@uv.stderr())

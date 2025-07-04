@@ -87,7 +87,7 @@ fn Process::setup_stdin(
   self : Process,
   stdin : ProcessInput,
   stdio : Array[@uv.StdioContainer]
-) -> Unit {
+) -> Unit raise {
   match stdin {
     Ignore => stdio.push(@uv.StdioContainer::ignore())
     Inherit(file) => stdio.push(@uv.StdioContainer::inherit_file(file.inner()))
@@ -104,7 +104,7 @@ fn Process::setup_stdout(
   self : Process,
   stdout : ProcessOutput,
   stdio : Array[@uv.StdioContainer]
-) -> Unit {
+) -> Unit raise {
   match stdout {
     Ignore => stdio.push(@uv.StdioContainer::ignore())
     Inherit(file) => stdio.push(@uv.StdioContainer::inherit_file(file.inner()))
@@ -118,11 +118,11 @@ fn Process::setup_stdout(
 }
 
 ///|
-pub fn Process::setup_stderr(
+fn Process::setup_stderr(
   self : Process,
   stderr : ProcessOutput,
   stdio : Array[@uv.StdioContainer]
-) -> Unit {
+) -> Unit raise {
   match stderr {
     Ignore => stdio.push(@uv.StdioContainer::ignore())
     Inherit(file) => stdio.push(@uv.StdioContainer::inherit_file(file.inner()))

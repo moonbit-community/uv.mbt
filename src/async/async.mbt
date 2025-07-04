@@ -104,10 +104,10 @@ pub fn[T] start(f : async () -> T raise) -> T raise {
 let id_gen : Ref[Int] = Ref::new(0)
 
 ///|
-pub struct Scope {
+priv struct Scope {
   id : Id
   parent : Scope?
-  scopes : Map[Id, () -> Unit]
+  scopes : Map[Id, async () -> Unit raise]
   mut launched : Int
   mut canceled : Bool
   mut accept : (Unit) -> Unit
@@ -128,7 +128,7 @@ fn Scope::ignore_reject(_ : Error) -> Unit {
 }
 
 ///|
-pub let active_scope : Ref[Scope?] = Ref::new(None)
+let active_scope : Ref[Scope?] = Ref::new(None)
 
 ///|
 pub suberror MultiError Array[Error] derive(Show)
@@ -147,10 +147,10 @@ fn MultiError::flatten(errors : Array[Error]) -> Array[Error] {
 }
 
 ///|
-type Id Int derive(Show, Hash, Eq)
+priv type Id Int derive(Show, Hash, Eq)
 
 ///|
-pub fn Id::new() -> Id {
+fn Id::new() -> Id {
   let id = id_gen.val
   id_gen.val += 1
   id
@@ -176,7 +176,7 @@ fn Scope::accept(self : Scope) -> Unit {
 }
 
 ///|
-fn Scope::reject(self : Scope, error : Error) -> Unit {
+async fn Scope::reject(self : Scope, error : Error) -> Unit {
   self.cancel()
   self.errors.push(error)
   self.accept()
@@ -197,13 +197,19 @@ fn Scope::launch(self : Scope, f : async () -> Unit raise) -> Unit {
 }
 
 ///|
-fn Scope::cancel(self : Scope) -> Unit {
+async fn Scope::cancel(self : Scope) -> Unit {
   if self.canceled {
     return
   }
   self.canceled = true
+  let children = []
   for _, child in self.scopes {
-    child()
+    children.push(child)
+  }
+  for i in 0..<children.length() {
+    children[i]() catch {
+      error => self.errors.push(error)
+    }
   }
 }
 

@@ -13,20 +13,42 @@
 // limitations under the License.
 
 ///|
-type File @uv.File
+struct File {
+  id : Id
+  mut file : @uv.File?
+}
 
 ///|
-pub async fn File::close(self : File, loc~ : SourceLoc = _) -> Unit raise {
-  let uv = uv()
+fn File::new(id~ : Id = Id::new(), file : @uv.File) -> File {
+  { id, file: Some(file) }
+}
+
+///|
+fn File::inner(self : File) -> @uv.File raise @uv.Errno {
+  match self.file {
+    Some(file) => file
+    None => raise @uv.EBADF
+  }
+}
+
+///|
+pub async fn File::close(
+  self : File,
+  loc~ : SourceLoc = _
+) -> Unit raise FileSystemError {
+  let uv = uv() catch { errno => raise FileSystemError::Unknown(errno) }
   backtrace(loc~, fn() {
-    suspend_with_error(fn(resolve, reject : (Error) -> Unit) {
-      try
-        uv.fs_close(self.inner(), fn() { resolve(()) }, fn(e) { reject(e) })
-        |> ignore()
-      catch {
+    suspend_with_error(fn(resolve, reject : (@uv.Errno) -> Unit) {
+      try {
+        let file = self.inner()
+        self.file = None
+        uv.fs_close(file, () => resolve(()), reject(_)) |> ignore()
+      } catch {
         e => reject(e)
       }
-    })
+    }) catch {
+      error => raise FileSystemError::Unknown(error)
+    }
   })
 }
 
@@ -81,7 +103,9 @@ pub impl Readable for File with read(self : File) {
   fn(yield_) {
     let uv = uv()
     suspend_with_error(fn(resolve, reject) {
-      read(uv, self.inner(), yield_, resolve, reject)
+      read(uv, self.inner(), yield_, resolve, reject) catch {
+        e => reject(e)
+      }
     })
   }
 }
@@ -115,7 +139,9 @@ pub impl Writable for File with write(self : File, bytes : Iter[@bytes.View]) {
   let uv = uv()
   bytes.each(fn(bytes) {
     suspend_with_error(fn(resolve, reject) {
-      write(uv, self.inner(), bytes, resolve, reject)
+      write(uv, self.inner(), bytes, resolve, reject) catch {
+        e => reject(e)
+      }
     })
   })
 }
@@ -124,20 +150,27 @@ pub impl Writable for File with write(self : File, bytes : Iter[@bytes.View]) {
 pub async fn Path::open(self : Path, loc~ : SourceLoc = _) -> File raise {
   let uv = uv()
   backtrace(loc~, fn() {
-    suspend_with_error(fn(resolve, reject) {
-      try
-        uv.fs_open(
-          self.to_string(),
-          @uv.OpenFlags::read_only(),
-          0o644,
-          fn(file) { resolve(File::File(file)) },
-          fn(e) { reject(e) },
-        )
-        |> ignore()
-      catch {
-        e => reject(e)
+    let scope = active_scope.val
+    try {
+      let file = suspend_with_error(fn(resolve, reject) {
+        try
+          uv.fs_open(
+            self.to_string(),
+            @uv.OpenFlags::read_only(),
+            0o644,
+            fn(file) { resolve(File::new(file)) },
+            fn(e) { reject(e) },
+          )
+          |> ignore()
+        catch {
+          e => reject(e)
+        }
+      })
+      if scope is Some(scope) {
+        scope.scopes[file.id] = async fn() { file.close() }
       }
-    }) catch {
+      file
+    } catch {
       @uv.ENOENT => raise FileSystemError::NotFound(self)
       error => raise FileSystemError::Unknown(error)
     }
@@ -160,7 +193,7 @@ pub fn Path::read(self : Path, loc~ : SourceLoc = _) -> Iter[@bytes.View] raise 
             @uv.OpenFlags::read_only(),
             0o644,
             fn(file) {
-              let file = File::File(file)
+              let file = File::new(file)
               async_run(fn() {
                 file.read().each(fn(bytes) { yield_(bytes) }) catch {
                   e => {
@@ -215,7 +248,7 @@ pub async fn Path::write(
           @uv.OpenFlags::write_only(create=true, truncate=true),
           0o644,
           fn(file) {
-            let file = File::File(file)
+            let file = File::new(file)
             async_run(fn() {
               file.write(bytes) catch {
                 e => {

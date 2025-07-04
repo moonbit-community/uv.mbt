@@ -13,11 +13,9 @@ import(
 // Values
 fn args() -> Array[String]
 
-async fn[T] backtrace(loc~ : SourceLoc = _, () -> T raise) -> T raise
+async fn[T, E : Error] backtrace(loc~ : SourceLoc = _, () -> T raise E) -> T raise E
 
 fn backtrace_to_string() -> String
-
-async fn[T] block(() -> T raise) -> T raise
 
 fn cancel() -> Unit raise
 
@@ -49,6 +47,14 @@ fn system() -> String raise
 async fn[R] with_temporary_directory((Path) -> R raise, loc~ : SourceLoc = _) -> R raise
 
 // Types and methods
+type Channel[T]
+fn[T] Channel::cancel(Self[T]) -> Unit
+fn[T] Channel::new() -> Self[T]
+async fn[T] Channel::recv(Self[T]) -> T raise
+async fn[T] Channel::send(Self[T], T) -> Unit raise
+
+pub type! Dead
+
 type Env
 fn Env::get(Self, String) -> String? raise
 fn Env::iter2(Self) -> Iter2[String, String] raise
@@ -56,9 +62,19 @@ fn Env::op_get(Self, String) -> String raise
 fn Env::op_set(Self, String, String) -> Unit raise
 
 type File
-async fn File::close(Self, loc~ : SourceLoc = _) -> Unit raise
+async fn File::close(Self, loc~ : SourceLoc = _) -> Unit raise FileSystemError
 impl Readable for File
 impl Writable for File
+
+pub suberror FileSystemError {
+  AlreadyExists(Path)
+  IsDirectory(Path)
+  NotDirectory(Path)
+  NotEmpty(Path)
+  NotFound(Path)
+  NotSupported(String)
+  Unknown(@uv.Errno)
+}
 
 pub enum FileType {
   File
@@ -136,7 +152,6 @@ impl Writable for Pipe
 
 type Process
 fn Process::kill(Self, Signum) -> Unit raise
-fn Process::setup_stderr(Self, ProcessOutput, Array[@uv.StdioContainer]) -> Unit
 async fn Process::signal(Self) -> Int
 async fn Process::status(Self) -> Int
 fn Process::stderr(Self) -> Pipe raise

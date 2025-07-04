@@ -77,10 +77,10 @@ let context : Ref[Context] = Ref::new({
 })
 
 ///|
-pub async fn[T] backtrace(
+pub async fn[T, E : Error] backtrace(
   loc~ : SourceLoc = _,
-  f : async () -> T raise Error
-) -> T raise Error {
+  f : async () -> T raise E
+) -> T raise E {
   context.val.backtrace(loc~, f)
 }
 
