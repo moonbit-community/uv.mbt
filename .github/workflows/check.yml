@@ -21,7 +21,7 @@ on:
     branches: ["main"]
 
 jobs:
-  check-license-header:
+  license-header:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -29,7 +29,7 @@ jobs:
           submodules: true
       - run: python3 scripts/license.py
 
-  check-example:
+  example:
     strategy:
       matrix:
         channel: [pre-release, bleeding]
@@ -56,3 +56,11 @@ jobs:
         working-directory: test
         run: |
           moon check --target native
+
+  clang-format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          shopt -s nullglob
+          clang-format --dry-run --Werror src/*.c src/*.h
