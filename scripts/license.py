@@ -70,6 +70,8 @@ PYTHON_LICENSE_HEADER = """\
 # limitations under the License.
 """
 
+YAML_LICENSE_HEADER = PYTHON_LICENSE_HEADER
+
 
 def check_moonbit_license_header(file: Path, header: str) -> bool:
     """
@@ -116,6 +118,10 @@ def check_python_license_header(file: Path, header: str) -> bool:
     return True
 
 
+def check_yaml_license_header(file: Path, header: str) -> bool:
+    return file.read_text().startswith(header)
+
+
 def check_license_header(file: Path, year: int = datetime.now().year) -> bool | None:
     """
     Check if the file has the correct license header.
@@ -123,12 +129,15 @@ def check_license_header(file: Path, year: int = datetime.now().year) -> bool | 
     moonbit_header = MOONBIT_LICENSE_HEADER.format(year=year)
     c_header = C_LICENSE_HEADER.format(year=year)
     python_header = PYTHON_LICENSE_HEADER.format(year=year)
+    yaml_header = YAML_LICENSE_HEADER.format(year=year)
     if file.suffix in [".mbt"]:
         return check_moonbit_license_header(file, moonbit_header)
     elif file.suffix in [".c", ".h"]:
         return check_c_license_header(file, c_header)
     elif file.suffix in [".py"]:
         return check_python_license_header(file, python_header)
+    elif file.suffix in [".yaml", ".yml"]:
+        return check_yaml_license_header(file, yaml_header)
     else:
         return None
 
@@ -158,7 +167,7 @@ def should_ignore(path: Path, ignored: list[str]) -> bool:
 
 
 def check(path: Path, ignored: list[str] = []) -> bool:
-    if path == Path("src") / "uv" or path.name.startswith("."):
+    if path == Path("src") / "uv" or path.name == ".git":
         return True
     failed = False
     if path.is_dir():
