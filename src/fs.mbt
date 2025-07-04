@@ -828,7 +828,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_unlink(
   self : Loop,
   path : Ntbs,
   k : () -> Unit,
-  e : (Error) -> Unit
+  e : (Errno) -> Unit
 ) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
@@ -1558,7 +1558,7 @@ pub fn Stat::is_symlink(self : Stat) -> Bool {
 ///|
 pub fn Stat::is_socket(self : Stat) -> Bool raise Errno {
   if _S_IFSOCK == @uint64.max_value {
-    raise Errno(ENOSYS)
+    raise ENOSYS
   }
   (self.mode() & _S_IFMT) == _S_IFSOCK
 }
@@ -1577,7 +1577,7 @@ pub fn Stat::is_fifo(self : Stat) -> Bool {
 ///|
 pub fn Stat::is_block_device(self : Stat) -> Bool raise Errno {
   if _S_IFBLK == @uint64.max_value {
-    raise Errno(ENOSYS)
+    raise ENOSYS
   }
   (self.mode() & _S_IFMT) == _S_IFBLK
 }

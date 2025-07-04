@@ -224,7 +224,7 @@ fn AddressFamily::of_int(self : Int) -> AddressFamily raise Errno {
   if self == _AF_INET6 {
     return Inet6
   }
-  raise Errno(EINVAL)
+  raise EINVAL
 }
 
 ///|

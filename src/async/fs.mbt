@@ -138,9 +138,8 @@ pub async fn Path::open(self : Path, loc~ : SourceLoc = _) -> File raise {
         e => reject(e)
       }
     }) catch {
-      @uv.Errno(ENOENT) =>
-        raise ErrorTrace::new(FileSystemError::NotFound(self))
-      error => raise error
+      @uv.ENOENT => raise ErrorTrace::new(FileSystemError::NotFound(self))
+      error => raise FileSystemError::Unknown(error)
     }
   })
 }
@@ -150,10 +149,8 @@ pub fn Path::read(self : Path, loc~ : SourceLoc = _) -> Iter[@bytes.View] raise 
   let uv = uv()
   fn(yield_) {
     backtrace(loc~, fn() {
-      async_suspend_with_error(fn(
-        resolve : (Unit) -> Unit,
-        reject : (Error) -> Unit
-      ) {
+      let mut user_error : Error? = None
+      async_suspend_with_error(fn(resolve, reject) {
         try
           uv.fs_open(
             self.to_string(),
@@ -162,13 +159,18 @@ pub fn Path::read(self : Path, loc~ : SourceLoc = _) -> Iter[@bytes.View] raise 
             fn(file) {
               let file = File::File(file)
               async_run(fn() {
-                try {
-                  file.read().each(fn(bytes) { yield_(bytes) })
+                file.read().each(fn(bytes) { yield_(bytes) }) catch {
+                  e => {
+                    user_error = Some(e)
+                    reject(@uv.UNKNOWN)
+                  }
+                }
+                try
                   uv.fs_close(file.inner(), fn() { resolve(()) }, fn(e) {
                     reject(e)
                   })
                   |> ignore()
-                } catch {
+                catch {
                   e => reject(e)
                 }
               })
@@ -180,10 +182,10 @@ pub fn Path::read(self : Path, loc~ : SourceLoc = _) -> Iter[@bytes.View] raise 
           e => reject(e)
         }
       }) catch {
-        @uv.Errno(ENOENT) =>
-          raise ErrorTrace::new(FileSystemError::NotFound(self))
-        @uv.Errno(EISDIR) => raise ErrorTrace::new(IsDirectory(self))
-        error => raise error
+        @uv.UNKNOWN if user_error is Some(error) => raise error
+        @uv.ENOENT => raise ErrorTrace::new(FileSystemError::NotFound(self))
+        @uv.EISDIR => raise ErrorTrace::new(IsDirectory(self))
+        error => raise ErrorTrace::new(FileSystemError::Unknown(error))
       }
     })
   }
@@ -202,7 +204,8 @@ pub async fn Path::write(
 ) -> Unit raise {
   backtrace(loc~, fn() {
     let uv = uv()
-    async_suspend_with_error(fn(resolve, reject : (Error) -> Unit) {
+    let mut user_error : Error? = None
+    async_suspend_with_error(fn(resolve, reject) {
       try
         uv.fs_open(
           self.to_string(),
@@ -211,13 +214,18 @@ pub async fn Path::write(
           fn(file) {
             let file = File::File(file)
             async_run(fn() {
-              try {
-                file.write(bytes)
+              file.write(bytes) catch {
+                e => {
+                  user_error = Some(e)
+                  reject(@uv.UNKNOWN)
+                }
+              }
+              try
                 uv.fs_close(file.inner(), fn() { resolve(()) }, fn(e) {
                   reject(e)
                 })
                 |> ignore()
-              } catch {
+              catch {
                 e => reject(e)
               }
             })
@@ -229,10 +237,10 @@ pub async fn Path::write(
         e => reject(e)
       }
     }) catch {
-      @uv.Errno(ENOENT) =>
-        raise ErrorTrace::new(FileSystemError::NotFound(self))
-      @uv.Errno(EISDIR) => raise ErrorTrace::new(IsDirectory(self))
-      error => raise error
+      @uv.UNKNOWN if user_error is Some(error) => raise error
+      @uv.ENOENT => raise ErrorTrace::new(FileSystemError::NotFound(self))
+      @uv.EISDIR => raise ErrorTrace::new(IsDirectory(self))
+      error => raise ErrorTrace::new(FileSystemError::Unknown(error))
     }
   })
 }
@@ -262,7 +270,7 @@ pub async fn Path::iter(self : Path) -> Iter[Path] raise {
                 yield_(self.join(name))
               }
             } catch {
-              @uv.Errno(EOF) => ()
+              @uv.EOF => ()
               e => raise e
             }
           }
@@ -301,7 +309,7 @@ pub async fn Path::walk(self : Path, loc~ : SourceLoc = _) -> Iter[Path] raise {
                     }
                   }
                 } catch {
-                  @uv.Errno(EOF) => resolve(())
+                  @uv.EOF => resolve(())
                   e => reject(e)
                 }
               })
@@ -338,21 +346,17 @@ pub fn Stat::last_changed(self : Stat) -> Int64 {
 ///|
 pub async fn Path::stat(self : Path, loc~ : SourceLoc = _) -> Stat raise {
   backtrace(loc~, fn() {
-    try {
-      let uv = uv()
-      async_suspend_with_error(fn(resolve, reject) {
-        try
-          uv.fs_stat(self.to_string(), fn(stat) { resolve(Stat(stat)) }, fn(e) {
-            reject(e)
-          })
-          |> ignore()
-        catch {
-          e => reject(e)
-        }
-      })
-    } catch {
-      error => raise error
-    }
+    let uv = uv()
+    async_suspend_with_error(fn(resolve, reject) {
+      try
+        uv.fs_stat(self.to_string(), fn(stat) { resolve(Stat(stat)) }, fn(e) {
+          reject(e)
+        })
+        |> ignore()
+      catch {
+        e => reject(e)
+      }
+    })
   })
 }
 
@@ -424,9 +428,8 @@ pub async fn Path::resolve(self : Path, loc~ : SourceLoc = _) -> Path raise {
     async_suspend_with_error(fn(resolve, reject : (Error) -> Unit) {
       let reject = fn(error : Error) -> Unit {
         match error {
-          @uv.Errno(ENOENT) =>
-            reject(ErrorTrace::new(FileSystemError::NotFound(self)))
-          @uv.Errno(ENOTDIR) => reject(ErrorTrace::new(NotDirectory(self)))
+          @uv.ENOENT => reject(ErrorTrace::new(FileSystemError::NotFound(self)))
+          @uv.ENOTDIR => reject(ErrorTrace::new(NotDirectory(self)))
           e => reject(e)
         }
       }
@@ -516,18 +519,17 @@ pub async fn[Target : ToPath] Path::move_to(
 pub async fn Path::unlink(self : Path, loc~ : SourceLoc = _) -> Unit raise {
   let uv = uv()
   backtrace(loc~, fn() {
-    async_suspend_with_error(fn(resolve, reject : (Error) -> Unit) {
+    async_suspend_with_error(fn(resolve, reject : (@uv.Errno) -> Unit) {
       try
-        uv.fs_unlink(self.to_string(), fn() { resolve(()) }, fn(e) { reject(e) })
+        uv.fs_unlink(self.to_string(), () => resolve(()), e => reject(e))
         |> ignore()
       catch {
         e => reject(e)
       }
     }) catch {
-      @uv.Errno(ENOENT) =>
-        raise ErrorTrace::new(FileSystemError::NotFound(self))
-      @uv.Errno(EISDIR) => raise ErrorTrace::new(IsDirectory(self))
-      error => raise error
+      @uv.ENOENT => raise ErrorTrace::new(FileSystemError::NotFound(self))
+      @uv.EISDIR => raise ErrorTrace::new(IsDirectory(self))
+      error => raise ErrorTrace::new(FileSystemError::Unknown(error))
     }
   })
 }
@@ -536,7 +538,7 @@ pub async fn Path::unlink(self : Path, loc~ : SourceLoc = _) -> Unit raise {
 pub async fn Path::rmdir(self : Path, loc~ : SourceLoc = _) -> Unit raise {
   let uv = uv()
   backtrace(loc~, fn() {
-    async_suspend_with_error(fn(resolve, reject : (Error) -> Unit) {
+    async_suspend_with_error(fn(resolve, reject) {
       try
         uv.fs_rmdir(self.to_string(), fn() { resolve(()) }, fn(e) { reject(e) })
         |> ignore()
@@ -544,10 +546,9 @@ pub async fn Path::rmdir(self : Path, loc~ : SourceLoc = _) -> Unit raise {
         e => reject(e)
       }
     }) catch {
-      @uv.Errno(ENOTEMPTY) => raise ErrorTrace::new(NotEmpty(self))
-      @uv.Errno(ENOENT) =>
-        raise ErrorTrace::new(FileSystemError::NotFound(self))
-      error => raise error
+      @uv.ENOTEMPTY => raise ErrorTrace::new(NotEmpty(self))
+      @uv.ENOENT => raise ErrorTrace::new(FileSystemError::NotFound(self))
+      error => raise ErrorTrace::new(FileSystemError::Unknown(error))
     }
   })
 }
@@ -560,7 +561,7 @@ pub async fn Path::mkdir(
 ) -> Unit raise {
   let uv = uv()
   backtrace(loc~, fn() {
-    async_suspend_with_error(fn(resolve, reject : (Error) -> Unit) {
+    async_suspend_with_error(fn(resolve, reject) {
       try
         uv.fs_mkdir(self.to_string(), mode, fn() { resolve(()) }, fn(e) {
           reject(e)
@@ -570,8 +571,8 @@ pub async fn Path::mkdir(
         e => reject(e)
       }
     }) catch {
-      @uv.Errno(EEXIST) => raise ErrorTrace::new(AlreadyExists(self))
-      error => raise error
+      @uv.EEXIST => raise ErrorTrace::new(AlreadyExists(self))
+      error => raise ErrorTrace::new(FileSystemError::Unknown(error))
     }
   })
 }
@@ -586,7 +587,7 @@ pub async fn Path::access(
 ) -> Unit raise {
   let uv = uv()
   backtrace(loc~, fn() {
-    async_suspend_with_error(fn(resolve, reject : (Error) -> Unit) {
+    async_suspend_with_error(fn(resolve, reject) {
       try
         uv.fs_access(
           self.to_string(),
@@ -599,9 +600,8 @@ pub async fn Path::access(
         e => reject(e)
       }
     }) catch {
-      @uv.Errno(ENOENT) =>
-        raise ErrorTrace::new(FileSystemError::NotFound(self))
-      error => raise error
+      @uv.ENOENT => raise ErrorTrace::new(FileSystemError::NotFound(self))
+      error => raise ErrorTrace::new(FileSystemError::Unknown(error))
     }
   })
 }

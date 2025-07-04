@@ -45,7 +45,7 @@ fn echo_read(client : @uv.Tcp, nread : Int, buf : @bytes.View) -> Unit {
 
 ///|
 fn echo_read_error(client : @uv.Tcp, errno : @uv.Errno) -> Unit {
-  if not(errno is Errno(EOF)) {
+  if not(errno is EOF) {
     println("Read error: \{errno}")
   }
   client.close(() => ())

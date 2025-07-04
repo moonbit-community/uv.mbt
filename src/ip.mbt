@@ -149,7 +149,7 @@ fn Protocol::of_int(self : Int) -> Protocol raise Errno {
   if self == _IPPROTO_UDP {
     return Udp
   }
-  raise Errno(EINVAL)
+  raise EINVAL
 }
 
 ///|

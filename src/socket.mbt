@@ -99,7 +99,7 @@ fn SockType::of_int(self : Int) -> SockType raise Errno {
   if self == _SOCK_DGRAM {
     return Datagram
   }
-  raise Errno(EINVAL)
+  raise EINVAL
 }
 
 ///|

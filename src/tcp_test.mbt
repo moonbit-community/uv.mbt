@@ -61,7 +61,7 @@ test "tcp" {
             }
           },
           fn(_, e) {
-            if e is Errno(EOF) {
+            if e is EOF {
               server_stop_read(None)
             } else {
               server_stop_read(Some(e))
@@ -110,7 +110,7 @@ test "tcp" {
             }
           },
           fn(_, e) {
-            if e is Errno(EOF) {
+            if e is EOF {
               client_stop_read(None)
             } else {
               client_stop_read(Some(e))

@@ -143,7 +143,7 @@ pub fn Signum::sigwinch() -> Signum {
 ///|
 pub fn Signum::sigpipe() -> Signum raise Errno {
   if _SIGPIPE == -1 {
-    raise Errno(ENOSYS)
+    raise ENOSYS
   }
   _SIGPIPE
 }

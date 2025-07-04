@@ -13,13 +13,14 @@
 // limitations under the License.
 
 ///|
-priv suberror FileSystemError {
+pub suberror FileSystemError {
   AlreadyExists(Path)
   IsDirectory(Path)
   NotDirectory(Path)
   NotEmpty(Path)
   NotFound(Path)
   NotSupported(String)
+  Unknown(@uv.Errno)
 }
 
 ///|
@@ -36,6 +37,7 @@ impl Show for FileSystemError with output(
     NotEmpty(path) => logger.write_string("NotEmpty: \{path.to_string()}")
     NotFound(path) => logger.write_string("NotFound: \{path.to_string()}")
     NotSupported(message) => logger.write_string("NotSupported: \{message}")
+    Unknown(errno) => logger.write_string("Unknown: \{errno.to_string()}")
   }
 }
 

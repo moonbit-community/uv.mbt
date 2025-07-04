@@ -37,7 +37,7 @@ test "spawn" {
         }
       },
       fn(pipe, e) {
-        if not(e is Errno(EOF)) {
+        if not(e is EOF) {
           error = Some(e)
         }
         pipe.read_stop() catch {
