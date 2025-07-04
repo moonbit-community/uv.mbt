@@ -30,7 +30,6 @@ fn strerror(errno : Int) -> @string.View {
 }
 
 ///|
-#visibility(change_to="readonly")
 pub(all) suberror Errno {
   E2BIG
   EACCES
@@ -222,7 +221,8 @@ fn init {
 
 ///|
 fn Errno::of_int(errno : Int) -> Errno {
-  errno_errors.get(errno).or(UNKNOWN)
+  guard errno_errors.get(errno) is Some(error) else { UNKNOWN }
+  error
 }
 
 ///|
