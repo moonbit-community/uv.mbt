@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: check license header
+name: check
 
 on:
   pull_request:
@@ -28,3 +28,31 @@ jobs:
         with:
           submodules: true
       - run: python3 scripts/license.py
+
+  check-example:
+    strategy:
+      matrix:
+        channel: [pre-release, bleeding]
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install MoonBit
+        uses: ./.github/actions/install-moonbit
+        with:
+          channel: ${{ matrix.channel }}
+
+      - name: Inspect MoonBit version
+        run: |
+          moon version --all
+
+      - name: Update mooncakes.io index
+        run: moon update
+
+      - name: Check tests
+        working-directory: test
+        run: |
+          moon check --target native
