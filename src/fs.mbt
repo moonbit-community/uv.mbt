@@ -828,7 +828,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_unlink(
   self : Loop,
   path : Ntbs,
   k : () -> Unit,
-  e : (Error) -> Unit
+  e : (Errno) -> Unit
 ) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
