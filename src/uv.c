@@ -748,21 +748,21 @@ moonbit_uv_fs_unlink_sync(
 MOONBIT_FFI_EXPORT
 uv_dirent_t *
 moonbit_uv_dirent_make(int32_t length) {
-  return malloc(sizeof(uv_dirent_t) * length);
+  uv_dirent_t *dirent = malloc(sizeof(uv_dirent_t) * length);
+  memset(dirent, 0, sizeof(uv_dirent_t) * length);
+  return dirent;
 }
 
 MOONBIT_FFI_EXPORT
 const char *
 moonbit_uv_dirent_get_name(uv_dirent_t *dirent, int32_t offset) {
-  const char *name = dirent[offset].name;
-  return name;
+  return dirent[offset].name;
 }
 
 MOONBIT_FFI_EXPORT
 int32_t
 moonbit_uv_dirent_get_type(uv_dirent_t *dirent, int32_t offset) {
-  int32_t type = dirent[offset].type;
-  return type;
+  return dirent[offset].type;
 }
 
 MOONBIT_FFI_EXPORT

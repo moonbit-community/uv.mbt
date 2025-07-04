@@ -20,6 +20,7 @@ from pathlib import Path
 import platform
 import subprocess
 import os
+import argparse
 
 
 def macos_flags():
@@ -66,7 +67,17 @@ def modify_moon_pkg_json(moon_pkg_path: Path, flags: dict[str, str]) -> str:
 
 
 def main():
-    subprocess.run(["moon", "check", "--target", "native"], check=True)
+    parser = argparse.ArgumentParser(
+        description="Run MoonBit tests with specified target"
+    )
+    parser.add_argument(
+        "--target",
+        default="native",
+        help="Target platform (e.g., native, llvm, js, wasm)",
+    )
+    args = parser.parse_args()
+
+    subprocess.run(["moon", "check", "--target", args.target], check=True)
     test_path = Path("src")
     flags = None
     if platform.system() == "Linux":
@@ -88,7 +99,7 @@ def main():
     print("----------------------------------------------")
     env = os.environ.copy()
     if platform.system() != "Windows":
-        env["MOON_CC"] = flags["cc"] + " -DDEBUG -g -fsanitize=address"
+        env["MOON_CC"] = flags["cc"] + " -g -fsanitize=address"
         env["MOON_AR"] = "/usr/bin/ar"
     if platform.system() != "Windows":
         env["ASAN_OPTIONS"] = "detect_leaks=1"
@@ -100,7 +111,7 @@ def main():
                 "moon",
                 "test",
                 "--target",
-                "native",
+                args.target,
                 "-v",
             ],
             check=True,
