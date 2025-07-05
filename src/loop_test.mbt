@@ -13,6 +13,17 @@
 // limitations under the License.
 
 ///|
+test "configure" {
+  if @uv.os_uname().sysname() == "Windows_NT" {
+    return
+  }
+  let uv = @uv.Loop::new()
+  let signum = @uv.Signum::sigprof()
+  uv.configure(@uv.LoopOption::BlockSignal(signum))
+  uv.close()
+}
+
+///|
 test "walk" {
   let uv = @uv.Loop::new()
   let idle = @uv.Idle::new(uv)

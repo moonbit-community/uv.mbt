@@ -108,6 +108,12 @@ extern "c" fn uv_SIGPIPE() -> Int = "moonbit_uv_SIGPIPE"
 let _SIGPIPE : Int = uv_SIGPIPE()
 
 ///|
+extern "c" fn uv_SIGPROF() -> Int = "moonbit_uv_SIGPROF"
+
+///|
+let _SIGPROF : Int = uv_SIGPROF()
+
+///|
 type Signum Int
 
 ///|
@@ -146,4 +152,12 @@ pub fn Signum::sigpipe() -> Signum raise Errno {
     raise ENOSYS
   }
   _SIGPIPE
+}
+
+///|
+pub fn Signum::sigprof() -> Signum raise Errno {
+  if _SIGPROF == -1 {
+    raise ENOSYS
+  }
+  _SIGPROF
 }
