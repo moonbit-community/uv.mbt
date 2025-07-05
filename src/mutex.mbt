@@ -97,7 +97,7 @@ pub fn Mutex::unlock(self : Mutex) -> Unit {
 ///                             | mutex   |
 ///                             +---------+
 ///                             | payload |
-///                             +----+----+
+///                             +---------+
 /// ```
 ///
 /// The `Share` trait provides a `share` method to allow implementor of this
