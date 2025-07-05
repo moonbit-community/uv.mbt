@@ -172,11 +172,19 @@
       "native",
       "llvm"
     ],
-    "work.mbt": [
+    "version_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "version.mbt": [
       "native",
       "llvm"
     ],
     "work_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "work.mbt": [
       "native",
       "llvm"
     ]
