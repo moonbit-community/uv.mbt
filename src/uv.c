@@ -74,22 +74,6 @@ moonbit_uv_incref(const char *func, const char *name, void *object) {
 
 #define moonbit_uv_ignore(var) (void)(var)
 
-// 1. All pointers without annotation is borrow ()
-// 2. It is OK to pass an owning pointer to a borrowed parameter
-// 3. It is OK to pass a borrowed pointer to a borrowed parameter
-// 4. When passing a borrowed pointer to an owning parameter, the
-//    pointer should be incref'd.
-// 5. When passing an owning pointer to an owning parameter, the
-//    pointer should be incref'd or moved.
-// 6. When the scope of an owning pointer ends, the pointer should be
-//    decref'd.
-
-MOONBIT_FFI_EXPORT
-uv_loop_t *
-moonbit_uv_default_loop(void) {
-  return uv_default_loop();
-}
-
 MOONBIT_FFI_EXPORT
 uv_loop_t *
 moonbit_uv_loop_make(void) {
