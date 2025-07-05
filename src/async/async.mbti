@@ -11,13 +11,13 @@ import(
 )
 
 // Values
+let active_scope : Ref[Scope?]
+
 fn args() -> Array[String]
 
-async fn[T] backtrace(loc~ : SourceLoc = _, () -> T raise) -> T raise
+async fn[T] backtrace(loc~ : SourceLoc = _, async () -> T raise) -> T raise
 
 fn backtrace_to_string() -> String
-
-async fn[T] block(() -> T raise) -> T raise
 
 fn cancel() -> Unit raise
 
@@ -28,15 +28,15 @@ async fn delay(Int) -> Unit raise
 
 let env : Env
 
-fn launch(() -> Unit raise) -> Unit raise
+fn launch(async () -> Unit raise) -> Unit raise
 
 fn[ToPath : ToPath] path(ToPath) -> Path
 
-async fn[T] scope(() -> T raise) -> T raise
+async fn[T] scope(async () -> T raise) -> T raise
 
 async fn[Exec : Executable] spawn(Exec, Array[@string.StringView], cwd? : &ToPath, stdin~ : ProcessInput = .., stdout~ : ProcessOutput = .., stderr~ : ProcessOutput = ..) -> Process raise
 
-fn[T] start(() -> T raise) -> T raise
+fn[T] start(async () -> T raise) -> T raise
 
 let stderr : File
 
@@ -46,9 +46,17 @@ let stdout : File
 
 fn system() -> String raise
 
-async fn[R] with_temporary_directory((Path) -> R raise, loc~ : SourceLoc = _) -> R raise
+async fn[R] with_temporary_directory(async (Path) -> R raise, loc~ : SourceLoc = _) -> R raise
 
 // Types and methods
+type Channel[T]
+fn[T] Channel::cancel(Self[T]) -> Unit
+fn[T] Channel::new() -> Self[T]
+async fn[T] Channel::recv(Self[T]) -> T raise
+async fn[T] Channel::send(Self[T], T) -> Unit raise
+
+pub type! Dead
+
 type Env
 fn Env::get(Self, String) -> String? raise
 fn Env::iter2(Self) -> Iter2[String, String] raise
@@ -59,6 +67,16 @@ type File
 async fn File::close(Self, loc~ : SourceLoc = _) -> Unit raise
 impl Readable for File
 impl Writable for File
+
+pub suberror FileSystemError {
+  AlreadyExists(Path)
+  IsDirectory(Path)
+  NotDirectory(Path)
+  NotEmpty(Path)
+  NotFound(Path)
+  NotSupported(String)
+  Unknown(@uv.Errno)
+}
 
 pub enum FileType {
   File
@@ -71,13 +89,19 @@ pub enum FileType {
   Unknown
 }
 
+type Id
+fn Id::new() -> Self
+impl Eq for Id
+impl Hash for Id
+impl Show for Id
+
 type Iter[T]
-async fn[T, U] Iter::bind(Self[T], (T) -> U? raise?) -> Self[U]
+async fn[T, U] Iter::bind(Self[T], async (T) -> U? raise?) -> Self[U]
 async fn Iter::bytes(Self[@bytes.View]) -> Bytes raise
 async fn[T] Iter::collect(Self[T]) -> Array[T] raise
 async fn Iter::decode(Self[@bytes.View], encoding~ : @encoding.Encoding) -> Self[String]
-async fn[T] Iter::each(Self[T], (T) -> Unit raise) -> Unit raise
-async fn[T] Iter::filter(Self[T], (T) -> Bool raise?) -> Self[T]
+async fn[T] Iter::each(Self[T], async (T) -> Unit raise) -> Unit raise
+async fn[T] Iter::filter(Self[T], async (T) -> Bool raise?) -> Self[T]
 async fn Iter::text(Self[@bytes.View], encoding~ : @encoding.Encoding = ..) -> String raise
 
 pub suberror MultiError Array[Error]
@@ -157,6 +181,17 @@ pub(all) enum ProcessOutput {
   Stderr
   Pipe(Pipe)
   Inherit(File)
+}
+
+pub struct Scope {
+  id : Id
+  parent : Scope?
+  scopes : Map[Id, () -> Unit]
+  mut launched : Int
+  mut canceled : Bool
+  mut accept : (Unit) -> Unit
+  mut reject : (Error) -> Unit
+  errors : Array[Error]
 }
 
 pub(all) enum Signum {

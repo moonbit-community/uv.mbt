@@ -12,16 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: test
+name: ci
 
 on:
-  push:
-    branches: ["main"]
   pull_request:
     branches: ["main"]
+    paths:
+      - ".github/actions/install-moonbit/**"
+      - "scripts/test.py"
+      - "scripts/prepare.py"
+      - "test/**"
+      - "src/**"
 
 jobs:
-  stable-native:
+  test-pre-release-native:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -35,7 +39,7 @@ jobs:
       - name: Install MoonBit
         uses: ./.github/actions/install-moonbit
         with:
-          channel: stable
+          channel: pre-release
 
       - name: Inspect MoonBit version
         run: |
@@ -49,7 +53,7 @@ jobs:
         run: |
           python3 scripts/test.py --target=native
 
-  bleeding-llvm:
+  test-bleeding-llvm:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -76,3 +80,65 @@ jobs:
       - name: Run tests
         run: |
           python3 scripts/test.py --target=llvm
+
+  check-mbti:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install MoonBit
+        uses: ./.github/actions/install-moonbit
+        with:
+          channel: pre-release
+
+      - name: Inspect MoonBit version
+        run: |
+          moon version --all
+
+      - name: Run moon info
+        run: |
+          moon info --target native
+          git diff --exit-code
+
+  check-example:
+    strategy:
+      matrix:
+        channel: [pre-release, bleeding]
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install MoonBit
+        uses: ./.github/actions/install-moonbit
+        with:
+          channel: ${{ matrix.channel }}
+
+      - name: Inspect MoonBit version
+        run: |
+          moon version --all
+
+      - name: Check tests
+        working-directory: test
+        run: |
+          moon check --target native
+
+  check-license-header:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - run: python3 scripts/license.py
+
+  check-clang-format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          shopt -s nullglob
+          clang-format --dry-run --Werror src/*.c src/*.h

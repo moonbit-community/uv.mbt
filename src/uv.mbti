@@ -348,7 +348,7 @@ fn[Ntbs : ToNtbs] Loop::fs_scandir(Self, Ntbs, Int, (Scandir) -> Unit, (Errno) -
 fn[Ntbs : ToNtbs] Loop::fs_scandir_sync(Self, Ntbs, Int) -> Scandir raise Errno
 fn[Ntbs : ToNtbs] Loop::fs_stat(Self, Ntbs, (Stat) -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn[Ntbs : ToNtbs] Loop::fs_stat_sync(Self, Ntbs) -> Stat raise Errno
-fn[Ntbs : ToNtbs] Loop::fs_unlink(Self, Ntbs, () -> Unit, (Error) -> Unit) -> Fs raise Errno
+fn[Ntbs : ToNtbs] Loop::fs_unlink(Self, Ntbs, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn[Ntbs : ToNtbs] Loop::fs_unlink_sync(Self, Ntbs) -> Unit raise Errno
 fn Loop::fs_write(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Int) -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_write_sync(Self, File, Array[@bytes.View], offset~ : Int64 = ..) -> Unit raise Errno
