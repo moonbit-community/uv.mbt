@@ -8,6 +8,14 @@
       "native",
       "llvm"
     ],
+    "async.mbt": [
+      "native",
+      "llvm"
+    ],
+    "async_test.mbt": [
+      "native",
+      "llvm"
+    ],
     "debug.mbt": [
       "native",
       "llvm"
@@ -181,10 +189,7 @@
       "llvm"
     ]
   },
-  "import": [
-    "tonyfettes/c",
-    "tonyfettes/encoding"
-  ],
+  "import": ["tonyfettes/c", "tonyfettes/encoding"],
   "native-stub": [
     "uv#src#fs-poll.c",
     "uv#src#idna.c",
