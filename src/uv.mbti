@@ -317,6 +317,7 @@ impl ToHandle for Idle
 type Loop
 fn Loop::alive(Self) -> Bool
 fn Loop::close(Self) -> Unit raise Errno
+fn Loop::configure(Self, LoopOption) -> Unit raise Errno
 fn[Ntbs : ToNtbs] Loop::fs_access(Self, Ntbs, AccessFlags, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn[Ntbs : ToNtbs] Loop::fs_access_sync(Self, Ntbs, AccessFlags) -> Unit raise Errno
 fn Loop::fs_close(Self, File, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
@@ -361,6 +362,12 @@ fn Loop::run(Self, RunMode) -> Unit raise Errno
 fn Loop::spawn(Self, ProcessOptions) -> Process raise Errno
 fn Loop::stop(Self) -> Unit
 fn Loop::walk(Self, (Handle) -> Unit) -> Unit
+
+pub(all) enum LoopOption {
+  BlockSignal(Signum)
+  MeasureIdleTime
+  UseIoUringSqPoll
+}
 
 type Mutex
 fn Mutex::lock(Self) -> Unit
@@ -431,6 +438,7 @@ fn Signum::sigabrt() -> Self
 fn Signum::sighup() -> Self
 fn Signum::sigint() -> Self
 fn Signum::sigpipe() -> Self raise Errno
+fn Signum::sigprof() -> Self raise Errno
 fn Signum::sigquit() -> Self
 fn Signum::sigterm() -> Self
 fn Signum::sigwinch() -> Self

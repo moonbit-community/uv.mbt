@@ -92,6 +92,22 @@ moonbit_uv_loop_init(uv_loop_t *loop) {
 
 MOONBIT_FFI_EXPORT
 int32_t
+moonbit_uv_loop_configure_block_signal(uv_loop_t *loop, int32_t signum) {
+  int result = uv_loop_configure(loop, UV_LOOP_BLOCK_SIGNAL, signum);
+  moonbit_decref(loop);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_loop_configure(uv_loop_t *loop, int32_t option) {
+  int result = uv_loop_configure(loop, option);
+  moonbit_decref(loop);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
 moonbit_uv_loop_close(uv_loop_t *loop) {
   int result = uv_loop_close(loop);
   moonbit_decref(loop);
@@ -3132,6 +3148,16 @@ moonbit_uv_SIGPIPE(void) {
   return -1;
 #else
   return SIGPIPE;
+#endif
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_SIGPROF(void) {
+#ifdef _WIN32
+  return -1;
+#else
+  return SIGPROF;
 #endif
 }
 

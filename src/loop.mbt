@@ -45,6 +45,32 @@ pub fn Loop::new() -> Loop raise Errno {
 }
 
 ///|
+pub(all) enum LoopOption {
+  BlockSignal(Signum)
+  MeasureIdleTime
+  UseIoUringSqPoll
+}
+
+///|
+extern "c" fn uv_loop_configure_block_signal(uv : Loop, signum : Signum) -> Int = "moonbit_uv_loop_configure_block_signal"
+
+///|
+extern "c" fn uv_loop_configure(uv : Loop, option : Int) -> Int = "moonbit_uv_loop_configure"
+
+///|
+pub fn Loop::configure(self : Loop, option : LoopOption) -> Unit raise Errno {
+  let status = match option {
+    LoopOption::BlockSignal(signum) =>
+      uv_loop_configure_block_signal(self, signum)
+    LoopOption::MeasureIdleTime => uv_loop_configure(self, 1)
+    LoopOption::UseIoUringSqPoll => uv_loop_configure(self, 2)
+  }
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
 extern "c" fn uv_loop_close(uv : Loop) -> Int = "moonbit_uv_loop_close"
 
 ///|
