@@ -76,6 +76,8 @@ fn stdin() -> File
 
 fn stdout() -> File
 
+fn version() -> Version
+
 #deprecated
 fn[Stream : ToStream] write(Stream, Array[@bytes.View], () -> Unit, (Errno) -> Unit) -> Write raise Errno
 
@@ -566,6 +568,12 @@ fn Utsname::machine(Self) -> String
 fn Utsname::release(Self) -> String
 fn Utsname::sysname(Self) -> String
 fn Utsname::version(Self) -> String
+
+type Version
+fn Version::major(Self) -> Int
+fn Version::minor(Self) -> Int
+fn Version::patch(Self) -> Int
+impl Show for Version
 
 type Work
 impl Cancelable for Work
