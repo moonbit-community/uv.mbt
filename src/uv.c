@@ -2840,6 +2840,7 @@ moonbit_uv_queue_work(
 typedef struct moonbit_uv_mutex_s {
   struct {
     int32_t arc;
+    uv_mutex_t mutex;
     uv_mutex_t object;
   } *block;
 } moonbit_uv_mutex_t;
@@ -2850,14 +2851,15 @@ moonbit_uv_mutex_finalize(void *object) {
   moonbit_uv_tracef("mutex = %p\n", (void *)mutex);
   moonbit_uv_tracef("mutex->block = %p\n", (void *)mutex->block);
   if (mutex->block) {
-    uv_mutex_lock(&mutex->block->object);
+    uv_mutex_lock(&mutex->block->mutex);
     int32_t arc = mutex->block->arc;
     moonbit_uv_tracef("mutex->block->arc = %d -> %d\n", arc, arc - 1);
     mutex->block->arc = arc - 1;
-    uv_mutex_unlock(&mutex->block->object);
+    uv_mutex_unlock(&mutex->block->mutex);
     if (arc > 1) {
       return;
     }
+    uv_mutex_destroy(&mutex->block->mutex);
     uv_mutex_destroy(&mutex->block->object);
     free(mutex->block);
   }
@@ -2878,8 +2880,23 @@ MOONBIT_FFI_EXPORT
 int32_t
 moonbit_uv_mutex_init(moonbit_uv_mutex_t *mutex) {
   mutex->block = malloc(sizeof(*mutex->block));
+  int status = uv_mutex_init(&mutex->block->mutex);
+  if (status < 0) {
+    goto fail_to_init_mutex;
+  }
   mutex->block->arc = 1;
-  int status = uv_mutex_init(&mutex->block->object);
+  status = uv_mutex_init(&mutex->block->object);
+  if (status < 0) {
+    goto fail_to_init_object;
+  }
+  goto success;
+
+fail_to_init_object:
+  uv_mutex_destroy(&mutex->block->mutex);
+fail_to_init_mutex:
+  free(mutex->block);
+  mutex->block = NULL;
+success:
   moonbit_decref(mutex);
   return status;
 }
@@ -2887,9 +2904,9 @@ moonbit_uv_mutex_init(moonbit_uv_mutex_t *mutex) {
 MOONBIT_FFI_EXPORT
 void
 moonbit_uv_mutex_copy(moonbit_uv_mutex_t *self, moonbit_uv_mutex_t *other) {
-  uv_mutex_lock(&self->block->object);
+  uv_mutex_lock(&self->block->mutex);
   self->block->arc += 1;
-  uv_mutex_unlock(&self->block->object);
+  uv_mutex_unlock(&self->block->mutex);
   other->block = self->block;
   moonbit_decref(self);
   moonbit_decref(other);
@@ -2963,6 +2980,7 @@ moonbit_uv_thread_finalize(void *object) {
     if (arc > 1) {
       return;
     }
+    uv_mutex_destroy(&thread->block->mutex);
     free(thread->block);
   }
 }
@@ -2997,13 +3015,25 @@ moonbit_uv_thread_create(
   moonbit_uv_thread_cb_t *cb
 ) {
   thread->block = malloc(sizeof(*thread->block));
-  uv_mutex_init(&thread->block->mutex);
-  thread->block->arc = 1;
-  int status =
-    uv_thread_create(&thread->block->object, moonbit_uv_thread_cb, cb);
-  if (status != 0) {
+  int status = uv_mutex_init(&thread->block->mutex);
+  if (status < 0) {
     moonbit_decref(cb);
+    goto fail_to_init_mutex;
   }
+  thread->block->arc = 1;
+  status = uv_thread_create(&thread->block->object, moonbit_uv_thread_cb, cb);
+  if (status < 0) {
+    moonbit_decref(cb);
+    goto fail_to_init_object;
+  }
+  goto success;
+
+fail_to_init_object:
+  uv_mutex_destroy(&thread->block->mutex);
+fail_to_init_mutex:
+  free(thread->block);
+  thread->block = NULL;
+success:
   moonbit_decref(thread);
   return status;
 }
