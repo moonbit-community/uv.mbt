@@ -167,6 +167,21 @@ moonbit_uv_loop_alive(uv_loop_t *loop) {
   return alive;
 }
 
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_now(uv_loop_t *loop) {
+  uint64_t now = uv_now(loop);
+  moonbit_decref(loop);
+  return now;
+}
+
+MOONBIT_FFI_EXPORT
+void
+moonbit_uv_update_time(uv_loop_t *loop) {
+  uv_update_time(loop);
+  moonbit_decref(loop);
+}
+
 typedef struct moonbit_uv_idle_s {
   uv_idle_t idle;
 } moonbit_uv_idle_t;

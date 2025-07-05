@@ -355,12 +355,14 @@ fn Loop::fs_write(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Int) ->
 fn Loop::fs_write_sync(Self, File, Array[@bytes.View], offset~ : Int64 = ..) -> Unit raise Errno
 fn[Node : ToNtbs, Service : ToNtbs] Loop::getaddrinfo(Self, (Iter[AddrInfo]) -> Unit, (Errno) -> Unit, Node, Service, hints? : AddrInfoHints) -> GetAddrInfo raise Errno
 fn Loop::new() -> Self raise Errno
+fn Loop::now(Self) -> UInt64
 fn Loop::print_all_handles(Self, File) -> Unit
 fn Loop::queue_work(Self, () -> Unit, () -> Unit, (Errno) -> Unit) -> Work raise Errno
 fn Loop::random(Self, @bytes.View, Int, (@bytes.View) -> Unit, (Errno) -> Unit) -> Random raise Errno
 fn Loop::run(Self, RunMode) -> Unit raise Errno
 fn Loop::spawn(Self, ProcessOptions) -> Process raise Errno
 fn Loop::stop(Self) -> Unit
+fn Loop::update_time(Self) -> Unit
 fn Loop::walk(Self, (Handle) -> Unit) -> Unit
 
 pub(all) enum LoopOption {
