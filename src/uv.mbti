@@ -406,6 +406,12 @@ impl ToStream for Pipe
 type PipeBindFlags
 fn PipeBindFlags::new(truncate~ : Bool = ..) -> Self
 
+type Prepare
+fn Prepare::new(Loop) -> Self raise Errno
+fn Prepare::start(Self, (Self) -> Unit) -> Unit raise Errno
+fn Prepare::stop(Self) -> Unit raise Errno
+impl ToHandle for Prepare
+
 type Process
 fn Process::kill(Self, Signum) -> Unit raise Errno
 fn Process::pid(Self) -> Int

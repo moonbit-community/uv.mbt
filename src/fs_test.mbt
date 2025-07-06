@@ -467,10 +467,10 @@ test "opendir-readdir-closedir" {
     "udp.mbt", "args.mbt", "idle.mbt", "loop.mbt", "pipe.mbt", "time.mbt", "work.mbt",
     "debug.mbt", "error.mbt", "mutex.mbt", "timer.mbt", "handle.mbt", "random.mbt",
     "signal.mbt", "socket.mbt", "stream.mbt", "thread.mbt", "fs_test.mbt", "ip_test.mbt",
-    "metrics.mbt", "os_test.mbt", "process.mbt", "version.mbt", "dns_test.mbt", "env_test.mbt",
-    "fs_event.mbt", "tcp_test.mbt", "udp_test.mbt", "args_test.mbt", "idle_test.mbt",
-    "loop_test.mbt", "work_test.mbt", "timer_test.mbt", "random_test.mbt", "stream_test.mbt",
-    "thread_test.mbt", "metrics_test.mbt", "process_test.mbt", "version_test.mbt",
-    "fs_event_test.mbt",
+    "metrics.mbt", "os_test.mbt", "prepare.mbt", "process.mbt", "version.mbt", "dns_test.mbt",
+    "env_test.mbt", "fs_event.mbt", "tcp_test.mbt", "udp_test.mbt", "args_test.mbt",
+    "idle_test.mbt", "loop_test.mbt", "work_test.mbt", "timer_test.mbt", "random_test.mbt",
+    "stream_test.mbt", "thread_test.mbt", "metrics_test.mbt", "prepare_test.mbt",
+    "process_test.mbt", "version_test.mbt", "fs_event_test.mbt",
   ])
 }
