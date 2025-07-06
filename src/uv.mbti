@@ -356,6 +356,8 @@ fn[Ntbs : ToNtbs] Loop::fs_unlink_sync(Self, Ntbs) -> Unit raise Errno
 fn Loop::fs_write(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Int) -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_write_sync(Self, File, Array[@bytes.View], offset~ : Int64 = ..) -> Unit raise Errno
 fn[Node : ToNtbs, Service : ToNtbs] Loop::getaddrinfo(Self, (Iter[AddrInfo]) -> Unit, (Errno) -> Unit, Node, Service, hints? : AddrInfoHints) -> GetAddrInfo raise Errno
+fn Loop::metrics_idle_time(Self) -> UInt64
+fn Loop::metrics_info(Self) -> Metrics raise Errno
 fn Loop::new() -> Self raise Errno
 fn Loop::now(Self) -> UInt64
 fn Loop::print_all_handles(Self, File) -> Unit
@@ -372,6 +374,11 @@ pub(all) enum LoopOption {
   MeasureIdleTime
   UseIoUringSqPoll
 }
+
+type Metrics
+fn Metrics::events(Self) -> UInt64
+fn Metrics::events_waiting(Self) -> UInt64
+fn Metrics::loop_count(Self) -> UInt64
 
 type Mutex
 fn Mutex::lock(Self) -> Unit
