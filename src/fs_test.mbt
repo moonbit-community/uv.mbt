@@ -108,10 +108,10 @@ test "read" {
   }
   inspect(
     @encoding.decode(buffer.contents(), encoding=UTF8),
-    content=
+    content=(
       #|Hello, world!
       #|
-    ,
+    ),
   )
 }
 
@@ -132,10 +132,10 @@ test "read/sync" {
   }
   inspect(
     @encoding.decode(buffer.contents(), encoding=UTF8),
-    content=
+    content=(
       #|Hello, world!
       #|
-    ,
+    ),
   )
   uv.close()
 }

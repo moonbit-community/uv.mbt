@@ -227,9 +227,7 @@ fn Errno::of_int(errno : Int) -> Errno {
 
 ///|
 fn Errno::to_int(self : Errno) -> Int {
-  guard errno_values.get(self) is Some(value) else {
-    _UNKNOWN
-  }
+  guard errno_values.get(self) is Some(value) else { _UNKNOWN }
   value
 }
 

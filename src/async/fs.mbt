@@ -669,7 +669,7 @@ pub async fn[R] with_temporary_directory(
       backtrace(loc~, fn() { path.remove(recursive=true) })
       raise error
     }
-  } else {
+  } noraise {
     value => {
       backtrace(loc~, fn() { path.remove(recursive=true) })
       value
