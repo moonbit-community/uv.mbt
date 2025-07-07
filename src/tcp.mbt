@@ -83,62 +83,6 @@ pub fn[Sockaddr : ToSockaddr] Tcp::bind(
 }
 
 ///|
-extern "c" fn uv_listen(
-  stream : Stream,
-  backlog : Int,
-  cb : (Stream, Int) -> Unit
-) -> Int = "moonbit_uv_listen"
-
-///|
-pub fn[Stream : ToStream] listen(
-  stream : Stream,
-  backlog : Int,
-  connection_cb : (Stream) -> Unit,
-  error_cb : (Stream, Errno) -> Unit
-) -> Unit raise Errno {
-  stream.listen(backlog, connection_cb, error_cb)
-}
-
-///|
-impl ToStream with listen(self, backlog, connection_cb, error_cb) {
-  fn uv_cb(self : Stream, status : Int) {
-    if status < 0 {
-      error_cb(ToStream::of_stream(self), Errno::of_int(status))
-    } else {
-      connection_cb(ToStream::of_stream(self))
-    }
-  }
-
-  let status = uv_listen(self.to_stream(), backlog, uv_cb)
-  if status < 0 {
-    raise Errno::of_int(status)
-  }
-}
-
-///|
-extern "c" fn uv_accept(server : Stream, client : Stream) -> Int = "moonbit_uv_accept"
-
-///|
-pub fn[Server : ToStream, Client : ToStream] accept(
-  server : Server,
-  client : Client
-) -> Unit raise Errno {
-  let status = uv_accept(server.to_stream(), client.to_stream())
-  if status < 0 {
-    raise Errno::of_int(status)
-  }
-}
-
-///|
-type Connect Bytes
-
-///|
-pub impl ToReq for Connect with to_req(self : Connect) -> Req = "%identity"
-
-///|
-extern "c" fn uv_connect_make() -> Connect = "moonbit_uv_connect_make"
-
-///|
 extern "c" fn uv_tcp_connect(
   req : Connect,
   handle : Tcp,
