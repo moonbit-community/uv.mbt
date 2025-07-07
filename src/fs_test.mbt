@@ -439,7 +439,6 @@ test "opendir-readdir-closedir" {
     for dirent in dirents {
       guard dirent.type_ is File else { continue }
       let name = dirent.name
-      guard name.has_suffix(".mbt") else { continue }
       sources.push(name)
     }
     try uv.fs_readdir(dir, 1, read_cb(dir, _), error_cb) |> ignore() catch {
@@ -453,7 +452,7 @@ test "opendir-readdir-closedir" {
     }
   }
 
-  try uv.fs_opendir("src", open_cb, error_cb) |> ignore() catch {
+  try uv.fs_opendir("test/fixtures", open_cb, error_cb) |> ignore() catch {
     e => error = Some(e)
   }
   uv.run(Default)
@@ -462,16 +461,5 @@ test "opendir-readdir-closedir" {
     raise error
   }
   sources.sort()
-  @json.inspect(sources, content=[
-    "fs.mbt", "ip.mbt", "os.mbt", "dns.mbt", "env.mbt", "req.mbt", "sem.mbt", "tcp.mbt",
-    "tty.mbt", "udp.mbt", "args.mbt", "cond.mbt", "idle.mbt", "loop.mbt", "pipe.mbt",
-    "time.mbt", "work.mbt", "debug.mbt", "error.mbt", "mutex.mbt", "timer.mbt", "handle.mbt",
-    "random.mbt", "rwlock.mbt", "signal.mbt", "socket.mbt", "stream.mbt", "thread.mbt",
-    "fs_test.mbt", "ip_test.mbt", "metrics.mbt", "os_test.mbt", "prepare.mbt", "process.mbt",
-    "version.mbt", "dns_test.mbt", "env_test.mbt", "fs_event.mbt", "sem_test.mbt",
-    "tcp_test.mbt", "udp_test.mbt", "args_test.mbt", "cond_test.mbt", "idle_test.mbt",
-    "loop_test.mbt", "work_test.mbt", "timer_test.mbt", "random_test.mbt", "rwlock_test.mbt",
-    "stream_test.mbt", "thread_test.mbt", "metrics_test.mbt", "prepare_test.mbt",
-    "process_test.mbt", "version_test.mbt", "fs_event_test.mbt",
-  ])
+  @json.inspect(sources, content=["example.txt", ".gitattributes"])
 }
