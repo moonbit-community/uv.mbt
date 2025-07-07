@@ -442,6 +442,13 @@ pub(all) enum RunMode {
 type Scandir
 fn Scandir::next(Self) -> Dirent raise Errno
 
+type Sem
+fn Sem::new(UInt) -> Self raise Errno
+fn Sem::post(Self) -> Unit
+fn Sem::trywait(Self) -> Unit raise Errno
+fn Sem::wait(Self) -> Unit
+impl Share for Sem
+
 type Shutdown
 impl ToReq for Shutdown
 

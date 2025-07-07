@@ -80,6 +80,14 @@
       "native",
       "llvm"
     ],
+    "sem.mbt": [
+      "native",
+      "llvm"
+    ],
+    "sem_test.mbt": [
+      "native",
+      "llvm"
+    ],
     "process.mbt": [
       "native",
       "llvm"
