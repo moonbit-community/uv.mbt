@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "moonbit.h"
+#include "stream.h"
 #include "uv#include#uv.h"
 #include "uv.h"
 
@@ -66,5 +66,24 @@ moonbit_uv_tcp_bind(
   int result = uv_tcp_bind(&tcp->tcp, addr, flags);
   moonbit_decref(tcp);
   moonbit_decref(addr);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_tcp_connect(
+  uv_connect_t *connect,
+  moonbit_uv_tcp_t *tcp,
+  struct sockaddr *addr,
+  moonbit_uv_connection_cb_t *cb
+) {
+  if (connect->data) {
+    moonbit_decref(connect->data);
+  }
+  connect->data = cb;
+  // The ownership of `connect` is transferred into `loop`.
+  int result = uv_tcp_connect(connect, &tcp->tcp, addr, moonbit_uv_connect_cb);
+  moonbit_decref(addr);
+  moonbit_decref(tcp);
   return result;
 }

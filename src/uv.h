@@ -53,4 +53,7 @@ moonbit_uv_incref(const char *func, const char *name, void *object) {
 
 #define moonbit_uv_ignore(var) (void)(var)
 
+#define containerof(ptr, type, member)                                         \
+  ((type *)((char *)(ptr) - offsetof(type, member)))
+
 #endif // MOONBIT_UV_H
