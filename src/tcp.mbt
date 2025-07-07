@@ -71,6 +71,32 @@ pub fn TcpBindFlags::new(
 }
 
 ///|
+/// Bind the handle to an address and port.
+///
+/// When the port is already taken, you can expect to see an `UV_EADDRINUSE`
+/// error from `uv_listen()` or `uv_tcp_connect()` unless you specify
+/// `UV_TCP_REUSEPORT` in flags for all the binding sockets. That is, a
+/// successful call to this function does not guarantee that the call to
+/// `uv_listen()` or `uv_tcp_connect()` will succeed as well.
+///
+/// PARAMETERS:
+///
+///   - handle – TCP handle. It should have been initialized with
+///     `uv_tcp_init()`.
+///   - addr – Address to bind to. It should point to an initialized
+///     `SockaddrIn` or `SockaddrIn6`.
+///   - flags – Flags that control the behavior of binding the socket.
+///     `UV_TCP_IPV6ONLY` can be contained in flags to disable dual-stack
+///     support and only use IPv6. `UV_TCP_REUSEPORT` can be contained in flags
+///     to enable the socket option `SO_REUSEPORT` with the capability of load
+///     balancing that distribute incoming connections across all listening
+///     sockets in multiple processes or threads.
+///
+/// RETURNS:
+///
+///   0 on success, or an error code < 0 on failure.
+///
+/// *Changed in version 1.49.0*: added the `UV_TCP_REUSEPORT` flag.
 pub fn[Sockaddr : ToSockaddr] Tcp::bind(
   self : Tcp,
   addr : Sockaddr,
@@ -111,4 +137,107 @@ pub fn[Sockaddr : ToSockaddr] Tcp::connect(
     raise Errno::of_int(status)
   }
   return req
+}
+
+///|
+extern "c" fn uv_tcp_nodelay(tcp : Tcp, enable : Bool) -> Int = "moonbit_uv_tcp_nodelay"
+
+///|
+/// Enable `TCP_NODELAY`, which disables Nagle’s algorithm.
+pub fn Tcp::nodelay(self : Tcp, enable : Bool) -> Unit raise Errno {
+  let status = uv_tcp_nodelay(self, enable)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
+extern "c" fn uv_tcp_keepalive(tcp : Tcp, enable : Bool, delay : UInt) -> Int = "moonbit_uv_tcp_keepalive"
+
+///|
+/// Enable / disable TCP keep-alive. delay is the initial delay in seconds,
+/// ignored when enable is zero.
+///
+/// After delay has been reached, 10 successive probes, each spaced 1 second
+/// from the previous one, will still happen. If the connection is still lost at
+/// the end of this procedure, then the handle is destroyed with a
+/// `UV_ETIMEDOUT` error passed to the corresponding callback.
+///
+/// If _delay_ is less than 1 then `UV_EINVAL` is returned.
+///
+/// *Changed in version 1.49.0*: If _delay_ is less than 1 then `UV_EINVAL` is returned.
+pub fn Tcp::keepalive(
+  self : Tcp,
+  enable : Bool,
+  delay~ : UInt = 0U
+) -> Unit raise Errno {
+  let status = uv_tcp_keepalive(self, enable, delay)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
+extern "c" fn uv_tcp_getsockname(tcp : Tcp, addr : Sockaddr) -> Int = "moonbit_uv_tcp_getsockname"
+
+///|
+/// Get the current address to which the handle is bound.
+/// `struct sockaddr_storage` is used for IPv4 and IPv6 support.
+pub fn Tcp::getsockname(self : Tcp) -> Sockaddr raise Errno {
+  let addr = uv_sockaddr_make()
+  let status = uv_tcp_getsockname(self, addr)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  addr
+}
+
+///|
+extern "c" fn uv_tcp_getpeername(tcp : Tcp, addr : Sockaddr) -> Int = "moonbit_uv_tcp_getpeername"
+
+///|
+/// Get the address of the peer connected to the handle.
+/// `struct sockaddr_storage` is used for IPv4 and IPv6 support.
+pub fn Tcp::getpeername(self : Tcp) -> Sockaddr raise Errno {
+  let addr = uv_sockaddr_make()
+  let status = uv_tcp_getpeername(self, addr)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  addr
+}
+
+///|
+extern "c" fn uv_tcp_close_reset(tcp : Tcp, cb : () -> Unit) -> Int = "moonbit_uv_tcp_close_reset"
+
+///|
+/// Resets a TCP connection by sending a RST packet. This is accomplished by
+/// setting the `SO_LINGER` socket option with a linger interval of zero and
+/// then calling `uv_close()`. Due to some platform inconsistencies, mixing of
+/// `uv_shutdown()` and `uv_tcp_close_reset()` calls is not allowed.
+///
+/// *New in version 1.32.0.*
+pub fn Tcp::close_reset(self : Tcp, close_cb : () -> Unit) -> Unit raise Errno {
+  let status = uv_tcp_close_reset(self, close_cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
+extern "c" fn uv_tcp_simultaneous_accepts(tcp : Tcp, enable : Bool) -> Int = "moonbit_uv_tcp_simultaneous_accepts"
+
+///|
+/// Enable / disable simultaneous asynchronous accept requests that are queued
+/// by the operating system when listening for new TCP connections.
+///
+/// This setting is used to tune a TCP server for the desired performance.
+/// Having simultaneous accepts can significantly improve the rate of accepting
+/// connections (which is why it is enabled by default) but may lead to uneven
+/// load distribution in multi-process setups.
+pub fn Tcp::simultaneous_accepts(self : Tcp, enable : Bool) -> Unit raise Errno {
+  let status = uv_tcp_simultaneous_accepts(self, enable)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
 }

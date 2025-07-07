@@ -131,3 +131,114 @@ test "tcp" {
     raise error
   }
 }
+
+///|
+test "Tcp::getsockname" {
+  let uv = Loop::new()
+  let server = Tcp::new(uv)
+  let addr = ip4_addr("127.0.0.1", 0)
+  server.bind(addr, TcpBindFlags::new())
+  inspect(server.getsockname().ip_name(), content="127.0.0.1")
+  server.close(() => ())
+  uv.run(Default)
+  uv.close()
+}
+
+///|
+test "Tcp::nodelay" {
+  let uv = Loop::new()
+  let server = Tcp::new(uv)
+  let addr = ip4_addr("127.0.0.1", 0)
+  server.bind(addr, TcpBindFlags::new())
+  server.nodelay(true)
+  server.close(() => ())
+  uv.run(Default)
+  uv.close()
+}
+
+///|
+test "Tcp::keepalive" {
+  let uv = Loop::new()
+  let server = Tcp::new(uv)
+  let addr = ip4_addr("127.0.0.1", 0)
+  server.bind(addr, TcpBindFlags::new())
+  server.keepalive(true, delay=60U)
+  server.close(() => ())
+  uv.run(Default)
+  uv.close()
+}
+
+///|
+test "Tcp::close_reset" {
+  let uv = Loop::new()
+  let server = Tcp::new(uv)
+  let addr = ip4_addr("127.0.0.1", 8545)
+  let errors : Array[Error] = []
+  server.bind(addr, TcpBindFlags::new())
+  server.listen(
+    128,
+    _ => {
+      let client = Tcp::new(uv) catch {
+        e => {
+          errors.push(e)
+          server.close(() => ())
+          return
+        }
+      }
+      try {
+        @uv.accept(server, client)
+        client.close_reset(() => ())
+        server.close(() => ())
+      } catch {
+        e => {
+          errors.push(e)
+          server.close(() => ())
+          client.close(() => ())
+          return
+        }
+      }
+    },
+    (_, e) => {
+      errors.push(e)
+      server.close(() => ())
+    },
+  ) catch {
+    e => {
+      errors.push(e)
+      server.close(() => ())
+    }
+  }
+  let client = Tcp::new(uv)
+  try
+    client.connect(addr, () => errors.push(Failure("Expected ECONNRESET")), e => {
+      if not(e is ECONNRESET) {
+        errors.push(e)
+      }
+      client.close(() => ())
+    })
+    |> ignore()
+  catch {
+    e => {
+      errors.push(e)
+      client.close(() => ())
+    }
+  }
+  uv.run(Default)
+  uv.close()
+  for error in errors {
+    raise error
+  }
+}
+
+///|
+test "Tcp::simultaneous_accepts" {
+  let uv = Loop::new()
+  let server = Tcp::new(uv)
+  let addr = ip4_addr("127.0.0.1", 0)
+  server.bind(addr, TcpBindFlags::new())
+  server.simultaneous_accepts(true)
+  server.simultaneous_accepts(false)
+  server.close(() => ())
+  uv.run(Default)
+  uv.close()
+}
