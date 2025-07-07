@@ -428,6 +428,16 @@ fn Protocol::tcp() -> Self
 fn Protocol::udp() -> Self
 impl Show for Protocol
 
+type RWLock
+fn RWLock::new() -> Self raise Errno
+fn RWLock::rdlock(Self) -> Unit
+fn RWLock::rdunlock(Self) -> Unit
+fn RWLock::tryrdlock(Self) -> Unit raise Errno
+fn RWLock::trywrlock(Self) -> Unit raise Errno
+fn RWLock::wrlock(Self) -> Unit
+fn RWLock::wrunlock(Self) -> Unit
+impl Share for RWLock
+
 type Random
 impl ToReq for Random
 
