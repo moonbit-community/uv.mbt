@@ -333,10 +333,5 @@
       ],
       "command": "python3 scripts/prepare.py"
     }
-  ],
-  "link": {
-    "native": {
-      "cc": "/opt/homebrew/opt/llvm/bin/clang"
-    }
-  }
+  ]
 }

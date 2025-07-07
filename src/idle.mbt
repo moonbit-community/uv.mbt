@@ -34,7 +34,7 @@
 /// uv.run(Default)
 /// uv.close()
 /// ```
-type Idle Bytes
+type Idle
 
 ///|
 pub impl ToHandle for Idle with to_handle(idle : Idle) -> Handle = "%identity"
