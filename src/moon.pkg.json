@@ -80,6 +80,14 @@
       "native",
       "llvm"
     ],
+    "cond.mbt": [
+      "native",
+      "llvm"
+    ],
+    "cond_test.mbt": [
+      "native",
+      "llvm"
+    ],
     "sem.mbt": [
       "native",
       "llvm"
