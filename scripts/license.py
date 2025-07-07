@@ -37,8 +37,7 @@ MOONBIT_LICENSE_HEADER = """\
 """
 
 C_LICENSE_HEADER = """\
-/*
- * Copyright {year} International Digital Economy Academy
+/* Copyright {year} International Digital Economy Academy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

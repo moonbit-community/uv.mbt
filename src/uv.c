@@ -1,5 +1,4 @@
-/*
- * Copyright 2025 International Digital Economy Academy
+/* Copyright 2025 International Digital Economy Academy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,40 +42,7 @@
 #define containerof(ptr, type, member)                                         \
   ((type *)((char *)(ptr) - offsetof(type, member)))
 
-#ifdef DEBUG
-#include <stdio.h>
-
-static inline void
-moonbit_uv_decref(const char *func, const char *name, void *object) {
-  fprintf(stderr, "%s: (decref) %s = %p\n", func, name, object);
-  fprintf(
-    stderr, "%s: (decref) %s->rc = %d -> %d\n", func, name,
-    Moonbit_object_header(object)->rc, Moonbit_object_header(object)->rc - 1
-  );
-  moonbit_decref(object);
-}
-
-static inline void
-moonbit_uv_incref(const char *func, const char *name, void *object) {
-  fprintf(stderr, "%s: (incref) %s = %p\n", func, name, object);
-  fprintf(
-    stderr, "%s: (incref) %s->rc = %d -> %d\n", func, name,
-    Moonbit_object_header(object)->rc, Moonbit_object_header(object)->rc + 1
-  );
-  moonbit_incref(object);
-}
-
-#define moonbit_incref(object) moonbit_uv_incref(__func__, #object, object)
-#define moonbit_decref(object) moonbit_uv_decref(__func__, #object, object)
-#define moonbit_uv_trace(string) fprintf(stderr, "%s: " string, __func__)
-#define moonbit_uv_tracef(format, ...)                                         \
-  fprintf(stderr, "%s: " format, __func__, __VA_ARGS__)
-#else
-#define moonbit_uv_trace(...)
-#define moonbit_uv_tracef(...)
-#endif
-
-#define moonbit_uv_ignore(var) (void)(var)
+#include "uv.h"
 
 MOONBIT_FFI_EXPORT
 uv_loop_t *
@@ -1493,57 +1459,7 @@ moonbit_uv_ip6_addr(
   return uv_ip6_addr((const char *)ip, port, addr);
 }
 
-typedef struct moonbit_uv_tcp_s {
-  uv_tcp_t tcp;
-} moonbit_uv_tcp_t;
-
-static inline void
-moonbit_uv_tcp_finalize(void *object) {
-  moonbit_uv_tcp_t *tcp = (moonbit_uv_tcp_t *)object;
-  moonbit_uv_tracef("tcp = %p\n", (void *)tcp);
-  moonbit_uv_tracef("tcp->rc = %d\n", Moonbit_object_header(tcp)->rc);
-  if (tcp->tcp.data) {
-    moonbit_decref(tcp->tcp.data);
-    tcp->tcp.data = NULL;
-  }
-  if (tcp->tcp.loop) {
-    moonbit_uv_tracef("tcp->loop = %p\n", (void *)tcp->tcp.loop);
-    moonbit_decref(tcp->tcp.loop);
-    tcp->tcp.loop = NULL;
-  }
-}
-
-MOONBIT_FFI_EXPORT
-moonbit_uv_tcp_t *
-moonbit_uv_tcp_make(void) {
-  moonbit_uv_tcp_t *tcp = (moonbit_uv_tcp_t *)moonbit_make_external_object(
-    moonbit_uv_tcp_finalize, sizeof(moonbit_uv_tcp_t)
-  );
-  moonbit_uv_tracef("tcp = %p\n", (void *)tcp);
-  memset(tcp, 0, sizeof(moonbit_uv_tcp_t));
-  return tcp;
-}
-
-MOONBIT_FFI_EXPORT
-int32_t
-moonbit_uv_tcp_init(uv_loop_t *loop, moonbit_uv_tcp_t *tcp) {
-  moonbit_uv_tracef("tcp = %p\n", (void *)tcp);
-  moonbit_uv_tracef("tcp->rc = %d\n", Moonbit_object_header(tcp)->rc);
-  return uv_tcp_init(loop, &tcp->tcp);
-}
-
-MOONBIT_FFI_EXPORT
-int32_t
-moonbit_uv_tcp_bind(
-  moonbit_uv_tcp_t *tcp,
-  struct sockaddr *addr,
-  uint32_t flags
-) {
-  int result = uv_tcp_bind(&tcp->tcp, addr, flags);
-  moonbit_decref(tcp);
-  moonbit_decref(addr);
-  return result;
-}
+#include "tcp.c"
 
 MOONBIT_FFI_EXPORT
 uv_connect_t *
