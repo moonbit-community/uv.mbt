@@ -36,6 +36,10 @@
 #include <unistd.h>
 #endif
 
+#if __STDC_VERSION__ >= 201112L
+#include <stdatomic.h>
+#endif
+
 #define containerof(ptr, type, member)                                         \
   ((type *)((char *)(ptr) - offsetof(type, member)))
 
@@ -2838,11 +2842,18 @@ moonbit_uv_queue_work(
 }
 
 typedef struct moonbit_uv_mutex_s {
+#if __STDC_VERSION__ >= 201112L
+  struct {
+    _Atomic int32_t arc;
+    uv_mutex_t object;
+  } *block;
+#else
   struct {
     int32_t arc;
     uv_mutex_t mutex;
     uv_mutex_t object;
   } *block;
+#endif
 } moonbit_uv_mutex_t;
 
 static inline void
@@ -2851,15 +2862,23 @@ moonbit_uv_mutex_finalize(void *object) {
   moonbit_uv_tracef("mutex = %p\n", (void *)mutex);
   moonbit_uv_tracef("mutex->block = %p\n", (void *)mutex->block);
   if (mutex->block) {
+#if __STDC_VERSION__ >= 201112L
+    int32_t arc = atomic_fetch_sub(&mutex->block->arc, 1);
+    moonbit_uv_tracef("mutex->block->arc = %d -> %d\n", arc, arc - 1);
+#else
     uv_mutex_lock(&mutex->block->mutex);
     int32_t arc = mutex->block->arc;
     moonbit_uv_tracef("mutex->block->arc = %d -> %d\n", arc, arc - 1);
     mutex->block->arc = arc - 1;
     uv_mutex_unlock(&mutex->block->mutex);
+#endif
     if (arc > 1) {
       return;
     }
+#if __STDC_VERSION__ >= 201112L
+#else
     uv_mutex_destroy(&mutex->block->mutex);
+#endif
     uv_mutex_destroy(&mutex->block->object);
     free(mutex->block);
   }
@@ -2879,12 +2898,19 @@ moonbit_uv_mutex_make(void) {
 MOONBIT_FFI_EXPORT
 int32_t
 moonbit_uv_mutex_init(moonbit_uv_mutex_t *mutex) {
+  int status = 0;
   mutex->block = malloc(sizeof(*mutex->block));
-  int status = uv_mutex_init(&mutex->block->mutex);
+
+#if __STDC_VERSION__ >= 201112L
+  atomic_init(&mutex->block->arc, 1);
+#else
+  status = uv_mutex_init(&mutex->block->mutex);
   if (status < 0) {
     goto fail_to_init_mutex;
   }
   mutex->block->arc = 1;
+#endif
+
   status = uv_mutex_init(&mutex->block->object);
   if (status < 0) {
     goto fail_to_init_object;
@@ -2892,7 +2918,10 @@ moonbit_uv_mutex_init(moonbit_uv_mutex_t *mutex) {
   goto success;
 
 fail_to_init_object:
+#if __STDC_VERSION__ >= 201112L
+#else
   uv_mutex_destroy(&mutex->block->mutex);
+#endif
 fail_to_init_mutex:
   free(mutex->block);
   mutex->block = NULL;
@@ -2904,9 +2933,13 @@ success:
 MOONBIT_FFI_EXPORT
 void
 moonbit_uv_mutex_copy(moonbit_uv_mutex_t *self, moonbit_uv_mutex_t *other) {
+#if __STDC_VERSION__ >= 201112L
+  atomic_fetch_add(&self->block->arc, 1);
+#else
   uv_mutex_lock(&self->block->mutex);
   self->block->arc += 1;
   uv_mutex_unlock(&self->block->mutex);
+#endif
   other->block = self->block;
   moonbit_decref(self);
   moonbit_decref(other);
