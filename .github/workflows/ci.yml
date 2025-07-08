@@ -17,18 +17,12 @@ name: ci
 on:
   pull_request:
     branches: ["main"]
-    paths:
-      - ".github/actions/install-moonbit/**"
-      - "scripts/test.py"
-      - "scripts/prepare.py"
-      - "test/**"
-      - "src/**"
 
 jobs:
   test-pre-release-native:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-self-hosted, windows-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     continue-on-error: true
     steps:
@@ -56,7 +50,7 @@ jobs:
   test-bleeding-llvm:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-self-hosted, windows-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     continue-on-error: true
     steps:
