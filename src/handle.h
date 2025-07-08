@@ -19,9 +19,27 @@
 #include "moonbit.h"
 #include "uv#include#uv.h"
 
+#include "uv.h"
+
 typedef struct moonbit_uv_close_cb {
   int32_t (*code)(struct moonbit_uv_close_cb *);
 } moonbit_uv_close_cb_t;
+
+static inline void
+moonbit_uv_close_cb(uv_handle_t *handle) {
+  moonbit_uv_tracef("handle = %p\n", (void *)handle);
+  moonbit_uv_tracef("handle->rc = %d\n", Moonbit_object_header(handle)->rc);
+  moonbit_uv_tracef("handle->type = %s\n", uv_handle_type_name(handle->type));
+  moonbit_uv_tracef(
+    "uv_has_ref(handle) = %s\n", uv_has_ref(handle) ? "true" : "false"
+  );
+  moonbit_uv_close_cb_t *cb = handle->data;
+  moonbit_uv_tracef("cb = %p\n", (void *)cb);
+  moonbit_uv_tracef("cb->rc = %d\n", Moonbit_object_header(cb)->rc);
+  handle->data = NULL;
+  moonbit_decref(handle);
+  cb->code(cb);
+}
 
 static inline void
 moonbit_uv_handle_set_data(uv_handle_t *handle, void *cb) {

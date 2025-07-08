@@ -555,8 +555,14 @@ impl ToStream for Stream
 
 type Tcp
 fn[Sockaddr : ToSockaddr] Tcp::bind(Self, Sockaddr, TcpBindFlags) -> Unit raise Errno
+fn Tcp::close_reset(Self, () -> Unit) -> Unit raise Errno
 fn[Sockaddr : ToSockaddr] Tcp::connect(Self, Sockaddr, () -> Unit, (Errno) -> Unit) -> Connect raise Errno
+fn Tcp::getpeername(Self) -> Sockaddr raise Errno
+fn Tcp::getsockname(Self) -> Sockaddr raise Errno
+fn Tcp::keepalive(Self, Bool, delay~ : UInt = ..) -> Unit raise Errno
 fn Tcp::new(Loop) -> Self raise Errno
+fn Tcp::nodelay(Self, Bool) -> Unit raise Errno
+fn Tcp::simultaneous_accepts(Self, Bool) -> Unit raise Errno
 impl ToHandle for Tcp
 impl ToStream for Tcp
 

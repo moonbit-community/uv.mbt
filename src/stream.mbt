@@ -392,7 +392,12 @@ pub fn[Stream : ToStream] listen(
 }
 
 ///|
-impl ToStream with listen(self, backlog, connection_cb, error_cb) {
+impl ToStream with listen(
+  self : Self,
+  backlog : Int,
+  connection_cb : (Self) -> Unit,
+  error_cb : (Self, Errno) -> Unit
+) {
   fn uv_cb(self : Stream, status : Int) {
     if status < 0 {
       error_cb(ToStream::of_stream(self), Errno::of_int(status))

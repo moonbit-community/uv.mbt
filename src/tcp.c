@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include "handle.h"
 #include "stream.h"
 #include "uv#include#uv.h"
 #include "uv.h"
@@ -84,6 +85,66 @@ moonbit_uv_tcp_connect(
   // The ownership of `connect` is transferred into `loop`.
   int result = uv_tcp_connect(connect, &tcp->tcp, addr, moonbit_uv_connect_cb);
   moonbit_decref(addr);
+  moonbit_decref(tcp);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_tcp_nodelay(moonbit_uv_tcp_t *tcp, bool enable) {
+  int result = uv_tcp_nodelay(&tcp->tcp, enable ? 1 : 0);
+  moonbit_decref(tcp);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_tcp_keepalive(moonbit_uv_tcp_t *tcp, bool enable, uint32_t delay) {
+  int result = uv_tcp_keepalive(&tcp->tcp, enable ? 1 : 0, delay);
+  moonbit_decref(tcp);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_tcp_getsockname(moonbit_uv_tcp_t *tcp, struct sockaddr *addr) {
+  int namelen = sizeof(struct sockaddr_storage);
+  int result = uv_tcp_getsockname(&tcp->tcp, addr, &namelen);
+  moonbit_decref(tcp);
+  moonbit_decref(addr);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_tcp_getpeername(moonbit_uv_tcp_t *tcp, struct sockaddr *addr) {
+  int namelen = sizeof(struct sockaddr_storage);
+  int result = uv_tcp_getpeername(&tcp->tcp, addr, &namelen);
+  moonbit_decref(tcp);
+  moonbit_decref(addr);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_tcp_close_reset(
+  moonbit_uv_tcp_t *tcp,
+  moonbit_uv_close_cb_t *close_cb
+) {
+  if (tcp->tcp.data) {
+    moonbit_decref(tcp->tcp.data);
+  }
+  tcp->tcp.data = close_cb;
+
+  int result = uv_tcp_close_reset(&tcp->tcp, moonbit_uv_close_cb);
+  moonbit_decref(tcp);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_tcp_simultaneous_accepts(moonbit_uv_tcp_t *tcp, bool enable) {
+  int result = uv_tcp_simultaneous_accepts(&tcp->tcp, enable ? 1 : 0);
   moonbit_decref(tcp);
   return result;
 }

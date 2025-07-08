@@ -33,6 +33,14 @@ moonbit_uv_sockaddr_in6_make(void) {
 }
 
 MOONBIT_FFI_EXPORT
+struct sockaddr *
+moonbit_uv_sockaddr_make(void) {
+  return (struct sockaddr *)moonbit_make_bytes(
+    sizeof(struct sockaddr_storage), 0
+  );
+}
+
+MOONBIT_FFI_EXPORT
 int32_t
 moonbit_uv_ip4_addr(
   moonbit_bytes_t ip,
