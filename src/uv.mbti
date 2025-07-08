@@ -106,6 +106,12 @@ fn AddressFamily::inet() -> Self
 fn AddressFamily::inet6() -> Self
 impl Show for AddressFamily
 
+type Check
+fn Check::new(Loop) -> Self raise Errno
+fn Check::start(Self, (Self) -> Unit) -> Unit raise Errno
+fn Check::stop(Self) -> Unit raise Errno
+impl ToHandle for Check
+
 type Cond
 fn Cond::broadcast(Self) -> Unit
 fn Cond::new() -> Self raise Errno
