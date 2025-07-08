@@ -187,8 +187,45 @@ test "Tcp::close_reset" {
       }
       try {
         @uv.accept(server, client)
-        client.close_reset(() => ())
-        server.close(() => ())
+        client.read_start(
+          (_, _) => Bytes::make(32, 0)[:],
+          (_, nread, buf) => try {
+            let request = @encoding.decode([..buf[:nread]], encoding=UTF8)
+            inspect(request, content="Hello")
+            client.close_reset(() => server.close(() => ())) catch {
+              e => {
+                errors.push(e)
+                client.close(() => ())
+                server.close(() => ())
+              }
+            }
+          } catch {
+            e => {
+              errors.push(e)
+              client.close(() => ())
+              server.close(() => ())
+            }
+          },
+          (_, e) => if not(e is EOF) {
+            errors.push(e)
+            client.read_stop() catch {
+              e => errors.push(e)
+            }
+            client.close(() => ())
+            server.close(() => ())
+          } else {
+            client.read_stop() catch {
+              e => errors.push(e)
+            }
+            client.close_reset(() => ()) catch {
+              e => {
+                errors.push(e)
+                client.close(() => ())
+              }
+            }
+            server.close(() => ())
+          },
+        )
       } catch {
         e => {
           errors.push(e)
@@ -210,12 +247,54 @@ test "Tcp::close_reset" {
   }
   let client = Tcp::new(uv)
   try
-    client.connect(addr, () => errors.push(Failure("Expected ECONNRESET")), e => {
-      if not(e is ECONNRESET) {
-        errors.push(e)
-      }
-      client.close(() => ())
-    })
+    client.connect(
+      addr,
+      () => try
+        client.write(
+          [b"Hello"],
+          () => client.read_start(
+            (_, _) => Bytes::make(32, 0)[:],
+            (_, _, _) => {
+              errors.push(Failure("Expect ECONNRESET"))
+              client.read_stop() catch {
+                e => errors.push(e)
+              }
+              client.close(() => ())
+            },
+            (_, e) => {
+              if not(e is ECONNRESET) {
+                errors.push(e)
+              }
+              client.read_stop() catch {
+                e => errors.push(e)
+              }
+              client.close(() => ())
+            },
+          ) catch {
+            e => {
+              errors.push(e)
+              client.close(() => ())
+            }
+          },
+          e => {
+            errors.push(e)
+            client.close(() => ())
+          },
+        )
+        |> ignore()
+      catch {
+        e => {
+          errors.push(e)
+          client.close(() => ())
+        }
+      },
+      e => {
+        if not(e is ECONNRESET) {
+          errors.push(e)
+        }
+        client.close(() => ())
+      },
+    )
     |> ignore()
   catch {
     e => {
