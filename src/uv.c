@@ -40,6 +40,7 @@
 #include "error.c"
 #include "fs.c"
 #include "fs_event.c"
+#include "fs_poll.c"
 #include "handle.c"
 #include "idle.c"
 #include "loop.c"
