@@ -461,6 +461,25 @@ type Random
 impl ToReq for Random
 
 type Req
+fn Req::type_(Self) -> ReqType
+
+pub enum ReqType {
+  Unknown
+  Req
+  Connect
+  Write
+  Shutdown
+  UdpSend
+  Fs
+  Work
+  Getaddrinfo
+  Getnameinfo
+  Random
+}
+fn ReqType::name(Self) -> String
+impl Eq for ReqType
+impl Hash for ReqType
+impl Show for ReqType
 
 pub(all) enum RunMode {
   Default
@@ -674,6 +693,7 @@ impl ToNtbs for @string.StringView
 
 pub trait ToReq {
   to_req(Self) -> Req
+  type_(Self) -> ReqType
 }
 
 pub trait ToSockaddr {

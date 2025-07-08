@@ -28,3 +28,21 @@ moonbit_uv_cancel(uv_req_t *req) {
   moonbit_decref(req);
   return result;
 }
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_req_get_type(uv_req_t *req) {
+  moonbit_uv_tracef("req: %p\n", (void *)req);
+  moonbit_uv_tracef("req->rc: %d\n", Moonbit_object_header(req)->rc);
+  int32_t req_type = uv_req_get_type(req);
+  moonbit_uv_tracef("req_type: %d\n", req_type);
+  moonbit_decref(req);
+  return req_type;
+}
+
+MOONBIT_FFI_EXPORT
+const char *
+moonbit_uv_req_type_name(int32_t req_type) {
+  moonbit_uv_tracef("req_type: %d\n", req_type);
+  return uv_req_type_name((uv_req_type)req_type);
+}
