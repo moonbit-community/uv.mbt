@@ -40,11 +40,19 @@
       "native",
       "llvm"
     ],
-    "fs.mbt": [
+    "fs_poll_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "fs_poll.mbt": [
       "native",
       "llvm"
     ],
     "fs_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "fs.mbt": [
       "native",
       "llvm"
     ],
