@@ -17,12 +17,6 @@ name: ci
 on:
   pull_request:
     branches: ["main"]
-    paths:
-      - ".github/actions/install-moonbit/**"
-      - "scripts/test.py"
-      - "scripts/prepare.py"
-      - "test/**"
-      - "src/**"
 
 jobs:
   test-pre-release-native:
