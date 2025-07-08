@@ -79,9 +79,35 @@ def main():
     )
     parser.add_argument(
         "--target",
-        default="native",
+        default=None,
+        type=str,
         help="Target platform (e.g., native, llvm, js, wasm)",
     )
+    parser.add_argument(
+        "-p",
+        "--package",
+        default=None,
+        type=str,
+        nargs=argparse.OPTIONAL,
+        help="Package name to test",
+    )
+    parser.add_argument(
+        "-f",
+        "--file",
+        default=None,
+        type=str,
+        nargs=argparse.OPTIONAL,
+        help="File to test, relative to the package directory",
+    )
+    parser.add_argument(
+        "-i",
+        "--index",
+        default=None,
+        type=int,
+        nargs=argparse.OPTIONAL,
+        help="Index of the test to run, if applicable",
+    )
+
     args = parser.parse_args()
 
     subprocess.run(["moon", "check", "--target", args.target], check=True)
@@ -113,14 +139,21 @@ def main():
         lsan_suppressions = Path(".lsan-suppressions").resolve()
         env["LSAN_OPTIONS"] = f"suppressions={lsan_suppressions}"
     try:
+        cmd = ["moon", "test", "-v"]
+        if args.target is not None:
+            cmd.append("--target")
+            cmd.append(args.target)
+        if args.package is not None:
+            cmd.append("-p")
+            cmd.append(args.package)
+        if args.file is not None:
+            cmd.append("-f")
+            cmd.append(args.file)
+        if args.index is not None:
+            cmd.append("-i")
+            cmd.append(str(args.index))
         subprocess.run(
-            [
-                "moon",
-                "test",
-                "--target",
-                args.target,
-                "-v",
-            ],
+            cmd,
             check=True,
             env=env,
         )
