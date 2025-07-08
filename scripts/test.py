@@ -21,13 +21,20 @@ import platform
 import subprocess
 import os
 import argparse
+import shutil
 
 
 def macos_flags():
+    brew = shutil.which("brew")
+    if not brew:
+        if Path("/opt/homebrew/bin/brew").exists():
+            brew = "/opt/homebrew/bin/brew"
+        else:
+            raise Exception("Homebrew is not installed or not in PATH")
     llvm_opts = ["llvm", "llvm@18", "llvm@19", "llvm@15", "llvm@13"]
     for llvm in llvm_opts:
         llvm_prefix = subprocess.run(
-            ["brew", "--prefix", llvm], check=True, text=True, capture_output=True
+            [brew, "--prefix", llvm], check=True, text=True, capture_output=True
         ).stdout
         llvm_prefix = llvm_prefix.strip()
         clang_path = Path(llvm_prefix) / "bin" / "clang"

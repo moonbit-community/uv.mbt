@@ -33,7 +33,7 @@ runs:
         else
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s "$CHANNEL"
         fi
-        echo "/home/runner/.moon/bin" >> $GITHUB_PATH
+        echo "${HOME}/.moon/bin" >> $GITHUB_PATH
 
     - name: Install MoonBit (macOS)
       if: runner.os == 'macOS'
@@ -46,7 +46,7 @@ runs:
         else
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s "$CHANNEL"
         fi
-        echo "/Users/runner/.moon/bin" >> $GITHUB_PATH
+        echo "${HOME}/.moon/bin" >> $GITHUB_PATH
 
     - name: Install MoonBit (Windows)
       if: runner.os == 'Windows'
@@ -60,8 +60,8 @@ runs:
     - name: Bundle LLVM (Linux)
       if: runner.os == 'Linux' && inputs.channel == 'bleeding'
       shell: bash
-      working-directory: "/home/runner/.moon/lib/core"
       run: |
+        cd ${HOME}/.moon/lib/core
         moon bundle --target llvm
 
     - name: Bundle LLVM (Windows)
@@ -74,8 +74,8 @@ runs:
     - name: Bundle LLVM (macOS)
       if: runner.os == 'macOS' && inputs.channel == 'bleeding'
       shell: bash
-      working-directory: "/Users/runner/.moon/lib/core"
       run: |
+        cd ${HOME}/.moon/lib/core
         moon bundle --target llvm
 
     - name: Update mooncakes.io index (Unix)
