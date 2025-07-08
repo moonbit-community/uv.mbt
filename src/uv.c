@@ -31,6 +31,7 @@
 #pragma comment(lib, "shell32.lib")
 #endif
 
+#include "async.c"
 #include "check.c"
 #include "cond.c"
 #include "cpu_info.c"

@@ -211,6 +211,14 @@
     "work.mbt": [
       "native",
       "llvm"
+    ],
+    "async.mbt": [
+      "native",
+      "llvm"
+    ],
+    "async_test.mbt": [
+      "native",
+      "llvm"
     ]
   },
   "import": [
