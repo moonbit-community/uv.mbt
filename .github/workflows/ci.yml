@@ -28,7 +28,7 @@ jobs:
   test-pre-release-native:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-self-hosted, windows-latest]
     runs-on: ${{ matrix.os }}
     continue-on-error: true
     steps:
@@ -56,7 +56,7 @@ jobs:
   test-bleeding-llvm:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-self-hosted, windows-latest]
     runs-on: ${{ matrix.os }}
     continue-on-error: true
     steps:
