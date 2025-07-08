@@ -52,6 +52,14 @@
       "native",
       "llvm"
     ],
+    "check.mbt": [
+      "native",
+      "llvm"
+    ],
+    "check_test.mbt": [
+      "native",
+      "llvm"
+    ],
     "idle.mbt": [
       "native",
       "llvm"
