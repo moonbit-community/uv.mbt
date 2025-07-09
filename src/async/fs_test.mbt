@@ -48,7 +48,7 @@ test "write" {
 ///|
 test "write/stdio" {
   @async.start(fn() {
-    @async.stdout.write_text("Hello, world!\n", encoding=UTF8)
+    @async.stderr.write_text("Hello, world!\n", encoding=UTF8)
   })
 }
 
