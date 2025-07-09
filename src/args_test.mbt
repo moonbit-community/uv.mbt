@@ -14,5 +14,18 @@
 
 ///|
 test {
-  ignore(@uv.args())
+  println(@uv.args())
+}
+
+///|
+fn[Show : Show] println(message : Show) -> Unit {
+  try {
+    if @uv.os_getenv("TERM_PROGRAM") is Some("vscode") &&
+      @uv.os_getenv("VSCODE_INJECTION") is None &&
+      @uv.os_getenv("VSCODE_PROFILE_INITIALIZED") is None {
+      @builtin.println(message)
+    }
+  } catch {
+    _ => ()
+  }
 }
