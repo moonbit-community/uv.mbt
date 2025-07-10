@@ -1,0 +1,17 @@
+{
+  "native-stub": [
+    "mygo.c"
+  ],
+  "link": {
+    "native": {
+      "cc": "/opt/homebrew/opt/llvm/bin/clang"
+    }
+  },
+  "test-import": [
+    "tonyfettes/uv"
+  ],
+  "import": [
+    "tonyfettes/uv",
+    "tonyfettes/encoding"
+  ]
+}
