@@ -57,6 +57,7 @@
 #include "socket.c"
 #include "stat.c"
 #include "stream.c"
+#include "string.c"
 #include "tcp.c"
 #include "thread.c"
 #include "timer.c"
