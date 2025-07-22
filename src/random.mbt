@@ -29,7 +29,7 @@ extern "c" fn uv_random(
   buffer_offset : Int,
   buffer_length : Int,
   flags : Int,
-  random_cb : (Random, Int, Bytes, Int, Int) -> Unit
+  random_cb : (Random, Int, Bytes, Int, Int) -> Unit,
 ) -> Int = "moonbit_uv_random"
 
 ///|
@@ -38,7 +38,7 @@ pub fn Loop::random(
   buffer : @bytes.View,
   flags : Int,
   random_cb : (@bytes.View) -> Unit,
-  error_cb : (Errno) -> Unit
+  error_cb : (Errno) -> Unit,
 ) -> Random raise Errno {
   fn uv_random_cb(_, status, buffer : Bytes, offset, length) {
     if status < 0 {

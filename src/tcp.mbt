@@ -58,7 +58,7 @@ const TCP_REUSEPORT : UInt = 2
 ///|
 pub fn TcpBindFlags::new(
   ipv6_only~ : Bool = false,
-  reuse_port~ : Bool = false
+  reuse_port~ : Bool = false,
 ) -> TcpBindFlags {
   let mut flags = 0U
   if ipv6_only {
@@ -100,7 +100,7 @@ pub fn TcpBindFlags::new(
 pub fn[Sockaddr : ToSockaddr] Tcp::bind(
   self : Tcp,
   addr : Sockaddr,
-  flags : TcpBindFlags
+  flags : TcpBindFlags,
 ) -> Unit raise Errno {
   let status = uv_tcp_bind(self, addr.to_sockaddr(), flags.inner())
   if status < 0 {
@@ -113,7 +113,7 @@ extern "c" fn uv_tcp_connect(
   req : Connect,
   handle : Tcp,
   addr : Sockaddr,
-  cb : (Connect, Int) -> Unit
+  cb : (Connect, Int) -> Unit,
 ) -> Int = "moonbit_uv_tcp_connect"
 
 ///|
@@ -121,7 +121,7 @@ pub fn[Sockaddr : ToSockaddr] Tcp::connect(
   self : Tcp,
   addr : Sockaddr,
   connect_cb : () -> Unit,
-  error_cb : (Errno) -> Unit
+  error_cb : (Errno) -> Unit,
 ) -> Connect raise Errno {
   fn cb(_ : Connect, status : Int) {
     if status < 0 {
@@ -169,7 +169,7 @@ extern "c" fn uv_tcp_keepalive(tcp : Tcp, enable : Bool, delay : UInt) -> Int = 
 pub fn Tcp::keepalive(
   self : Tcp,
   enable : Bool,
-  delay~ : UInt = 0U
+  delay~ : UInt = 0U,
 ) -> Unit raise Errno {
   let status = uv_tcp_keepalive(self, enable, delay)
   if status < 0 {

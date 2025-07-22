@@ -25,16 +25,16 @@ pub async fn[T] Iter::collect(self : Iter[T]) -> Array[T] raise {
 ///|
 pub async fn[T] Iter::filter(
   self : Iter[T],
-  f : async (T) -> Bool raise?
-) -> Iter[T] {
+  f : async (T) -> Bool raise?,
+) -> Iter[T] noraise {
   fn(yield_) { self.inner()(fn(item) { if f(item) { yield_(item) } }) }
 }
 
 ///|
 pub async fn[T, U] Iter::bind(
   self : Iter[T],
-  f : async (T) -> U? raise?
-) -> Iter[U] {
+  f : async (T) -> U? raise?,
+) -> Iter[U] noraise {
   fn(yield_) {
     self.inner()(fn(item) {
       let result = f(item)
@@ -48,7 +48,7 @@ pub async fn[T, U] Iter::bind(
 ///|
 pub async fn Iter::text(
   self : Iter[@bytes.View],
-  encoding~ : @encoding.Encoding = UTF8
+  encoding~ : @encoding.Encoding = UTF8,
 ) -> String raise {
   let decoder = @encoding.decoder(encoding)
   let builder = StringBuilder::new()
@@ -59,8 +59,8 @@ pub async fn Iter::text(
 ///|
 pub async fn Iter::decode(
   self : Iter[@bytes.View],
-  encoding~ : @encoding.Encoding
-) -> Iter[String] {
+  encoding~ : @encoding.Encoding,
+) -> Iter[String] noraise {
   let decoder = @encoding.decoder(encoding)
   let builder = StringBuilder::new()
   fn(yield_) {
@@ -83,7 +83,7 @@ pub async fn Iter::bytes(self : Iter[@bytes.View]) -> Bytes raise {
 ///|
 pub async fn[T] Iter::each(
   self : Iter[T],
-  f : async (T) -> Unit raise
+  f : async (T) -> Unit raise,
 ) -> Unit raise {
   self.inner()(fn(item) { f(item) })
 }
@@ -128,7 +128,7 @@ impl Writable with write_bytes(self : Self, bytes : @bytes.View) {
 impl Writable with write_text(
   self : Self,
   text : @string.View,
-  encoding~ : @encoding.Encoding
+  encoding~ : @encoding.Encoding,
 ) {
   let bytes = @encoding.encode(text, encoding~)
   self.write(fn(yield_) { yield_(bytes[:]) })
@@ -157,7 +157,7 @@ impl Readable for @uv.Stream with read(self : @uv.Stream) {
 ///|
 impl Writable for @uv.Stream with write(
   self : @uv.Stream,
-  bytes : Iter[@bytes.View]
+  bytes : Iter[@bytes.View],
 ) -> Unit raise Error {
   bytes.each(fn(bytes) {
     suspend_with_error(fn(resolve, reject) {
@@ -184,7 +184,7 @@ pub impl Readable for Bytes with read(self : Bytes) {
 ///|
 pub impl Writable for @buffer.T with write(
   self : @buffer.T,
-  bytes : Iter[@bytes.View]
+  bytes : Iter[@bytes.View],
 ) {
   bytes.each(fn(bytes) { self.write_bytesview(bytes) })
 }

@@ -45,7 +45,7 @@ extern "c" fn uv_async_make() -> Async = "moonbit_uv_async_make"
 extern "c" fn uv_async_init(
   uv : Loop,
   handle : Async,
-  cb : (Async) -> Unit
+  cb : (Async) -> Unit,
 ) -> Int = "moonbit_uv_async_init"
 
 ///|

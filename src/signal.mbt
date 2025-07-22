@@ -35,14 +35,14 @@ pub fn Signal::new(self : Loop) -> Signal raise Errno {
 extern "c" fn uv_signal_start(
   signal : Signal,
   cb : (Signal, Int) -> Unit,
-  signum : Int
+  signum : Int,
 ) -> Int = "moonbit_uv_signal_start"
 
 ///|
 pub fn Signal::start(
   self : Signal,
   cb : (Signal, Signum) -> Unit,
-  signum : Signum
+  signum : Signum,
 ) -> Unit raise Errno {
   fn uv_cb(signal : Signal, signum : Int) {
     cb(signal, signum)

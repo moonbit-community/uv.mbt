@@ -49,7 +49,7 @@ pub impl Readable for File with read(self : File) {
     file : @uv.File,
     yield_ : async (@bytes.View) -> Unit raise,
     resolve : (Unit) -> Unit,
-    reject : (Error) -> Unit
+    reject : (Error) -> Unit,
   ) -> Unit {
     try {
       let bytes = Bytes::make(256, 0)
@@ -93,7 +93,7 @@ pub impl Writable for File with write(self : File, bytes : Iter[@bytes.View]) {
     file : @uv.File,
     bytes : @bytes.View,
     resolve : (Unit) -> Unit,
-    reject : (Error) -> Unit
+    reject : (Error) -> Unit,
   ) {
     if bytes.length() == 0 {
       resolve(())
@@ -152,7 +152,7 @@ pub fn Path::read(self : Path, loc~ : SourceLoc = _) -> Iter[@bytes.View] raise 
       let mut user_error : Error? = None
       suspend_with_error(fn(
         resolve : (Unit) -> Unit,
-        reject : (@uv.Errno) -> Unit
+        reject : (@uv.Errno) -> Unit,
       ) {
         try
           uv.fs_open(
@@ -203,7 +203,7 @@ pub impl Readable for Path with read(self : Path) -> Iter[@bytes.View] raise {
 pub async fn Path::write(
   self : Path,
   bytes : Iter[@bytes.View],
-  loc~ : SourceLoc = _
+  loc~ : SourceLoc = _,
 ) -> Unit raise {
   backtrace(loc~, fn() {
     let uv = uv()
@@ -258,7 +258,7 @@ pub async fn Path::iter(self : Path) -> Iter[Path] raise {
   let uv = uv()
   suspend_with_error(fn(
     resolve : (Iter[Path]) -> Unit,
-    reject : (Error) -> Unit
+    reject : (Error) -> Unit,
   ) {
     try
       uv.fs_scandir(
@@ -460,7 +460,7 @@ pub async fn[Target : ToPath] Path::copy_to(
   target : Target,
   recursive~ : Bool = false,
   overwrite~ : Bool = false,
-  loc~ : SourceLoc = _
+  loc~ : SourceLoc = _,
 ) -> Unit raise {
   backtrace(loc~, fn() {
     let uv = uv()
@@ -502,7 +502,7 @@ pub async fn[Target : ToPath] Path::copy_to(
 pub async fn[Target : ToPath] Path::move_to(
   self : Path,
   target : Target,
-  loc~ : SourceLoc = _
+  loc~ : SourceLoc = _,
 ) -> Unit raise {
   let uv = uv()
   backtrace(loc~, fn() {
@@ -564,7 +564,7 @@ pub async fn Path::rmdir(self : Path, loc~ : SourceLoc = _) -> Unit raise {
 pub async fn Path::mkdir(
   self : Path,
   mode~ : Int = 0o777,
-  loc~ : SourceLoc = _
+  loc~ : SourceLoc = _,
 ) -> Unit raise {
   let uv = uv()
   backtrace(loc~, fn() {
@@ -590,7 +590,7 @@ pub async fn Path::access(
   read~ : Bool = false,
   write~ : Bool = false,
   execute~ : Bool = false,
-  loc~ : SourceLoc = _
+  loc~ : SourceLoc = _,
 ) -> Unit raise {
   let uv = uv()
   backtrace(loc~, fn() {
@@ -630,7 +630,7 @@ pub async fn Path::exists(self : Path, loc~ : SourceLoc = _) -> Bool raise {
 pub async fn Path::remove(
   self : Path,
   recursive~ : Bool = false,
-  loc~ : SourceLoc = _
+  loc~ : SourceLoc = _,
 ) -> Unit raise {
   backtrace(loc~, fn() {
     if self.is_dir() {
@@ -653,7 +653,7 @@ pub async fn Path::remove(
 ///|
 pub async fn[R] with_temporary_directory(
   f : async (Path) -> R raise,
-  loc~ : SourceLoc = _
+  loc~ : SourceLoc = _,
 ) -> R raise {
   let uv = uv()
   let path = backtrace(loc~, () => suspend_with_error((resolve, reject) => try {

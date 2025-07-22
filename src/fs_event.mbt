@@ -62,7 +62,7 @@ extern "c" fn uv_fs_event_start(
   fs_event : FsEvent,
   cb : (FsEvent, @c.Pointer[Byte], Int, Int) -> Unit,
   path : Bytes,
-  flags : Int
+  flags : Int,
 ) -> Int = "moonbit_uv_fs_event_start"
 
 ///|
@@ -86,13 +86,13 @@ pub fn[ToNtbs : ToNtbs] FsEvent::start(
   path : ToNtbs,
   flags : FsEventFlags,
   event_cb : (FsEvent, String?, Array[FsEventType]) -> Unit,
-  error_cb : (FsEvent, String?, Errno) -> Unit
+  error_cb : (FsEvent, String?, Errno) -> Unit,
 ) -> Unit raise Errno {
   fn uv_cb(
     fs_event : FsEvent,
     filename : @c.Pointer[Byte],
     events : Int,
-    status : Int
+    status : Int,
   ) {
     let filename = if filename.is_null() {
       None
@@ -139,7 +139,7 @@ pub fn FsEvent::stop(self : FsEvent) -> Unit raise Errno {
 extern "c" fn uv_fs_event_getpath(
   fs_event : FsEvent,
   buffer : Bytes,
-  length : FixedArray[Int]
+  length : FixedArray[Int],
 ) -> Int = "moonbit_uv_fs_event_getpath"
 
 ///|

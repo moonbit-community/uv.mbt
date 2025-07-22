@@ -181,49 +181,49 @@ pub struct CpuTimes {
 ///|
 extern "c" fn uv_cpu_info(
   cpu_infos : FixedArray[@c.Pointer[CpuInfo]],
-  count : FixedArray[Int]
+  count : FixedArray[Int],
 ) -> Int = "moonbit_uv_cpu_info"
 
 ///|
 extern "c" fn uv_cpu_info_get_model(
   cpu_info : @c.Pointer[CpuInfo],
-  index : Int
+  index : Int,
 ) -> @c.Pointer[Byte] = "moonbit_uv_cpu_info_get_model"
 
 ///|
 extern "c" fn uv_cpu_info_get_speed(
   cpu_info : @c.Pointer[CpuInfo],
-  index : Int
+  index : Int,
 ) -> Int = "moonbit_uv_cpu_info_get_speed"
 
 ///|
 extern "c" fn uv_cpu_info_get_cpu_times_user(
   cpu_info : @c.Pointer[CpuInfo],
-  index : Int
+  index : Int,
 ) -> UInt64 = "moonbit_uv_cpu_info_get_cpu_times_user"
 
 ///|
 extern "c" fn uv_cpu_info_get_cpu_times_nice(
   cpu_info : @c.Pointer[CpuInfo],
-  index : Int
+  index : Int,
 ) -> UInt64 = "moonbit_uv_cpu_info_get_cpu_times_nice"
 
 ///|
 extern "c" fn uv_cpu_info_get_cpu_times_sys(
   cpu_info : @c.Pointer[CpuInfo],
-  index : Int
+  index : Int,
 ) -> UInt64 = "moonbit_uv_cpu_info_get_cpu_times_sys"
 
 ///|
 extern "c" fn uv_cpu_info_get_cpu_times_idle(
   cpu_info : @c.Pointer[CpuInfo],
-  index : Int
+  index : Int,
 ) -> UInt64 = "moonbit_uv_cpu_info_get_cpu_times_idle"
 
 ///|
 extern "c" fn uv_cpu_info_get_cpu_times_irq(
   cpu_info : @c.Pointer[CpuInfo],
-  index : Int
+  index : Int,
 ) -> UInt64 = "moonbit_uv_cpu_info_get_cpu_times_irq"
 
 ///|

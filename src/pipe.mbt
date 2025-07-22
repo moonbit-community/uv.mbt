@@ -50,7 +50,7 @@ extern "c" fn uv_pipe_bind(pipe : Pipe, name : Bytes, flags : UInt) -> Int = "mo
 extern "c" fn uv_pipe(
   fds : FixedArray[Int],
   read_flags : Int,
-  write_flags : Int
+  write_flags : Int,
 ) -> Int = "moonbit_uv_pipe"
 
 ///|
@@ -82,7 +82,7 @@ pub fn PipeBindFlags::new(truncate~ : Bool = true) -> PipeBindFlags {
 pub fn[Ntbs : ToNtbs] Pipe::bind(
   self : Pipe,
   name : Ntbs,
-  flags : PipeBindFlags
+  flags : PipeBindFlags,
 ) -> Unit raise Errno {
   let name = name.to_ntbs()
   let status = uv_pipe_bind(self, name, flags.inner())

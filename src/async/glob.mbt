@@ -281,7 +281,7 @@ priv suberror ParseError {
 ///|
 fn Charset::parse(
   self : Charset,
-  pattern : @string.View
+  pattern : @string.View,
 ) -> @string.View raise ParseError {
   let start = pattern
   let mut last_char = None

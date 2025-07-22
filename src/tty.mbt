@@ -97,7 +97,7 @@ pub fn Tty::reset_mode() -> Unit raise Errno {
 extern "c" fn uv_tty_get_winsize(
   tty : Tty,
   width : FixedArray[Int],
-  height : FixedArray[Int]
+  height : FixedArray[Int],
 ) -> Int = "moonbit_uv_tty_get_winsize"
 
 ///|

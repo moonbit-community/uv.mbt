@@ -43,7 +43,7 @@ extern "c" fn uv_timer_start(
   cb : (Timer) -> Unit,
   // We shall never use Int/UInt for time, even in MoonBit.
   timeout : UInt64,
-  repeat : UInt64
+  repeat : UInt64,
 ) -> Int = "moonbit_uv_timer_start"
 
 ///|
@@ -51,7 +51,7 @@ pub fn Timer::start(
   self : Timer,
   timeout~ : UInt64,
   repeat~ : UInt64,
-  cb : (Timer) -> Unit
+  cb : (Timer) -> Unit,
 ) -> Unit raise Errno {
   let status = uv_timer_start(self, cb, timeout, repeat)
   if status < 0 {

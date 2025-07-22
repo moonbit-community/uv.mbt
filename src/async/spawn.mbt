@@ -41,7 +41,7 @@ struct Process {
 }
 
 ///|
-pub async fn Process::wait(self : Process) -> Unit {
+pub async fn Process::wait(self : Process) -> Unit noraise {
   guard self.process is Some(_) else { return }
   if self.status is None {
     async_suspend(resolve => self.resolve.push(resolve))
@@ -50,7 +50,7 @@ pub async fn Process::wait(self : Process) -> Unit {
 }
 
 ///|
-pub async fn Process::status(self : Process) -> Int {
+pub async fn Process::status(self : Process) -> Int noraise {
   guard self.status is Some(status) else {
     self.wait()
     guard self.status is Some(status)
@@ -60,7 +60,7 @@ pub async fn Process::status(self : Process) -> Int {
 }
 
 ///|
-pub async fn Process::signal(self : Process) -> Int {
+pub async fn Process::signal(self : Process) -> Int noraise {
   guard self.signal is Some(signal) else {
     self.wait()
     guard self.signal is Some(signal)
@@ -86,7 +86,7 @@ fn Process::new() -> Process {
 fn Process::setup_stdin(
   self : Process,
   stdin : ProcessInput,
-  stdio : Array[@uv.StdioContainer]
+  stdio : Array[@uv.StdioContainer],
 ) -> Unit {
   match stdin {
     Ignore => stdio.push(@uv.StdioContainer::ignore())
@@ -103,7 +103,7 @@ fn Process::setup_stdin(
 fn Process::setup_stdout(
   self : Process,
   stdout : ProcessOutput,
-  stdio : Array[@uv.StdioContainer]
+  stdio : Array[@uv.StdioContainer],
 ) -> Unit {
   match stdout {
     Ignore => stdio.push(@uv.StdioContainer::ignore())
@@ -121,7 +121,7 @@ fn Process::setup_stdout(
 pub fn Process::setup_stderr(
   self : Process,
   stderr : ProcessOutput,
-  stdio : Array[@uv.StdioContainer]
+  stdio : Array[@uv.StdioContainer],
 ) -> Unit {
   match stderr {
     Ignore => stdio.push(@uv.StdioContainer::ignore())
@@ -191,7 +191,7 @@ pub impl Executable for String with spawn(
   cwd~ : Path?,
   stdin~ : ProcessInput,
   stdout~ : ProcessOutput,
-  stderr~ : ProcessOutput
+  stderr~ : ProcessOutput,
 ) -> Process raise Error {
   let uv = uv()
   let args : Array[@string.View] = [
@@ -207,7 +207,7 @@ pub impl Executable for String with spawn(
   let options = @uv.ProcessOptions::new(self, args, stdio~, cwd?, fn(
     _,
     exit_status,
-    term_signal
+    term_signal,
   ) {
     process.status = Some(exit_status.to_int())
     process.signal = Some(term_signal)
@@ -228,7 +228,7 @@ pub impl Executable for Path with spawn(
   cwd~ : Path?,
   stdin~ : ProcessInput,
   stdout~ : ProcessOutput,
-  stderr~ : ProcessOutput
+  stderr~ : ProcessOutput,
 ) -> Process raise Error {
   self.to_string() |> Executable::spawn(args, cwd~, stdin~, stdout~, stderr~)
 }
@@ -240,7 +240,7 @@ pub async fn[Exec : Executable] spawn(
   cwd? : &ToPath,
   stdin~ : ProcessInput = Ignore,
   stdout~ : ProcessOutput = Ignore,
-  stderr~ : ProcessOutput = Ignore
+  stderr~ : ProcessOutput = Ignore,
 ) -> Process raise {
   exec.spawn(args, cwd=cwd.map(_.to_path()), stdin~, stdout~, stderr~)
 }

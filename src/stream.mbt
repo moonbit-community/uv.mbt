@@ -30,7 +30,7 @@ pub impl ToHandle for Stream with of_handle(self) = "%identity"
 extern "c" fn uv_read_start(
   stream : Stream,
   alloc_cb : (Handle, UInt64, @c.Pointer[Int], @c.Pointer[Int]) -> Bytes,
-  read_cb : (Stream, Int64, Bytes?, Int, Int) -> Unit
+  read_cb : (Stream, Int64, Bytes?, Int, Int) -> Unit,
 ) -> Int = "moonbit_uv_read_start"
 
 ///|
@@ -38,13 +38,13 @@ pub fn Stream::read_start(
   self : Stream,
   alloc_cb : (Handle, Int) -> @bytes.View,
   read_cb : (Stream, Int, @bytes.View) -> Unit,
-  error_cb : (Stream, Errno) -> Unit
+  error_cb : (Stream, Errno) -> Unit,
 ) -> Unit raise Errno {
   fn uv_alloc_cb(
     handle : Handle,
     suggested_size : UInt64,
     buf_offset : @c.Pointer[Int],
-    buf_length : @c.Pointer[Int]
+    buf_length : @c.Pointer[Int],
   ) -> Bytes {
     let bytes = alloc_cb(handle, suggested_size.to_int())
     buf_offset[0] = bytes.start_offset()
@@ -57,7 +57,7 @@ pub fn Stream::read_start(
     count : Int64,
     buf_data : Bytes?,
     buf_offset : Int,
-    buf_length : Int
+    buf_length : Int,
   ) -> Unit {
     if count < 0 {
       error_cb(stream, Errno::of_int(count.to_int()))
@@ -92,7 +92,7 @@ pub fn[Stream : ToStream] read_start(
   stream : Stream,
   alloc_cb : (Stream, Int) -> @bytes.View,
   read_cb : (Stream, Int, @bytes.View) -> Unit,
-  error_cb : (Stream, Errno) -> Unit
+  error_cb : (Stream, Errno) -> Unit,
 ) -> Unit raise Errno {
   stream.read_start(alloc_cb, read_cb, error_cb)
 }
@@ -130,7 +130,7 @@ extern "c" fn uv_write(
   bufs_base : FixedArray[Bytes],
   bufs_offset : FixedArray[Int],
   bufs_length : FixedArray[Int],
-  cb : (Write, Int) -> Unit
+  cb : (Write, Int) -> Unit,
 ) -> Int = "moonbit_uv_write"
 
 ///|
@@ -138,7 +138,7 @@ pub fn Stream::write(
   self : Stream,
   bufs : Array[@bytes.View],
   write_cb : () -> Unit,
-  error_cb : (Errno) -> Unit
+  error_cb : (Errno) -> Unit,
 ) -> Write raise Errno {
   fn cb(_ : Write, status : Int) {
     if status < 0 {
@@ -171,7 +171,7 @@ pub fn[Stream : ToStream] write(
   stream : Stream,
   bufs : Array[@bytes.View],
   write_cb : () -> Unit,
-  error_cb : (Errno) -> Unit
+  error_cb : (Errno) -> Unit,
 ) -> Write raise Errno {
   stream.write(bufs, write_cb, error_cb)
 }
@@ -184,7 +184,7 @@ extern "c" fn uv_write2(
   bufs_offset : FixedArray[Int],
   bufs_length : FixedArray[Int],
   send_handle : Stream,
-  cb : (Write, Int) -> Unit
+  cb : (Write, Int) -> Unit,
 ) -> Int = "moonbit_uv_write2"
 
 ///|
@@ -193,7 +193,7 @@ pub fn Stream::write2(
   bufs : Array[@bytes.View],
   send_handle : Stream,
   write_cb : () -> Unit,
-  error_cb : (Errno) -> Unit
+  error_cb : (Errno) -> Unit,
 ) -> Write raise Errno {
   fn cb(_ : Write, status : Int) {
     if status < 0 {
@@ -334,14 +334,14 @@ extern "c" fn uv_shutdown_make() -> Shutdown = "moonbit_uv_shutdown_make"
 extern "c" fn uv_shutdown(
   shutdown : Shutdown,
   handle : Stream,
-  cb : (Shutdown, Int) -> Unit
+  cb : (Shutdown, Int) -> Unit,
 ) -> Int = "moonbit_uv_shutdown"
 
 ///|
 pub fn Stream::shutdown(
   self : Stream,
   shutdown_cb : () -> Unit,
-  error_cb : (Errno) -> Unit
+  error_cb : (Errno) -> Unit,
 ) -> Shutdown raise Errno {
   fn cb(_ : Shutdown, status : Int) {
     if status < 0 {
@@ -364,7 +364,7 @@ pub fn Stream::shutdown(
 pub fn[Stream : ToStream] shutdown(
   stream : Stream,
   shutdown_cb : () -> Unit,
-  error_cb : (Errno) -> Unit
+  error_cb : (Errno) -> Unit,
 ) -> Shutdown raise Errno {
   stream.shutdown(shutdown_cb, error_cb)
 }
@@ -378,7 +378,7 @@ impl ToStream with shutdown(self, shutdown_cb, error_cb) {
 extern "c" fn uv_listen(
   stream : Stream,
   backlog : Int,
-  cb : (Stream, Int) -> Unit
+  cb : (Stream, Int) -> Unit,
 ) -> Int = "moonbit_uv_listen"
 
 ///|
@@ -386,7 +386,7 @@ pub fn[Stream : ToStream] listen(
   stream : Stream,
   backlog : Int,
   connection_cb : (Stream) -> Unit,
-  error_cb : (Stream, Errno) -> Unit
+  error_cb : (Stream, Errno) -> Unit,
 ) -> Unit raise Errno {
   stream.listen(backlog, connection_cb, error_cb)
 }
@@ -396,7 +396,7 @@ impl ToStream with listen(
   self : Self,
   backlog : Int,
   connection_cb : (Self) -> Unit,
-  error_cb : (Self, Errno) -> Unit
+  error_cb : (Self, Errno) -> Unit,
 ) {
   fn uv_cb(self : Stream, status : Int) {
     if status < 0 {
@@ -418,7 +418,7 @@ extern "c" fn uv_accept(server : Stream, client : Stream) -> Int = "moonbit_uv_a
 ///|
 pub fn[Server : ToStream, Client : ToStream] accept(
   server : Server,
-  client : Client
+  client : Client,
 ) -> Unit raise Errno {
   let status = uv_accept(server.to_stream(), client.to_stream())
   if status < 0 {
