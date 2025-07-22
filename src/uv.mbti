@@ -27,6 +27,8 @@ fn disable_stdio_inheritance() -> Unit
 
 fn exepath() -> String raise Errno
 
+fn getcpu() -> Int raise Errno
+
 fn hrtime() -> UInt64
 
 fn[Ntbs : ToNtbs] ip4_addr(Ntbs, Int) -> SockaddrIn raise Errno
@@ -149,6 +151,23 @@ pub struct CpuInfo {
 }
 impl Show for CpuInfo
 impl ToJson for CpuInfo
+
+type CpuSet
+fn CpuSet::clear(Self, Int) -> Unit
+fn CpuSet::count(Self) -> Int
+fn CpuSet::equal(Self, Self) -> Bool
+fn CpuSet::intersect(Self, Self) -> Self
+fn CpuSet::is_set(Self, Int) -> Bool
+fn CpuSet::new() -> Self raise Errno
+fn CpuSet::set(Self, Int) -> Unit
+fn CpuSet::union(Self, Self) -> Self
+fn CpuSet::xor(Self, Self) -> Self
+fn CpuSet::zero(Self) -> Unit
+impl BitAnd for CpuSet
+impl BitOr for CpuSet
+impl BitXOr for CpuSet
+impl Eq for CpuSet
+impl Show for CpuSet
 
 pub struct CpuTimes {
   user : UInt64
@@ -606,9 +625,11 @@ fn TcpBindFlags::new(ipv6_only~ : Bool = .., reuse_port~ : Bool = ..) -> Self
 
 type Thread
 fn Thread::equal(Self, Self) -> Bool
+fn Thread::get_affinity(Self) -> CpuSet raise Errno
 fn Thread::join(Self) -> Unit raise Errno
 fn Thread::new(() -> Unit) -> Self raise Errno
 fn Thread::self() -> Self raise Errno
+fn Thread::set_affinity(Self, CpuSet) -> Unit raise Errno
 impl Eq for Thread
 impl Share for Thread
 
