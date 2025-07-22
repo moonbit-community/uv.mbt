@@ -77,3 +77,212 @@ pub impl Share for Thread with share(self : Thread) -> Thread {
   uv_thread_copy(self, other)
   return other
 }
+
+///|
+extern "c" fn uv_cpumask_size() -> Int = "moonbit_uv_cpumask_size"
+
+///|
+extern "c" fn uv_thread_getcpu() -> Int = "moonbit_uv_thread_getcpu"
+
+///|
+extern "c" fn uv_thread_setaffinity(
+  thread : Thread,
+  cpumask : CpuSet,
+  oldmask : CpuSet,
+  mask_size : Int,
+) -> Int = "moonbit_uv_thread_setaffinity"
+
+///|
+extern "c" fn uv_thread_getaffinity(
+  thread : Thread,
+  cpumask : CpuSet,
+  mask_size : Int,
+) -> Int = "moonbit_uv_thread_getaffinity"
+
+///|
+fn cpumask_size() -> Int raise Errno {
+  let size = uv_cpumask_size()
+  if size < 0 {
+    raise Errno::of_int(size)
+  }
+  return size
+}
+
+///|
+pub fn getcpu() -> Int raise Errno {
+  let cpu = uv_thread_getcpu()
+  if cpu < 0 {
+    raise Errno::of_int(cpu)
+  }
+  return cpu
+}
+
+///|
+type CpuSet FixedArray[Byte]
+
+///|
+pub fn CpuSet::new() -> CpuSet raise Errno {
+  let length = cpumask_size()
+  CpuSet(FixedArray::make(length, 0))
+}
+
+///|
+pub fn CpuSet::set(self : CpuSet, cpu : Int) -> Unit {
+  let self = self.inner()
+  self[cpu / 8] = self[cpu / 8] | (1 << (cpu % 8))
+}
+
+///|
+pub fn CpuSet::zero(self : CpuSet) -> Unit {
+  let self = self.inner()
+  let length = self.length()
+  for i in 0..<length {
+    self[i] = 0
+  }
+}
+
+///|
+pub fn CpuSet::clear(self : CpuSet, cpu : Int) -> Unit {
+  let self = self.inner()
+  self[cpu / 8] = self[cpu / 8] & Byte::lnot(1 << (cpu % 8))
+}
+
+///|
+pub fn CpuSet::is_set(self : CpuSet, cpu : Int) -> Bool {
+  let self = self.inner()
+  (self[cpu / 8] & (1 << (cpu % 8))) != 0
+}
+
+///|
+pub fn CpuSet::count(self : CpuSet) -> Int {
+  let self = self.inner()
+  let mut count = 0
+  for byte in self {
+    loop byte {
+      0 => ()
+      byte => {
+        if (byte & 1) != 0 {
+          count += 1
+        }
+        continue byte >> 1
+      }
+    }
+  }
+  count
+}
+
+///|
+pub fn CpuSet::equal(self : CpuSet, other : CpuSet) -> Bool {
+  let self = self.inner()
+  let other = other.inner()
+  if self.length() != other.length() {
+    return false
+  }
+  for i in 0..<self.length() {
+    if self[i] != other[i] {
+      return false
+    }
+  }
+  true
+}
+
+///|
+pub impl Eq for CpuSet with op_equal(self : CpuSet, other : CpuSet) -> Bool {
+  self.equal(other)
+}
+
+///|
+pub fn CpuSet::intersect(self : CpuSet, other : CpuSet) -> CpuSet {
+  let self = self.inner()
+  let other = other.inner()
+  let length = @cmp.minimum(self.length(), other.length())
+  let result : FixedArray[Byte] = FixedArray::make(length, 0)
+  for i in 0..<length {
+    result[i] = self[i] & other[i]
+  }
+  CpuSet(result)
+}
+
+///|
+pub fn CpuSet::union(self : CpuSet, other : CpuSet) -> CpuSet {
+  let self = self.inner()
+  let other = other.inner()
+  let length = @cmp.minimum(self.length(), other.length())
+  let result : FixedArray[Byte] = FixedArray::make(length, 0)
+  for i in 0..<length {
+    result[i] = self[i] | other[i]
+  }
+  for i in length..<self.length() {
+    result[i] = self[i]
+  }
+  for i in length..<other.length() {
+    result[i] = other[i]
+  }
+  CpuSet(result)
+}
+
+///|
+pub fn CpuSet::xor(self : CpuSet, other : CpuSet) -> CpuSet {
+  let self = self.inner()
+  let other = other.inner()
+  let length = @cmp.minimum(self.length(), other.length())
+  let result : FixedArray[Byte] = FixedArray::make(length, 0)
+  for i in 0..<length {
+    result[i] = self[i] ^ other[i]
+  }
+  for i in length..<self.length() {
+    result[i] = self[i] ^ 0
+  }
+  for i in length..<other.length() {
+    result[i] = other[i] ^ 0
+  }
+  CpuSet(result)
+}
+
+///|
+pub impl BitAnd for CpuSet with land(self : CpuSet, other : CpuSet) -> CpuSet {
+  return self.intersect(other)
+}
+
+///|
+pub impl BitOr for CpuSet with lor(self : CpuSet, other : CpuSet) -> CpuSet {
+  return self.union(other)
+}
+
+///|
+pub impl BitXOr for CpuSet with lxor(self : CpuSet, other : CpuSet) -> CpuSet {
+  return self.xor(other)
+}
+
+///|
+pub impl Show for CpuSet with output(self : CpuSet, logger : &Logger) -> Unit {
+  for i in 0..<self.count() {
+    if self.is_set(i) {
+      logger.write_object(i)
+    }
+  }
+}
+
+///|
+pub fn Thread::set_affinity(
+  self : Thread,
+  cpu_set : CpuSet,
+) -> Unit raise Errno {
+  let old_len = cpumask_size()
+  let old_set = CpuSet::new()
+  let status = uv_thread_setaffinity(self, cpu_set, old_set, old_len)
+  if status != 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
+pub fn Thread::get_affinity(self : Thread) -> CpuSet raise Errno {
+  let length = cpumask_size()
+  let cpu_set = CpuSet::new()
+  let status = uv_thread_getaffinity(self, cpu_set, length)
+  if status != 0 {
+    raise Errno::of_int(status)
+  }
+  cpu_set
+}

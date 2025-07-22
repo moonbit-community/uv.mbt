@@ -134,3 +134,44 @@ moonbit_uv_thread_copy(moonbit_uv_thread_t *self, moonbit_uv_thread_t *other) {
   moonbit_decref(self);
   moonbit_decref(other);
 }
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_cpumask_size(void) {
+  return uv_cpumask_size();
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_thread_getcpu(void) {
+  return uv_thread_getcpu();
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_thread_setaffinity(
+  moonbit_uv_thread_t *thread,
+  void *cpumask,
+  void *oldmask,
+  int32_t mask_size
+) {
+  int32_t status = uv_thread_setaffinity(
+    &thread->block->object, (char *)cpumask, (char *)oldmask, (size_t)mask_size
+  );
+  moonbit_decref(thread);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_thread_getaffinity(
+  moonbit_uv_thread_t *thread,
+  void *cpumask,
+  int32_t mask_size
+) {
+  int32_t status = uv_thread_getaffinity(
+    &thread->block->object, (char *)cpumask, (size_t)mask_size
+  );
+  moonbit_decref(thread);
+  return status;
+}
