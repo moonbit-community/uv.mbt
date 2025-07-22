@@ -76,10 +76,14 @@ fn stdin() -> File
 
 fn stdout() -> File
 
+fn string_to_wtf8(String) -> Bytes
+
 fn version() -> Version
 
 #deprecated
 fn[Stream : ToStream] write(Stream, Array[@bytes.View], () -> Unit, (Errno) -> Unit) -> Write raise Errno
+
+fn wtf8_to_string(Bytes) -> String
 
 // Types and methods
 type AccessFlags
