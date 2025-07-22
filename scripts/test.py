@@ -123,8 +123,6 @@ def main():
         raise Exception("Unsupported platform")
     uv_pkg_path = test_path / "moon.pkg.json"
     uv_pkg_text = modify_moon_pkg_json(uv_pkg_path, flags)
-    async_pkg_path = test_path / "async" / "moon.pkg.json"
-    async_pkg_text = modify_moon_pkg_json(async_pkg_path, flags)
     print("==============================================")
     print("Running test with the following configuration:")
     print("----------------------------------------------")
@@ -159,7 +157,6 @@ def main():
         )
     finally:
         uv_pkg_path.write_text(uv_pkg_text)
-        async_pkg_path.write_text(async_pkg_text)
 
 
 if __name__ == "__main__":
