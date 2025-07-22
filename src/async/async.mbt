@@ -13,11 +13,11 @@
 // limitations under the License.
 
 ///|
-async fn[T] async_suspend(f : ((T) -> Unit) -> Unit) -> T = "%async.suspend"
+async fn[T] async_suspend(f : ((T) -> Unit) -> Unit) -> T noraise = "%async.suspend"
 
 ///|
 async fn[T, E : Error] async_suspend_with_error(
-  f : ((T) -> Unit, (E) -> Unit) -> Unit
+  f : ((T) -> Unit, (E) -> Unit) -> Unit,
 ) -> T raise E = "%async.suspend"
 
 ///|
@@ -37,7 +37,7 @@ impl Cancel for Error with cancel() -> Error {
 
 ///|
 async fn[T, E : Error + Cancel] suspend_with_error(
-  f : ((T) -> Unit, (E) -> Unit) -> Unit
+  f : ((T) -> Unit, (E) -> Unit) -> Unit,
 ) -> T raise E {
   let scope = active_scope.val
   if scope is Some(scope) && scope.canceled {
@@ -59,7 +59,7 @@ async fn[T, E : Error + Cancel] suspend_with_error(
 }
 
 ///|
-fn async_run(f : async () -> Unit) -> Unit = "%async.run"
+fn async_run(f : async () -> Unit noraise) -> Unit = "%async.run"
 
 ///|
 let uv_ref : Ref[@uv.Loop?] = Ref::new(None)
@@ -242,7 +242,7 @@ pub async fn[T] scope(f : async () -> T raise) -> T raise {
 fn Scope::new(
   parent : Scope?,
   accept : (Unit) -> Unit,
-  reject : (Error) -> Unit
+  reject : (Error) -> Unit,
 ) -> Scope {
   let id = Id::new()
   let scope = Scope::{

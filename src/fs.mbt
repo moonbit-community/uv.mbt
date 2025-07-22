@@ -82,7 +82,7 @@ pub fn OpenFlags::write_only(
   append~ : Bool = false,
   create~ : Bool = false,
   truncate~ : Bool = false,
-  exclusive~ : Bool = false
+  exclusive~ : Bool = false,
 ) -> OpenFlags {
   let mut flags = _O_WRONLY
   if append {
@@ -136,7 +136,7 @@ pub fn OpenFlags::read_write(
   append~ : Bool = false,
   create~ : Bool = false,
   truncate~ : Bool = false,
-  exclusive~ : Bool = false
+  exclusive~ : Bool = false,
 ) -> OpenFlags {
   let mut flags = _O_RDWR
   if append {
@@ -203,7 +203,7 @@ extern "c" fn uv_fs_open(
   path : Bytes,
   flags : Int,
   mode : Int,
-  cb : (Fs) -> Unit
+  cb : (Fs) -> Unit,
 ) -> Int = "moonbit_uv_fs_open"
 
 ///|
@@ -291,7 +291,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_open(
   flags : OpenFlags,
   mode : Int,
   open_cb : (File) -> Unit,
-  error_cb : (Errno) -> Unit
+  error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
   fn cb(req : Fs) {
     let result = req.result().to_int()
@@ -318,7 +318,7 @@ extern "c" fn uv_fs_open_sync(
   req : Fs,
   path : Bytes,
   flags : Int,
-  mode : Int
+  mode : Int,
 ) -> Int = "moonbit_uv_fs_open_sync"
 
 ///|
@@ -363,7 +363,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_open_sync(
   self : Loop,
   path : Ntbs,
   flags : OpenFlags,
-  mode : Int
+  mode : Int,
 ) -> File raise Errno {
   let req = uv_fs_make()
   let path = path.to_ntbs()
@@ -379,7 +379,7 @@ extern "c" fn uv_fs_close(
   uv : Loop,
   req : Fs,
   file : File,
-  cb : (Fs) -> Unit
+  cb : (Fs) -> Unit,
 ) -> Int = "moonbit_uv_fs_close"
 
 ///|
@@ -420,7 +420,7 @@ pub fn Loop::fs_close(
   self : Loop,
   file : File,
   close_cb : () -> Unit,
-  error_cb : (Errno) -> Unit
+  error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
   fn cb(req : Fs) {
     let result = req.result()
@@ -472,7 +472,7 @@ extern "c" fn uv_fs_read(
   bufs_offset : FixedArray[Int],
   bufs_length : FixedArray[Int],
   offset : Int64,
-  cb : (Fs) -> Unit
+  cb : (Fs) -> Unit,
 ) -> Int = "moonbit_uv_fs_read"
 
 ///|
@@ -523,7 +523,7 @@ pub fn Loop::fs_read(
   bufs : Array[@bytes.View],
   offset~ : Int64 = -1,
   read_cb : (Int) -> Unit,
-  error_cb : (Errno) -> Unit
+  error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
   fn cb(req : Fs) {
     let result = req.result()
@@ -562,7 +562,7 @@ extern "c" fn uv_fs_read_sync(
   bufs_base : FixedArray[Bytes],
   bufs_offset : FixedArray[Int],
   bufs_length : FixedArray[Int],
-  offset : Int64
+  offset : Int64,
 ) -> Int = "moonbit_uv_fs_read_sync"
 
 ///|
@@ -570,7 +570,7 @@ pub fn Loop::fs_read_sync(
   self : Loop,
   file : File,
   bufs : Array[@bytes.View],
-  offset~ : Int64 = -1
+  offset~ : Int64 = -1,
 ) -> Int raise Errno {
   let req = uv_fs_make()
   let bufs_size = bufs.length()
@@ -600,7 +600,7 @@ extern "c" fn uv_fs_write(
   bufs_offset : FixedArray[Int],
   bufs_length : FixedArray[Int],
   offset : Int64,
-  write_cb : (Fs) -> Unit
+  write_cb : (Fs) -> Unit,
 ) -> Int = "moonbit_uv_fs_write"
 
 ///|
@@ -660,7 +660,7 @@ pub fn Loop::fs_write(
   bufs : Array[@bytes.View],
   offset~ : Int64 = -1,
   write_cb : (Int) -> Unit,
-  error_cb : (Errno) -> Unit
+  error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
   fn cb(req : Fs) {
     let result = req.result().to_int()
@@ -699,7 +699,7 @@ extern "c" fn uv_fs_write_sync(
   bufs_base : FixedArray[Bytes],
   bufs_offset : FixedArray[Int],
   bufs_length : FixedArray[Int],
-  offset : Int64
+  offset : Int64,
 ) -> Int = "moonbit_uv_fs_write_sync"
 
 ///|
@@ -745,7 +745,7 @@ pub fn Loop::fs_write_sync(
   self : Loop,
   file : File,
   bufs : Array[@bytes.View],
-  offset~ : Int64 = -1
+  offset~ : Int64 = -1,
 ) -> Unit raise Errno {
   let req = uv_fs_make()
   let bufs_size = bufs.length()
@@ -771,7 +771,7 @@ extern "c" fn uv_fs_ftruncate(
   req : Fs,
   file : File,
   length : Int64,
-  cb : (Fs) -> Unit
+  cb : (Fs) -> Unit,
 ) -> Int = "moonbit_uv_fs_ftruncate"
 
 ///|
@@ -780,7 +780,7 @@ pub fn Loop::fs_ftruncate(
   file : File,
   length : Int64,
   k : () -> Unit,
-  e : (Errno) -> Unit
+  e : (Errno) -> Unit,
 ) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
@@ -820,7 +820,7 @@ extern "c" fn uv_fs_unlink(
   uv : Loop,
   req : Fs,
   path : Bytes,
-  cb : (Fs) -> Unit
+  cb : (Fs) -> Unit,
 ) -> Int = "moonbit_uv_fs_unlink"
 
 ///|
@@ -828,7 +828,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_unlink(
   self : Loop,
   path : Ntbs,
   k : () -> Unit,
-  e : (Errno) -> Unit
+  e : (Errno) -> Unit,
 ) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
@@ -854,7 +854,7 @@ extern "c" fn uv_fs_unlink_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "moo
 ///|
 pub fn[Ntbs : ToNtbs] Loop::fs_unlink_sync(
   self : Loop,
-  path : Ntbs
+  path : Ntbs,
 ) -> Unit raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_unlink_sync(self, req, path.to_ntbs())
@@ -869,7 +869,7 @@ extern "c" fn uv_fs_mkdir(
   req : Fs,
   path : Bytes,
   mode : Int,
-  cb : (Fs) -> Unit
+  cb : (Fs) -> Unit,
 ) -> Int = "moonbit_uv_fs_mkdir"
 
 ///|
@@ -919,7 +919,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_mkdir(
   path : Ntbs,
   mode : Int,
   mkdir_cb : () -> Unit,
-  error_cb : (Errno) -> Unit
+  error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
@@ -944,7 +944,7 @@ extern "c" fn uv_fs_mkdir_sync(
   uv : Loop,
   req : Fs,
   path : Bytes,
-  mode : Int
+  mode : Int,
 ) -> Int = "moonbit_uv_fs_mkdir_sync"
 
 ///|
@@ -980,7 +980,7 @@ extern "c" fn uv_fs_mkdir_sync(
 pub fn[Ntbs : ToNtbs] Loop::fs_mkdir_sync(
   self : Loop,
   path : Ntbs,
-  mode : Int
+  mode : Int,
 ) -> Unit raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_mkdir_sync(self, req, path.to_ntbs(), mode)
@@ -994,7 +994,7 @@ extern "c" fn uv_fs_rmdir(
   uv : Loop,
   req : Fs,
   path : Bytes,
-  cb : (Fs) -> Unit
+  cb : (Fs) -> Unit,
 ) -> Int = "moonbit_uv_fs_rmdir"
 
 ///|
@@ -1002,7 +1002,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_rmdir(
   self : Loop,
   path : Ntbs,
   rmdir_cb : () -> Unit,
-  error_cb : (Errno) -> Unit
+  error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
@@ -1028,7 +1028,7 @@ extern "c" fn uv_fs_rmdir_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "moon
 ///|
 pub fn[Ntbs : ToNtbs] Loop::fs_rmdir_sync(
   self : Loop,
-  path : Ntbs
+  path : Ntbs,
 ) -> Unit raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_rmdir_sync(self, req, path.to_ntbs())
@@ -1043,7 +1043,7 @@ extern "c" fn uv_fs_scandir(
   req : Fs,
   path : Bytes,
   flags : Int,
-  cb : (Fs) -> Unit
+  cb : (Fs) -> Unit,
 ) -> Int = "moonbit_uv_fs_scandir"
 
 ///|
@@ -1118,13 +1118,13 @@ impl @c.Load for Dirent with load(pointer : @c.Pointer[Dirent], index : Int) -> 
 ///|
 extern "c" fn uv_dirent_get_name(
   dirent : @c.Pointer[Dirent],
-  offset : Int
+  offset : Int,
 ) -> @c.Pointer[Byte] = "moonbit_uv_dirent_get_name"
 
 ///|
 extern "c" fn uv_dirent_get_type(
   dirent : @c.Pointer[Dirent],
-  offset : Int
+  offset : Int,
 ) -> DirentType = "moonbit_uv_dirent_get_type"
 
 ///|
@@ -1157,7 +1157,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_scandir(
   path : Ntbs,
   flags : Int,
   scandir_cb : (Scandir) -> Unit,
-  error_cb : (Errno) -> Unit
+  error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_scandir(self, req, path.to_ntbs(), flags, fn(req) {
@@ -1180,14 +1180,14 @@ extern "c" fn uv_fs_scandir_sync(
   uv : Loop,
   req : Fs,
   path : Bytes,
-  flags : Int
+  flags : Int,
 ) -> Int = "moonbit_uv_fs_scandir_sync"
 
 ///|
 pub fn[Ntbs : ToNtbs] fs_scandir_sync(
   self : Loop,
   path : Ntbs,
-  flags : Int
+  flags : Int,
 ) -> Scandir raise Errno {
   let req = uv_fs_make()
   let path = path.to_ntbs()
@@ -1205,7 +1205,7 @@ extern "c" fn uv_fs_rename(
   req : Fs,
   path : Bytes,
   new_path : Bytes,
-  cb : (Fs) -> Unit
+  cb : (Fs) -> Unit,
 ) -> Int = "moonbit_uv_fs_rename"
 
 ///|
@@ -1214,7 +1214,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_rename(
   path : Ntbs,
   new_path : Ntbs,
   rename_cb : () -> Unit,
-  error_cb : (Errno) -> Unit
+  error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
@@ -1256,7 +1256,7 @@ pub(all) enum CopyOnWrite {
 ///|
 pub fn CopyFileFlags::new(
   allow_exists~ : Bool = true,
-  copy_on_write~ : CopyOnWrite = False
+  copy_on_write~ : CopyOnWrite = False,
 ) -> CopyFileFlags {
   let mut flags = if allow_exists { 0 } else { uv_fs_COPYFILE_EXCL() }
   match copy_on_write {
@@ -1274,7 +1274,7 @@ extern "c" fn uv_fs_copyfile(
   path : Bytes,
   new_path : Bytes,
   flags : Int,
-  cb : (Fs) -> Unit
+  cb : (Fs) -> Unit,
 ) -> Int = "moonbit_uv_fs_copyfile"
 
 ///|
@@ -1284,7 +1284,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_copyfile(
   new_path : Ntbs,
   flags : CopyFileFlags,
   copy_cb : () -> Unit,
-  error_cb : (Errno) -> Unit
+  error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
@@ -1317,7 +1317,7 @@ extern "c" fn uv_fs_copyfile_sync(
   req : Fs,
   path : Bytes,
   new_path : Bytes,
-  flags : Int
+  flags : Int,
 ) -> Int = "moonbit_uv_fs_copyfile_sync"
 
 ///|
@@ -1325,7 +1325,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_copyfile_sync(
   self : Loop,
   path : Ntbs,
   new_path : Ntbs,
-  flags : CopyFileFlags
+  flags : CopyFileFlags,
 ) -> Unit raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_copyfile_sync(
@@ -1369,7 +1369,7 @@ extern "c" fn uv_fs_realpath(
   uv : Loop,
   req : Fs,
   path : Bytes,
-  cb : (Fs) -> Unit
+  cb : (Fs) -> Unit,
 ) -> Int = "moonbit_uv_fs_realpath"
 
 ///|
@@ -1665,7 +1665,7 @@ extern "c" fn uv_fs_stat(
   uv : Loop,
   req : Fs,
   path : Bytes,
-  cb : (Fs) -> Unit
+  cb : (Fs) -> Unit,
 ) -> Int = "moonbit_uv_fs_stat"
 
 ///|
@@ -1673,7 +1673,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_stat(
   self : Loop,
   path : Ntbs,
   stat_cb : (Stat) -> Unit,
-  error_cb : (Errno) -> Unit
+  error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
@@ -1701,7 +1701,7 @@ extern "c" fn uv_fs_stat_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "moonb
 ///|
 pub fn[Ntbs : ToNtbs] Loop::fs_stat_sync(
   self : Loop,
-  path : Ntbs
+  path : Ntbs,
 ) -> Stat raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_stat_sync(self, req, path.to_ntbs())
@@ -1719,7 +1719,7 @@ extern "c" fn uv_fs_lstat(
   uv : Loop,
   req : Fs,
   path : Bytes,
-  cb : (Fs) -> Unit
+  cb : (Fs) -> Unit,
 ) -> Int = "moonbit_uv_fs_lstat"
 
 ///|
@@ -1727,7 +1727,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_lstat(
   self : Loop,
   path : Ntbs,
   lstat_cb : (Stat) -> Unit,
-  error_cb : (Errno) -> Unit
+  error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
@@ -1754,7 +1754,7 @@ extern "c" fn uv_fs_fstat(
   uv : Loop,
   req : Fs,
   file : File,
-  cb : (Fs) -> Unit
+  cb : (Fs) -> Unit,
 ) -> Int = "moonbit_uv_fs_fstat"
 
 ///|
@@ -1762,7 +1762,7 @@ pub fn Loop::fs_fstat(
   self : Loop,
   file : File,
   fstat_cb : (Stat) -> Unit,
-  error_cb : (Errno) -> Unit
+  error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
@@ -1825,7 +1825,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_realpath(
   self : Loop,
   path : Ntbs,
   path_cb : (String) -> Unit,
-  error_cb : (Errno) -> Unit
+  error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
@@ -1858,7 +1858,7 @@ extern "c" fn uv_fs_realpath_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "m
 ///|
 pub fn[Ntbs : ToNtbs] Loop::fs_realpath_sync(
   self : Loop,
-  path : Ntbs
+  path : Ntbs,
 ) -> String raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_realpath_sync(self, req, path.to_ntbs())
@@ -1906,7 +1906,7 @@ type AccessFlags Int
 pub fn AccessFlags::new(
   read~ : Bool = false,
   write~ : Bool = false,
-  execute~ : Bool = false
+  execute~ : Bool = false,
 ) -> AccessFlags {
   if not(read) && not(write) && not(execute) {
     return _F_OK
@@ -1930,7 +1930,7 @@ extern "c" fn uv_fs_access(
   req : Fs,
   path : Bytes,
   mode : Int,
-  cb : (Fs) -> Unit
+  cb : (Fs) -> Unit,
 ) -> Int = "moonbit_uv_fs_access"
 
 ///|
@@ -1939,7 +1939,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_access(
   path : Ntbs,
   mode : AccessFlags,
   access_cb : () -> Unit,
-  error_cb : (Errno) -> Unit
+  error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
@@ -1964,14 +1964,14 @@ extern "c" fn uv_fs_access_sync(
   uv : Loop,
   req : Fs,
   path : Bytes,
-  mode : Int
+  mode : Int,
 ) -> Int = "moonbit_uv_fs_access_sync"
 
 ///|
 pub fn[Ntbs : ToNtbs] Loop::fs_access_sync(
   self : Loop,
   path : Ntbs,
-  mode : AccessFlags
+  mode : AccessFlags,
 ) -> Unit raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_access_sync(self, req, path.to_ntbs(), mode.inner())
@@ -1994,7 +1994,7 @@ extern "c" fn uv_fs_mkdtemp(
   uv : Loop,
   req : Fs,
   template : Bytes,
-  cb : (Fs) -> Unit
+  cb : (Fs) -> Unit,
 ) -> Int = "moonbit_uv_fs_mkdtemp"
 
 ///|
@@ -2002,7 +2002,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_mkdtemp(
   self : Loop,
   template : Ntbs,
   mkdtemp_cb : (String) -> Unit,
-  error_cb : (Errno) -> Unit
+  error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
@@ -2030,7 +2030,7 @@ extern "c" fn uv_fs_mkdtemp_sync(uv : Loop, req : Fs, template : Bytes) -> Int =
 ///|
 pub fn[Ntbs : ToNtbs] Loop::fs_mkdtemp_sync(
   self : Loop,
-  template : Ntbs
+  template : Ntbs,
 ) -> String raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_mkdtemp_sync(self, req, template.to_ntbs())
@@ -2047,7 +2047,7 @@ extern "c" fn uv_fs_mkstemp(
   uv : Loop,
   req : Fs,
   template : Bytes,
-  cb : (Fs) -> Unit
+  cb : (Fs) -> Unit,
 ) -> Int = "moonbit_uv_fs_mkstemp"
 
 ///|
@@ -2055,7 +2055,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_mkstemp(
   self : Loop,
   template : Ntbs,
   mkstemp_cb : (String) -> Unit,
-  error_cb : (Errno) -> Unit
+  error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
@@ -2082,7 +2082,7 @@ extern "c" fn uv_fs_mkstemp_sync(uv : Loop, req : Fs, template : Bytes) -> Int =
 ///|
 pub fn[Ntbs : ToNtbs] Loop::fs_mkstemp_sync(
   self : Loop,
-  template : Ntbs
+  template : Ntbs,
 ) -> String raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_mkstemp_sync(self, req, template.to_ntbs())
@@ -2107,7 +2107,7 @@ extern "c" fn uv_fs_opendir(
   uv : Loop,
   req : Fs,
   path : Bytes,
-  cb : (Fs) -> Unit
+  cb : (Fs) -> Unit,
 ) -> Int = "moonbit_uv_fs_opendir"
 
 ///|
@@ -2115,7 +2115,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_opendir(
   self : Loop,
   path : Ntbs,
   opendir_cb : (Dir) -> Unit,
-  error_cb : (Errno) -> Unit
+  error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()
@@ -2142,7 +2142,7 @@ extern "c" fn uv_fs_readdir(
   uv : Loop,
   req : Fs,
   dir : Dir,
-  cb : (Fs) -> Unit
+  cb : (Fs) -> Unit,
 ) -> Int = "moonbit_uv_fs_readdir"
 
 ///|
@@ -2151,7 +2151,7 @@ pub fn Loop::fs_readdir(
   dir : Dir,
   n : Int,
   readdir_cb : (Array[Dirent]) -> Unit,
-  error_cb : (Errno) -> Unit
+  error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
   let uv_dirents = uv_dirent_make(n)
   fn cb(req : Fs) {
@@ -2187,7 +2187,7 @@ extern "c" fn uv_fs_closedir(
   uv : Loop,
   req : Fs,
   dir : Dir,
-  cb : (Fs) -> Unit
+  cb : (Fs) -> Unit,
 ) -> Int = "moonbit_uv_fs_closedir"
 
 ///|
@@ -2195,7 +2195,7 @@ pub fn Loop::fs_closedir(
   self : Loop,
   dir : Dir,
   closedir_cb : () -> Unit,
-  error_cb : (Errno) -> Unit
+  error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
   fn cb(req : Fs) {
     let status = req.result().to_int()

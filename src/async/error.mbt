@@ -26,7 +26,7 @@ pub suberror FileSystemError {
 ///|
 impl Show for FileSystemError with output(
   self : FileSystemError,
-  logger : &Logger
+  logger : &Logger,
 ) -> Unit {
   match self {
     AlreadyExists(path) =>
@@ -54,7 +54,7 @@ priv struct Context {
 async fn[T, E : Error] Context::backtrace(
   self : Context,
   loc~ : SourceLoc,
-  f : async () -> T raise E
+  f : async () -> T raise E,
 ) -> T raise E {
   self.stack_trace.inner().push_back(loc)
   try {
@@ -79,7 +79,7 @@ let context : Ref[Context] = Ref::new({
 ///|
 pub async fn[T] backtrace(
   loc~ : SourceLoc = _,
-  f : async () -> T raise Error
+  f : async () -> T raise Error,
 ) -> T raise Error {
   context.val.backtrace(loc~, f)
 }

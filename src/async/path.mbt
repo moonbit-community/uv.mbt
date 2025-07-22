@@ -54,7 +54,7 @@ fn Path::inspect(self : Path) -> Json {
 ///|
 pub impl @json.FromJson for Path with from_json(
   json : Json,
-  path : @json.JsonPath
+  path : @json.JsonPath,
 ) -> Path {
   let string : String = @json.FromJson::from_json(json, path)
   Path::parse(string)

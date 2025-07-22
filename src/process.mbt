@@ -59,55 +59,55 @@ extern "c" fn uv_process_options_make() -> ProcessOptions = "moonbit_uv_process_
 ///|
 extern "c" fn uv_process_options_set_exit_cb(
   process_options : ProcessOptions,
-  exit_cb : (Process, Int64, Int) -> Unit
+  exit_cb : (Process, Int64, Int) -> Unit,
 ) = "moonbit_uv_process_options_set_exit_cb"
 
 ///|
 extern "c" fn uv_process_options_set_file(
   process_options : ProcessOptions,
-  file : Bytes
+  file : Bytes,
 ) = "moonbit_uv_process_options_set_file"
 
 ///|
 extern "c" fn uv_process_options_set_args(
   process_options : ProcessOptions,
-  args : FixedArray[Bytes?]
+  args : FixedArray[Bytes?],
 ) = "moonbit_uv_process_options_set_args"
 
 ///|
 extern "c" fn uv_process_options_set_env(
   process_options : ProcessOptions,
-  env : FixedArray[Bytes?]
+  env : FixedArray[Bytes?],
 ) = "moonbit_uv_process_options_set_env"
 
 ///|
 extern "c" fn uv_process_options_set_cwd(
   process_options : ProcessOptions,
-  cwd : Bytes
+  cwd : Bytes,
 ) = "moonbit_uv_process_options_set_cwd"
 
 ///|
 extern "c" fn uv_process_options_set_flags(
   process_options : ProcessOptions,
-  flags : UInt
+  flags : UInt,
 ) = "moonbit_uv_process_options_set_flags"
 
 ///|
 extern "c" fn uv_process_options_set_stdio(
   process_options : ProcessOptions,
-  stdio : FixedArray[StdioContainer]
+  stdio : FixedArray[StdioContainer],
 ) = "moonbit_uv_process_options_set_stdio"
 
 ///|
 extern "c" fn uv_process_options_set_uid(
   process_options : ProcessOptions,
-  uid : Uid
+  uid : Uid,
 ) = "moonbit_uv_process_options_set_uid"
 
 ///|
 extern "c" fn uv_process_options_set_gid(
   process_options : ProcessOptions,
-  gid : Gid
+  gid : Gid,
 ) = "moonbit_uv_process_options_set_gid"
 
 ///|
@@ -119,7 +119,7 @@ pub fn[Ntbs : ToNtbs] ProcessOptions::new(
   stdio? : Array[StdioContainer],
   uid? : Uid,
   gid? : Gid,
-  exit_cb : (Process, Int64, Int) -> Unit
+  exit_cb : (Process, Int64, Int) -> Unit,
 ) -> ProcessOptions {
   let mut flags = 0U
   let options = uv_process_options_make()
@@ -175,7 +175,7 @@ extern "c" fn uv_stdio_container_create_pipe(
   stream : Stream,
   readable~ : Bool = false,
   writable~ : Bool = false,
-  non_block~ : Bool = false
+  non_block~ : Bool = false,
 ) -> StdioContainer = "moonbit_uv_stdio_container_create_pipe"
 
 ///|
@@ -183,7 +183,7 @@ pub fn[Stream : ToStream] StdioContainer::create_pipe(
   stream : Stream,
   readable~ : Bool = false,
   writable~ : Bool = false,
-  non_block~ : Bool = false
+  non_block~ : Bool = false,
 ) -> StdioContainer {
   return uv_stdio_container_create_pipe(
     stream.to_stream(),
@@ -203,7 +203,7 @@ pub fn StdioContainer::inherit_file(file : File) -> StdioContainer {
 
 ///|
 pub extern "c" fn StdioContainer::inherit_stream(
-  stream : Stream
+  stream : Stream,
 ) -> StdioContainer = "moonbit_uv_stdio_container_inherit_stream"
 
 ///|
@@ -216,13 +216,13 @@ type Gid Int
 extern "c" fn uv_spawn(
   uv : Loop,
   process : Process,
-  options : ProcessOptions
+  options : ProcessOptions,
 ) -> Int = "moonbit_uv_spawn"
 
 ///|
 pub fn Loop::spawn(
   self : Loop,
-  options : ProcessOptions
+  options : ProcessOptions,
 ) -> Process raise Errno {
   let process = uv_process_make()
   let status = uv_spawn(self, process, options)

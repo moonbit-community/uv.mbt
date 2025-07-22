@@ -29,7 +29,7 @@ extern "c" fn uv_addrinfo_hints(
   flags : Int,
   family : Int,
   socktype : Int,
-  protocol : Int
+  protocol : Int,
 ) -> AddrInfoHints = "moonbit_uv_addrinfo_hints"
 
 ///|
@@ -85,7 +85,7 @@ pub fn AddrInfoFlags::new(
   numeric_serv~ : Bool = false,
   all~ : Bool = false,
   addrconfig~ : Bool = false,
-  v4mapped~ : Bool = false
+  v4mapped~ : Bool = false,
 ) -> AddrInfoFlags {
   let mut flags = 0
   if passive {
@@ -117,7 +117,7 @@ pub fn AddrInfoHints::new(
   flags? : AddrInfoFlags,
   family? : AddressFamily,
   socktype? : SockType,
-  protocol? : Protocol
+  protocol? : Protocol,
 ) -> AddrInfoHints {
   let flags = match flags {
     Some(flags) => flags.inner()
@@ -148,7 +148,7 @@ priv type AddrInfoResults
 #borrow(addrinfo_results, cb)
 extern "c" fn uv_addrinfo_results_iterate(
   addrinfo_results : AddrInfoResults,
-  cb : (Int, Int, Int, Int, Sockaddr, @c.Pointer[Byte]) -> Bool
+  cb : (Int, Int, Int, Int, Sockaddr, @c.Pointer[Byte]) -> Bool,
 ) -> Bool = "moonbit_uv_addrinfo_results_iterate"
 
 ///|
@@ -269,7 +269,7 @@ fn AddrInfoResults::iter(self : AddrInfoResults) -> Iter[AddrInfo] {
         socktype,
         protocol,
         addr,
-        canonname
+        canonname,
       ) {
         let canonname = if canonname.is_null() {
           None
@@ -299,7 +299,7 @@ extern "c" fn uv_getaddrinfo(
   getaddrinfo_cb : (GetAddrInfo, Int, AddrInfoResults) -> Unit,
   node : Bytes,
   service : Bytes,
-  hints : AddrInfoHints
+  hints : AddrInfoHints,
 ) -> Int = "moonbit_uv_getaddrinfo"
 
 ///|
@@ -309,7 +309,7 @@ pub fn[Node : ToNtbs, Service : ToNtbs] Loop::getaddrinfo(
   error_cb : (Errno) -> Unit,
   node : Node,
   service : Service,
-  hints? : AddrInfoHints
+  hints? : AddrInfoHints,
 ) -> GetAddrInfo raise Errno {
   fn uv_cb(_ : GetAddrInfo, status : Int, addrinfo : AddrInfoResults) {
     if status < 0 {

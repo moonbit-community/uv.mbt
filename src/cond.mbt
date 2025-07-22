@@ -60,7 +60,7 @@ extern "c" fn uv_cond_wait(cond : Cond, mutex : Mutex) = "moonbit_uv_cond_wait"
 extern "c" fn uv_cond_timedwait(
   cond : Cond,
   mutex : Mutex,
-  timeout : UInt64
+  timeout : UInt64,
 ) -> Int = "moonbit_uv_cond_timedwait"
 
 ///|
@@ -113,7 +113,7 @@ pub fn Cond::wait(self : Cond, mutex : Mutex) -> Unit {
 pub fn Cond::timedwait(
   self : Cond,
   mutex : Mutex,
-  timeout_ns : UInt64
+  timeout_ns : UInt64,
 ) -> Unit raise Errno {
   let status = uv_cond_timedwait(self, mutex, timeout_ns)
   if status < 0 {

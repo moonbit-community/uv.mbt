@@ -27,7 +27,7 @@ fn test_write(
   bytes : Bytes,
   start : Int,
   count : Int,
-  error : Ref[Errno?]
+  error : Ref[Errno?],
 ) -> Unit {
   buffer.write_bytesview(bytes[start:start + count])
   test_read(uv, file, buffer, bytes, error)
@@ -39,7 +39,7 @@ fn test_read(
   file : @uv.File,
   buffer : @buffer.T,
   bytes : Bytes,
-  error : Ref[Errno?]
+  error : Ref[Errno?],
 ) -> Unit {
   try
     uv.fs_read(

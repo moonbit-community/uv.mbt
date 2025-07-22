@@ -16,7 +16,7 @@
 extern "c" fn uv_os_getenv(
   name : Bytes,
   bytes : Bytes,
-  size : FixedArray[Int]
+  size : FixedArray[Int],
 ) -> Int = "moonbit_uv_os_getenv"
 
 ///|
@@ -44,7 +44,7 @@ extern "c" fn uv_os_setenv(name : Bytes, value : Bytes) -> Int = "moonbit_uv_os_
 ///|
 pub fn[Name : ToNtbs, Value : ToNtbs] os_setenv(
   name : Name,
-  value : Value
+  value : Value,
 ) -> Unit raise Errno {
   let status = uv_os_setenv(name.to_ntbs(), value.to_ntbs())
   if status < 0 {
@@ -90,14 +90,14 @@ extern "c" fn uv_environ_count(environ : Environ) -> Int = "moonbit_uv_environ_c
 #borrow(environ)
 extern "c" fn uv_environ_get_name(
   environ : Environ,
-  index : Int
+  index : Int,
 ) -> @c.Pointer[Byte] = "moonbit_uv_environ_get_name"
 
 ///|
 #borrow(environ)
 extern "c" fn uv_environ_get_value(
   environ : Environ,
-  index : Int
+  index : Int,
 ) -> @c.Pointer[Byte] = "moonbit_uv_environ_get_value"
 
 ///|

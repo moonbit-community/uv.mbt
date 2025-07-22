@@ -43,7 +43,7 @@ extern "c" fn uv_udp_connect(handle : Udp, addr : Sockaddr) -> Int = "moonbit_uv
 ///|
 pub fn[Sockaddr : ToSockaddr] Udp::connect(
   self : Udp,
-  addr : Sockaddr
+  addr : Sockaddr,
 ) -> Unit raise Errno {
   let result = uv_udp_connect(self, addr.to_sockaddr())
   if result < 0 {
@@ -58,7 +58,7 @@ extern "c" fn uv_udp_bind(handle : Udp, addr : Sockaddr, flags : UInt) -> Int = 
 pub fn[Sockaddr : ToSockaddr] Udp::bind(
   self : Udp,
   addr : Sockaddr,
-  flags : UdpFlags
+  flags : UdpFlags,
 ) -> Unit raise Errno {
   let result = uv_udp_bind(self, addr.to_sockaddr(), flags.inner())
   if result < 0 {
@@ -83,7 +83,7 @@ extern "c" fn uv_udp_send(
   bufs_offset : FixedArray[Int],
   bufs_length : FixedArray[Int],
   addr : @c.Nullable[Sockaddr],
-  cb : (UdpSend, Int) -> Unit
+  cb : (UdpSend, Int) -> Unit,
 ) -> Int = "moonbit_uv_udp_send"
 
 ///|
@@ -92,7 +92,7 @@ pub fn[Sockaddr : ToSockaddr] Udp::send(
   data : Array[@bytes.View],
   send_cb : () -> Unit,
   error_cb : (Errno) -> Unit,
-  addr? : Sockaddr
+  addr? : Sockaddr,
 ) -> UdpSend raise Errno {
   fn cb(_ : UdpSend, status : Int) {
     if status < 0 {
@@ -131,7 +131,7 @@ pub fn[Sockaddr : ToSockaddr] Udp::send(
 extern "c" fn uv_udp_recv_start(
   udp : Udp,
   alloc_cb : (Handle, UInt64, @c.Pointer[Int], @c.Pointer[Int]) -> Bytes,
-  recv_cb : (Udp, Int64, Bytes?, Int, Int, Sockaddr, UInt) -> Unit
+  recv_cb : (Udp, Int64, Bytes?, Int, Int, Sockaddr, UInt) -> Unit,
 ) -> Int = "moonbit_uv_udp_recv_start"
 
 ///|
@@ -139,13 +139,13 @@ pub fn Udp::recv_start(
   self : Udp,
   alloc_cb : (Handle, Int) -> @bytes.View,
   read_cb : (Udp, Int, @bytes.View, Sockaddr, UdpFlags) -> Unit,
-  error_cb : (Udp, Errno) -> Unit
+  error_cb : (Udp, Errno) -> Unit,
 ) -> Unit raise Errno {
   fn uv_alloc_cb(
     handle : Handle,
     suggested_size : UInt64,
     buf_offset : @c.Pointer[Int],
-    buf_length : @c.Pointer[Int]
+    buf_length : @c.Pointer[Int],
   ) -> Bytes {
     let bytes = alloc_cb(handle, suggested_size.to_int())
     buf_offset[0] = bytes.start_offset()
@@ -160,7 +160,7 @@ pub fn Udp::recv_start(
     buf_offset : Int,
     buf_length : Int,
     sockaddr : Sockaddr,
-    flags : UInt
+    flags : UInt,
   ) -> Unit {
     if count < 0 {
       error_cb(udp, Errno::of_int(count.to_int()))

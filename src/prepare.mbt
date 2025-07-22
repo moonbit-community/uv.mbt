@@ -40,7 +40,7 @@ pub fn Prepare::new(self : Loop) -> Prepare raise Errno {
 ///|
 extern "c" fn uv_prepare_start(
   prepare : Prepare,
-  cb : (Prepare) -> Unit
+  cb : (Prepare) -> Unit,
 ) -> Int = "moonbit_uv_prepare_start"
 
 ///|
@@ -49,7 +49,7 @@ extern "c" fn uv_prepare_stop(prepare : Prepare) -> Int = "moonbit_uv_prepare_st
 ///|
 pub fn Prepare::start(
   self : Prepare,
-  cb : (Prepare) -> Unit
+  cb : (Prepare) -> Unit,
 ) -> Unit raise Errno {
   let status = uv_prepare_start(self, fn(prepare) { cb(prepare) })
   if status < 0 {

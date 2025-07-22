@@ -133,7 +133,7 @@ test "move_to" {
 test "walk" {
   @async.start(fn() {
     let fixtures = @async.Path::new(["test", "fixtures"])
-    async fn cleanup() {
+    async fn cleanup() noraise {
       let _ = try? fixtures.join("example").remove(recursive=true)
       let _ = try? fixtures.join("example_0.txt").unlink()
       let _ = try? fixtures.join(["example", "1.txt"]).unlink()

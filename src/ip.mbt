@@ -84,7 +84,7 @@ extern "c" fn uv_ip6_addr(ip : Bytes, port : Int, addr : SockaddrIn6) -> Int = "
 ///|
 pub fn[Ntbs : ToNtbs] ip6_addr(
   ip : Ntbs,
-  port : Int
+  port : Int,
 ) -> SockaddrIn6 raise Errno {
   let ip = ip.to_ntbs()
   let addr = uv_sockaddr_in6_make()
