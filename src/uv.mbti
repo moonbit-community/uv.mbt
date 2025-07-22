@@ -321,6 +321,13 @@ pub enum FsEventType {
 impl Show for FsEventType
 impl ToJson for FsEventType
 
+type FsPoll
+fn FsPoll::get_path(Self) -> String raise Errno
+fn FsPoll::new(Loop) -> Self raise Errno
+fn[ToNtbs : ToNtbs] FsPoll::start(Self, ToNtbs, UInt, (Self, Stat, Stat) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
+fn FsPoll::stop(Self) -> Unit raise Errno
+impl ToHandle for FsPoll
+
 type GetAddrInfo
 impl ToReq for GetAddrInfo
 
