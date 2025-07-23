@@ -8,6 +8,14 @@
       "native",
       "llvm"
     ],
+    "async.mbt": [
+      "native",
+      "llvm"
+    ],
+    "async_test.mbt": [
+      "native",
+      "llvm"
+    ],
     "debug.mbt": [
       "native",
       "llvm"
@@ -92,6 +100,14 @@
       "native",
       "llvm"
     ],
+    "metrics_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "metrics.mbt": [
+      "native",
+      "llvm"
+    ],
     "mutex.mbt": [
       "native",
       "llvm"
@@ -132,6 +148,14 @@
       "native",
       "llvm"
     ],
+    "prepare_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "prepare.mbt": [
+      "native",
+      "llvm"
+    ],
     "random_test.mbt": [
       "native",
       "llvm"
@@ -140,7 +164,19 @@
       "native",
       "llvm"
     ],
+    "req_test.mbt": [
+      "native",
+      "llvm"
+    ],
     "req.mbt": [
+      "native",
+      "llvm"
+    ],
+    "rwlock_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "rwlock.mbt": [
       "native",
       "llvm"
     ],
@@ -157,6 +193,10 @@
       "llvm"
     ],
     "stream.mbt": [
+      "native",
+      "llvm"
+    ],
+    "string.mbt": [
       "native",
       "llvm"
     ],
@@ -217,14 +257,6 @@
       "llvm"
     ],
     "work.mbt": [
-      "native",
-      "llvm"
-    ],
-    "async.mbt": [
-      "native",
-      "llvm"
-    ],
-    "async_test.mbt": [
       "native",
       "llvm"
     ]
