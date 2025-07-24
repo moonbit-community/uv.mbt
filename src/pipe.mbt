@@ -92,9 +92,27 @@ pub fn[Ntbs : ToNtbs] Pipe::bind(
 }
 
 ///|
-pub fn pipe(read_flags : Int, write_flags : Int) -> (File, File) raise Errno {
+type PipeFlags Int
+
+///|
+const UV_NONBLOCK_PIPE : Int = 0x40
+
+///|
+pub fn PipeFlags::new(non_block~ : Bool = false) -> PipeFlags {
+  if non_block {
+    UV_NONBLOCK_PIPE
+  } else {
+    0
+  }
+}
+
+///|
+pub fn pipe(
+  read_flags~ : PipeFlags = UV_NONBLOCK_PIPE,
+  write_flags~ : PipeFlags = UV_NONBLOCK_PIPE,
+) -> (File, File) raise Errno {
   let fds : FixedArray[Int] = [0, 0]
-  let status = uv_pipe(fds, read_flags, write_flags)
+  let status = uv_pipe(fds, read_flags.inner(), write_flags.inner())
   if status < 0 {
     raise Errno::of_int(status)
   }

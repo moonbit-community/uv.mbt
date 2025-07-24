@@ -60,7 +60,7 @@ fn os_uname() -> Utsname raise Errno
 
 fn[Name : ToNtbs] os_unsetenv(Name) -> Unit raise Errno
 
-fn pipe(Int, Int) -> (File, File) raise Errno
+fn pipe(read_flags~ : PipeFlags = .., write_flags~ : PipeFlags = ..) -> (File, File) raise Errno
 
 #deprecated
 fn[Stream : ToStream] read_start(Stream, (Stream, Int) -> @bytes.View, (Stream, Int, @bytes.View) -> Unit, (Stream, Errno) -> Unit) -> Unit raise Errno
@@ -458,6 +458,9 @@ impl ToStream for Pipe
 
 type PipeBindFlags
 fn PipeBindFlags::new(truncate~ : Bool = ..) -> Self
+
+type PipeFlags
+fn PipeFlags::new(non_block~ : Bool = ..) -> Self
 
 type Prepare
 fn Prepare::new(Loop) -> Self raise Errno
