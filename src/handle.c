@@ -14,6 +14,8 @@
  */
 
 #include "handle.h"
+#include "moonbit.h"
+#include "uv#include#uv.h"
 
 MOONBIT_FFI_EXPORT
 void
@@ -46,4 +48,26 @@ moonbit_uv_handle_loop(uv_handle_t *handle) {
   moonbit_incref(loop);
   moonbit_decref(handle);
   return loop;
+}
+
+MOONBIT_FFI_EXPORT
+uv_os_fd_t *
+moonbit_uv_os_fd_make(void) {
+  return (uv_os_fd_t *)moonbit_make_bytes(sizeof(uv_os_fd_t), 0);
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_os_fd_to_int(uv_os_fd_t *fd) {
+#ifdef _WIN32
+  return UV_ENOSYS;
+#else
+  return *fd;
+#endif
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fileno(uv_handle_t *handle, uv_os_fd_t *fd) {
+  return uv_fileno(handle, fd);
 }

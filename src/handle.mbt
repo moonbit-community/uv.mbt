@@ -50,6 +50,7 @@ pub trait ToHandle {
   close(Self, () -> Unit) -> Unit = _
   is_closing(Self) -> Bool = _
   loop_(Self) -> Loop = _
+  fileno(Self) -> OsFd raise Errno = _
 }
 
 ///|
@@ -114,4 +115,37 @@ fn init {
     HandleType::Signal,
     HandleType::File,
   ])
+}
+
+///|
+type OsFd
+
+///|
+extern "c" fn uv_os_fd_make() -> OsFd = "moonbit_uv_os_fd_make"
+
+///|
+#borrow(fd)
+extern "c" fn uv_os_fd_to_int(fd : OsFd) -> Int = "moonbit_uv_os_fd_to_int"
+
+///|
+pub fn OsFd::to_int(self : OsFd) -> Int raise Errno {
+  let result = uv_os_fd_to_int(self)
+  if result < 0 {
+    raise Errno::of_int(result)
+  }
+  result
+}
+
+///|
+#borrow(handle, fd)
+extern "c" fn uv_fileno(handle : Handle, fd : OsFd) -> Int = "moonbit_uv_fileno"
+
+///|
+impl ToHandle with fileno(self) {
+  let fd = uv_os_fd_make()
+  let status = uv_fileno(self.to_handle(), fd)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  fd
 }
