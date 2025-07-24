@@ -128,6 +128,14 @@
       "native",
       "llvm"
     ],
+    "poll.mbt": [
+      "native",
+      "llvm"
+    ],
+    "poll_test.mbt": [
+      "native",
+      "llvm"
+    ],
     "process.mbt": [
       "native",
       "llvm"

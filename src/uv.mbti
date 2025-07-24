@@ -466,6 +466,27 @@ fn PipeBindFlags::new(truncate~ : Bool = ..) -> Self
 type PipeFlags
 fn PipeFlags::new(non_block~ : Bool = ..) -> Self
 
+type Poll
+fn Poll::file(Loop, File) -> Self raise Errno
+fn Poll::socket(Loop, OsSock) -> Self raise Errno
+fn Poll::start(Self, PollEvent, (Self, PollEvent) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
+fn Poll::stop(Self) -> Unit raise Errno
+impl ToHandle for Poll
+
+pub type PollEvent Int
+fn PollEvent::disconnect() -> Self
+fn PollEvent::inner(Self) -> Int
+fn PollEvent::is_disconnect(Self) -> Bool
+fn PollEvent::is_prioritized(Self) -> Bool
+fn PollEvent::is_readable(Self) -> Bool
+fn PollEvent::is_writable(Self) -> Bool
+fn PollEvent::op_and(Self, Self) -> Self
+fn PollEvent::op_or(Self, Self) -> Self
+fn PollEvent::prioritized() -> Self
+fn PollEvent::readable() -> Self
+fn PollEvent::writable() -> Self
+impl Show for PollEvent
+
 type Prepare
 fn Prepare::new(Loop) -> Self raise Errno
 fn Prepare::start(Self, (Self) -> Unit) -> Unit raise Errno
