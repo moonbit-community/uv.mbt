@@ -79,6 +79,27 @@ jobs:
         run: |
           python3 scripts/test.py --target=llvm
 
+  check-pre-release:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install MoonBit
+        uses: ./.github/actions/install-moonbit
+        with:
+          channel: pre-release
+
+      - name: Inspect MoonBit version
+        run: |
+          moon version --all
+
+      - name: Run moon check
+        run: |
+          moon check --target all
+
   check-mbti:
     runs-on: ubuntu-latest
     steps:

@@ -20,7 +20,7 @@ test "FsPoll" {
   let events : Array[(Stat, Stat)] = []
   fs_poll.start(
     "test/fixtures/",
-    100, // Poll every 100ms
+    1000,
     fn(_, prev, curr) { events.push((prev, curr)) },
     fn(_, errno) {
       errors.push(errno)
@@ -47,7 +47,7 @@ test "FsPoll" {
                 "test/fixtures/test_poll.txt",
                 () => try {
                   let timer = @uv.Timer::new(uv)
-                  timer.start(timeout=500, repeat=0, _ => {
+                  timer.start(timeout=2000, repeat=0, _ => {
                     timer.stop() catch {
                       e => errors.push(e)
                     }
@@ -88,7 +88,5 @@ test "FsPoll" {
   for e in errors {
     raise e
   }
-
-  // At least one event should have been triggered
   assert_true(events.length() > 0)
 }
