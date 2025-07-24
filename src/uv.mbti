@@ -442,6 +442,9 @@ fn OpenFlags::read_only() -> Self
 fn OpenFlags::read_write(append~ : Bool = .., create~ : Bool = .., truncate~ : Bool = .., exclusive~ : Bool = ..) -> Self
 fn OpenFlags::write_only(append~ : Bool = .., create~ : Bool = .., truncate~ : Bool = .., exclusive~ : Bool = ..) -> Self
 
+type OsFd
+fn OsFd::to_int(Self) -> Int raise Errno
+
 type Pipe
 fn[Ntbs : ToNtbs] Pipe::bind(Self, Ntbs, PipeBindFlags) -> Unit raise Errno
 fn Pipe::new(Loop, ipc~ : Bool = ..) -> Self raise Errno
@@ -716,6 +719,7 @@ pub trait ToHandle {
   close(Self, () -> Unit) -> Unit
   is_closing(Self) -> Bool
   loop_(Self) -> Loop
+  fileno(Self) -> OsFd raise Errno
 }
 
 trait ToNtbs
