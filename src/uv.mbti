@@ -73,6 +73,8 @@ fn[Stream : ToStream] shutdown(Stream, () -> Unit, (Errno) -> Unit) -> Shutdown 
 
 fn sleep(UInt) -> Unit
 
+fn socketpair(SockType, protocol? : Protocol, (PipeFlags, PipeFlags)) -> (OsSock, OsSock) raise Errno
+
 fn stderr() -> File
 
 fn stdin() -> File
@@ -445,6 +447,8 @@ fn OpenFlags::write_only(append~ : Bool = .., create~ : Bool = .., truncate~ : B
 type OsFd
 fn OsFd::to_int(Self) -> Int raise Errno
 
+type OsSock
+
 type Pipe
 fn[Ntbs : ToNtbs] Pipe::bind(Self, Ntbs, PipeBindFlags) -> Unit raise Errno
 fn Pipe::new(Loop, ipc~ : Bool = ..) -> Self raise Errno
@@ -629,6 +633,7 @@ fn Tcp::getsockname(Self) -> Sockaddr raise Errno
 fn Tcp::keepalive(Self, Bool, delay~ : UInt = ..) -> Unit raise Errno
 fn Tcp::new(Loop) -> Self raise Errno
 fn Tcp::nodelay(Self, Bool) -> Unit raise Errno
+fn Tcp::open(Self, OsSock) -> Unit raise Errno
 fn Tcp::simultaneous_accepts(Self, Bool) -> Unit raise Errno
 impl ToHandle for Tcp
 impl ToStream for Tcp

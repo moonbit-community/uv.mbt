@@ -184,6 +184,10 @@
       "native",
       "llvm"
     ],
+    "socket_test.mbt": [
+      "native",
+      "llvm"
+    ],
     "socket.mbt": [
       "native",
       "llvm"

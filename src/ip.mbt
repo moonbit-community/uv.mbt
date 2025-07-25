@@ -142,6 +142,12 @@ extern "c" fn uv_IPPROTO_TCP() -> Int = "moonbit_uv_IPPROTO_TCP"
 let _IPPROTO_TCP : Int = uv_IPPROTO_TCP()
 
 ///|
+extern "c" fn uv_IPPROTO_IP() -> Int = "moonbit_uv_IPPROTO_IP"
+
+///|
+let _IPPROTO_IP : Int = uv_IPPROTO_IP()
+
+///|
 fn Protocol::of_int(self : Int) -> Protocol raise Errno {
   if self == _IPPROTO_TCP {
     return Tcp
