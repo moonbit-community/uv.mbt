@@ -64,5 +64,6 @@
 #include "timer.c"
 #include "tty.c"
 #include "udp.c"
+#include "version.c"
 #include "work.c"
 #include "write.c"
