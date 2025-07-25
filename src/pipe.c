@@ -17,6 +17,7 @@
 #include "uv#include#uv.h"
 
 #include "uv.h"
+#include <string.h>
 
 typedef struct moonbit_uv_pipe_s {
   uv_pipe_t pipe;
