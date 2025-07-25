@@ -464,6 +464,16 @@ fn Fs::result(self : Fs) -> Int64 {
 type File Int
 
 ///|
+pub fn File::of_int(fd : Int) -> File {
+  File(fd)
+}
+
+///|
+pub fn File::to_int(self : File) -> Int {
+  self.inner()
+}
+
+///|
 extern "c" fn uv_fs_read(
   uv : Loop,
   req : Fs,
