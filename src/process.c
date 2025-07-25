@@ -18,6 +18,7 @@
 
 #include "uv.h"
 #include <stdlib.h>
+#include <string.h>
 
 MOONBIT_FFI_EXPORT
 void

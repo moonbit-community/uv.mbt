@@ -48,6 +48,7 @@
 #include "mutex.c"
 #include "os.c"
 #include "pipe.c"
+#include "poll.c"
 #include "prepare.c"
 #include "process.c"
 #include "random.c"
