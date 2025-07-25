@@ -13,10 +13,10 @@
 // limitations under the License.
 
 ///|
-extern "c" fn uv_version() -> UInt = "uv_version"
+extern "c" fn uv_version() -> UInt = "moonbit_uv_version"
 
 ///|
-extern "c" fn uv_version_string() -> @c.Pointer[Byte] = "uv_version_string"
+extern "c" fn uv_version_string() -> @c.Pointer[Byte] = "moonbit_uv_version_string"
 
 ///|
 type Version UInt
