@@ -44,6 +44,17 @@ pub fn Tcp::new(uv : Loop) -> Tcp raise Errno {
 }
 
 ///|
+extern "c" fn uv_tcp_open(tcp : Tcp, os_sock : OsSock) -> Int = "moonbit_uv_tcp_open"
+
+///|
+pub fn Tcp::open(self : Tcp, os_sock : OsSock) -> Unit raise Errno {
+  let status = uv_tcp_open(self, os_sock)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
 extern "c" fn uv_tcp_bind(tcp : Tcp, addr : Sockaddr, flags : UInt) -> Int = "moonbit_uv_tcp_bind"
 
 ///|

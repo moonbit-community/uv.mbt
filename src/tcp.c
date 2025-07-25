@@ -14,6 +14,8 @@
  */
 
 #include "handle.h"
+#include "moonbit.h"
+#include "socket.h"
 #include "stream.h"
 #include "uv#include#uv.h"
 #include "uv.h"
@@ -55,6 +57,17 @@ moonbit_uv_tcp_init(uv_loop_t *loop, moonbit_uv_tcp_t *tcp) {
   moonbit_uv_tracef("tcp = %p\n", (void *)tcp);
   moonbit_uv_tracef("tcp->rc = %d\n", Moonbit_object_header(tcp)->rc);
   return uv_tcp_init(loop, &tcp->tcp);
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_tcp_open(moonbit_uv_tcp_t *tcp, moonbit_uv_os_sock_t *sock) {
+  moonbit_uv_tracef("tcp = %p\n", (void *)tcp);
+  moonbit_uv_tracef("sock = %p\n", (void *)sock);
+  int result = uv_tcp_open(&tcp->tcp, sock->sock);
+  moonbit_decref(tcp);
+  moonbit_decref(sock);
+  return result;
 }
 
 MOONBIT_FFI_EXPORT

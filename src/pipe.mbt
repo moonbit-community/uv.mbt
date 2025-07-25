@@ -98,7 +98,7 @@ type PipeFlags Int
 const UV_NONBLOCK_PIPE : Int = 0x40
 
 ///|
-pub fn PipeFlags::new(non_block~ : Bool = false) -> PipeFlags {
+pub fn PipeFlags::new(non_block~ : Bool = true) -> PipeFlags {
   if non_block {
     UV_NONBLOCK_PIPE
   } else {

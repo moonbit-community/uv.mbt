@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include "socket.h"
 #include "moonbit.h"
 #include "uv#include#uv.h"
 
@@ -122,6 +123,18 @@ moonbit_uv_AF_UNSPEC(void) {
 
 MOONBIT_FFI_EXPORT
 int32_t
+moonbit_uv_AF_UNIX(void) {
+  return AF_UNIX;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_IPPROTO_IP(void) {
+  return IPPROTO_IP;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
 moonbit_uv_IPPROTO_UDP(void) {
   return IPPROTO_UDP;
 }
@@ -130,4 +143,34 @@ MOONBIT_FFI_EXPORT
 int32_t
 moonbit_uv_IPPROTO_TCP(void) {
   return IPPROTO_TCP;
+}
+
+MOONBIT_FFI_EXPORT
+moonbit_uv_os_sock_t *
+moonbit_uv_os_sock_make(void) {
+  moonbit_uv_os_sock_t *sock =
+    (moonbit_uv_os_sock_t *)moonbit_make_bytes(sizeof(moonbit_uv_os_sock_t), 0);
+  sock->sock = -1; // Initialize to an invalid socket
+  return sock;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_socketpair(
+  int32_t type,
+  int32_t protocol,
+  moonbit_uv_os_sock_t *sock0,
+  int32_t flags0,
+  moonbit_uv_os_sock_t *sock1,
+  int32_t flags1
+) {
+  uv_os_sock_t s[2];
+  int r = uv_socketpair(type, protocol, s, flags0, flags1);
+  if (r == 0) {
+    sock0->sock = s[0];
+    sock1->sock = s[1];
+  }
+  moonbit_decref(sock0);
+  moonbit_decref(sock1);
+  return r;
 }
