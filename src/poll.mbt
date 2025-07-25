@@ -97,12 +97,12 @@ pub impl Show for PollEvent with output(self : PollEvent, logger : &Logger) -> U
 }
 
 ///|
-pub fn op_or(self : PollEvent, other : PollEvent) -> PollEvent {
+pub impl BitOr for PollEvent with lor(self : PollEvent, other : PollEvent) -> PollEvent {
   self.inner() | other.inner()
 }
 
 ///|
-pub fn op_and(self : PollEvent, other : PollEvent) -> PollEvent {
+pub impl BitAnd for PollEvent with land(self : PollEvent, other : PollEvent) -> PollEvent {
   self.inner() & other.inner()
 }
 
