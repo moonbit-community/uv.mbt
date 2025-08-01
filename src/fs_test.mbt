@@ -237,7 +237,7 @@ test "realpath" {
   let file_bytes = @encoding.encode(encoding=UTF8, file)
   uv.fs_realpath(
     file_bytes,
-    p => assert_true(p.has_prefix(cwd)) catch { e => errors.push(e) },
+    p => assert_true(p[:cwd.length()] == cwd) catch { e => errors.push(e) },
     e => errors.push(e),
   )
   |> ignore()

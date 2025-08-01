@@ -3,7 +3,6 @@ package "tonyfettes/uv"
 
 import(
   "moonbitlang/core/bytes"
-  "moonbitlang/core/string"
 )
 
 // Values
@@ -21,7 +20,7 @@ fn[Handle : ToHandle] close(Handle, () -> Unit) -> Unit
 
 fn cpu_info() -> Array[CpuInfo] raise Errno
 
-fn cwd() -> String raise Errno
+fn cwd() -> Bytes raise Errno
 
 fn disable_stdio_inheritance() -> Unit
 
@@ -397,8 +396,8 @@ fn Loop::fs_opendir(Self, Bytes, (Dir) -> Unit, (Errno) -> Unit) -> Fs raise Err
 fn Loop::fs_read(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Int) -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_read_sync(Self, File, Array[@bytes.View], offset~ : Int64 = ..) -> Int raise Errno
 fn Loop::fs_readdir(Self, Dir, Int, (Array[Dirent]) -> Unit, (Errno) -> Unit) -> Fs raise Errno
-fn Loop::fs_realpath(Self, Bytes, (String) -> Unit, (Errno) -> Unit) -> Fs raise Errno
-fn Loop::fs_realpath_sync(Self, Bytes) -> String raise Errno
+fn Loop::fs_realpath(Self, Bytes, (Bytes) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_realpath_sync(Self, Bytes) -> Bytes raise Errno
 fn Loop::fs_rename(Self, Bytes, Bytes, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_rmdir(Self, Bytes, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_rmdir_sync(Self, Bytes) -> Unit raise Errno
@@ -502,7 +501,7 @@ fn Process::pid(Self) -> Int
 impl ToHandle for Process
 
 type ProcessOptions
-fn ProcessOptions::new(Bytes, Array[@string.StringView], env? : Array[@string.StringView], cwd? : @string.StringView, stdio? : Array[StdioContainer], uid? : Uid, gid? : Gid, (Process, Int64, Int) -> Unit) -> Self
+fn ProcessOptions::new(Bytes, Array[Bytes], env? : Array[Bytes], cwd? : Bytes, stdio? : Array[StdioContainer], uid? : Uid, gid? : Gid, (Process, Int64, Int) -> Unit) -> Self
 
 pub enum Protocol {
   Tcp
@@ -716,10 +715,10 @@ impl ToReq for UdpSend
 type Uid
 
 type Utsname
-fn Utsname::machine(Self) -> String
-fn Utsname::release(Self) -> String
-fn Utsname::sysname(Self) -> String
-fn Utsname::version(Self) -> String
+fn Utsname::machine(Self) -> @bytes.View
+fn Utsname::release(Self) -> @bytes.View
+fn Utsname::sysname(Self) -> @bytes.View
+fn Utsname::version(Self) -> @bytes.View
 
 type Version
 fn Version::major(Self) -> Int

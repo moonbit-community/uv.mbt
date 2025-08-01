@@ -113,9 +113,9 @@ extern "c" fn uv_process_options_set_gid(
 ///|
 pub fn ProcessOptions::new(
   file : Bytes,
-  args : Array[@string.View],
-  env? : Array[@string.View],
-  cwd? : @string.View,
+  args : Array[Bytes],
+  env? : Array[Bytes],
+  cwd? : Bytes,
   stdio? : Array[StdioContainer],
   uid? : Uid,
   gid? : Gid,
@@ -129,7 +129,7 @@ pub fn ProcessOptions::new(
     if i == args.length() {
       return None
     } else {
-      return Some(@encoding.encode(encoding=UTF8, args[i].to_string()))
+      return Some(args[i])
     }
   })
   uv_process_options_set_args(options, args)
@@ -138,13 +138,12 @@ pub fn ProcessOptions::new(
       if i == env.length() {
         return None
       } else {
-        return Some(@encoding.encode(encoding=UTF8, env[i].to_string()))
+        return Some(env[i])
       }
     })
     uv_process_options_set_env(options, env)
   }
   if cwd is Some(cwd) {
-    let cwd = @encoding.encode(encoding=UTF8, cwd.to_string())
     uv_process_options_set_cwd(options, cwd)
   }
   if stdio is Some(stdio) {

@@ -829,10 +829,7 @@ pub fn Loop::fs_unlink(
 extern "c" fn uv_fs_unlink_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "moonbit_uv_fs_unlink_sync"
 
 ///|
-pub fn Loop::fs_unlink_sync(
-  self : Loop,
-  path : Bytes,
-) -> Unit raise Errno {
+pub fn Loop::fs_unlink_sync(self : Loop, path : Bytes) -> Unit raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_unlink_sync(self, req, path)
   if status < 0 {
@@ -1004,10 +1001,7 @@ pub fn Loop::fs_rmdir(
 extern "c" fn uv_fs_rmdir_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "moonbit_uv_fs_rmdir_sync"
 
 ///|
-pub fn Loop::fs_rmdir_sync(
-  self : Loop,
-  path : Bytes,
-) -> Unit raise Errno {
+pub fn Loop::fs_rmdir_sync(self : Loop, path : Bytes) -> Unit raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_rmdir_sync(self, req, path)
   if status < 0 {
@@ -1274,14 +1268,7 @@ pub fn Loop::fs_copyfile(
   }
 
   let req = uv_fs_make()
-  let status = uv_fs_copyfile(
-    self,
-    req,
-    path,
-    new_path,
-    flags.inner(),
-    cb,
-  )
+  let status = uv_fs_copyfile(self, req, path, new_path, flags.inner(), cb)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -1305,13 +1292,7 @@ pub fn Loop::fs_copyfile_sync(
   flags : CopyFileFlags,
 ) -> Unit raise Errno {
   let req = uv_fs_make()
-  let status = uv_fs_copyfile_sync(
-    self,
-    req,
-    path,
-    new_path,
-    flags.inner(),
-  )
+  let status = uv_fs_copyfile_sync(self, req, path, new_path, flags.inner())
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -1321,7 +1302,7 @@ pub fn Loop::fs_copyfile_sync(
 extern "c" fn uv_cwd(buffer : Bytes, length : FixedArray[Int]) -> Int = "moonbit_uv_cwd"
 
 ///|
-pub fn cwd() -> String raise Errno {
+pub fn cwd() -> Bytes raise Errno {
   let mut buffer = Bytes::make(64, 0)
   let length : FixedArray[Int] = [buffer.length()]
   let mut status = uv_cwd(buffer, length)
@@ -1332,7 +1313,7 @@ pub fn cwd() -> String raise Errno {
   if status < 0 {
     raise Errno::of_int(status)
   }
-  return @encoding.decode_lossy(encoding=UTF8, buffer[:length[0]])
+  return [..buffer[:length[0]]]
 }
 
 ///|
@@ -1676,10 +1657,7 @@ pub fn Loop::fs_stat(
 extern "c" fn uv_fs_stat_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "moonbit_uv_fs_stat_sync"
 
 ///|
-pub fn Loop::fs_stat_sync(
-  self : Loop,
-  path : Bytes,
-) -> Stat raise Errno {
+pub fn Loop::fs_stat_sync(self : Loop, path : Bytes) -> Stat raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_stat_sync(self, req, path)
   if status < 0 {
@@ -1801,7 +1779,7 @@ pub fn Loop::fs_fstat(
 pub fn Loop::fs_realpath(
   self : Loop,
   path : Bytes,
-  path_cb : (String) -> Unit,
+  path_cb : (Bytes) -> Unit,
   error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
   fn cb(req : Fs) {
@@ -1817,7 +1795,7 @@ pub fn Loop::fs_realpath(
       }
       let bytes = buffer.contents()
       uv_fs_req_cleanup(req)
-      path_cb(@encoding.decode_lossy(encoding=UTF8, bytes))
+      path_cb(bytes)
     }
   }
 
@@ -1833,10 +1811,7 @@ pub fn Loop::fs_realpath(
 extern "c" fn uv_fs_realpath_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "moonbit_uv_fs_realpath_sync"
 
 ///|
-pub fn Loop::fs_realpath_sync(
-  self : Loop,
-  path : Bytes,
-) -> String raise Errno {
+pub fn Loop::fs_realpath_sync(self : Loop, path : Bytes) -> Bytes raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_realpath_sync(self, req, path)
   if status < 0 {
@@ -1848,8 +1823,7 @@ pub fn Loop::fs_realpath_sync(
     buffer.write_byte(ptr[i])
   }
   uv_fs_req_cleanup(req)
-  let bytes = buffer.contents()
-  @encoding.decode_lossy(encoding=UTF8, bytes)
+  buffer.contents()
 }
 
 ///|

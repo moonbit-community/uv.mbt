@@ -41,11 +41,10 @@ test "homedir" {
 test "chdir" {
   let uv = @uv.Loop::new()
   let old_cwd = @uv.cwd()
-  let old_cwd_bytes = @encoding.encode(encoding=UTF8, old_cwd + "/test/fixtures")
-  let dir = uv.fs_realpath_sync(old_cwd_bytes)
-  @uv.chdir(@encoding.encode(encoding=UTF8, "test/fixtures"))
+  let dir = uv.fs_realpath_sync(old_cwd + "/test/fixtures")
+  @uv.chdir("test/fixtures")
   let new_cwd = @uv.cwd()
   assert_eq(new_cwd, dir)
-  @uv.chdir(@encoding.encode(encoding=UTF8, old_cwd))
+  @uv.chdir(old_cwd)
   uv.close()
 }
