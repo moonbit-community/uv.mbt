@@ -34,7 +34,7 @@ test "FsPoll" {
       fs_poll.close(() => ())
     },
   )
-  inspect(fs_poll.get_path(), content="test/fixtures/")
+  @assert.eq(fs_poll.get_path(), "test/fixtures/")
   uv.fs_open(
     "test/fixtures/test_poll.txt",
     @uv.OpenFlags::write_only(create=true),

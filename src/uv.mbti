@@ -3,16 +3,12 @@ package "tonyfettes/uv"
 
 import(
   "moonbitlang/core/bytes"
-  "moonbitlang/core/string"
 )
 
 // Values
 fn[Server : ToStream, Client : ToStream] accept(Server, Client) -> Unit raise Errno
 
-fn args() -> Array[String]
-
-#deprecated
-fn argv() -> Array[Bytes]
+fn args() -> Array[Bytes]
 
 fn chdir(Bytes) -> Unit raise Errno
 
@@ -21,11 +17,11 @@ fn[Handle : ToHandle] close(Handle, () -> Unit) -> Unit
 
 fn cpu_info() -> Array[CpuInfo] raise Errno
 
-fn cwd() -> String raise Errno
+fn cwd() -> Bytes raise Errno
 
 fn disable_stdio_inheritance() -> Unit
 
-fn exepath() -> String raise Errno
+fn exepath() -> Bytes raise Errno
 
 fn getcpu() -> Int raise Errno
 
@@ -48,13 +44,13 @@ fn[Stream : ToStream] listen(Stream, Int, (Stream) -> Unit, (Stream, Errno) -> U
 
 fn os_environ() -> Environ raise Errno
 
-fn os_getenv(Bytes) -> String? raise Errno
+fn os_getenv(Bytes) -> Bytes? raise Errno
 
-fn os_homedir() -> String raise Errno
+fn os_homedir() -> Bytes raise Errno
 
 fn os_setenv(Bytes, Bytes) -> Unit raise Errno
 
-fn os_tmpdir() -> String raise Errno
+fn os_tmpdir() -> Bytes raise Errno
 
 fn os_uname() -> Utsname raise Errno
 
@@ -188,7 +184,7 @@ fn AccessFlags::new(read~ : Bool = .., write~ : Bool = .., execute~ : Bool = ..)
 
 type AddrInfo
 fn AddrInfo::addr(Self) -> Sockaddr
-fn AddrInfo::canonname(Self) -> String?
+fn AddrInfo::canonname(Self) -> Bytes?
 fn AddrInfo::family(Self) -> AddressFamily raise Errno
 fn AddrInfo::protocol(Self) -> Protocol raise Errno
 fn AddrInfo::socktype(Self) -> SockType raise Errno
@@ -238,13 +234,10 @@ pub(all) enum CopyOnWrite {
   Force
 }
 
-pub struct CpuInfo {
-  model : String
-  speed : Int
-  cpu_times : CpuTimes
-}
-impl Show for CpuInfo
-impl ToJson for CpuInfo
+type CpuInfo
+fn CpuInfo::cpu_times(Self) -> CpuTimes
+fn CpuInfo::model(Self) -> Bytes
+fn CpuInfo::speed(Self) -> Int
 
 type CpuSet
 fn CpuSet::clear(Self, Int) -> Unit
@@ -263,27 +256,18 @@ impl BitXOr for CpuSet
 impl Eq for CpuSet
 impl Show for CpuSet
 
-pub struct CpuTimes {
-  user : UInt64
-  nice : UInt64
-  sys : UInt64
-  idle : UInt64
-  irq : UInt64
-}
-impl Show for CpuTimes
-impl ToJson for CpuTimes
+type CpuTimes
+fn CpuTimes::idle(Self) -> UInt64
+fn CpuTimes::irq(Self) -> UInt64
+fn CpuTimes::nice(Self) -> UInt64
+fn CpuTimes::sys(Self) -> UInt64
+fn CpuTimes::user(Self) -> UInt64
 
 type Dir
 
-pub struct Dirent {
-  name : String
-  type_ : DirentType
-}
-#deprecated
-fn Dirent::name(Self) -> String
-#deprecated
+type Dirent
+fn Dirent::name(Self) -> Bytes
 fn Dirent::type_(Self) -> DirentType
-impl ToJson for Dirent
 
 pub enum DirentType {
   Unknown
@@ -295,11 +279,9 @@ pub enum DirentType {
   Char
   Block
 }
-impl Show for DirentType
-impl ToJson for DirentType
 
 type Environ
-fn Environ::iter2(Self) -> Iter2[String, String]
+fn Environ::iter2(Self) -> Iter2[Bytes, Bytes]
 
 type File
 fn File::of_int(Int) -> Self
@@ -310,9 +292,9 @@ impl Cancelable for Fs
 impl ToReq for Fs
 
 type FsEvent
-fn FsEvent::get_path(Self) -> String raise Errno
+fn FsEvent::get_path(Self) -> Bytes raise Errno
 fn FsEvent::new(Loop) -> Self raise Errno
-fn FsEvent::start(Self, Bytes, FsEventFlags, (Self, String?, Array[FsEventType]) -> Unit, (Self, String?, Errno) -> Unit) -> Unit raise Errno
+fn FsEvent::start(Self, Bytes, FsEventFlags, (Self, Bytes?, Array[FsEventType]) -> Unit, (Self, Bytes?, Errno) -> Unit) -> Unit raise Errno
 fn FsEvent::stop(Self) -> Unit raise Errno
 impl ToHandle for FsEvent
 
@@ -327,7 +309,7 @@ impl Show for FsEventType
 impl ToJson for FsEventType
 
 type FsPoll
-fn FsPoll::get_path(Self) -> String raise Errno
+fn FsPoll::get_path(Self) -> Bytes raise Errno
 fn FsPoll::new(Loop) -> Self raise Errno
 fn FsPoll::start(Self, Bytes, UInt, (Self, Stat, Stat) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
 fn FsPoll::stop(Self) -> Unit raise Errno
@@ -387,18 +369,18 @@ fn Loop::fs_ftruncate(Self, File, Int64, () -> Unit, (Errno) -> Unit) -> Fs rais
 fn Loop::fs_lstat(Self, Bytes, (Stat) -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_mkdir(Self, Bytes, Int, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_mkdir_sync(Self, Bytes, Int) -> Unit raise Errno
-fn Loop::fs_mkdtemp(Self, Bytes, (String) -> Unit, (Errno) -> Unit) -> Fs raise Errno
-fn Loop::fs_mkdtemp_sync(Self, Bytes) -> String raise Errno
-fn Loop::fs_mkstemp(Self, Bytes, (String) -> Unit, (Errno) -> Unit) -> Fs raise Errno
-fn Loop::fs_mkstemp_sync(Self, Bytes) -> String raise Errno
+fn Loop::fs_mkdtemp(Self, Bytes, (Bytes) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_mkdtemp_sync(Self, Bytes) -> Bytes raise Errno
+fn Loop::fs_mkstemp(Self, Bytes, (Bytes) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_mkstemp_sync(Self, Bytes) -> Bytes raise Errno
 fn Loop::fs_open(Self, Bytes, OpenFlags, Int, (File) -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_open_sync(Self, Bytes, OpenFlags, Int) -> File raise Errno
 fn Loop::fs_opendir(Self, Bytes, (Dir) -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_read(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Int) -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_read_sync(Self, File, Array[@bytes.View], offset~ : Int64 = ..) -> Int raise Errno
 fn Loop::fs_readdir(Self, Dir, Int, (Array[Dirent]) -> Unit, (Errno) -> Unit) -> Fs raise Errno
-fn Loop::fs_realpath(Self, Bytes, (String) -> Unit, (Errno) -> Unit) -> Fs raise Errno
-fn Loop::fs_realpath_sync(Self, Bytes) -> String raise Errno
+fn Loop::fs_realpath(Self, Bytes, (Bytes) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_realpath_sync(Self, Bytes) -> Bytes raise Errno
 fn Loop::fs_rename(Self, Bytes, Bytes, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_rmdir(Self, Bytes, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_rmdir_sync(Self, Bytes) -> Unit raise Errno
@@ -476,7 +458,7 @@ fn Poll::start(Self, PollEvent, (Self, PollEvent) -> Unit, (Self, Errno) -> Unit
 fn Poll::stop(Self) -> Unit raise Errno
 impl ToHandle for Poll
 
-pub type PollEvent Int
+pub struct PollEvent(Int)
 fn PollEvent::disconnect() -> Self
 fn PollEvent::inner(Self) -> Int
 fn PollEvent::is_disconnect(Self) -> Bool
@@ -502,7 +484,7 @@ fn Process::pid(Self) -> Int
 impl ToHandle for Process
 
 type ProcessOptions
-fn ProcessOptions::new(Bytes, Array[@string.StringView], env? : Array[@string.StringView], cwd? : @string.StringView, stdio? : Array[StdioContainer], uid? : Uid, gid? : Gid, (Process, Int64, Int) -> Unit) -> Self
+fn ProcessOptions::new(Bytes, Array[Bytes], env? : Array[Bytes], cwd? : Bytes, stdio? : Array[StdioContainer], uid? : Uid, gid? : Gid, (Process, Int64, Int) -> Unit) -> Self
 
 pub enum Protocol {
   Tcp
@@ -531,10 +513,9 @@ pub enum ReqType {
   Getnameinfo
   Random
 }
-fn ReqType::name(Self) -> String
+fn ReqType::name(Self) -> Bytes
 impl Eq for ReqType
 impl Hash for ReqType
-impl Show for ReqType
 
 pub(all) enum RunMode {
   Default
@@ -716,10 +697,10 @@ impl ToReq for UdpSend
 type Uid
 
 type Utsname
-fn Utsname::machine(Self) -> String
-fn Utsname::release(Self) -> String
-fn Utsname::sysname(Self) -> String
-fn Utsname::version(Self) -> String
+fn Utsname::machine(Self) -> @bytes.View
+fn Utsname::release(Self) -> @bytes.View
+fn Utsname::sysname(Self) -> @bytes.View
+fn Utsname::version(Self) -> @bytes.View
 
 type Version
 fn Version::major(Self) -> Int
@@ -762,7 +743,7 @@ pub trait ToReq {
 
 pub trait ToSockaddr {
   to_sockaddr(Self) -> Sockaddr
-  ip_name(Self) -> String raise Errno
+  ip_name(Self) -> Bytes raise Errno
 }
 
 pub trait ToStream : ToHandle {

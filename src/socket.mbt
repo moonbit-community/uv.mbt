@@ -33,7 +33,7 @@ extern "c" fn uv_sockaddr_make() -> Sockaddr = "moonbit_uv_sockaddr_make"
 ///|
 pub trait ToSockaddr {
   to_sockaddr(self : Self) -> Sockaddr
-  ip_name(self : Self) -> String raise Errno
+  ip_name(self : Self) -> Bytes raise Errno
 }
 
 ///|

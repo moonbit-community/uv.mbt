@@ -32,6 +32,7 @@
 #endif
 
 #include "async.c"
+#include "bytes.c"
 #include "check.c"
 #include "cond.c"
 #include "cpu_info.c"

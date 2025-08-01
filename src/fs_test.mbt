@@ -190,10 +190,10 @@ test "scandir" {
   uv.run(Default)
   uv.stop()
   uv.close()
-  @json.inspect(entries, content=[
-    { "name": ".gitattributes", "type": "file" },
-    { "name": "example.txt", "type": "file" },
-  ])
+  @assert.eq(entries[0].name(), ".gitattributes")
+  @assert.t(entries[0].type_() is File)
+  @assert.eq(entries[1].name(), "example.txt")
+  @assert.t(entries[1].type_() is File)
   if error is Some(e) {
     raise e
   }
@@ -237,7 +237,7 @@ test "realpath" {
   let file_bytes = @encoding.encode(encoding=UTF8, file)
   uv.fs_realpath(
     file_bytes,
-    p => assert_true(p.has_prefix(cwd)) catch { e => errors.push(e) },
+    p => @assert.eq(p[:cwd.length()], cwd) catch { e => errors.push(e) },
     e => errors.push(e),
   )
   |> ignore()
@@ -255,9 +255,9 @@ test "stat" {
   uv.fs_stat(
     "test/fixtures/example.txt",
     stat => try {
-      assert_true(stat.is_file())
-      assert_true(not(stat.is_directory()))
-      @json.inspect(stat.size(), content="14")
+      @assert.t(stat.is_file())
+      @assert.t(not(stat.is_directory()))
+      @assert.eq(stat.size(), 14)
     } catch {
       e => errors.push(e)
     },
@@ -277,8 +277,8 @@ test "stat/sync" {
   let uv = @uv.Loop::new()
   let stat = uv.fs_stat_sync("test/fixtures/example.txt")
   uv.close()
-  assert_true(stat.is_file())
-  assert_false(stat.is_directory())
+  @assert.t(stat.is_file())
+  @assert.not(stat.is_directory())
 }
 
 ///|
@@ -289,9 +289,9 @@ test "lstat" {
     "test/fixtures",
     stat => try {
       // It should be a directory
-      assert_true(stat.is_directory())
+      @assert.t(stat.is_directory())
       // It shouldn't be a regular file
-      assert_true(not(stat.is_file()))
+      @assert.t(not(stat.is_file()))
     } catch {
       e => errors.push(e)
     },
@@ -325,11 +325,11 @@ test "fstat" {
       fh,
       stat => try {
         // It should be a regular file
-        assert_true(stat.is_file())
+        @assert.t(stat.is_file())
         // It shouldn't be a directory
-        assert_true(not(stat.is_directory()))
+        @assert.t(not(stat.is_directory()))
         // Size should be greater than 0
-        assert_true(stat.size() > 0)
+        @assert.t(stat.size() > 0)
       } catch {
         e => errors.push(e)
       },
@@ -356,11 +356,10 @@ test "fs_mkdtemp" {
   uv.fs_mkdtemp(
     template_bytes,
     path => try {
-      assert_true(path.has_prefix("test-dir-"))
-      let path_bytes = @encoding.encode(encoding=UTF8, path)
-      let stat = uv.fs_stat_sync(path_bytes)
-      assert_true(stat.is_directory())
-      uv.fs_rmdir_sync(path_bytes)
+      @assert.t(path is [.. "test-dir-", ..])
+      let stat = uv.fs_stat_sync(path)
+      @assert.t(stat.is_directory())
+      uv.fs_rmdir_sync(path)
     } catch {
       e => error = Some(e)
     },
@@ -380,11 +379,10 @@ test "fs_mkdtemp_sync" {
   let template = "test-dir-XXXXXX"
   let template_bytes = @encoding.encode(encoding=UTF8, template)
   let path = uv.fs_mkdtemp_sync(template_bytes)
-  assert_true(path.has_prefix("test-dir-"))
-  let path_bytes = @encoding.encode(encoding=UTF8, path)
-  let stat = uv.fs_stat_sync(path_bytes)
-  assert_true(stat.is_directory())
-  uv.fs_rmdir_sync(path_bytes)
+  @assert.t(path is [.. "test-dir-", ..])
+  let stat = uv.fs_stat_sync(path)
+  @assert.t(stat.is_directory())
+  uv.fs_rmdir_sync(path)
   uv.close()
 }
 
@@ -397,11 +395,10 @@ test "fs_mkstemp" {
   uv.fs_mkstemp(
     template_bytes,
     path => try {
-      assert_true(path.has_prefix("test-file-"))
-      let path_bytes = @encoding.encode(encoding=UTF8, path)
-      let stat = uv.fs_stat_sync(path_bytes)
-      assert_true(stat.is_file())
-      uv.fs_unlink_sync(path_bytes)
+      @assert.t(path is [.. "test-file-", ..])
+      let stat = uv.fs_stat_sync(path)
+      @assert.t(stat.is_file())
+      uv.fs_unlink_sync(path)
     } catch {
       e => error = Some(e)
     },
@@ -421,11 +418,10 @@ test "fs_mkstemp_sync" {
   let template = "test-file-XXXXXX"
   let template_bytes = @encoding.encode(encoding=UTF8, template)
   let path = uv.fs_mkstemp_sync(template_bytes)
-  assert_true(path.has_prefix("test-file-"))
-  let path_bytes = @encoding.encode(encoding=UTF8, path)
-  let stat = uv.fs_stat_sync(path_bytes)
-  assert_true(stat.is_file())
-  uv.fs_unlink_sync(path_bytes)
+  @assert.t(path is [.. "test-file-", ..])
+  let stat = uv.fs_stat_sync(path)
+  @assert.t(stat.is_file())
+  uv.fs_unlink_sync(path)
   uv.close()
 }
 
@@ -446,8 +442,8 @@ test "opendir-readdir-closedir" {
       return
     }
     for dirent in dirents {
-      guard dirent.type_ is File else { continue }
-      let name = dirent.name
+      guard dirent.type_() is File else { continue }
+      let name = dirent.name()
       sources.push(name)
     }
     try uv.fs_readdir(dir, 1, read_cb(dir, _), error_cb) |> ignore() catch {
@@ -470,5 +466,5 @@ test "opendir-readdir-closedir" {
     raise error
   }
   sources.sort()
-  @json.inspect(sources, content=["example.txt", ".gitattributes"])
+  @assert.eq(sources, ["example.txt", ".gitattributes"])
 }

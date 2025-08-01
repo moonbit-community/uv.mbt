@@ -281,6 +281,9 @@
     "tonyfettes/c",
     "tonyfettes/encoding"
   ],
+  "test-import": [
+    "tonyfettes/uv/internal/assert"
+  ],
   "native-stub": [
     "uv#src#fs-poll.c",
     "uv#src#idna.c",

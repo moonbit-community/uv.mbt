@@ -89,16 +89,11 @@ impl ToReq with type_(self : Self) -> ReqType {
 extern "c" fn uv_req_type_name(req_type : ReqType) -> @c.Pointer[Byte] = "moonbit_uv_req_type_name"
 
 ///|
-pub fn ReqType::name(self : ReqType) -> String {
+pub fn ReqType::name(self : ReqType) -> Bytes {
   let ptr = uv_req_type_name(self)
   let buf = @buffer.new()
   for i = 0; ptr[i] != 0; i = i + 1 {
     buf.write_byte(ptr[i])
   }
-  @encoding.decode_lossy(buf.contents(), encoding=UTF8)
-}
-
-///|
-pub impl Show for ReqType with output(self : ReqType, logger : &Logger) -> Unit {
-  logger.write_string(self.name())
+  buf.contents()
 }

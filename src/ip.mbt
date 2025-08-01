@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-pub impl ToSockaddr for Sockaddr with ip_name(self : Sockaddr) -> String raise Errno {
+pub impl ToSockaddr for Sockaddr with ip_name(self : Sockaddr) -> Bytes raise Errno {
   let self = self.to_sockaddr()
   let bytes = Bytes::make(_IF_NAMESIZE, 0)
   let status = uv_ip_name(self, bytes)
@@ -24,7 +24,7 @@ pub impl ToSockaddr for Sockaddr with ip_name(self : Sockaddr) -> String raise E
   for i = 0; bytes[i] != 0; i = i + 1 {
     buffer.write_byte(bytes[i])
   }
-  @encoding.decode_lossy(encoding=UTF8, buffer.contents())
+  buffer.contents()
 }
 
 ///|
@@ -63,7 +63,7 @@ pub fn ip4_addr(ip : Bytes, port : Int) -> SockaddrIn raise Errno {
 extern "c" fn uv_ip4_name(addr : SockaddrIn, dst : Bytes) -> Int = "moonbit_uv_ip4_name"
 
 ///|
-pub impl ToSockaddr for SockaddrIn with ip_name(self : SockaddrIn) -> String raise Errno {
+pub impl ToSockaddr for SockaddrIn with ip_name(self : SockaddrIn) -> Bytes raise Errno {
   let bytes = Bytes::make(_IF_NAMESIZE, 0)
   let status = uv_ip4_name(self, bytes)
   if status < 0 {
@@ -73,7 +73,7 @@ pub impl ToSockaddr for SockaddrIn with ip_name(self : SockaddrIn) -> String rai
   for i = 0; bytes[i] != 0; i = i + 1 {
     buffer.write_byte(bytes[i])
   }
-  @encoding.decode_lossy(encoding=UTF8, buffer.contents())
+  buffer.contents()
 }
 
 ///|
@@ -81,10 +81,7 @@ pub impl ToSockaddr for SockaddrIn with ip_name(self : SockaddrIn) -> String rai
 extern "c" fn uv_ip6_addr(ip : Bytes, port : Int, addr : SockaddrIn6) -> Int = "moonbit_uv_ip6_addr"
 
 ///|
-pub fn ip6_addr(
-  ip : Bytes,
-  port : Int,
-) -> SockaddrIn6 raise Errno {
+pub fn ip6_addr(ip : Bytes, port : Int) -> SockaddrIn6 raise Errno {
   let addr = uv_sockaddr_in6_make()
   let status = uv_ip6_addr(ip, port, addr)
   if status < 0 {
@@ -98,7 +95,7 @@ pub fn ip6_addr(
 extern "c" fn uv_ip6_name(addr : SockaddrIn6, dst : Bytes) -> Int = "moonbit_uv_ip6_name"
 
 ///|
-pub impl ToSockaddr for SockaddrIn6 with ip_name(self : SockaddrIn6) -> String raise Errno {
+pub impl ToSockaddr for SockaddrIn6 with ip_name(self : SockaddrIn6) -> Bytes raise Errno {
   let bytes = Bytes::make(_IF_NAMESIZE, 0)
   let status = uv_ip6_name(self, bytes)
   if status < 0 {
@@ -108,7 +105,7 @@ pub impl ToSockaddr for SockaddrIn6 with ip_name(self : SockaddrIn6) -> String r
   for i = 0; bytes[i] != 0; i = i + 1 {
     buffer.write_byte(bytes[i])
   }
-  @encoding.decode_lossy(encoding=UTF8, buffer.contents())
+  buffer.contents()
 }
 
 ///|

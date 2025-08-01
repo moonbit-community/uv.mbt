@@ -33,7 +33,7 @@ extern "c" fn uv_addrinfo_hints(
 ) -> AddrInfoHints = "moonbit_uv_addrinfo_hints"
 
 ///|
-type AddrInfoFlags Int
+struct AddrInfoFlags(Int)
 
 ///|
 extern "c" fn uv_AI_PASSIVE() -> Int = "moonbit_uv_AI_PASSIVE"
@@ -163,7 +163,7 @@ struct AddrInfo {
   socktype : Int
   protocol : Int
   addr : Sockaddr
-  canonname : String?
+  canonname : Bytes?
 }
 
 ///|
@@ -256,7 +256,7 @@ pub fn AddrInfo::protocol(self : AddrInfo) -> Protocol raise Errno {
 }
 
 ///|
-pub fn AddrInfo::canonname(self : AddrInfo) -> String? {
+pub fn AddrInfo::canonname(self : AddrInfo) -> Bytes? {
   self.canonname
 }
 
@@ -278,7 +278,7 @@ fn AddrInfoResults::iter(self : AddrInfoResults) -> Iter[AddrInfo] {
           for i = 0; canonname[i] != 0; i = i + 1 {
             buffer.write_byte(canonname[i])
           }
-          Some(@encoding.decode_lossy(encoding=UTF8, buffer.contents()))
+          Some(buffer.contents())
         }
         match yield_({ family, socktype, protocol, addr, canonname }) {
           IterEnd => true
@@ -324,14 +324,7 @@ pub fn Loop::getaddrinfo(
     Some(hints) => hints
     None => AddrInfoHints::nil()
   }
-  let status = uv_getaddrinfo(
-    self,
-    req,
-    uv_cb,
-    node,
-    service,
-    hints,
-  )
+  let status = uv_getaddrinfo(self, req, uv_cb, node, service, hints)
   if status < 0 {
     raise Errno::of_int(status)
   }

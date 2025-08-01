@@ -17,29 +17,29 @@ extern "c" fn uv_os_uname(buffer : Bytes) -> Int = "moonbit_uv_os_uname"
 
 ///|
 struct Utsname {
-  sysname : String
-  release : String
-  version : String
-  machine : String
+  sysname : @bytes.View
+  release : @bytes.View
+  version : @bytes.View
+  machine : @bytes.View
 }
 
 ///|
-pub fn Utsname::sysname(self : Utsname) -> String {
+pub fn Utsname::sysname(self : Utsname) -> @bytes.View {
   self.sysname
 }
 
 ///|
-pub fn Utsname::release(self : Utsname) -> String {
+pub fn Utsname::release(self : Utsname) -> @bytes.View {
   self.release
 }
 
 ///|
-pub fn Utsname::version(self : Utsname) -> String {
+pub fn Utsname::version(self : Utsname) -> @bytes.View {
   self.version
 }
 
 ///|
-pub fn Utsname::machine(self : Utsname) -> String {
+pub fn Utsname::machine(self : Utsname) -> @bytes.View {
   self.machine
 }
 
@@ -60,27 +60,26 @@ pub fn Utsname::machine(self : Utsname) -> String {
 /// println(info.machine())
 /// ```
 pub fn os_uname() -> Utsname raise Errno {
-  fn decode(bytes : @bytes.View) -> String {
-    let buffer = @buffer.new()
-    for i in 0..<bytes.length() {
-      let byte = bytes[i]
-      if byte == 0 {
-        break
-      }
-      buffer.write_byte(byte)
-    }
-    return @encoding.decode_lossy(encoding=UTF8, buffer.contents())
-  }
-
   let buffer = Bytes::make(256 * 4, 0)
   let status = uv_os_uname(buffer)
   if status < 0 {
     raise Errno::of_int(status)
   }
-  let sysname = decode([..buffer[0:256]])
-  let release = decode([..buffer[256:512]])
-  let version = decode([..buffer[512:768]])
-  let machine = decode([..buffer[768:1024]])
+  fn shrink(s : @bytes.View) -> @bytes.View {
+    let mut len = 0
+    for b in s {
+      if b == 0 {
+        break
+      }
+      len = len + 1
+    }
+    s[:len]
+  }
+
+  let sysname = shrink(buffer[0:256])
+  let release = shrink(buffer[256:512])
+  let version = shrink(buffer[512:768])
+  let machine = shrink(buffer[768:1024])
   { sysname, release, version, machine }
 }
 
@@ -101,7 +100,7 @@ extern "c" fn uv_os_tmpdir(bytes : Bytes, size : FixedArray[Int]) -> Int = "moon
 /// ```moonbit
 /// println(@uv.os_tmpdir())
 /// ```
-pub fn os_tmpdir() -> String raise Errno {
+pub fn os_tmpdir() -> Bytes raise Errno {
   let mut buffer = Bytes::make(64, 0)
   let length : FixedArray[Int] = [buffer.length()]
   let mut status = uv_os_tmpdir(buffer, length)
@@ -112,14 +111,15 @@ pub fn os_tmpdir() -> String raise Errno {
   if status < 0 {
     raise Errno::of_int(status)
   }
-  @encoding.decode_lossy(encoding=UTF8, buffer[:length[0]])
+  buffer.shrink(length[0])
+  buffer
 }
 
 ///|
 extern "c" fn uv_exepath(bytes : Bytes, size : FixedArray[Int]) -> Int = "moonbit_uv_exepath"
 
 ///|
-pub fn exepath() -> String raise Errno {
+pub fn exepath() -> Bytes raise Errno {
   let mut buffer = Bytes::make(256, 0)
   let length : FixedArray[Int] = [buffer.length()]
   let mut status = uv_exepath(buffer, length)
@@ -130,14 +130,15 @@ pub fn exepath() -> String raise Errno {
   if status < 0 {
     raise Errno::of_int(status)
   }
-  @encoding.decode_lossy(encoding=UTF8, buffer[:length[0]])
+  buffer.shrink(length[0])
+  buffer
 }
 
 ///|
 extern "c" fn uv_os_homedir(bytes : Bytes, size : FixedArray[Int]) -> Int = "moonbit_uv_os_homedir"
 
 ///|
-pub fn os_homedir() -> String raise Errno {
+pub fn os_homedir() -> Bytes raise Errno {
   let mut buffer = Bytes::make(256, 0)
   let length : FixedArray[Int] = [buffer.length()]
   let mut status = uv_os_homedir(buffer, length)
@@ -148,7 +149,8 @@ pub fn os_homedir() -> String raise Errno {
   if status < 0 {
     raise Errno::of_int(status)
   }
-  @encoding.decode_lossy(encoding=UTF8, buffer[:length[0]])
+  buffer.shrink(length[0])
+  buffer
 }
 
 ///|
@@ -163,20 +165,60 @@ pub fn chdir(path : Bytes) -> Unit raise Errno {
 }
 
 ///|
-pub struct CpuInfo {
-  model : String
+struct CpuInfo {
+  model : Bytes
   speed : Int
   cpu_times : CpuTimes
-} derive(Show, ToJson)
+}
 
 ///|
-pub struct CpuTimes {
+pub fn CpuInfo::model(self : CpuInfo) -> Bytes {
+  self.model
+}
+
+///|
+pub fn CpuInfo::speed(self : CpuInfo) -> Int {
+  self.speed
+}
+
+///|
+pub fn CpuInfo::cpu_times(self : CpuInfo) -> CpuTimes {
+  self.cpu_times
+}
+
+///|
+struct CpuTimes {
   user : UInt64
   nice : UInt64
   sys : UInt64
   idle : UInt64
   irq : UInt64
-} derive(Show, ToJson)
+}
+
+///|
+pub fn CpuTimes::user(self : CpuTimes) -> UInt64 {
+  self.user
+}
+
+///|
+pub fn CpuTimes::nice(self : CpuTimes) -> UInt64 {
+  self.nice
+}
+
+///|
+pub fn CpuTimes::sys(self : CpuTimes) -> UInt64 {
+  self.sys
+}
+
+///|
+pub fn CpuTimes::idle(self : CpuTimes) -> UInt64 {
+  self.idle
+}
+
+///|
+pub fn CpuTimes::irq(self : CpuTimes) -> UInt64 {
+  self.irq
+}
 
 ///|
 extern "c" fn uv_cpu_info(
@@ -234,7 +276,7 @@ impl @c.Load for CpuInfo with load(self : @c.Pointer[CpuInfo], index : Int) -> C
     for i = 0; pointer[i] != 0; i = i + 1 {
       buffer.write_byte(pointer[i])
     }
-    @encoding.decode_lossy(encoding=UTF8, buffer.contents())
+    buffer.contents()
   }
   let speed = uv_cpu_info_get_speed(self, index)
   let cpu_times = {
@@ -257,7 +299,9 @@ extern "c" fn uv_free_cpu_info(cpu_infos : @c.Pointer[CpuInfo], count : Int) = "
 ///
 /// ```moonbit
 /// let cpu_infos = @uv.cpu_info()
-/// println(cpu_infos)
+/// for cpu_info in cpu_infos {
+///   println(cpu_info.model())
+/// }
 /// ```
 pub fn cpu_info() -> Array[CpuInfo] raise Errno {
   let uv_cpu_infos : FixedArray[@c.Pointer[CpuInfo]] = [@c.null()]

@@ -66,7 +66,7 @@ extern "c" fn uv_fs_event_start(
 ) -> Int = "moonbit_uv_fs_event_start"
 
 ///|
-type FsEventFlags Int
+struct FsEventFlags(Int)
 
 ///|
 const UV_FS_EVENT_RECURSIVE = 4
@@ -85,8 +85,8 @@ pub fn FsEvent::start(
   self : FsEvent,
   path : Bytes,
   flags : FsEventFlags,
-  event_cb : (FsEvent, String?, Array[FsEventType]) -> Unit,
-  error_cb : (FsEvent, String?, Errno) -> Unit,
+  event_cb : (FsEvent, Bytes?, Array[FsEventType]) -> Unit,
+  error_cb : (FsEvent, Bytes?, Errno) -> Unit,
 ) -> Unit raise Errno {
   fn uv_cb(
     fs_event : FsEvent,
@@ -101,7 +101,7 @@ pub fn FsEvent::start(
       for i = 0; filename[i] != 0; i = i + 1 {
         buffer.write_byte(filename[i])
       }
-      Some(@encoding.decode_lossy(buffer.contents(), encoding=UTF8))
+      Some(buffer.contents())
     }
     if status < 0 {
       error_cb(fs_event, filename, Errno::of_int(status))
@@ -142,7 +142,7 @@ extern "c" fn uv_fs_event_getpath(
 ) -> Int = "moonbit_uv_fs_event_getpath"
 
 ///|
-pub fn FsEvent::get_path(self : FsEvent) -> String raise Errno {
+pub fn FsEvent::get_path(self : FsEvent) -> Bytes raise Errno {
   let mut buffer = Bytes::make(64, 0)
   let length : FixedArray[Int] = [buffer.length()]
   let mut status = uv_fs_event_getpath(self, buffer, length)
@@ -153,5 +153,6 @@ pub fn FsEvent::get_path(self : FsEvent) -> String raise Errno {
   if status < 0 {
     raise Errno::of_int(status)
   }
-  @encoding.decode_lossy(buffer, encoding=UTF8)
+  buffer.shrink(length[0])
+  buffer
 }

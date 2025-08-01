@@ -86,7 +86,7 @@ extern "c" fn uv_fs_poll_getpath(
 ) -> Int = "moonbit_uv_fs_poll_getpath"
 
 ///|
-pub fn FsPoll::get_path(self : FsPoll) -> String raise Errno {
+pub fn FsPoll::get_path(self : FsPoll) -> Bytes raise Errno {
   let mut buffer = Bytes::make(64, 0)
   let length : FixedArray[Int] = [buffer.length()]
   let mut status = uv_fs_poll_getpath(self, buffer, length)
@@ -97,5 +97,6 @@ pub fn FsPoll::get_path(self : FsPoll) -> String raise Errno {
   if status < 0 {
     raise Errno::of_int(status)
   }
-  @encoding.decode_lossy(buffer[:length[0]], encoding=UTF8)
+  buffer.shrink(length[0])
+  buffer
 }
