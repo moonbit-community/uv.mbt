@@ -50,11 +50,10 @@ test "cond timedwait timeout" {
   let timeout_ns : UInt64 = 1000000UL // 1ms
   try {
     cond.timedwait(mutex, timeout_ns)
-    abort("Should have timed out")
+    fail("Should have timed out")
   } catch {
-    Errno::ETIMEDOUT =>
-      inspect("correctly timed out", content="correctly timed out")
-    e => abort("Unexpected error: \{e}")
+    Errno::ETIMEDOUT => ()
+    e => fail("Unexpected error: \{e}")
   }
   mutex.unlock()
 }
