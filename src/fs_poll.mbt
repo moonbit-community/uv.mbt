@@ -46,9 +46,9 @@ extern "c" fn uv_fs_poll_start(
 ) -> Int = "moonbit_uv_fs_poll_start"
 
 ///|
-pub fn[ToNtbs : ToNtbs] FsPoll::start(
+pub fn FsPoll::start(
   self : FsPoll,
-  path : ToNtbs,
+  path : Bytes,
   interval : UInt,
   poll_cb : (FsPoll, Stat, Stat) -> Unit,
   error_cb : (FsPoll, Errno) -> Unit,
@@ -61,7 +61,6 @@ pub fn[ToNtbs : ToNtbs] FsPoll::start(
     }
   }
 
-  let path = ToNtbs::to_ntbs(path)
   let status = uv_fs_poll_start(self, uv_cb, path, interval)
   if status < 0 {
     raise Errno::of_int(status)

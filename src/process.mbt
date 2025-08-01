@@ -111,8 +111,8 @@ extern "c" fn uv_process_options_set_gid(
 ) = "moonbit_uv_process_options_set_gid"
 
 ///|
-pub fn[Ntbs : ToNtbs] ProcessOptions::new(
-  file : Ntbs,
+pub fn ProcessOptions::new(
+  file : Bytes,
   args : Array[@string.View],
   env? : Array[@string.View],
   cwd? : @string.View,
@@ -124,13 +124,12 @@ pub fn[Ntbs : ToNtbs] ProcessOptions::new(
   let mut flags = 0U
   let options = uv_process_options_make()
   uv_process_options_set_exit_cb(options, exit_cb)
-  let file = file.to_ntbs()
   uv_process_options_set_file(options, file)
   let args = FixedArray::makei(args.length() + 1, fn(i) {
     if i == args.length() {
       return None
     } else {
-      return Some(ToNtbs::to_ntbs(args[i]))
+      return Some(@encoding.encode(encoding=UTF8, args[i].to_string()))
     }
   })
   uv_process_options_set_args(options, args)
@@ -139,13 +138,13 @@ pub fn[Ntbs : ToNtbs] ProcessOptions::new(
       if i == env.length() {
         return None
       } else {
-        return Some(ToNtbs::to_ntbs(env[i]))
+        return Some(@encoding.encode(encoding=UTF8, env[i].to_string()))
       }
     })
     uv_process_options_set_env(options, env)
   }
   if cwd is Some(cwd) {
-    let cwd = ToNtbs::to_ntbs(cwd)
+    let cwd = @encoding.encode(encoding=UTF8, cwd.to_string())
     uv_process_options_set_cwd(options, cwd)
   }
   if stdio is Some(stdio) {

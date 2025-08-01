@@ -303,12 +303,12 @@ extern "c" fn uv_getaddrinfo(
 ) -> Int = "moonbit_uv_getaddrinfo"
 
 ///|
-pub fn[Node : ToNtbs, Service : ToNtbs] Loop::getaddrinfo(
+pub fn Loop::getaddrinfo(
   self : Loop,
   getaddrinfo_cb : (Iter[AddrInfo]) -> Unit,
   error_cb : (Errno) -> Unit,
-  node : Node,
-  service : Service,
+  node : Bytes,
+  service : Bytes,
   hints? : AddrInfoHints,
 ) -> GetAddrInfo raise Errno {
   fn uv_cb(_ : GetAddrInfo, status : Int, addrinfo : AddrInfoResults) {
@@ -328,8 +328,8 @@ pub fn[Node : ToNtbs, Service : ToNtbs] Loop::getaddrinfo(
     self,
     req,
     uv_cb,
-    node.to_ntbs(),
-    service.to_ntbs(),
+    node,
+    service,
     hints,
   )
   if status < 0 {

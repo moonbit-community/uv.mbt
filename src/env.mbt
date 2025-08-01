@@ -20,8 +20,7 @@ extern "c" fn uv_os_getenv(
 ) -> Int = "moonbit_uv_os_getenv"
 
 ///|
-pub fn[ToNtbs : ToNtbs] os_getenv(name : ToNtbs) -> String? raise Errno {
-  let name = name.to_ntbs()
+pub fn os_getenv(name : Bytes) -> String? raise Errno {
   let mut buffer = Bytes::make(256, 0)
   let length : FixedArray[Int] = [buffer.length()]
   let mut status = uv_os_getenv(name, buffer, length)
@@ -42,11 +41,11 @@ pub fn[ToNtbs : ToNtbs] os_getenv(name : ToNtbs) -> String? raise Errno {
 extern "c" fn uv_os_setenv(name : Bytes, value : Bytes) -> Int = "moonbit_uv_os_setenv"
 
 ///|
-pub fn[Name : ToNtbs, Value : ToNtbs] os_setenv(
-  name : Name,
-  value : Value,
+pub fn os_setenv(
+  name : Bytes,
+  value : Bytes,
 ) -> Unit raise Errno {
-  let status = uv_os_setenv(name.to_ntbs(), value.to_ntbs())
+  let status = uv_os_setenv(name, value)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -56,8 +55,8 @@ pub fn[Name : ToNtbs, Value : ToNtbs] os_setenv(
 extern "c" fn uv_os_unsetenv(name : Bytes) -> Int = "moonbit_uv_os_unsetenv"
 
 ///|
-pub fn[Name : ToNtbs] os_unsetenv(name : Name) -> Unit raise Errno {
-  let status = uv_os_unsetenv(name.to_ntbs())
+pub fn os_unsetenv(name : Bytes) -> Unit raise Errno {
+  let status = uv_os_unsetenv(name)
   if status < 0 {
     raise Errno::of_int(status)
   }

@@ -14,7 +14,7 @@ fn args() -> Array[String]
 #deprecated
 fn argv() -> Array[Bytes]
 
-fn[Ntbs : ToNtbs] chdir(Ntbs) -> Unit raise Errno
+fn chdir(Bytes) -> Unit raise Errno
 
 #deprecated
 fn[Handle : ToHandle] close(Handle, () -> Unit) -> Unit
@@ -31,9 +31,9 @@ fn getcpu() -> Int raise Errno
 
 fn hrtime() -> UInt64
 
-fn[Ntbs : ToNtbs] ip4_addr(Ntbs, Int) -> SockaddrIn raise Errno
+fn ip4_addr(Bytes, Int) -> SockaddrIn raise Errno
 
-fn[Ntbs : ToNtbs] ip6_addr(Ntbs, Int) -> SockaddrIn6 raise Errno
+fn ip6_addr(Bytes, Int) -> SockaddrIn6 raise Errno
 
 #deprecated
 fn[Handle : ToHandle] is_closing(Handle) -> Bool
@@ -48,17 +48,17 @@ fn[Stream : ToStream] listen(Stream, Int, (Stream) -> Unit, (Stream, Errno) -> U
 
 fn os_environ() -> Environ raise Errno
 
-fn[ToNtbs : ToNtbs] os_getenv(ToNtbs) -> String? raise Errno
+fn os_getenv(Bytes) -> String? raise Errno
 
 fn os_homedir() -> String raise Errno
 
-fn[Name : ToNtbs, Value : ToNtbs] os_setenv(Name, Value) -> Unit raise Errno
+fn os_setenv(Bytes, Bytes) -> Unit raise Errno
 
 fn os_tmpdir() -> String raise Errno
 
 fn os_uname() -> Utsname raise Errno
 
-fn[Name : ToNtbs] os_unsetenv(Name) -> Unit raise Errno
+fn os_unsetenv(Bytes) -> Unit raise Errno
 
 fn pipe(read_flags~ : PipeFlags = .., write_flags~ : PipeFlags = ..) -> (File, File) raise Errno
 
@@ -312,7 +312,7 @@ impl ToReq for Fs
 type FsEvent
 fn FsEvent::get_path(Self) -> String raise Errno
 fn FsEvent::new(Loop) -> Self raise Errno
-fn[ToNtbs : ToNtbs] FsEvent::start(Self, ToNtbs, FsEventFlags, (Self, String?, Array[FsEventType]) -> Unit, (Self, String?, Errno) -> Unit) -> Unit raise Errno
+fn FsEvent::start(Self, Bytes, FsEventFlags, (Self, String?, Array[FsEventType]) -> Unit, (Self, String?, Errno) -> Unit) -> Unit raise Errno
 fn FsEvent::stop(Self) -> Unit raise Errno
 impl ToHandle for FsEvent
 
@@ -329,7 +329,7 @@ impl ToJson for FsEventType
 type FsPoll
 fn FsPoll::get_path(Self) -> String raise Errno
 fn FsPoll::new(Loop) -> Self raise Errno
-fn[ToNtbs : ToNtbs] FsPoll::start(Self, ToNtbs, UInt, (Self, Stat, Stat) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
+fn FsPoll::start(Self, Bytes, UInt, (Self, Stat, Stat) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
 fn FsPoll::stop(Self) -> Unit raise Errno
 impl ToHandle for FsPoll
 
@@ -375,42 +375,42 @@ type Loop
 fn Loop::alive(Self) -> Bool
 fn Loop::close(Self) -> Unit raise Errno
 fn Loop::configure(Self, LoopOption) -> Unit raise Errno
-fn[Ntbs : ToNtbs] Loop::fs_access(Self, Ntbs, AccessFlags, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
-fn[Ntbs : ToNtbs] Loop::fs_access_sync(Self, Ntbs, AccessFlags) -> Unit raise Errno
+fn Loop::fs_access(Self, Bytes, AccessFlags, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_access_sync(Self, Bytes, AccessFlags) -> Unit raise Errno
 fn Loop::fs_close(Self, File, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_close_sync(Self, File) -> Unit raise Errno
 fn Loop::fs_closedir(Self, Dir, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
-fn[Ntbs : ToNtbs] Loop::fs_copyfile(Self, Ntbs, Ntbs, CopyFileFlags, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
-fn[Ntbs : ToNtbs] Loop::fs_copyfile_sync(Self, Ntbs, Ntbs, CopyFileFlags) -> Unit raise Errno
+fn Loop::fs_copyfile(Self, Bytes, Bytes, CopyFileFlags, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_copyfile_sync(Self, Bytes, Bytes, CopyFileFlags) -> Unit raise Errno
 fn Loop::fs_fstat(Self, File, (Stat) -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_ftruncate(Self, File, Int64, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
-fn[Ntbs : ToNtbs] Loop::fs_lstat(Self, Ntbs, (Stat) -> Unit, (Errno) -> Unit) -> Fs raise Errno
-fn[Ntbs : ToNtbs] Loop::fs_mkdir(Self, Ntbs, Int, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
-fn[Ntbs : ToNtbs] Loop::fs_mkdir_sync(Self, Ntbs, Int) -> Unit raise Errno
-fn[Ntbs : ToNtbs] Loop::fs_mkdtemp(Self, Ntbs, (String) -> Unit, (Errno) -> Unit) -> Fs raise Errno
-fn[Ntbs : ToNtbs] Loop::fs_mkdtemp_sync(Self, Ntbs) -> String raise Errno
-fn[Ntbs : ToNtbs] Loop::fs_mkstemp(Self, Ntbs, (String) -> Unit, (Errno) -> Unit) -> Fs raise Errno
-fn[Ntbs : ToNtbs] Loop::fs_mkstemp_sync(Self, Ntbs) -> String raise Errno
-fn[Ntbs : ToNtbs] Loop::fs_open(Self, Ntbs, OpenFlags, Int, (File) -> Unit, (Errno) -> Unit) -> Fs raise Errno
-fn[Ntbs : ToNtbs] Loop::fs_open_sync(Self, Ntbs, OpenFlags, Int) -> File raise Errno
-fn[Ntbs : ToNtbs] Loop::fs_opendir(Self, Ntbs, (Dir) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_lstat(Self, Bytes, (Stat) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_mkdir(Self, Bytes, Int, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_mkdir_sync(Self, Bytes, Int) -> Unit raise Errno
+fn Loop::fs_mkdtemp(Self, Bytes, (String) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_mkdtemp_sync(Self, Bytes) -> String raise Errno
+fn Loop::fs_mkstemp(Self, Bytes, (String) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_mkstemp_sync(Self, Bytes) -> String raise Errno
+fn Loop::fs_open(Self, Bytes, OpenFlags, Int, (File) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_open_sync(Self, Bytes, OpenFlags, Int) -> File raise Errno
+fn Loop::fs_opendir(Self, Bytes, (Dir) -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_read(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Int) -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_read_sync(Self, File, Array[@bytes.View], offset~ : Int64 = ..) -> Int raise Errno
 fn Loop::fs_readdir(Self, Dir, Int, (Array[Dirent]) -> Unit, (Errno) -> Unit) -> Fs raise Errno
-fn[Ntbs : ToNtbs] Loop::fs_realpath(Self, Ntbs, (String) -> Unit, (Errno) -> Unit) -> Fs raise Errno
-fn[Ntbs : ToNtbs] Loop::fs_realpath_sync(Self, Ntbs) -> String raise Errno
-fn[Ntbs : ToNtbs] Loop::fs_rename(Self, Ntbs, Ntbs, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
-fn[Ntbs : ToNtbs] Loop::fs_rmdir(Self, Ntbs, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
-fn[Ntbs : ToNtbs] Loop::fs_rmdir_sync(Self, Ntbs) -> Unit raise Errno
-fn[Ntbs : ToNtbs] Loop::fs_scandir(Self, Ntbs, Int, (Scandir) -> Unit, (Errno) -> Unit) -> Fs raise Errno
-fn[Ntbs : ToNtbs] Loop::fs_scandir_sync(Self, Ntbs, Int) -> Scandir raise Errno
-fn[Ntbs : ToNtbs] Loop::fs_stat(Self, Ntbs, (Stat) -> Unit, (Errno) -> Unit) -> Fs raise Errno
-fn[Ntbs : ToNtbs] Loop::fs_stat_sync(Self, Ntbs) -> Stat raise Errno
-fn[Ntbs : ToNtbs] Loop::fs_unlink(Self, Ntbs, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
-fn[Ntbs : ToNtbs] Loop::fs_unlink_sync(Self, Ntbs) -> Unit raise Errno
+fn Loop::fs_realpath(Self, Bytes, (String) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_realpath_sync(Self, Bytes) -> String raise Errno
+fn Loop::fs_rename(Self, Bytes, Bytes, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_rmdir(Self, Bytes, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_rmdir_sync(Self, Bytes) -> Unit raise Errno
+fn Loop::fs_scandir(Self, Bytes, Int, (Scandir) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_scandir_sync(Self, Bytes, Int) -> Scandir raise Errno
+fn Loop::fs_stat(Self, Bytes, (Stat) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_stat_sync(Self, Bytes) -> Stat raise Errno
+fn Loop::fs_unlink(Self, Bytes, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_unlink_sync(Self, Bytes) -> Unit raise Errno
 fn Loop::fs_write(Self, File, Array[@bytes.View], offset~ : Int64 = .., (Int) -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_write_sync(Self, File, Array[@bytes.View], offset~ : Int64 = ..) -> Unit raise Errno
-fn[Node : ToNtbs, Service : ToNtbs] Loop::getaddrinfo(Self, (Iter[AddrInfo]) -> Unit, (Errno) -> Unit, Node, Service, hints? : AddrInfoHints) -> GetAddrInfo raise Errno
+fn Loop::getaddrinfo(Self, (Iter[AddrInfo]) -> Unit, (Errno) -> Unit, Bytes, Bytes, hints? : AddrInfoHints) -> GetAddrInfo raise Errno
 fn Loop::metrics_idle_time(Self) -> UInt64
 fn Loop::metrics_info(Self) -> Metrics raise Errno
 fn Loop::new() -> Self raise Errno
@@ -453,7 +453,7 @@ fn OsFd::to_int(Self) -> Int raise Errno
 type OsSock
 
 type Pipe
-fn[Ntbs : ToNtbs] Pipe::bind(Self, Ntbs, PipeBindFlags) -> Unit raise Errno
+fn Pipe::bind(Self, Bytes, PipeBindFlags) -> Unit raise Errno
 fn Pipe::new(Loop, ipc~ : Bool = ..) -> Self raise Errno
 fn Pipe::open(Self, File) -> Unit raise Errno
 fn Pipe::pending_count(Self) -> UInt
@@ -502,7 +502,7 @@ fn Process::pid(Self) -> Int
 impl ToHandle for Process
 
 type ProcessOptions
-fn[Ntbs : ToNtbs] ProcessOptions::new(Ntbs, Array[@string.StringView], env? : Array[@string.StringView], cwd? : @string.StringView, stdio? : Array[StdioContainer], uid? : Uid, gid? : Gid, (Process, Int64, Int) -> Unit) -> Self
+fn ProcessOptions::new(Bytes, Array[@string.StringView], env? : Array[@string.StringView], cwd? : @string.StringView, stdio? : Array[StdioContainer], uid? : Uid, gid? : Gid, (Process, Int64, Int) -> Unit) -> Self
 
 pub enum Protocol {
   Tcp
@@ -754,12 +754,6 @@ pub trait ToHandle {
   loop_(Self) -> Loop
   fileno(Self) -> OsFd raise Errno
 }
-
-trait ToNtbs
-impl ToNtbs for String
-impl ToNtbs for Bytes
-impl ToNtbs for @bytes.View
-impl ToNtbs for @string.StringView
 
 pub trait ToReq {
   to_req(Self) -> Req

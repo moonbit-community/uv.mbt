@@ -234,8 +234,9 @@ test "realpath" {
   let cwd = @uv.cwd()
   let errors : Array[Error] = []
   let file = "test/fixtures/example.txt"
+  let file_bytes = @encoding.encode(encoding=UTF8, file)
   uv.fs_realpath(
-    file,
+    file_bytes,
     p => assert_true(p.has_prefix(cwd)) catch { e => errors.push(e) },
     e => errors.push(e),
   )
@@ -351,13 +352,15 @@ test "fs_mkdtemp" {
   let uv = @uv.Loop::new()
   let mut error : Error? = None
   let template = "test-dir-XXXXXX"
+  let template_bytes = @encoding.encode(encoding=UTF8, template)
   uv.fs_mkdtemp(
-    template,
+    template_bytes,
     path => try {
       assert_true(path.has_prefix("test-dir-"))
-      let stat = uv.fs_stat_sync(path)
+      let path_bytes = @encoding.encode(encoding=UTF8, path)
+      let stat = uv.fs_stat_sync(path_bytes)
       assert_true(stat.is_directory())
-      uv.fs_rmdir_sync(path)
+      uv.fs_rmdir_sync(path_bytes)
     } catch {
       e => error = Some(e)
     },
@@ -375,11 +378,13 @@ test "fs_mkdtemp" {
 test "fs_mkdtemp_sync" {
   let uv = @uv.Loop::new()
   let template = "test-dir-XXXXXX"
-  let path = uv.fs_mkdtemp_sync(template)
+  let template_bytes = @encoding.encode(encoding=UTF8, template)
+  let path = uv.fs_mkdtemp_sync(template_bytes)
   assert_true(path.has_prefix("test-dir-"))
-  let stat = uv.fs_stat_sync(path)
+  let path_bytes = @encoding.encode(encoding=UTF8, path)
+  let stat = uv.fs_stat_sync(path_bytes)
   assert_true(stat.is_directory())
-  uv.fs_rmdir_sync(path)
+  uv.fs_rmdir_sync(path_bytes)
   uv.close()
 }
 
@@ -388,13 +393,15 @@ test "fs_mkstemp" {
   let uv = @uv.Loop::new()
   let mut error : Error? = None
   let template = "test-file-XXXXXX"
+  let template_bytes = @encoding.encode(encoding=UTF8, template)
   uv.fs_mkstemp(
-    template,
+    template_bytes,
     path => try {
       assert_true(path.has_prefix("test-file-"))
-      let stat = uv.fs_stat_sync(path)
+      let path_bytes = @encoding.encode(encoding=UTF8, path)
+      let stat = uv.fs_stat_sync(path_bytes)
       assert_true(stat.is_file())
-      uv.fs_unlink_sync(path)
+      uv.fs_unlink_sync(path_bytes)
     } catch {
       e => error = Some(e)
     },
@@ -412,11 +419,13 @@ test "fs_mkstemp" {
 test "fs_mkstemp_sync" {
   let uv = @uv.Loop::new()
   let template = "test-file-XXXXXX"
-  let path = uv.fs_mkstemp_sync(template)
+  let template_bytes = @encoding.encode(encoding=UTF8, template)
+  let path = uv.fs_mkstemp_sync(template_bytes)
   assert_true(path.has_prefix("test-file-"))
-  let stat = uv.fs_stat_sync(path)
+  let path_bytes = @encoding.encode(encoding=UTF8, path)
+  let stat = uv.fs_stat_sync(path_bytes)
   assert_true(stat.is_file())
-  uv.fs_unlink_sync(path)
+  uv.fs_unlink_sync(path_bytes)
   uv.close()
 }
 
