@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
+
 ///|
 extern "c" fn uv_os_uname(buffer : Bytes) -> Int = "moonbit_uv_os_uname"
 
@@ -155,8 +157,8 @@ pub fn os_homedir() -> String raise Errno {
 extern "c" fn uv_chdir(path : Bytes) -> Int = "moonbit_uv_chdir"
 
 ///|
-pub fn[Ntbs : ToNtbs] chdir(path : Ntbs) -> Unit raise Errno {
-  let status = uv_chdir(path.to_ntbs())
+pub fn chdir(path : String) -> Unit raise Errno {
+  let status = uv_chdir(string_to_ntbs(path))
   if status < 0 {
     raise Errno::of_int(status)
   }

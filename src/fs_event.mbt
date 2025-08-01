@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
+
 ///|
 type FsEvent
 
@@ -81,9 +83,9 @@ pub fn FsEventFlags::new(recursive~ : Bool = false) -> FsEventFlags {
 }
 
 ///|
-pub fn[ToNtbs : ToNtbs] FsEvent::start(
+pub fn FsEvent::start(
   self : FsEvent,
-  path : ToNtbs,
+  path : String,
   flags : FsEventFlags,
   event_cb : (FsEvent, String?, Array[FsEventType]) -> Unit,
   error_cb : (FsEvent, String?, Errno) -> Unit,
@@ -117,7 +119,7 @@ pub fn[ToNtbs : ToNtbs] FsEvent::start(
     }
   }
 
-  let path = ToNtbs::to_ntbs(path)
+  let path = string_to_ntbs(path)
   let status = uv_fs_event_start(self, uv_cb, path, flags.inner())
   if status < 0 {
     raise Errno::of_int(status)

@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
+
 ///|
 type GetAddrInfo
 
@@ -303,12 +305,12 @@ extern "c" fn uv_getaddrinfo(
 ) -> Int = "moonbit_uv_getaddrinfo"
 
 ///|
-pub fn[Node : ToNtbs, Service : ToNtbs] Loop::getaddrinfo(
+pub fn Loop::getaddrinfo(
   self : Loop,
   getaddrinfo_cb : (Iter[AddrInfo]) -> Unit,
   error_cb : (Errno) -> Unit,
-  node : Node,
-  service : Service,
+  node : String,
+  service : String,
   hints? : AddrInfoHints,
 ) -> GetAddrInfo raise Errno {
   fn uv_cb(_ : GetAddrInfo, status : Int, addrinfo : AddrInfoResults) {
@@ -328,8 +330,8 @@ pub fn[Node : ToNtbs, Service : ToNtbs] Loop::getaddrinfo(
     self,
     req,
     uv_cb,
-    node.to_ntbs(),
-    service.to_ntbs(),
+    string_to_ntbs(node),
+    string_to_ntbs(service),
     hints,
   )
   if status < 0 {
