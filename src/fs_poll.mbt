@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
+
 ///|
 type FsPoll
 
@@ -46,9 +48,9 @@ extern "c" fn uv_fs_poll_start(
 ) -> Int = "moonbit_uv_fs_poll_start"
 
 ///|
-pub fn[ToNtbs : ToNtbs] FsPoll::start(
+pub fn FsPoll::start(
   self : FsPoll,
-  path : ToNtbs,
+  path : String,
   interval : UInt,
   poll_cb : (FsPoll, Stat, Stat) -> Unit,
   error_cb : (FsPoll, Errno) -> Unit,
@@ -61,7 +63,7 @@ pub fn[ToNtbs : ToNtbs] FsPoll::start(
     }
   }
 
-  let path = ToNtbs::to_ntbs(path)
+  let path = string_to_ntbs(path)
   let status = uv_fs_poll_start(self, uv_cb, path, interval)
   if status < 0 {
     raise Errno::of_int(status)

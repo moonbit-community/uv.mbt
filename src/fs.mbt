@@ -206,40 +206,9 @@ extern "c" fn uv_fs_open(
   cb : (Fs) -> Unit,
 ) -> Int = "moonbit_uv_fs_open"
 
-///|
-/// Convertible to null-terminated byte strings (NTBS).
-trait ToNtbs {
-  to_ntbs(Self) -> Bytes
-}
 
-///|
-pub impl ToNtbs for String with to_ntbs(self : String) -> Bytes {
-  let buffer = @buffer.new()
-  @encoding.encode_to(self, buffer, encoding=UTF8)
-  buffer.write_byte(0)
-  return buffer.contents()
-}
 
-///|
-pub impl ToNtbs for Bytes with to_ntbs(self : Bytes) -> Bytes {
-  let buffer = @buffer.new()
-  buffer.write_bytes(self)
-  buffer.write_byte(0)
-  return buffer.contents()
-}
 
-///|
-pub impl ToNtbs for @string.View with to_ntbs(self : @string.View) -> Bytes {
-  self.to_string() |> ToNtbs::to_ntbs()
-}
-
-///|
-pub impl ToNtbs for @bytes.View with to_ntbs(self : @bytes.View) -> Bytes {
-  let buffer = @buffer.new()
-  buffer.write_bytesview(self)
-  buffer.write_byte(0)
-  return buffer.contents()
-}
 
 ///|
 /// Asynchronously opens a file at the specified path with the given flags and
@@ -252,9 +221,7 @@ pub impl ToNtbs for @bytes.View with to_ntbs(self : @bytes.View) -> Bytes {
 /// Parameters:
 ///
 /// * `self` : The event loop instance to schedule the operation on.
-/// * `path` : The file path to open. Can be any type that implements `ToNtbs`
-///   (convertible to null-terminated byte string), such as `String`, `Bytes`,
-///   `@string.View`, or `@bytes.View`.
+/// * `path` : The file path to open as a `String`.
 /// * `flags` : The file access mode and behavior flags. Use
 ///   `OpenFlags::read_only()`, `OpenFlags::write_only()`, or
 ///   `OpenFlags::read_write()` with optional parameters for additional
@@ -285,9 +252,9 @@ pub impl ToNtbs for @bytes.View with to_ntbs(self : @bytes.View) -> Bytes {
 /// uv.run(Default)
 /// uv.close()
 /// ```
-pub fn[Ntbs : ToNtbs] Loop::fs_open(
+pub fn Loop::fs_open(
   self : Loop,
-  path : Ntbs,
+  path : String,
   flags : OpenFlags,
   mode : Int,
   open_cb : (File) -> Unit,
@@ -304,7 +271,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_open(
   }
 
   let req = uv_fs_make()
-  let path = path.to_ntbs()
+  let path = string_to_ntbs(path)
   let status = uv_fs_open(self, req, path, flags.inner(), mode, cb)
   if status < 0 {
     raise Errno::of_int(status)
@@ -333,9 +300,7 @@ extern "c" fn uv_fs_open_sync(
 /// Parameters:
 ///
 /// * `self` : The event loop instance to perform the operation on.
-/// * `path` : The file path to open. Can be any type that implements `ToNtbs`
-///   (convertible to null-terminated byte string), such as `String`, `Bytes`,
-///   `@string.View`, or `@bytes.View`.
+/// * `path` : The file path to open as a `String`.
 /// * `flags` : The file access mode and behavior flags. Use
 ///   `OpenFlags::read_only()`, `OpenFlags::write_only()`, or
 ///   `OpenFlags::read_write()` with optional parameters for additional behaviors
@@ -359,14 +324,14 @@ extern "c" fn uv_fs_open_sync(
 /// uv.fs_close_sync(file)
 /// uv.close()
 /// ```
-pub fn[Ntbs : ToNtbs] Loop::fs_open_sync(
+pub fn Loop::fs_open_sync(
   self : Loop,
-  path : Ntbs,
+  path : String,
   flags : OpenFlags,
   mode : Int,
 ) -> File raise Errno {
   let req = uv_fs_make()
-  let path = path.to_ntbs()
+  let path = string_to_ntbs(path)
   let status = uv_fs_open_sync(self, req, path, flags.inner(), mode)
   if status < 0 {
     raise Errno::of_int(status)
@@ -834,9 +799,9 @@ extern "c" fn uv_fs_unlink(
 ) -> Int = "moonbit_uv_fs_unlink"
 
 ///|
-pub fn[Ntbs : ToNtbs] Loop::fs_unlink(
+pub fn Loop::fs_unlink(
   self : Loop,
-  path : Ntbs,
+  path : String,
   k : () -> Unit,
   e : (Errno) -> Unit,
 ) -> Fs raise Errno {
@@ -851,7 +816,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_unlink(
   }
 
   let req = uv_fs_make()
-  let status = uv_fs_unlink(self, req, path.to_ntbs(), cb)
+  let status = uv_fs_unlink(self, req, string_to_ntbs(path), cb)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -862,12 +827,12 @@ pub fn[Ntbs : ToNtbs] Loop::fs_unlink(
 extern "c" fn uv_fs_unlink_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "moonbit_uv_fs_unlink_sync"
 
 ///|
-pub fn[Ntbs : ToNtbs] Loop::fs_unlink_sync(
+pub fn Loop::fs_unlink_sync(
   self : Loop,
-  path : Ntbs,
+  path : String,
 ) -> Unit raise Errno {
   let req = uv_fs_make()
-  let status = uv_fs_unlink_sync(self, req, path.to_ntbs())
+  let status = uv_fs_unlink_sync(self, req, string_to_ntbs(path))
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -893,9 +858,7 @@ extern "c" fn uv_fs_mkdir(
 /// Parameters:
 ///
 /// * `self` : The event loop instance to schedule the operation on.
-/// * `path` : The directory path to create. Can be any type that implements
-///   `ToNtbs` (convertible to null-terminated byte string), such as `String`,
-///   `Bytes`, `@string.View`, or `@bytes.View`.
+/// * `path` : The directory path to create as a `String`.
 /// * `mode` : The directory permissions to use when creating the directory
 ///   (octal notation, e.g., `0o755`).
 /// * `mkdir_cb` : Success callback function that receives the filesystem request
@@ -924,9 +887,9 @@ extern "c" fn uv_fs_mkdir(
 /// uv.fs_rmdir_sync(dir)
 /// uv.close()
 /// ```
-pub fn[Ntbs : ToNtbs] Loop::fs_mkdir(
+pub fn Loop::fs_mkdir(
   self : Loop,
-  path : Ntbs,
+  path : String,
   mode : Int,
   mkdir_cb : () -> Unit,
   error_cb : (Errno) -> Unit,
@@ -942,7 +905,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_mkdir(
   }
 
   let req = uv_fs_make()
-  let status = uv_fs_mkdir(self, req, path.to_ntbs(), mode, cb)
+  let status = uv_fs_mkdir(self, req, string_to_ntbs(path), mode, cb)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -969,9 +932,7 @@ extern "c" fn uv_fs_mkdir_sync(
 /// Parameters:
 ///
 /// * `self` : The event loop instance to perform the operation on.
-/// * `path` : The directory path to create. Can be any type that implements
-/// `ToNtbs` (convertible to null-terminated byte string), such as `String`,
-/// `Bytes`, `@string.View`, or `@bytes.View`.
+/// * `path` : The directory path to create as a `String`.
 /// * `mode` : The directory permissions to use when creating the directory
 /// (octal notation, e.g., `0o755`).
 ///
@@ -987,13 +948,13 @@ extern "c" fn uv_fs_mkdir_sync(
 /// }
 /// uv.close()
 /// ```
-pub fn[Ntbs : ToNtbs] Loop::fs_mkdir_sync(
+pub fn Loop::fs_mkdir_sync(
   self : Loop,
-  path : Ntbs,
+  path : String,
   mode : Int,
 ) -> Unit raise Errno {
   let req = uv_fs_make()
-  let status = uv_fs_mkdir_sync(self, req, path.to_ntbs(), mode)
+  let status = uv_fs_mkdir_sync(self, req, string_to_ntbs(path), mode)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -1008,9 +969,9 @@ extern "c" fn uv_fs_rmdir(
 ) -> Int = "moonbit_uv_fs_rmdir"
 
 ///|
-pub fn[Ntbs : ToNtbs] Loop::fs_rmdir(
+pub fn Loop::fs_rmdir(
   self : Loop,
-  path : Ntbs,
+  path : String,
   rmdir_cb : () -> Unit,
   error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
@@ -1025,7 +986,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_rmdir(
   }
 
   let req = uv_fs_make()
-  let status = uv_fs_rmdir(self, req, path.to_ntbs(), cb)
+  let status = uv_fs_rmdir(self, req, string_to_ntbs(path), cb)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -1036,12 +997,12 @@ pub fn[Ntbs : ToNtbs] Loop::fs_rmdir(
 extern "c" fn uv_fs_rmdir_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "moonbit_uv_fs_rmdir_sync"
 
 ///|
-pub fn[Ntbs : ToNtbs] Loop::fs_rmdir_sync(
+pub fn Loop::fs_rmdir_sync(
   self : Loop,
-  path : Ntbs,
+  path : String,
 ) -> Unit raise Errno {
   let req = uv_fs_make()
-  let status = uv_fs_rmdir_sync(self, req, path.to_ntbs())
+  let status = uv_fs_rmdir_sync(self, req, string_to_ntbs(path))
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -1162,15 +1123,15 @@ pub fn Scandir::next(self : Scandir) -> Dirent raise Errno {
 }
 
 ///|
-pub fn[Ntbs : ToNtbs] Loop::fs_scandir(
+pub fn Loop::fs_scandir(
   self : Loop,
-  path : Ntbs,
+  path : String,
   flags : Int,
   scandir_cb : (Scandir) -> Unit,
   error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
   let req = uv_fs_make()
-  let status = uv_fs_scandir(self, req, path.to_ntbs(), flags, fn(req) {
+  let status = uv_fs_scandir(self, req, string_to_ntbs(path), flags, fn(req) {
     let status = uv_fs_get_result(req).to_int()
     if status < 0 {
       uv_fs_req_cleanup(req)
@@ -1194,13 +1155,13 @@ extern "c" fn uv_fs_scandir_sync(
 ) -> Int = "moonbit_uv_fs_scandir_sync"
 
 ///|
-pub fn[Ntbs : ToNtbs] fs_scandir_sync(
+pub fn fs_scandir_sync(
   self : Loop,
-  path : Ntbs,
+  path : String,
   flags : Int,
 ) -> Scandir raise Errno {
   let req = uv_fs_make()
-  let path = path.to_ntbs()
+  let path = string_to_ntbs(path)
   let status = uv_fs_scandir_sync(self, req, path, flags)
   if status < 0 {
     uv_fs_req_cleanup(req)
@@ -1219,10 +1180,10 @@ extern "c" fn uv_fs_rename(
 ) -> Int = "moonbit_uv_fs_rename"
 
 ///|
-pub fn[Ntbs : ToNtbs] Loop::fs_rename(
+pub fn Loop::fs_rename(
   self : Loop,
-  path : Ntbs,
-  new_path : Ntbs,
+  path : String,
+  new_path : String,
   rename_cb : () -> Unit,
   error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
@@ -1237,7 +1198,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_rename(
   }
 
   let req = uv_fs_make()
-  let status = uv_fs_rename(self, req, path.to_ntbs(), new_path.to_ntbs(), cb)
+  let status = uv_fs_rename(self, req, string_to_ntbs(path), string_to_ntbs(new_path), cb)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -1288,10 +1249,10 @@ extern "c" fn uv_fs_copyfile(
 ) -> Int = "moonbit_uv_fs_copyfile"
 
 ///|
-pub fn[Ntbs : ToNtbs] Loop::fs_copyfile(
+pub fn Loop::fs_copyfile(
   self : Loop,
-  path : Ntbs,
-  new_path : Ntbs,
+  path : String,
+  new_path : String,
   flags : CopyFileFlags,
   copy_cb : () -> Unit,
   error_cb : (Errno) -> Unit,
@@ -1310,8 +1271,8 @@ pub fn[Ntbs : ToNtbs] Loop::fs_copyfile(
   let status = uv_fs_copyfile(
     self,
     req,
-    path.to_ntbs(),
-    new_path.to_ntbs(),
+    string_to_ntbs(path),
+    string_to_ntbs(new_path),
     flags.inner(),
     cb,
   )
@@ -1331,18 +1292,18 @@ extern "c" fn uv_fs_copyfile_sync(
 ) -> Int = "moonbit_uv_fs_copyfile_sync"
 
 ///|
-pub fn[Ntbs : ToNtbs] Loop::fs_copyfile_sync(
+pub fn Loop::fs_copyfile_sync(
   self : Loop,
-  path : Ntbs,
-  new_path : Ntbs,
+  path : String,
+  new_path : String,
   flags : CopyFileFlags,
 ) -> Unit raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_copyfile_sync(
     self,
     req,
-    path.to_ntbs(),
-    new_path.to_ntbs(),
+    string_to_ntbs(path),
+    string_to_ntbs(new_path),
     flags.inner(),
   )
   if status < 0 {
@@ -1679,9 +1640,9 @@ extern "c" fn uv_fs_stat(
 ) -> Int = "moonbit_uv_fs_stat"
 
 ///|
-pub fn[Ntbs : ToNtbs] Loop::fs_stat(
+pub fn Loop::fs_stat(
   self : Loop,
-  path : Ntbs,
+  path : String,
   stat_cb : (Stat) -> Unit,
   error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
@@ -1698,7 +1659,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_stat(
   }
 
   let req = uv_fs_make()
-  let status = uv_fs_stat(self, req, path.to_ntbs(), cb)
+  let status = uv_fs_stat(self, req, string_to_ntbs(path), cb)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -1709,12 +1670,12 @@ pub fn[Ntbs : ToNtbs] Loop::fs_stat(
 extern "c" fn uv_fs_stat_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "moonbit_uv_fs_stat_sync"
 
 ///|
-pub fn[Ntbs : ToNtbs] Loop::fs_stat_sync(
+pub fn Loop::fs_stat_sync(
   self : Loop,
-  path : Ntbs,
+  path : String,
 ) -> Stat raise Errno {
   let req = uv_fs_make()
-  let status = uv_fs_stat_sync(self, req, path.to_ntbs())
+  let status = uv_fs_stat_sync(self, req, string_to_ntbs(path))
   if status < 0 {
     uv_fs_req_cleanup(req)
     raise Errno::of_int(status)
@@ -1733,9 +1694,9 @@ extern "c" fn uv_fs_lstat(
 ) -> Int = "moonbit_uv_fs_lstat"
 
 ///|
-pub fn[Ntbs : ToNtbs] Loop::fs_lstat(
+pub fn Loop::fs_lstat(
   self : Loop,
-  path : Ntbs,
+  path : String,
   lstat_cb : (Stat) -> Unit,
   error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
@@ -1752,7 +1713,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_lstat(
   }
 
   let req = uv_fs_make()
-  let status = uv_fs_lstat(self, req, path.to_ntbs(), cb)
+  let status = uv_fs_lstat(self, req, string_to_ntbs(path), cb)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -1807,9 +1768,7 @@ pub fn Loop::fs_fstat(
 /// Parameters:
 ///
 /// * `self` : The event loop instance to schedule the operation on.
-/// * `path` : The file path to resolve. Can be any type that implements
-///   `ToNtbs` (convertible to null-terminated byte string), such as `String`,
-///   `Bytes`, `@string.View`, or `@bytes.View`.
+/// * `path` : The file path to resolve as a `String`.
 /// * `path_cb` : Success callback function that receives the filesystem request
 ///   handle and the resolved absolute path when the operation succeeds.
 /// * `error_cb` : Error callback function that receives the filesystem request
@@ -1831,9 +1790,9 @@ pub fn Loop::fs_fstat(
 /// uv.run(Default)
 /// uv.close()
 /// ```
-pub fn[Ntbs : ToNtbs] Loop::fs_realpath(
+pub fn Loop::fs_realpath(
   self : Loop,
-  path : Ntbs,
+  path : String,
   path_cb : (String) -> Unit,
   error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
@@ -1855,7 +1814,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_realpath(
   }
 
   let req = uv_fs_make()
-  let status = uv_fs_realpath(self, req, path.to_ntbs(), cb)
+  let status = uv_fs_realpath(self, req, string_to_ntbs(path), cb)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -1866,12 +1825,12 @@ pub fn[Ntbs : ToNtbs] Loop::fs_realpath(
 extern "c" fn uv_fs_realpath_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "moonbit_uv_fs_realpath_sync"
 
 ///|
-pub fn[Ntbs : ToNtbs] Loop::fs_realpath_sync(
+pub fn Loop::fs_realpath_sync(
   self : Loop,
-  path : Ntbs,
+  path : String,
 ) -> String raise Errno {
   let req = uv_fs_make()
-  let status = uv_fs_realpath_sync(self, req, path.to_ntbs())
+  let status = uv_fs_realpath_sync(self, req, string_to_ntbs(path))
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -1944,9 +1903,9 @@ extern "c" fn uv_fs_access(
 ) -> Int = "moonbit_uv_fs_access"
 
 ///|
-pub fn[Ntbs : ToNtbs] Loop::fs_access(
+pub fn Loop::fs_access(
   self : Loop,
-  path : Ntbs,
+  path : String,
   mode : AccessFlags,
   access_cb : () -> Unit,
   error_cb : (Errno) -> Unit,
@@ -1962,7 +1921,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_access(
   }
 
   let req = uv_fs_make()
-  let status = uv_fs_access(self, req, path.to_ntbs(), mode.inner(), cb)
+  let status = uv_fs_access(self, req, string_to_ntbs(path), mode.inner(), cb)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -1978,13 +1937,13 @@ extern "c" fn uv_fs_access_sync(
 ) -> Int = "moonbit_uv_fs_access_sync"
 
 ///|
-pub fn[Ntbs : ToNtbs] Loop::fs_access_sync(
+pub fn Loop::fs_access_sync(
   self : Loop,
-  path : Ntbs,
+  path : String,
   mode : AccessFlags,
 ) -> Unit raise Errno {
   let req = uv_fs_make()
-  let status = uv_fs_access_sync(self, req, path.to_ntbs(), mode.inner())
+  let status = uv_fs_access_sync(self, req, string_to_ntbs(path), mode.inner())
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -2008,9 +1967,9 @@ extern "c" fn uv_fs_mkdtemp(
 ) -> Int = "moonbit_uv_fs_mkdtemp"
 
 ///|
-pub fn[Ntbs : ToNtbs] Loop::fs_mkdtemp(
+pub fn Loop::fs_mkdtemp(
   self : Loop,
-  template : Ntbs,
+  template : String,
   mkdtemp_cb : (String) -> Unit,
   error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
@@ -2027,7 +1986,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_mkdtemp(
   }
 
   let req = uv_fs_make()
-  let status = uv_fs_mkdtemp(self, req, template.to_ntbs(), cb)
+  let status = uv_fs_mkdtemp(self, req, string_to_ntbs(template), cb)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -2038,12 +1997,12 @@ pub fn[Ntbs : ToNtbs] Loop::fs_mkdtemp(
 extern "c" fn uv_fs_mkdtemp_sync(uv : Loop, req : Fs, template : Bytes) -> Int = "moonbit_uv_fs_mkdtemp_sync"
 
 ///|
-pub fn[Ntbs : ToNtbs] Loop::fs_mkdtemp_sync(
+pub fn Loop::fs_mkdtemp_sync(
   self : Loop,
-  template : Ntbs,
+  template : String,
 ) -> String raise Errno {
   let req = uv_fs_make()
-  let status = uv_fs_mkdtemp_sync(self, req, template.to_ntbs())
+  let status = uv_fs_mkdtemp_sync(self, req, string_to_ntbs(template))
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -2061,9 +2020,9 @@ extern "c" fn uv_fs_mkstemp(
 ) -> Int = "moonbit_uv_fs_mkstemp"
 
 ///|
-pub fn[Ntbs : ToNtbs] Loop::fs_mkstemp(
+pub fn Loop::fs_mkstemp(
   self : Loop,
-  template : Ntbs,
+  template : String,
   mkstemp_cb : (String) -> Unit,
   error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
@@ -2079,7 +2038,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_mkstemp(
   }
 
   let req = uv_fs_make()
-  let status = uv_fs_mkstemp(self, req, template.to_ntbs(), cb)
+  let status = uv_fs_mkstemp(self, req, string_to_ntbs(template), cb)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -2090,12 +2049,12 @@ pub fn[Ntbs : ToNtbs] Loop::fs_mkstemp(
 extern "c" fn uv_fs_mkstemp_sync(uv : Loop, req : Fs, template : Bytes) -> Int = "moonbit_uv_fs_mkstemp_sync"
 
 ///|
-pub fn[Ntbs : ToNtbs] Loop::fs_mkstemp_sync(
+pub fn Loop::fs_mkstemp_sync(
   self : Loop,
-  template : Ntbs,
+  template : String,
 ) -> String raise Errno {
   let req = uv_fs_make()
-  let status = uv_fs_mkstemp_sync(self, req, template.to_ntbs())
+  let status = uv_fs_mkstemp_sync(self, req, string_to_ntbs(template))
   if status < 0 {
     uv_fs_req_cleanup(req)
     raise Errno::of_int(status)
@@ -2121,9 +2080,9 @@ extern "c" fn uv_fs_opendir(
 ) -> Int = "moonbit_uv_fs_opendir"
 
 ///|
-pub fn[Ntbs : ToNtbs] Loop::fs_opendir(
+pub fn Loop::fs_opendir(
   self : Loop,
-  path : Ntbs,
+  path : String,
   opendir_cb : (Dir) -> Unit,
   error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
@@ -2140,7 +2099,7 @@ pub fn[Ntbs : ToNtbs] Loop::fs_opendir(
   }
 
   let req = uv_fs_make()
-  let status = uv_fs_opendir(self, req, path.to_ntbs(), cb)
+  let status = uv_fs_opendir(self, req, string_to_ntbs(path), cb)
   if status < 0 {
     raise Errno::of_int(status)
   }

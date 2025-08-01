@@ -14,8 +14,8 @@
 
 ///|
 test "version" {
-  @json.inspect(@uv.version().major(), content=1)
-  @json.inspect(@uv.version().minor(), content=51)
-  @json.inspect(@uv.version().patch(), content=1)
-  inspect(@uv.version(), content="1.51.1-dev")
+  @json.inspect(version().major(), content=1)
+  @json.inspect(version().minor(), content=51)
+  @json.inspect(version().patch(), content=1)
+  inspect(version(), content="1.51.1-dev")
 }

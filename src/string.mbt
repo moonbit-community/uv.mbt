@@ -40,3 +40,17 @@ pub fn wtf8_to_string(wtf8 : Bytes) -> String {
   uv_wtf8_to_utf16(wtf8, utf16)
   utf16
 }
+
+///|
+/// Helper functions for converting to null-terminated byte strings (NTBS)
+pub fn string_to_ntbs(s : String) -> Bytes {
+  let buffer = @buffer.new()
+  @encoding.encode_to(s, buffer, encoding=UTF8)
+  buffer.write_byte(0)
+  return buffer.contents()
+}
+
+///|
+pub fn string_view_to_ntbs(sv : @string.View) -> Bytes {
+  sv.to_string() |> string_to_ntbs
+}

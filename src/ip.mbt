@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
+
 ///|
 pub impl ToSockaddr for Sockaddr with ip_name(self : Sockaddr) -> String raise Errno {
   let self = self.to_sockaddr()
@@ -49,8 +51,8 @@ extern "c" fn uv_ip4_addr(ip : Bytes, port : Int, addr : SockaddrIn) -> Int = "m
 /// let addr = @uv.ip4_addr("127.0.0.1", 8080)
 /// println(addr.ip_name())
 /// ```
-pub fn[Ntbs : ToNtbs] ip4_addr(ip : Ntbs, port : Int) -> SockaddrIn raise Errno {
-  let ip = ip.to_ntbs()
+pub fn ip4_addr(ip : String, port : Int) -> SockaddrIn raise Errno {
+  let ip = string_to_ntbs(ip)
   let addr = uv_sockaddr_in_make()
   let status = uv_ip4_addr(ip, port, addr)
   if status < 0 {
@@ -82,11 +84,11 @@ pub impl ToSockaddr for SockaddrIn with ip_name(self : SockaddrIn) -> String rai
 extern "c" fn uv_ip6_addr(ip : Bytes, port : Int, addr : SockaddrIn6) -> Int = "moonbit_uv_ip6_addr"
 
 ///|
-pub fn[Ntbs : ToNtbs] ip6_addr(
-  ip : Ntbs,
+pub fn ip6_addr(
+  ip : String,
   port : Int,
 ) -> SockaddrIn6 raise Errno {
-  let ip = ip.to_ntbs()
+  let ip = string_to_ntbs(ip)
   let addr = uv_sockaddr_in6_make()
   let status = uv_ip6_addr(ip, port, addr)
   if status < 0 {

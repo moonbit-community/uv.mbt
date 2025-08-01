@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
+
 ///|
 type Pipe
 
@@ -79,12 +81,12 @@ pub fn PipeBindFlags::new(truncate~ : Bool = true) -> PipeBindFlags {
 }
 
 ///|
-pub fn[Ntbs : ToNtbs] Pipe::bind(
+pub fn Pipe::bind(
   self : Pipe,
-  name : Ntbs,
+  name : String,
   flags : PipeBindFlags,
 ) -> Unit raise Errno {
-  let name = name.to_ntbs()
+  let name = string_to_ntbs(name)
   let status = uv_pipe_bind(self, name, flags.inner())
   if status < 0 {
     raise Errno::of_int(status)
