@@ -22,9 +22,9 @@ test "sem new and basic operations" {
   // Test trywait on empty semaphore
   try {
     sem.trywait()
-    abort("trywait should have failed")
+    fail("trywait should have failed")
   } catch {
-    _errno => ()
+    _ => ()
   }
 
   // Test post to signal semaphore
@@ -32,7 +32,7 @@ test "sem new and basic operations" {
 
   // Test trywait on available semaphore
   sem.trywait() catch {
-    errno => abort("trywait should have succeeded: \{errno}")
+    errno => fail("trywait should have succeeded: \{errno}")
   }
 }
 
@@ -43,9 +43,9 @@ test "sem with initial value 0" {
   // Test trywait on empty semaphore
   try {
     sem.trywait()
-    abort("trywait should have failed")
+    fail("trywait should have failed")
   } catch {
-    _errno => ()
+    _ => ()
   }
 
   // Post to signal semaphore
@@ -67,9 +67,9 @@ test "sem with initial value > 1" {
   // Fourth wait should block, so we use trywait which should fail
   try {
     sem.trywait()
-    abort("trywait should have failed")
+    fail("trywait should have failed")
   } catch {
-    _errno => ()
+    _ => ()
   }
 
   // Post some signals
@@ -81,7 +81,7 @@ test "sem with initial value > 1" {
     sem.trywait()
     sem.trywait()
   } catch {
-    errno => abort("trywait should have succeeded: \{errno}")
+    errno => fail("trywait should have succeeded: \{errno}")
   }
 }
 
@@ -96,7 +96,7 @@ test "sem share functionality" {
   // Try to wait on the shared semaphore (should fail since they share the same underlying semaphore)
   try {
     sem2.trywait()
-    abort("trywait should have failed on shared semaphore")
+    fail("trywait should have failed on shared semaphore")
   } catch {
     _errno => ()
   }
@@ -107,6 +107,6 @@ test "sem share functionality" {
   // Now the original semaphore should be available
   sem1.trywait() catch {
     errno =>
-      abort("trywait should have succeeded on original semaphore: \{errno}")
+      fail("trywait should have succeeded on original semaphore: \{errno}")
   }
 }

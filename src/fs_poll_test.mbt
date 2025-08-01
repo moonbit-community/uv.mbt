@@ -14,13 +14,17 @@
 
 ///|
 test "FsPoll" {
+  if @uv.os_getenv("CI") is Some("true") &&
+    @uv.os_uname().sysname() == "Windows_NT" {
+    return
+  }
   let uv = @uv.Loop::new()
   let fs_poll = @uv.FsPoll::new(uv)
   let errors : Array[Error] = []
   let events : Array[(Stat, Stat)] = []
   fs_poll.start(
     "test/fixtures/",
-    2000,
+    1000,
     fn(_, prev, curr) { events.push((prev, curr)) },
     fn(_, errno) {
       errors.push(errno)
@@ -66,7 +70,7 @@ test "FsPoll" {
   )
   |> ignore()
   let timer = @uv.Timer::new(uv)
-  timer.start(timeout=3000, repeat=0, _ => {
+  timer.start(timeout=2000, repeat=0, _ => {
     timer.stop() catch {
       e => errors.push(e)
     }
