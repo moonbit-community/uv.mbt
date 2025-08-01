@@ -13,16 +13,20 @@
 // limitations under the License.
 
 ///|
-type RWLock
+type RwLock
 
 ///|
-extern "c" fn uv_rwlock_make() -> RWLock = "moonbit_uv_rwlock_make"
+#deprecated
+pub typealias RwLock as RWLock
 
 ///|
-extern "c" fn uv_rwlock_init(rwlock : RWLock) -> Int = "moonbit_uv_rwlock_init"
+extern "c" fn uv_rwlock_make() -> RwLock = "moonbit_uv_rwlock_make"
 
 ///|
-pub fn RWLock::new() -> RWLock raise Errno {
+extern "c" fn uv_rwlock_init(rwlock : RwLock) -> Int = "moonbit_uv_rwlock_init"
+
+///|
+pub fn RwLock::new() -> RwLock raise Errno {
   let rwlock = uv_rwlock_make()
   let status = uv_rwlock_init(rwlock)
   if status != 0 {
@@ -32,33 +36,33 @@ pub fn RWLock::new() -> RWLock raise Errno {
 }
 
 ///|
-extern "c" fn uv_rwlock_copy(rwlock : RWLock, other : RWLock) = "moonbit_uv_rwlock_copy"
+extern "c" fn uv_rwlock_copy(rwlock : RwLock, other : RwLock) = "moonbit_uv_rwlock_copy"
 
 ///|
-extern "c" fn uv_rwlock_rdlock(rwlock : RWLock) = "moonbit_uv_rwlock_rdlock"
+extern "c" fn uv_rwlock_rdlock(rwlock : RwLock) = "moonbit_uv_rwlock_rdlock"
 
 ///|
-extern "c" fn uv_rwlock_tryrdlock(rwlock : RWLock) -> Int = "moonbit_uv_rwlock_tryrdlock"
+extern "c" fn uv_rwlock_tryrdlock(rwlock : RwLock) -> Int = "moonbit_uv_rwlock_tryrdlock"
 
 ///|
-extern "c" fn uv_rwlock_rdunlock(rwlock : RWLock) = "moonbit_uv_rwlock_rdunlock"
+extern "c" fn uv_rwlock_rdunlock(rwlock : RwLock) = "moonbit_uv_rwlock_rdunlock"
 
 ///|
-extern "c" fn uv_rwlock_wrlock(rwlock : RWLock) = "moonbit_uv_rwlock_wrlock"
+extern "c" fn uv_rwlock_wrlock(rwlock : RwLock) = "moonbit_uv_rwlock_wrlock"
 
 ///|
-extern "c" fn uv_rwlock_trywrlock(rwlock : RWLock) -> Int = "moonbit_uv_rwlock_trywrlock"
+extern "c" fn uv_rwlock_trywrlock(rwlock : RwLock) -> Int = "moonbit_uv_rwlock_trywrlock"
 
 ///|
-extern "c" fn uv_rwlock_wrunlock(rwlock : RWLock) = "moonbit_uv_rwlock_wrunlock"
+extern "c" fn uv_rwlock_wrunlock(rwlock : RwLock) = "moonbit_uv_rwlock_wrunlock"
 
 ///|
-pub fn RWLock::rdlock(self : RWLock) -> Unit {
+pub fn RwLock::rdlock(self : RwLock) -> Unit {
   uv_rwlock_rdlock(self)
 }
 
 ///|
-pub fn RWLock::tryrdlock(self : RWLock) -> Unit raise Errno {
+pub fn RwLock::tryrdlock(self : RwLock) -> Unit raise Errno {
   let status = uv_rwlock_tryrdlock(self)
   if status < 0 {
     raise Errno::of_int(status)
@@ -66,17 +70,17 @@ pub fn RWLock::tryrdlock(self : RWLock) -> Unit raise Errno {
 }
 
 ///|
-pub fn RWLock::rdunlock(self : RWLock) -> Unit {
+pub fn RwLock::rdunlock(self : RwLock) -> Unit {
   uv_rwlock_rdunlock(self)
 }
 
 ///|
-pub fn RWLock::wrlock(self : RWLock) -> Unit {
+pub fn RwLock::wrlock(self : RwLock) -> Unit {
   uv_rwlock_wrlock(self)
 }
 
 ///|
-pub fn RWLock::trywrlock(self : RWLock) -> Unit raise Errno {
+pub fn RwLock::trywrlock(self : RwLock) -> Unit raise Errno {
   let status = uv_rwlock_trywrlock(self)
   if status < 0 {
     raise Errno::of_int(status)
@@ -84,12 +88,12 @@ pub fn RWLock::trywrlock(self : RWLock) -> Unit raise Errno {
 }
 
 ///|
-pub fn RWLock::wrunlock(self : RWLock) -> Unit {
+pub fn RwLock::wrunlock(self : RwLock) -> Unit {
   uv_rwlock_wrunlock(self)
 }
 
 ///|
-pub impl Share for RWLock with share(self : RWLock) -> RWLock {
+pub impl Share for RwLock with share(self : RwLock) -> RwLock {
   let other = uv_rwlock_make()
   uv_rwlock_copy(self, other)
   return other

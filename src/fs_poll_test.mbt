@@ -20,7 +20,7 @@ test "FsPoll" {
   let events : Array[(Stat, Stat)] = []
   fs_poll.start(
     "test/fixtures/",
-    1000,
+    2000,
     fn(_, prev, curr) { events.push((prev, curr)) },
     fn(_, errno) {
       errors.push(errno)
@@ -43,26 +43,9 @@ test "FsPoll" {
           uv.fs_close(
             file,
             () => try
-              uv.fs_unlink(
-                "test/fixtures/test_poll.txt",
-                () => try {
-                  let timer = @uv.Timer::new(uv)
-                  timer.start(timeout=2000, repeat=0, _ => {
-                    timer.stop() catch {
-                      e => errors.push(e)
-                    }
-                    timer.close(() => {
-                      fs_poll.stop() catch {
-                        e => errors.push(e)
-                      }
-                      fs_poll.close(() => ())
-                    })
-                  })
-                } catch {
-                  e => errors.push(e)
-                },
-                e => errors.push(e),
-              )
+              uv.fs_unlink("test/fixtures/test_poll.txt", () => (), e => errors.push(
+                e,
+              ))
               |> ignore()
             catch {
               e => errors.push(e)
@@ -82,6 +65,18 @@ test "FsPoll" {
     e => errors.push(e),
   )
   |> ignore()
+  let timer = @uv.Timer::new(uv)
+  timer.start(timeout=3000, repeat=0, _ => {
+    timer.stop() catch {
+      e => errors.push(e)
+    }
+    timer.close(() => {
+      fs_poll.stop() catch {
+        e => errors.push(e)
+      }
+      fs_poll.close(() => ())
+    })
+  })
   uv.run(Default)
   uv.stop()
   uv.close()

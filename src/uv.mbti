@@ -512,16 +512,6 @@ fn Protocol::tcp() -> Self
 fn Protocol::udp() -> Self
 impl Show for Protocol
 
-type RWLock
-fn RWLock::new() -> Self raise Errno
-fn RWLock::rdlock(Self) -> Unit
-fn RWLock::rdunlock(Self) -> Unit
-fn RWLock::tryrdlock(Self) -> Unit raise Errno
-fn RWLock::trywrlock(Self) -> Unit raise Errno
-fn RWLock::wrlock(Self) -> Unit
-fn RWLock::wrunlock(Self) -> Unit
-impl Share for RWLock
-
 type Random
 impl ToReq for Random
 
@@ -551,6 +541,16 @@ pub(all) enum RunMode {
   Once
   NoWait
 }
+
+type RwLock
+fn RwLock::new() -> Self raise Errno
+fn RwLock::rdlock(Self) -> Unit
+fn RwLock::rdunlock(Self) -> Unit
+fn RwLock::tryrdlock(Self) -> Unit raise Errno
+fn RwLock::trywrlock(Self) -> Unit raise Errno
+fn RwLock::wrlock(Self) -> Unit
+fn RwLock::wrunlock(Self) -> Unit
+impl Share for RwLock
 
 type Scandir
 fn Scandir::next(Self) -> Dirent raise Errno
@@ -735,6 +735,7 @@ type Write
 impl ToReq for Write
 
 // Type aliases
+pub typealias RwLock as RWLock
 
 // Traits
 pub trait Cancelable : ToReq {
