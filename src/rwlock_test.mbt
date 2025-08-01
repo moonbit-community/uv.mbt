@@ -15,7 +15,7 @@
 ///|
 test "rwlock basic functionality" {
   // Create a new rwlock
-  let rwlock = RWLock::new()
+  let rwlock = RwLock::new()
 
   // Test read lock
   rwlock.rdlock()
@@ -36,7 +36,7 @@ test "rwlock basic functionality" {
 
 ///|
 test "rwlock share functionality" {
-  let rwlock = RWLock::new()
+  let rwlock = RwLock::new()
   let rwlock2 = rwlock.share()
 
   // Both should work
