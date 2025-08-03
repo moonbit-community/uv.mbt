@@ -16,6 +16,10 @@
       "native",
       "llvm"
     ],
+    "bytes.mbt": [
+      "native",
+      "llvm"
+    ],
     "debug.mbt": [
       "native",
       "llvm"
