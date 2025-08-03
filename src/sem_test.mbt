@@ -31,9 +31,7 @@ test "sem new and basic operations" {
   sem.post()
 
   // Test trywait on available semaphore
-  sem.trywait() catch {
-    errno => fail("trywait should have succeeded: \{errno}")
-  }
+  sem.trywait()
 }
 
 ///|
@@ -77,12 +75,8 @@ test "sem with initial value > 1" {
   sem.post()
 
   // Now we should be able to wait twice
-  try {
-    sem.trywait()
-    sem.trywait()
-  } catch {
-    errno => fail("trywait should have succeeded: \{errno}")
-  }
+  sem.trywait()
+  sem.trywait()
 }
 
 ///|
@@ -105,8 +99,5 @@ test "sem share functionality" {
   sem2.post()
 
   // Now the original semaphore should be available
-  sem1.trywait() catch {
-    errno =>
-      fail("trywait should have succeeded on original semaphore: \{errno}")
-  }
+  sem1.trywait()
 }

@@ -50,7 +50,7 @@ enum SockType {
   Stream
   Raw
   Datagram
-} derive(Show)
+}
 
 ///|
 pub fn SockType::stream() -> SockType {

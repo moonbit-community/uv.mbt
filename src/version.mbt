@@ -13,36 +13,67 @@
 // limitations under the License.
 
 ///|
-extern "c" fn uv_version() -> UInt = "moonbit_uv_version"
+extern "c" fn uv_version_major() -> UInt = "moonbit_uv_version_major"
+
+///|
+extern "c" fn uv_version_minor() -> UInt = "moonbit_uv_version_minor"
+
+///|
+extern "c" fn uv_version_patch() -> UInt = "moonbit_uv_version_patch"
+
+///|
+extern "c" fn uv_version_suffix() -> @c.Pointer[Byte] = "moonbit_uv_version_suffix"
 
 ///|
 extern "c" fn uv_version_string() -> @c.Pointer[Byte] = "moonbit_uv_version_string"
 
 ///|
-struct Version(UInt)
+struct Version {
+  major : Int
+  minor : Int
+  patch : Int
+  suffix : Bytes
+}
 
 ///|
 pub fn version() -> Version {
-  uv_version()
+  return Version::{
+    major: uv_version_major().reinterpret_as_int(),
+    minor: uv_version_minor().reinterpret_as_int(),
+    patch: uv_version_patch().reinterpret_as_int(),
+    suffix: {
+      let buf = @buffer.new()
+      let ptr = uv_version_suffix()
+      for i = 0; ptr[i] != 0; i = i + 1 {
+        buf.write_byte(ptr[i])
+      }
+      buf.contents()
+    },
+  }
 }
 
 ///|
 pub fn Version::major(self : Version) -> Int {
-  ((self.inner() >> 16) & 0xFF).reinterpret_as_int()
+  self.major
 }
 
 ///|
 pub fn Version::minor(self : Version) -> Int {
-  ((self.inner() >> 8) & 0xFF).reinterpret_as_int()
+  self.minor
 }
 
 ///|
 pub fn Version::patch(self : Version) -> Int {
-  (self.inner() & 0xFF).reinterpret_as_int()
+  self.patch
 }
 
 ///|
-pub fn Version::string(_ : Version) -> Bytes {
+pub fn Version::suffix(self : Version) -> Bytes {
+  self.suffix
+}
+
+///|
+pub fn Version::to_bytes(_ : Version) -> Bytes {
   let ptr = uv_version_string()
   let buffer = @buffer.new()
   for i = 0; ptr[i] != 0; i = i + 1 {

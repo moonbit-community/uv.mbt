@@ -174,9 +174,9 @@ pub(all) suberror Errno {
   EUNATCH
   ENOEXEC
 }
+fn Errno::to_bytes(Self) -> Bytes
 impl Eq for Errno
 impl Hash for Errno
-impl Show for Errno
 
 // Types and methods
 type AccessFlags
@@ -241,7 +241,6 @@ fn CpuInfo::speed(Self) -> Int
 type CpuSet
 fn CpuSet::clear(Self, Int) -> Unit
 fn CpuSet::count(Self) -> Int
-fn CpuSet::equal(Self, Self) -> Bool
 fn CpuSet::intersect(Self, Self) -> Self
 fn CpuSet::is_set(Self, Int) -> Bool
 fn CpuSet::new() -> Self raise Errno
@@ -253,7 +252,6 @@ impl BitAnd for CpuSet
 impl BitOr for CpuSet
 impl BitXOr for CpuSet
 impl Eq for CpuSet
-impl Show for CpuSet
 
 type CpuTimes
 fn CpuTimes::idle(Self) -> UInt64
@@ -304,8 +302,6 @@ pub enum FsEventType {
   Rename
   Change
 }
-impl Show for FsEventType
-impl ToJson for FsEventType
 
 type FsPoll
 fn FsPoll::get_path(Self) -> Bytes raise Errno
@@ -343,8 +339,6 @@ pub enum HandleType {
   Signal
   File
 }
-impl Eq for HandleType
-impl Hash for HandleType
 
 type Idle
 fn Idle::new(Loop) -> Self raise Errno
@@ -457,9 +451,8 @@ fn Poll::start(Self, PollEvent, (Self, PollEvent) -> Unit, (Self, Errno) -> Unit
 fn Poll::stop(Self) -> Unit raise Errno
 impl ToHandle for Poll
 
-pub struct PollEvent(Int)
+type PollEvent
 fn PollEvent::disconnect() -> Self
-fn PollEvent::inner(Self) -> Int
 fn PollEvent::is_disconnect(Self) -> Bool
 fn PollEvent::is_prioritized(Self) -> Bool
 fn PollEvent::is_readable(Self) -> Bool
@@ -469,7 +462,6 @@ fn PollEvent::readable() -> Self
 fn PollEvent::writable() -> Self
 impl BitAnd for PollEvent
 impl BitOr for PollEvent
-impl Show for PollEvent
 
 type Prepare
 fn Prepare::new(Loop) -> Self raise Errno
@@ -491,7 +483,6 @@ pub enum Protocol {
 }
 fn Protocol::tcp() -> Self
 fn Protocol::udp() -> Self
-impl Show for Protocol
 
 type Random
 impl ToReq for Random
@@ -513,8 +504,6 @@ pub enum ReqType {
   Random
 }
 fn ReqType::name(Self) -> Bytes
-impl Eq for ReqType
-impl Hash for ReqType
 
 pub(all) enum RunMode {
   Default
@@ -566,7 +555,6 @@ fn SockType::datagram() -> Self
 fn SockType::dgram() -> Self
 fn SockType::raw() -> Self
 fn SockType::stream() -> Self
-impl Show for SockType
 
 type Sockaddr
 impl ToSockaddr for Sockaddr
@@ -705,7 +693,8 @@ type Version
 fn Version::major(Self) -> Int
 fn Version::minor(Self) -> Int
 fn Version::patch(Self) -> Int
-fn Version::string(Self) -> Bytes
+fn Version::suffix(Self) -> Bytes
+fn Version::to_bytes(Self) -> Bytes
 
 type Work
 impl Cancelable for Work

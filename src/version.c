@@ -18,8 +18,26 @@
 
 MOONBIT_FFI_EXPORT
 uint32_t
-moonbit_uv_version(void) {
-  return uv_version();
+moonbit_uv_version_major(void) {
+  return UV_VERSION_MAJOR;
+}
+
+MOONBIT_FFI_EXPORT
+uint32_t
+moonbit_uv_version_minor(void) {
+  return UV_VERSION_MINOR;
+}
+
+MOONBIT_FFI_EXPORT
+uint32_t
+moonbit_uv_version_patch(void) {
+  return UV_VERSION_PATCH;
+}
+
+MOONBIT_FFI_EXPORT
+const char *
+moonbit_uv_version_suffix(void) {
+  return UV_VERSION_SUFFIX;
 }
 
 MOONBIT_FFI_EXPORT

@@ -112,7 +112,7 @@ pub impl ToSockaddr for SockaddrIn6 with ip_name(self : SockaddrIn6) -> Bytes ra
 pub enum Protocol {
   Tcp
   Udp
-} derive(Show)
+}
 
 ///|
 pub fn Protocol::tcp() -> Protocol {

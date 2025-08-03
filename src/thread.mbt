@@ -118,7 +118,7 @@ pub fn getcpu() -> Int raise Errno {
 }
 
 ///|
-struct CpuSet(FixedArray[Byte])
+struct CpuSet(FixedArray[Byte]) derive(Eq)
 
 ///|
 pub fn CpuSet::new() -> CpuSet raise Errno {
@@ -169,26 +169,6 @@ pub fn CpuSet::count(self : CpuSet) -> Int {
     }
   }
   count
-}
-
-///|
-pub fn CpuSet::equal(self : CpuSet, other : CpuSet) -> Bool {
-  let self = self.inner()
-  let other = other.inner()
-  if self.length() != other.length() {
-    return false
-  }
-  for i in 0..<self.length() {
-    if self[i] != other[i] {
-      return false
-    }
-  }
-  true
-}
-
-///|
-pub impl Eq for CpuSet with op_equal(self : CpuSet, other : CpuSet) -> Bool {
-  self.equal(other)
 }
 
 ///|
@@ -252,15 +232,6 @@ pub impl BitOr for CpuSet with lor(self : CpuSet, other : CpuSet) -> CpuSet {
 ///|
 pub impl BitXOr for CpuSet with lxor(self : CpuSet, other : CpuSet) -> CpuSet {
   return self.xor(other)
-}
-
-///|
-pub impl Show for CpuSet with output(self : CpuSet, logger : &Logger) -> Unit {
-  for i in 0..<self.count() {
-    if self.is_set(i) {
-      logger.write_object(i)
-    }
-  }
 }
 
 ///|

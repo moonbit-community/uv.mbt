@@ -53,23 +53,21 @@ pub enum ReqType {
   Getaddrinfo = 8
   Getnameinfo = 9
   Random = 10
-} derive(Eq, Hash)
+}
 
 ///|
 fn init {
-  ignore([
-    ReqType::Unknown,
-    ReqType::Req,
-    ReqType::Connect,
-    ReqType::Write,
-    ReqType::Shutdown,
-    ReqType::UdpSend,
-    ReqType::Fs,
-    ReqType::Work,
-    ReqType::Getaddrinfo,
-    ReqType::Getnameinfo,
-    ReqType::Random,
-  ])
+  ignore(ReqType::Unknown)
+  ignore(ReqType::Req)
+  ignore(ReqType::Connect)
+  ignore(ReqType::Write)
+  ignore(ReqType::Shutdown)
+  ignore(ReqType::UdpSend)
+  ignore(ReqType::Fs)
+  ignore(ReqType::Work)
+  ignore(ReqType::Getaddrinfo)
+  ignore(ReqType::Getnameinfo)
+  ignore(ReqType::Random)
 }
 
 ///|

@@ -41,14 +41,6 @@ pub fn FsEvent::new(self : Loop) -> FsEvent raise Errno {
 pub enum FsEventType {
   Rename = 1
   Change = 2
-} derive(Show)
-
-///|
-pub impl ToJson for FsEventType with to_json(self) {
-  match self {
-    Rename => "Rename"
-    Change => "Change"
-  }
 }
 
 ///|

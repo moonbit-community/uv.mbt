@@ -232,14 +232,13 @@ fn Errno::to_int(self : Errno) -> Int {
 }
 
 ///|
-pub impl Show for Errno with output(self : Errno, logger : &Logger) -> Unit {
+pub fn Errno::to_bytes(self : Errno) -> Bytes {
   if errno_messages.get(self) is Some(message) {
-    logger.write_string(message.to_string())
-    return
+    return message
   }
   let message = strerror(self.to_int())
   errno_messages[self] = message
-  logger.write_string(message.to_string())
+  message
 }
 
 ///|

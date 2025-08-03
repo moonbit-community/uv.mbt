@@ -23,16 +23,20 @@
 ///
 /// ```moonbit
 /// let uv = @uv.Loop::new()
+/// let errors = []
 /// let idle = @uv.Idle::new(uv)
 /// idle.start(fn(_) {
 ///   println("Idle callback running")
 ///   idle.stop() catch {
-///     error => println("Error stopping idle watcher: \{error}")
+///     error => errors.push(error)
 ///   }
 ///   idle.close(() => ())
 /// })
 /// uv.run(Default)
 /// uv.close()
+/// for error in errors {
+///   raise error
+/// }
 /// ```
 type Idle
 

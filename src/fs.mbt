@@ -239,16 +239,20 @@ extern "c" fn uv_fs_open(
 ///
 /// ```moonbit
 /// let uv = Loop::new()
+/// let errors = []
 /// uv.fs_open(
 ///   "README.md",
 ///   OpenFlags::read_only(),
 ///   0o644,
-///   (file) => uv.fs_close_sync(file) catch { _ => () },
-///   (error) => println("Failed to open file: \{error}"),
+///   file => uv.fs_close_sync(file) catch { _ => () },
+///   (error) => errors.push(error),
 /// )
 /// |> ignore()
 /// uv.run(Default)
 /// uv.close()
+/// for error in errors {
+///   raise error
+/// }
 /// ```
 pub fn Loop::fs_open(
   self : Loop,
@@ -369,15 +373,19 @@ extern "c" fn uv_fs_close(
 ///
 /// ```moonbit
 /// let uv = Loop::new()
+/// let errors = []
 /// let file = uv.fs_open_sync("README.md", OpenFlags::read_only(), 0o644)
 /// uv.fs_close(
 ///   file,
-///   fn() { println("File closed successfully") },
-///   fn(error) { println("Failed to close file: \{error}") }
+///   () => println("File closed successfully"),
+///   (error) => errors.push(error),
 /// )
 /// |> ignore()
 /// uv.run(Default)
 /// uv.close()
+/// for error in errors {
+///   raise error
+/// }
 /// ```
 pub fn Loop::fs_close(
   self : Loop,
@@ -480,15 +488,19 @@ extern "c" fn uv_fs_read(
 ///
 /// ```moonbit
 /// let uv = @uv.Loop::new()
+/// let errors = []
 /// uv.fs_read(
 ///   @uv.stdin(),
 ///   [Bytes::make(100, 0)],
-///   fn(bytes_read) { println("Read \{bytes_read} bytes") },
-///   fn(error) { println("Error: \{error}") }
+///   count => println("Read \{count} bytes"),
+///   error => errors.push(error),
 /// )
 /// |> ignore()
 /// uv.run(Default)
 /// uv.close()
+/// for error in errors {
+///   raise error
+/// }
 /// ```
 pub fn Loop::fs_read(
   self : Loop,
@@ -608,6 +620,7 @@ extern "c" fn uv_fs_write(
 ///
 /// ```moonbit
 /// let uv = @uv.Loop::new()
+/// let errors = []
 /// let path : Bytes = "test/fixtures/doc-test.txt"
 /// let file = uv.fs_open_sync(
 ///   path,
@@ -618,14 +631,17 @@ extern "c" fn uv_fs_write(
 /// uv.fs_write(
 ///   file,
 ///   [data],
-///   fn(written) { println("Wrote \{written} bytes") },
-///   fn(error) { println("Error: \{error}") }
+///   written => println("Wrote \{written} bytes"),
+///   error => errors.push(error),
 /// )
 /// |> ignore()
 /// uv.run(Default)
 /// uv.fs_close_sync(file)
 /// uv.fs_unlink_sync(path)
 /// uv.close()
+/// for error in errors {
+///   raise error
+/// }
 /// ```
 pub fn Loop::fs_write(
   self : Loop,
@@ -870,19 +886,21 @@ extern "c" fn uv_fs_mkdir(
 ///
 /// ```moonbit
 /// let uv = @uv.Loop::new()
+/// let es = []
 /// let dir : Bytes = "test/fixtures/doc-test-dir"
 /// uv.fs_mkdir(
 ///   dir,
 ///   0o755,
-///   fn() { println("Directory created successfully") },
-///   fn(error) {
-///     println("Failed to create directory: \{error} (expected)")
-///   }
+///   () => println("Directory created successfully"),
+///   (e) => es.push(e)
 /// )
 /// |> ignore()
 /// uv.run(Default)
 /// uv.fs_rmdir_sync(dir)
 /// uv.close()
+/// for e in es {
+///   raise e
+/// }
 /// ```
 pub fn Loop::fs_mkdir(
   self : Loop,
@@ -942,8 +960,12 @@ extern "c" fn uv_fs_mkdir_sync(
 ///
 /// ```moonbit
 /// let uv = @uv.Loop::new()
-/// uv.fs_mkdir_sync("test/fixtures", 0o755) catch {
-///   error => println("Failed to create directory: \{error} (expected)")
+/// try {
+///   uv.fs_mkdir_sync("test/fixtures", 0o755)
+///   fail("Directory should not exist")
+/// } catch {
+///   Errno::EEXIST => ()
+///   error => raise error
 /// }
 /// uv.close()
 /// ```
@@ -1745,14 +1767,18 @@ pub fn Loop::fs_fstat(
 ///
 /// ```moonbit
 /// let uv = @uv.Loop::new()
+/// let errors = []
 /// uv.fs_realpath(
 ///   "test/fixtures/example.txt",
 ///   realpath => println("Resolved: \{realpath}"),
-///   error => println("Failed to resolve path: \{error}")
+///   error => errors.push(error)
 /// )
 /// |> ignore()
 /// uv.run(Default)
 /// uv.close()
+/// for error in errors {
+///   raise error
+/// }
 /// ```
 pub fn Loop::fs_realpath(
   self : Loop,
