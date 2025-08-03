@@ -278,8 +278,7 @@
     ]
   },
   "import": [
-    "tonyfettes/c",
-    "tonyfettes/encoding"
+    "tonyfettes/c"
   ],
   "test-import": [
     "tonyfettes/uv/internal/assert"

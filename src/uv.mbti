@@ -201,7 +201,6 @@ pub enum AddressFamily {
 }
 fn AddressFamily::inet() -> Self
 fn AddressFamily::inet6() -> Self
-impl Show for AddressFamily
 
 type Async
 fn Async::new(Loop, (Self) -> Unit) -> Self raise Errno
@@ -706,7 +705,7 @@ type Version
 fn Version::major(Self) -> Int
 fn Version::minor(Self) -> Int
 fn Version::patch(Self) -> Int
-impl Show for Version
+fn Version::string(Self) -> Bytes
 
 type Work
 impl Cancelable for Work

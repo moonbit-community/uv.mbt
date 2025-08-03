@@ -72,11 +72,10 @@ pub fn OpenFlags::read_only() -> OpenFlags {
 /// let uv = @uv.Loop::new()
 /// // Create a new file for writing, truncate if it exists
 /// let flags = @uv.OpenFlags::write_only(create=true, truncate=true)
-/// let path = "output.txt"
-/// let path_bytes = @encoding.encode(encoding=UTF8, path)
-/// let file = uv.fs_open_sync(path_bytes, flags, 0o644)
+/// let path : Bytes = "output.txt"
+/// let file = uv.fs_open_sync(path, flags, 0o644)
 /// uv.fs_close_sync(file)
-/// uv.fs_unlink_sync(path_bytes)
+/// uv.fs_unlink_sync(path)
 /// uv.close()
 /// ```
 pub fn OpenFlags::write_only(
@@ -127,11 +126,10 @@ pub fn OpenFlags::write_only(
 /// let uv = @uv.Loop::new()
 /// // Create a new file for reading and writing, fail if it exists
 /// let flags = @uv.OpenFlags::read_write(create=true, exclusive=true)
-/// let path = "new_file.txt"
-/// let path_bytes = @encoding.encode(encoding=UTF8, path)
-/// let file = uv.fs_open_sync(path_bytes, flags, 0o644)
+/// let path : Bytes = "new_file.txt"
+/// let file = uv.fs_open_sync(path, flags, 0o644)
 /// uv.fs_close_sync(file)
-/// uv.fs_unlink_sync(path_bytes)
+/// uv.fs_unlink_sync(path)
 /// uv.close()
 /// ```
 pub fn OpenFlags::read_write(
@@ -610,10 +608,9 @@ extern "c" fn uv_fs_write(
 ///
 /// ```moonbit
 /// let uv = @uv.Loop::new()
-/// let path = "test/fixtures/doc-test.txt"
-/// let path_bytes = @encoding.encode(encoding=UTF8, path)
+/// let path : Bytes = "test/fixtures/doc-test.txt"
 /// let file = uv.fs_open_sync(
-///   path_bytes,
+///   path,
 ///   @uv.OpenFlags::write_only(create=true),
 ///   0o644
 /// )
@@ -627,7 +624,7 @@ extern "c" fn uv_fs_write(
 /// |> ignore()
 /// uv.run(Default)
 /// uv.fs_close_sync(file)
-/// uv.fs_unlink_sync(path_bytes)
+/// uv.fs_unlink_sync(path)
 /// uv.close()
 /// ```
 pub fn Loop::fs_write(
@@ -705,17 +702,16 @@ extern "c" fn uv_fs_write_sync(
 ///
 /// ```moonbit
 /// let uv = @uv.Loop::new()
-/// let path = "test/fixtures/doc-test-sync.txt"
-/// let path_bytes = @encoding.encode(encoding=UTF8, path)
+/// let path : Bytes = "test/fixtures/doc-test-sync.txt"
 /// let file = uv.fs_open_sync(
-///   path_bytes,
+///   path,
 ///   @uv.OpenFlags::write_only(create=true),
 ///   0o644
 /// )
 /// let data : Bytes = "Hello, World!"
 /// uv.fs_write_sync(file, [data])
 /// uv.fs_close_sync(file)
-/// uv.fs_unlink_sync(path_bytes)
+/// uv.fs_unlink_sync(path)
 /// uv.close()
 /// ```
 pub fn Loop::fs_write_sync(
@@ -874,10 +870,9 @@ extern "c" fn uv_fs_mkdir(
 ///
 /// ```moonbit
 /// let uv = @uv.Loop::new()
-/// let dir = "test/fixtures/doc-test-dir"
-/// let dir_bytes = @encoding.encode(encoding=UTF8, dir)
+/// let dir : Bytes = "test/fixtures/doc-test-dir"
 /// uv.fs_mkdir(
-///   dir_bytes,
+///   dir,
 ///   0o755,
 ///   fn() { println("Directory created successfully") },
 ///   fn(error) {
@@ -886,7 +881,7 @@ extern "c" fn uv_fs_mkdir(
 /// )
 /// |> ignore()
 /// uv.run(Default)
-/// uv.fs_rmdir_sync(dir_bytes)
+/// uv.fs_rmdir_sync(dir)
 /// uv.close()
 /// ```
 pub fn Loop::fs_mkdir(

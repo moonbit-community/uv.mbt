@@ -17,5 +17,5 @@ test "version" {
   @json.inspect(@uv.version().major(), content=1)
   @json.inspect(@uv.version().minor(), content=51)
   @json.inspect(@uv.version().patch(), content=1)
-  inspect(@uv.version(), content="1.51.1-dev")
+  @assert.eq(@uv.version().string(), "1.51.1-dev")
 }

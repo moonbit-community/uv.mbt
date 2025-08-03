@@ -28,7 +28,7 @@ test "spawn" {
       fn(_, size_hint) { return Bytes::make(size_hint, 0)[:] },
       fn(_, count, bytes) {
         try {
-          let content = @encoding.decode(bytes[:count], encoding=UTF8)
+          let content = @uv.wtf8_to_string([..bytes[:count]])
           let json = @json.parse(content)
           let version : MoonVersion = @json.from_json(json)
           assert_true(version.items is [{ name: "moon" }])

@@ -198,13 +198,13 @@ let _AF_UNSPEC : Int = uv_AF_UNSPEC()
 /// ```moonbit
 /// let ipv4 = AddressFamily::inet()
 /// let ipv6 = AddressFamily::inet6()
-/// inspect(ipv4, content="Inet")
-/// inspect(ipv6, content="Inet6")
+/// @assert.t(ipv4 is Inet)
+/// @assert.t(ipv6 is Inet6)
 /// ```
 pub enum AddressFamily {
   Inet
   Inet6
-} derive(Show)
+}
 
 ///|
 pub fn AddressFamily::inet() -> AddressFamily {

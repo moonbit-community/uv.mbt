@@ -16,7 +16,7 @@
 extern "c" fn strerror_r(err : Int, bytes : Bytes) = "moonbit_uv_strerror_r"
 
 ///|
-fn strerror(errno : Int) -> @string.View {
+fn strerror(errno : Int) -> Bytes {
   let bytes = Bytes::make(256, 0)
   strerror_r(errno, bytes)
   let buffer = @buffer.new()
@@ -26,7 +26,7 @@ fn strerror(errno : Int) -> @string.View {
     }
     buffer.write_byte(byte)
   }
-  @encoding.decode_lossy(encoding=UTF8, buffer.to_bytes())
+  buffer.contents()
 }
 
 ///|
@@ -119,7 +119,7 @@ pub(all) suberror Errno {
 } derive(Eq, Hash)
 
 ///|
-let errno_messages : Map[Errno, @string.View] = Map::new()
+let errno_messages : Map[Errno, Bytes] = Map::new()
 
 ///|
 let errno_errors : Map[Int, Errno] = Map::new()

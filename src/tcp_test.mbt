@@ -48,8 +48,7 @@ test "tcp" {
           fn(_, _) { Bytes::make(32, 0)[:] },
           fn(_, nread, buf) {
             try {
-              let request = @encoding.decode([..buf[:nread]], encoding=UTF8)
-              inspect(request, content="Request")
+              @assert.eq(buf[:nread], "Request")
               server_client_socket.write(
                 [b"Response"],
                 () => server_stop_read(None),
@@ -102,10 +101,7 @@ test "tcp" {
         client_socket.read_start(
           fn(_, _) { Bytes::make(32, 0)[:] },
           fn(_, nread, buf) {
-            try {
-              let response = @encoding.decode([..buf[:nread]], encoding=UTF8)
-              inspect(response, content="Response")
-            } catch {
+            @assert.eq(buf[:nread], "Response") catch {
               e => client_stop_read(Some(e))
             }
           },
@@ -190,8 +186,7 @@ test "Tcp::close_reset" {
         client.read_start(
           (_, _) => Bytes::make(32, 0)[:],
           (_, nread, buf) => try {
-            let request = @encoding.decode([..buf[:nread]], encoding=UTF8)
-            inspect(request, content="Hello")
+            @assert.eq(buf[:nread], "Hello")
             client.close_reset(() => server.close(() => ())) catch {
               e => {
                 errors.push(e)

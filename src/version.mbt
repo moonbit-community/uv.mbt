@@ -42,15 +42,11 @@ pub fn Version::patch(self : Version) -> Int {
 }
 
 ///|
-pub impl Show for Version with output(_ : Version, logger : &Logger) {
+pub fn Version::string(_ : Version) -> Bytes {
   let ptr = uv_version_string()
   let buffer = @buffer.new()
   for i = 0; ptr[i] != 0; i = i + 1 {
     buffer.write_byte(ptr[i])
   }
-  let buffer = @encoding.decode_lossy(
-    buffer.contents(),
-    encoding=@encoding.UTF8,
-  )
-  logger.write_string(buffer)
+  buffer.contents()
 }
