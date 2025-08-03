@@ -44,19 +44,19 @@ fn update(timer : @uv.Timer, tty : @uv.Tty, width : Int, height : Int) -> Unit {
   let data = buffer.contents()
   try
     tty.write([data], fn() {  }, fn(errno) {
-      println("error writing to TTY: \{errno}")
+      println("error writing to TTY: \{(errno : Error)}")
     })
     |> ignore()
   catch {
-    error => println("error writing to TTY: \{error}")
+    error => println("error writing to TTY: \{(error : Error)}")
   }
   pos.val += 1
   if pos.val >= height {
     @uv.Tty::reset_mode() catch {
-      error => println("error resetting TTY mode: \{error}")
+      error => println("error resetting TTY mode: \{(error : Error)}")
     }
     timer.stop() catch {
-      error => println("error stopping timer: \{error}")
+      error => println("error stopping timer: \{(error : Error)}")
     }
   }
 }
@@ -84,6 +84,6 @@ fn main {
       }
     }
   } catch {
-    error => println("error: \{error}")
+    error => println("error: \{(error : Error)}")
   }
 }

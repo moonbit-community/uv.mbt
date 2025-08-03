@@ -18,12 +18,12 @@ let buffer : Bytes = Bytes::make(1024, 0)
 ///|
 fn on_write(uv : @uv.Loop, file : @uv.File) -> Unit {
   try
-    uv.fs_read(file, [buffer], on_read(uv, file, _), fn(errno) {
-      println("error reading file: \{errno}")
-    })
+    uv.fs_read(file, [buffer], on_read(uv, file, _), errno => println(
+      "error reading file: \{(errno : Error)}",
+    ))
     |> ignore()
   catch {
-    error => println("error reading file: \{error}")
+    errno => println("error reading file: \{(errno : Error)}")
   }
 }
 
@@ -32,22 +32,22 @@ fn on_read(uv : @uv.Loop, file : @uv.File, count : Int) -> Unit {
   if count == 0 {
     try
       uv.fs_close(file, () => (), fn(errno) {
-        println("error closing file: \{errno}")
+        println("error closing file: \{(errno : Error)}")
       })
       |> ignore()
     catch {
-      error => println("error closing file: \{error}")
+      error => println("error closing file: \{(error : Error)}")
     }
   } else {
     try
       uv.fs_write(@uv.stdout(), [buffer[:count]], _ => on_write(uv, file), fn(
-        errno
+        errno,
       ) {
-        println("error writing file: \{errno}")
+        println("error writing file: \{(errno : Error)}")
       })
       |> ignore()
     catch {
-      error => println("error writing file: \{error}")
+      error => println("error writing file: \{(error : Error)}")
     }
   }
 }
@@ -56,13 +56,13 @@ fn on_read(uv : @uv.Loop, file : @uv.File, count : Int) -> Unit {
 fn on_open(uv : @uv.Loop, file : @uv.File) -> Unit {
   try
     uv.fs_read(file, [buffer], fn(count) { on_read(uv, file, count) }, fn(
-      errno
+      errno,
     ) {
-      println("error reading file: \{errno}")
+      println("error reading file: \{(errno : Error)}")
     })
     |> ignore()
   catch {
-    error => println("error reading file: \{error}")
+    error => println("error reading file: \{(error : Error)}")
   }
 }
 
@@ -76,12 +76,12 @@ fn main {
       @uv.OpenFlags::read_only(),
       0,
       file => on_open(uv, file),
-      errno => println("error opening file: \{errno}"),
+      errno => println("error opening file: \{(errno : Error)}"),
     )
     |> ignore()
     uv.run(Default)
     uv.close()
   } catch {
-    error => println("error: \{error}")
+    error => println("error: \{(error : Error)}")
   }
 }

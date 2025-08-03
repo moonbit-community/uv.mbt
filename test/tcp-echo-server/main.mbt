@@ -31,14 +31,14 @@ fn echo_write() -> Unit {
 
 ///|
 fn echo_write_error(errno : @uv.Errno) -> Unit {
-  println("Write error: \{errno}")
+  println("Write error: \{(errno : Error)}")
 }
 
 ///|
 fn echo_read(client : @uv.Tcp, nread : Int, buf : @bytes.View) -> Unit {
   if nread > 0 {
     try client.write([buf], echo_write, echo_write_error) |> ignore() catch {
-      error => println("Error echoing data: \{error}")
+      error => println("Error echoing data: \{(error : Error)}")
     }
   }
 }
@@ -46,7 +46,7 @@ fn echo_read(client : @uv.Tcp, nread : Int, buf : @bytes.View) -> Unit {
 ///|
 fn echo_read_error(client : @uv.Tcp, errno : @uv.Errno) -> Unit {
   if not(errno is EOF) {
-    println("Read error: \{errno}")
+    println("Read error: \{(errno : Error)}")
   }
   client.close(() => ())
 }
@@ -65,18 +65,18 @@ fn on_new_connection(server : @uv.Tcp) -> Unit {
       client.read_start(alloc_buffer, echo_read, echo_read_error)
     } catch {
       error => {
-        println("Error accepting new connection: \{error}")
+        println("Error accepting new connection: \{(error : Error)}")
         client.close(() => ())
       }
     }
   } catch {
-    error => println("Error accepting new connection: \{error}")
+    error => println("Error accepting new connection: \{(error : Error)}")
   }
 }
 
 ///|
 fn on_connection_error(_ : @uv.Tcp, errno : @uv.Errno) -> Unit {
-  println("New connection error: \{errno}")
+  println("New connection error: \{(errno : Error)}")
 }
 
 ///|
@@ -91,6 +91,6 @@ fn main {
     uv.run(Default)
     uv.close()
   } catch {
-    error => println("Server error: \{error}")
+    error => println("Server error: \{(error : Error)}")
   }
 }
