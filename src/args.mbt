@@ -16,19 +16,7 @@
 fn moonbit_get_cli_args() -> FixedArray[Bytes] = "$moonbit.get_cli_args"
 
 ///|
-let _args : FixedArray[String] = {
-  let argv = moonbit_get_cli_args()
-  FixedArray::makei(argv.length(), fn(i) {
-    @encoding.decode_lossy(encoding=UTF8, argv[i])
-  })
-}
-
-///|
-#deprecated("Use `args` instead")
-pub fn argv() -> Array[Bytes] {
-  let argv = moonbit_get_cli_args()
-  Array::makei(argv.length(), fn(i) { argv[i] })
-}
+let priv_args : FixedArray[Bytes] = moonbit_get_cli_args()
 
 ///|
 /// Returns a _copy_ of command-line arguments passed to the program.
@@ -41,6 +29,6 @@ pub fn argv() -> Array[Bytes] {
 /// ```moonbit
 /// println(@uv.args())
 /// ```
-pub fn args() -> Array[String] {
-  Array::from_fixed_array(_args)
+pub fn args() -> Array[Bytes] {
+  Array::from_fixed_array(priv_args)
 }

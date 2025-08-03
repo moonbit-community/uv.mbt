@@ -43,7 +43,7 @@ test "dns/ipv4" {
     raise error
   }
   resolved.dedup()
-  @json.inspect(resolved, content=["127.0.0.1"])
+  @assert.eq(resolved, ["127.0.0.1"])
 }
 
 ///|
@@ -77,5 +77,5 @@ test "dns/ipv6" {
     raise error
   }
   resolved.dedup()
-  @json.inspect(resolved, content=["::1"])
+  @assert.eq(resolved, ["::1"])
 }

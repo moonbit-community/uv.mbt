@@ -4,7 +4,8 @@
   "deps": {
     "tonyfettes/uv": {
       "path": ".."
-    }
+    },
+    "tonyfettes/encoding": "0.3.4"
   },
   "preferred-target": "native"
 }

@@ -24,10 +24,11 @@
 /// ```moonbit
 /// let uv = @uv.Loop::new()
 /// let check = @uv.Check::new(uv)
+/// let errors = []
 /// check.start(fn(_) {
 ///   println("Check callback running")
 ///   check.stop() catch {
-///     error => println("Error stopping check watcher: \{error}")
+///     error => errors.push(error)
 ///   }
 ///   check.close(() => ())
 /// })
@@ -36,11 +37,14 @@
 ///   @uv.OpenFlags::read_only(),
 ///   0o644,
 ///   _ => (),
-///   e => println("Error opening file: \{e}"),
+///   error => errors.push(error),
 /// )
 /// |> ignore()
 /// uv.run(Default)
 /// uv.close()
+/// for error in errors {
+///   raise error
+/// }
 /// ```
 type Check
 

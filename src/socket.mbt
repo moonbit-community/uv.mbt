@@ -13,19 +13,19 @@
 // limitations under the License.
 
 ///|
-type SockaddrIn Bytes
+struct SockaddrIn(Bytes)
 
 ///|
 extern "c" fn uv_sockaddr_in_make() -> SockaddrIn = "moonbit_uv_sockaddr_in_make"
 
 ///|
-type SockaddrIn6 Bytes
+struct SockaddrIn6(Bytes)
 
 ///|
 extern "c" fn uv_sockaddr_in6_make() -> SockaddrIn6 = "moonbit_uv_sockaddr_in6_make"
 
 ///|
-type Sockaddr Bytes
+struct Sockaddr(Bytes)
 
 ///|
 extern "c" fn uv_sockaddr_make() -> Sockaddr = "moonbit_uv_sockaddr_make"
@@ -33,7 +33,7 @@ extern "c" fn uv_sockaddr_make() -> Sockaddr = "moonbit_uv_sockaddr_make"
 ///|
 pub trait ToSockaddr {
   to_sockaddr(self : Self) -> Sockaddr
-  ip_name(self : Self) -> String raise Errno
+  ip_name(self : Self) -> Bytes raise Errno
 }
 
 ///|
@@ -50,7 +50,7 @@ enum SockType {
   Stream
   Raw
   Datagram
-} derive(Show)
+}
 
 ///|
 pub fn SockType::stream() -> SockType {

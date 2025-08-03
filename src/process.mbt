@@ -111,11 +111,11 @@ extern "c" fn uv_process_options_set_gid(
 ) = "moonbit_uv_process_options_set_gid"
 
 ///|
-pub fn[Ntbs : ToNtbs] ProcessOptions::new(
-  file : Ntbs,
-  args : Array[@string.View],
-  env? : Array[@string.View],
-  cwd? : @string.View,
+pub fn ProcessOptions::new(
+  file : Bytes,
+  args : Array[Bytes],
+  env? : Array[Bytes],
+  cwd? : Bytes,
   stdio? : Array[StdioContainer],
   uid? : Uid,
   gid? : Gid,
@@ -124,13 +124,12 @@ pub fn[Ntbs : ToNtbs] ProcessOptions::new(
   let mut flags = 0U
   let options = uv_process_options_make()
   uv_process_options_set_exit_cb(options, exit_cb)
-  let file = file.to_ntbs()
   uv_process_options_set_file(options, file)
   let args = FixedArray::makei(args.length() + 1, fn(i) {
     if i == args.length() {
       return None
     } else {
-      return Some(ToNtbs::to_ntbs(args[i]))
+      return Some(args[i])
     }
   })
   uv_process_options_set_args(options, args)
@@ -139,13 +138,12 @@ pub fn[Ntbs : ToNtbs] ProcessOptions::new(
       if i == env.length() {
         return None
       } else {
-        return Some(ToNtbs::to_ntbs(env[i]))
+        return Some(env[i])
       }
     })
     uv_process_options_set_env(options, env)
   }
   if cwd is Some(cwd) {
-    let cwd = ToNtbs::to_ntbs(cwd)
     uv_process_options_set_cwd(options, cwd)
   }
   if stdio is Some(stdio) {
@@ -165,7 +163,7 @@ pub fn[Ntbs : ToNtbs] ProcessOptions::new(
 }
 
 ///|
-type StdioContainer Bytes
+struct StdioContainer(Bytes)
 
 ///|
 pub extern "c" fn StdioContainer::ignore() -> StdioContainer = "moonbit_uv_stdio_container_ignore"
@@ -207,10 +205,10 @@ pub extern "c" fn StdioContainer::inherit_stream(
 ) -> StdioContainer = "moonbit_uv_stdio_container_inherit_stream"
 
 ///|
-type Uid Int
+struct Uid(Int)
 
 ///|
-type Gid Int
+struct Gid(Int)
 
 ///|
 extern "c" fn uv_spawn(

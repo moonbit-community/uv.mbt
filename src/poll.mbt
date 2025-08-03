@@ -22,7 +22,7 @@ pub impl ToHandle for Poll with to_handle(poll : Poll) -> Handle = "%identity"
 pub impl ToHandle for Poll with of_handle(handle : Handle) -> Poll = "%identity"
 
 ///|
-pub type PollEvent Int
+struct PollEvent(Int)
 
 ///|
 const POLL_EVENT_READABLE = 1
@@ -74,26 +74,6 @@ pub fn PollEvent::prioritized() -> PollEvent {
 ///|
 pub fn PollEvent::is_prioritized(self : PollEvent) -> Bool {
   (self.inner() & POLL_EVENT_PRIORITIZED) != 0
-}
-
-///|
-pub impl Show for PollEvent with output(self : PollEvent, logger : &Logger) -> Unit {
-  logger.write_string("PollEvent([")
-  let events = []
-  if self.is_readable() {
-    events.push("readable")
-  }
-  if self.is_writable() {
-    events.push("writable")
-  }
-  if self.is_disconnect() {
-    events.push("disconnect")
-  }
-  if self.is_prioritized() {
-    events.push("prioritized")
-  }
-  logger.write_string(events.join(", "))
-  logger.write_string("])")
 }
 
 ///|

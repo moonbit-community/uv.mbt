@@ -14,8 +14,9 @@
 
 ///|
 test "version" {
-  @json.inspect(@uv.version().major(), content=1)
-  @json.inspect(@uv.version().minor(), content=51)
-  @json.inspect(@uv.version().patch(), content=1)
-  inspect(@uv.version(), content="1.51.1-dev")
+  @assert.eq(@uv.version().major(), 1)
+  @assert.eq(@uv.version().minor(), 51)
+  @assert.eq(@uv.version().patch(), 1)
+  @assert.eq(@uv.version().suffix(), "dev")
+  @assert.eq(@uv.version().to_bytes(), "1.51.1-dev")
 }

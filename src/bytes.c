@@ -14,34 +14,11 @@
  */
 
 #include "moonbit.h"
-#include "uv#include#uv.h"
 
 MOONBIT_FFI_EXPORT
-uint32_t
-moonbit_uv_version_major(void) {
-  return UV_VERSION_MAJOR;
-}
-
-MOONBIT_FFI_EXPORT
-uint32_t
-moonbit_uv_version_minor(void) {
-  return UV_VERSION_MINOR;
-}
-
-MOONBIT_FFI_EXPORT
-uint32_t
-moonbit_uv_version_patch(void) {
-  return UV_VERSION_PATCH;
-}
-
-MOONBIT_FFI_EXPORT
-const char *
-moonbit_uv_version_suffix(void) {
-  return UV_VERSION_SUFFIX;
-}
-
-MOONBIT_FFI_EXPORT
-const char *
-moonbit_uv_version_string(void) {
-  return uv_version_string();
+void
+moonbit_uv_bytes_shrink(moonbit_bytes_t bytes, uint32_t length) {
+  length = length & (((uint32_t)1 << 28) - 1);
+  Moonbit_object_header(bytes)->meta &= ~(((uint32_t)1 << 28) - 1);
+  Moonbit_object_header(bytes)->meta |= length;
 }

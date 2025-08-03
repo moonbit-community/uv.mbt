@@ -16,6 +16,10 @@
       "native",
       "llvm"
     ],
+    "bytes.mbt": [
+      "native",
+      "llvm"
+    ],
     "debug.mbt": [
       "native",
       "llvm"
@@ -274,8 +278,10 @@
     ]
   },
   "import": [
-    "tonyfettes/c",
-    "tonyfettes/encoding"
+    "tonyfettes/c"
+  ],
+  "test-import": [
+    "tonyfettes/uv/internal/assert"
   ],
   "native-stub": [
     "uv#src#fs-poll.c",

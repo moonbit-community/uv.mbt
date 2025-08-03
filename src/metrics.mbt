@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-type Metrics Bytes
+struct Metrics(Bytes)
 
 ///|
 extern "c" fn uv_metrics_get_loop_count(metrics : Metrics) -> UInt64 = "moonbit_uv_metrics_get_loop_count"

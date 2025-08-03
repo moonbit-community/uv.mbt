@@ -17,7 +17,7 @@ test "fs_event" {
   let uv = @uv.Loop::new()
   let fs_event = @uv.FsEvent::new(uv)
   let errors : Array[Error] = []
-  let events : Array[(String?, Array[FsEventType])] = []
+  let events : Array[(Bytes?, Array[FsEventType])] = []
   fs_event.start(
     "test/fixtures/",
     FsEventFlags::new(),

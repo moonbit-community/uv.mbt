@@ -23,8 +23,8 @@ test "Req/Fs" {
     _ => (),
     errors.push(_),
   )
-  inspect(fs.type_(), content="fs")
-  assert_true(fs.type_() is @uv.ReqType::Fs)
+  @assert.t(fs.type_() is Fs)
+  @assert.t(fs.type_().name() is "fs")
   uv.run(Default)
   uv.close()
 }

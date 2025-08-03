@@ -20,8 +20,7 @@ extern "c" fn uv_os_getenv(
 ) -> Int = "moonbit_uv_os_getenv"
 
 ///|
-pub fn[ToNtbs : ToNtbs] os_getenv(name : ToNtbs) -> String? raise Errno {
-  let name = name.to_ntbs()
+pub fn os_getenv(name : Bytes) -> Bytes? raise Errno {
   let mut buffer = Bytes::make(256, 0)
   let length : FixedArray[Int] = [buffer.length()]
   let mut status = uv_os_getenv(name, buffer, length)
@@ -35,18 +34,16 @@ pub fn[ToNtbs : ToNtbs] os_getenv(name : ToNtbs) -> String? raise Errno {
   if status < 0 {
     raise Errno::of_int(status)
   }
-  Some(@encoding.decode_lossy(encoding=UTF8, buffer[:length[0]]))
+  buffer.shrink(length[0])
+  Some(buffer)
 }
 
 ///|
 extern "c" fn uv_os_setenv(name : Bytes, value : Bytes) -> Int = "moonbit_uv_os_setenv"
 
 ///|
-pub fn[Name : ToNtbs, Value : ToNtbs] os_setenv(
-  name : Name,
-  value : Value,
-) -> Unit raise Errno {
-  let status = uv_os_setenv(name.to_ntbs(), value.to_ntbs())
+pub fn os_setenv(name : Bytes, value : Bytes) -> Unit raise Errno {
+  let status = uv_os_setenv(name, value)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -56,8 +53,8 @@ pub fn[Name : ToNtbs, Value : ToNtbs] os_setenv(
 extern "c" fn uv_os_unsetenv(name : Bytes) -> Int = "moonbit_uv_os_unsetenv"
 
 ///|
-pub fn[Name : ToNtbs] os_unsetenv(name : Name) -> Unit raise Errno {
-  let status = uv_os_unsetenv(name.to_ntbs())
+pub fn os_unsetenv(name : Bytes) -> Unit raise Errno {
+  let status = uv_os_unsetenv(name)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -101,14 +98,13 @@ extern "c" fn uv_environ_get_value(
 ) -> @c.Pointer[Byte] = "moonbit_uv_environ_get_value"
 
 ///|
-pub fn Environ::iter2(self : Environ) -> Iter2[String, String] {
-  fn read_c_string(ptr : @c.Pointer[Byte]) -> String {
+pub fn Environ::iter2(self : Environ) -> Iter2[Bytes, Bytes] {
+  fn read_c_string(ptr : @c.Pointer[Byte]) -> Bytes {
     let buf = @buffer.new()
     for i = 0; ptr[i] != 0; i = i + 1 {
       buf.write_byte(ptr[i])
     }
-    let bytes = buf.contents()
-    @encoding.decode_lossy(encoding=UTF8, bytes)
+    buf.contents()
   }
 
   let count = uv_environ_count(self)

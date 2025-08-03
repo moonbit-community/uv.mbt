@@ -427,7 +427,7 @@ pub fn[Server : ToStream, Client : ToStream] accept(
 }
 
 ///|
-type Connect Bytes
+struct Connect(Bytes)
 
 ///|
 pub impl ToReq for Connect with to_req(self : Connect) -> Req = "%identity"

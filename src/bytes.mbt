@@ -13,19 +13,11 @@
 // limitations under the License.
 
 ///|
-test "os_environ" {
-  let environ = @uv.os_environ()
-  for name, value in environ {
-    @assert.eq(@uv.os_getenv(name), Some(value))
-  }
-}
+#borrow(bytes)
+extern "c" fn bytes_shrink(bytes : Bytes, length : Int) = "moonbit_uv_bytes_shrink"
 
 ///|
-test "env" {
-  let name : Bytes = "UV_MBT_TEST"
-  let value : Bytes = "uv.mbt"
-  @uv.os_setenv(name, value)
-  @assert.eq(@uv.os_getenv(name), Some(value))
-  @uv.os_unsetenv(name)
-  @assert.eq(@uv.os_getenv(name), None)
+fn Bytes::shrink(self : Bytes, length : Int) -> Unit {
+  guard length >= 0 && length <= self.length()
+  bytes_shrink(self, length)
 }

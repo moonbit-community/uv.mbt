@@ -33,7 +33,7 @@ extern "c" fn uv_addrinfo_hints(
 ) -> AddrInfoHints = "moonbit_uv_addrinfo_hints"
 
 ///|
-type AddrInfoFlags Int
+struct AddrInfoFlags(Int)
 
 ///|
 extern "c" fn uv_AI_PASSIVE() -> Int = "moonbit_uv_AI_PASSIVE"
@@ -163,7 +163,7 @@ struct AddrInfo {
   socktype : Int
   protocol : Int
   addr : Sockaddr
-  canonname : String?
+  canonname : Bytes?
 }
 
 ///|
@@ -198,13 +198,13 @@ let _AF_UNSPEC : Int = uv_AF_UNSPEC()
 /// ```moonbit
 /// let ipv4 = AddressFamily::inet()
 /// let ipv6 = AddressFamily::inet6()
-/// inspect(ipv4, content="Inet")
-/// inspect(ipv6, content="Inet6")
+/// @assert.t(ipv4 is Inet)
+/// @assert.t(ipv6 is Inet6)
 /// ```
 pub enum AddressFamily {
   Inet
   Inet6
-} derive(Show)
+}
 
 ///|
 pub fn AddressFamily::inet() -> AddressFamily {
@@ -256,7 +256,7 @@ pub fn AddrInfo::protocol(self : AddrInfo) -> Protocol raise Errno {
 }
 
 ///|
-pub fn AddrInfo::canonname(self : AddrInfo) -> String? {
+pub fn AddrInfo::canonname(self : AddrInfo) -> Bytes? {
   self.canonname
 }
 
@@ -278,7 +278,7 @@ fn AddrInfoResults::iter(self : AddrInfoResults) -> Iter[AddrInfo] {
           for i = 0; canonname[i] != 0; i = i + 1 {
             buffer.write_byte(canonname[i])
           }
-          Some(@encoding.decode_lossy(encoding=UTF8, buffer.contents()))
+          Some(buffer.contents())
         }
         match yield_({ family, socktype, protocol, addr, canonname }) {
           IterEnd => true
@@ -303,12 +303,12 @@ extern "c" fn uv_getaddrinfo(
 ) -> Int = "moonbit_uv_getaddrinfo"
 
 ///|
-pub fn[Node : ToNtbs, Service : ToNtbs] Loop::getaddrinfo(
+pub fn Loop::getaddrinfo(
   self : Loop,
   getaddrinfo_cb : (Iter[AddrInfo]) -> Unit,
   error_cb : (Errno) -> Unit,
-  node : Node,
-  service : Service,
+  node : Bytes,
+  service : Bytes,
   hints? : AddrInfoHints,
 ) -> GetAddrInfo raise Errno {
   fn uv_cb(_ : GetAddrInfo, status : Int, addrinfo : AddrInfoResults) {
@@ -324,14 +324,7 @@ pub fn[Node : ToNtbs, Service : ToNtbs] Loop::getaddrinfo(
     Some(hints) => hints
     None => AddrInfoHints::nil()
   }
-  let status = uv_getaddrinfo(
-    self,
-    req,
-    uv_cb,
-    node.to_ntbs(),
-    service.to_ntbs(),
-    hints,
-  )
+  let status = uv_getaddrinfo(self, req, uv_cb, node, service, hints)
   if status < 0 {
     raise Errno::of_int(status)
   }

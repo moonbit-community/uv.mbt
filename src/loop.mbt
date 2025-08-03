@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-type Loop Bytes
+struct Loop(Bytes)
 
 ///|
 extern "c" fn uv_loop_make() -> Loop = "moonbit_uv_loop_make"

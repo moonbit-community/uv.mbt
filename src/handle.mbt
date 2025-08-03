@@ -91,30 +91,28 @@ pub enum HandleType {
   Udp = 15
   Signal = 16
   File = 17
-} derive(Eq, Hash)
+}
 
 ///|
 fn init {
-  ignore([
-    HandleType::Unknown,
-    HandleType::Async,
-    HandleType::Check,
-    HandleType::FsEvent,
-    HandleType::FsPoll,
-    HandleType::Handle,
-    HandleType::Idle,
-    HandleType::Pipe,
-    HandleType::Poll,
-    HandleType::Prepare,
-    HandleType::Process,
-    HandleType::Stream,
-    HandleType::Tcp,
-    HandleType::Timer,
-    HandleType::Tty,
-    HandleType::Udp,
-    HandleType::Signal,
-    HandleType::File,
-  ])
+  ignore(HandleType::Unknown)
+  ignore(HandleType::Async)
+  ignore(HandleType::Check)
+  ignore(HandleType::FsEvent)
+  ignore(HandleType::FsPoll)
+  ignore(HandleType::Handle)
+  ignore(HandleType::Idle)
+  ignore(HandleType::Pipe)
+  ignore(HandleType::Poll)
+  ignore(HandleType::Prepare)
+  ignore(HandleType::Process)
+  ignore(HandleType::Stream)
+  ignore(HandleType::Tcp)
+  ignore(HandleType::Timer)
+  ignore(HandleType::Tty)
+  ignore(HandleType::Udp)
+  ignore(HandleType::Signal)
+  ignore(HandleType::File)
 }
 
 ///|
