@@ -1,0 +1,18 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "tonyfettes/uv/internal/assert"
+
+// Values
+fn[T : Eq + Show] eq(T, T, msg? : String, loc~ : SourceLoc = _) -> Unit raise
+
+fn not(Bool, msg? : String, loc~ : SourceLoc = _) -> Unit raise
+
+fn t(Bool, msg? : String, loc~ : SourceLoc = _) -> Unit raise
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+
