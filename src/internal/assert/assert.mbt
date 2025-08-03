@@ -13,7 +13,8 @@
 // limitations under the License.
 
 ///|
-pub fn t(x : Bool, msg? : String, loc~ : SourceLoc = _) -> Unit raise {
+#autofill_callsite(loc)
+pub fn t(x : Bool, msg? : String, loc~ : SourceLoc) -> Unit raise {
   if !x {
     let fail_msg = match msg {
       Some(msg) => msg
@@ -24,7 +25,8 @@ pub fn t(x : Bool, msg? : String, loc~ : SourceLoc = _) -> Unit raise {
 }
 
 ///|
-pub fn not(x : Bool, msg? : String, loc~ : SourceLoc = _) -> Unit raise {
+#autofill_callsite(loc)
+pub fn not(x : Bool, msg? : String, loc~ : SourceLoc) -> Unit raise {
   if x {
     let fail_msg = match msg {
       Some(msg) => msg
@@ -42,11 +44,12 @@ fn[T : Show] debug_string(t : T) -> String {
 }
 
 ///|
+#autofill_callsite(loc)
 pub fn[T : Eq + Show] eq(
   a : T,
   b : T,
   msg? : String,
-  loc~ : SourceLoc = _,
+  loc~ : SourceLoc,
 ) -> Unit raise {
   if a != b {
     let fail_msg = match msg {

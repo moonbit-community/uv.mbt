@@ -163,7 +163,7 @@ pub fn ProcessOptions::new(
 }
 
 ///|
-type StdioContainer Bytes
+struct StdioContainer(Bytes)
 
 ///|
 pub extern "c" fn StdioContainer::ignore() -> StdioContainer = "moonbit_uv_stdio_container_ignore"
@@ -205,10 +205,10 @@ pub extern "c" fn StdioContainer::inherit_stream(
 ) -> StdioContainer = "moonbit_uv_stdio_container_inherit_stream"
 
 ///|
-type Uid Int
+struct Uid(Int)
 
 ///|
-type Gid Int
+struct Gid(Int)
 
 ///|
 extern "c" fn uv_spawn(

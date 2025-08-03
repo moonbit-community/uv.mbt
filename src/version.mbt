@@ -19,7 +19,7 @@ extern "c" fn uv_version() -> UInt = "moonbit_uv_version"
 extern "c" fn uv_version_string() -> @c.Pointer[Byte] = "moonbit_uv_version_string"
 
 ///|
-type Version UInt
+struct Version(UInt)
 
 ///|
 pub fn version() -> Version {

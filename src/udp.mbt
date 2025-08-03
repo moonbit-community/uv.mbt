@@ -193,7 +193,7 @@ pub fn Udp::recv_stop(self : Udp) -> Unit raise Errno {
 }
 
 ///|
-type UdpFlags UInt
+struct UdpFlags(UInt)
 
 ///|
 pub fn UdpFlags::new() -> UdpFlags {

@@ -114,7 +114,7 @@ extern "c" fn uv_SIGPROF() -> Int = "moonbit_uv_SIGPROF"
 let _SIGPROF : Int = uv_SIGPROF()
 
 ///|
-type Signum Int
+struct Signum(Int)
 
 ///|
 pub fn Signum::sighup() -> Signum {

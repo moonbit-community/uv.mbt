@@ -118,7 +118,7 @@ pub fn getcpu() -> Int raise Errno {
 }
 
 ///|
-type CpuSet FixedArray[Byte]
+struct CpuSet(FixedArray[Byte])
 
 ///|
 pub fn CpuSet::new() -> CpuSet raise Errno {

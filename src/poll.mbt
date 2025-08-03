@@ -22,7 +22,7 @@ pub impl ToHandle for Poll with to_handle(poll : Poll) -> Handle = "%identity"
 pub impl ToHandle for Poll with of_handle(handle : Handle) -> Poll = "%identity"
 
 ///|
-pub type PollEvent Int
+pub struct PollEvent(Int)
 
 ///|
 const POLL_EVENT_READABLE = 1

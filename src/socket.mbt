@@ -13,19 +13,19 @@
 // limitations under the License.
 
 ///|
-type SockaddrIn Bytes
+struct SockaddrIn(Bytes)
 
 ///|
 extern "c" fn uv_sockaddr_in_make() -> SockaddrIn = "moonbit_uv_sockaddr_in_make"
 
 ///|
-type SockaddrIn6 Bytes
+struct SockaddrIn6(Bytes)
 
 ///|
 extern "c" fn uv_sockaddr_in6_make() -> SockaddrIn6 = "moonbit_uv_sockaddr_in6_make"
 
 ///|
-type Sockaddr Bytes
+struct Sockaddr(Bytes)
 
 ///|
 extern "c" fn uv_sockaddr_make() -> Sockaddr = "moonbit_uv_sockaddr_make"

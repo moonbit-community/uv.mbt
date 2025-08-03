@@ -58,7 +58,7 @@ pub fn Tcp::open(self : Tcp, os_sock : OsSock) -> Unit raise Errno {
 extern "c" fn uv_tcp_bind(tcp : Tcp, addr : Sockaddr, flags : UInt) -> Int = "moonbit_uv_tcp_bind"
 
 ///|
-type TcpBindFlags UInt
+struct TcpBindFlags(UInt)
 
 ///|
 const TCP_IPV6ONLY : UInt = 1

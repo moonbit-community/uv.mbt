@@ -64,7 +64,7 @@ pub fn Pipe::new(self : Loop, ipc~ : Bool = false) -> Pipe raise Errno {
 }
 
 ///|
-type PipeBindFlags UInt
+struct PipeBindFlags(UInt)
 
 ///|
 const PIPE_NO_TRUNCATE : UInt = 1U << 0
@@ -91,7 +91,7 @@ pub fn Pipe::bind(
 }
 
 ///|
-type PipeFlags Int
+struct PipeFlags(Int)
 
 ///|
 const UV_NONBLOCK_PIPE : Int = 0x40
