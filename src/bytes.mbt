@@ -13,6 +13,7 @@
 // limitations under the License.
 
 ///|
+#borrow(bytes)
 extern "c" fn bytes_shrink(bytes : Bytes, length : Int) = "moonbit_uv_bytes_shrink"
 
 ///|
