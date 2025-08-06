@@ -71,3 +71,14 @@ int32_t
 moonbit_uv_fileno(uv_handle_t *handle, uv_os_fd_t *fd) {
   return uv_fileno(handle, fd);
 }
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_handle_os_sock(uv_handle_t *handle, uv_os_sock_t *sock) {
+  uv_os_fd_t fd;
+  int32_t result = uv_fileno(handle, &fd);
+  *sock = (uv_os_sock_t)fd;
+  moonbit_decref(handle);
+  moonbit_decref(sock);
+  return result;
+}

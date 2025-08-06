@@ -13,14 +13,16 @@
 // limitations under the License.
 
 ///|
-test "Poll::file" {
+test "Poll::socket" {
   let uv = @uv.Loop::new()
   let errors = []
   let socks = @uv.socketpair(
     @uv.SockType::stream(),
     (PipeFlags::new(), PipeFlags::new()),
   )
-  let poll = @uv.Poll::socket(uv, socks.0)
+  let reader = @uv.Tcp::new(uv)
+  reader.open(socks.0)
+  let poll = @uv.Poll::socket(uv, reader.os_sock())
   let writer = @uv.Tcp::new(uv)
   writer.open(socks.1)
   let data : Bytes = "hello"
@@ -35,6 +37,7 @@ test "Poll::file" {
         e => errors.push(e)
       }
       poll.close(() => ())
+      reader.close(() => ())
     },
     (_, e) => errors.push(e),
   )
