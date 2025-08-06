@@ -156,6 +156,12 @@ moonbit_uv_os_sock_make(void) {
 
 MOONBIT_FFI_EXPORT
 int32_t
+moonbit_uv_os_sock_to_int(moonbit_uv_os_sock_t *sock) {
+  return (int32_t)sock->sock;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
 moonbit_uv_socketpair(
   int32_t type,
   int32_t protocol,

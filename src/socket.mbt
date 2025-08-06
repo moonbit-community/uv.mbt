@@ -121,6 +121,15 @@ type OsSock
 extern "c" fn uv_os_sock_make() -> OsSock = "moonbit_uv_os_sock_make"
 
 ///|
+#borrow(sock)
+extern "c" fn uv_os_sock_to_int(sock : OsSock) -> Int = "moonbit_uv_os_sock_to_int"
+
+///|
+pub fn OsSock::to_int(self : OsSock) -> Int {
+  uv_os_sock_to_int(self)
+}
+
+///|
 extern "c" fn uv_socketpair(
   type_ : Int,
   protocol : Int,
