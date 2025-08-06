@@ -51,6 +51,7 @@ pub trait ToHandle {
   is_closing(Self) -> Bool = _
   loop_(Self) -> Loop = _
   fileno(Self) -> OsFd raise Errno = _
+  os_sock(Self) -> OsSock raise Errno = _
 }
 
 ///|
@@ -146,4 +147,17 @@ impl ToHandle with fileno(self) {
     raise Errno::of_int(status)
   }
   fd
+}
+
+///|
+extern "c" fn uv_handle_os_sock(handle : Handle, sock : OsSock) -> Int = "moonbit_uv_handle_os_sock"
+
+///|
+impl ToHandle with os_sock(self : Self) -> OsSock raise Errno {
+  let sock = uv_os_sock_make()
+  let status = uv_handle_os_sock(self.to_handle(), sock)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  sock
 }
