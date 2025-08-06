@@ -426,6 +426,7 @@ type OsFd
 fn OsFd::to_int(Self) -> Int raise Errno
 
 type OsSock
+fn OsSock::to_int(Self) -> Int
 
 type Pipe
 fn Pipe::bind(Self, Bytes, PipeBindFlags) -> Unit raise Errno

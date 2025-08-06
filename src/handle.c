@@ -59,11 +59,7 @@ moonbit_uv_os_fd_make(void) {
 MOONBIT_FFI_EXPORT
 int32_t
 moonbit_uv_os_fd_to_int(uv_os_fd_t *fd) {
-#ifdef _WIN32
-  return UV_ENOSYS;
-#else
-  return *fd;
-#endif
+  return (int32_t)*fd;
 }
 
 MOONBIT_FFI_EXPORT
