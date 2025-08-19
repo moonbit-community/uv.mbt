@@ -790,6 +790,275 @@ pub fn Loop::fs_ftruncate(
 }
 
 ///|
+extern "c" fn uv_fs_fsync(
+  uv : Loop,
+  req : Fs,
+  file : File,
+  cb : (Fs) -> Unit,
+) -> Int = "moonbit_uv_fs_fsync"
+
+///|
+/// Asynchronously synchronizes a file's data and metadata with storage.
+///
+/// This function initiates a file sync operation that will be handled
+/// asynchronously by the event loop. The sync operation ensures that all
+/// in-memory data and metadata changes for the file are written to the
+/// underlying storage device. When the operation completes, either the
+/// success callback or error callback will be invoked depending on the result.
+///
+/// This is equivalent to the `fsync()` system call, which synchronizes both
+/// the file's data and metadata (such as timestamps and file size).
+///
+/// Parameters:
+///
+/// * `self` : The event loop instance to schedule the operation on.
+/// * `file` : The file descriptor to synchronize, typically obtained from
+///   `fs_open` or `fs_open_sync`.
+/// * `sync_cb` : Success callback function that receives the filesystem request
+///   handle when the sync operation completes successfully.
+/// * `error_cb` : Error callback function that receives the filesystem request
+///   handle and the error code when the operation fails.
+///
+/// Throws an error of type `Errno` if the operation cannot be initiated (e.g.,
+/// invalid file descriptor or system resource exhaustion).
+///
+/// Example:
+///
+/// ```moonbit
+/// let uv = @uv.Loop::new()
+/// let errors = []
+/// let path : Bytes = "test/fixtures/sync-test.txt"
+/// let file = uv.fs_open_sync(
+///   path,
+///   @uv.OpenFlags::write_only(create=true),
+///   0o644
+/// )
+/// let data : Bytes = "Hello, World!"
+/// uv.fs_write_sync(file, [data])
+/// uv.fs_fsync(
+///   file,
+///   () => println("File synced successfully"),
+///   error => errors.push(error),
+/// )
+/// |> ignore()
+/// uv.run(Default)
+/// uv.fs_close_sync(file)
+/// uv.fs_unlink_sync(path)
+/// uv.close()
+/// for error in errors {
+///   raise error
+/// }
+/// ```
+pub fn Loop::fs_fsync(
+  self : Loop,
+  file : File,
+  sync_cb : () -> Unit,
+  error_cb : (Errno) -> Unit,
+) -> Fs raise Errno {
+  fn cb(req : Fs) {
+    let result = req.result()
+    uv_fs_req_cleanup(req)
+    if result < 0 {
+      error_cb(Errno::of_int(result.to_int()))
+    } else {
+      sync_cb()
+    }
+  }
+
+  let req = uv_fs_make()
+  let status = uv_fs_fsync(self, req, file, cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  return req
+}
+
+///|
+extern "c" fn uv_fs_fsync_sync(uv : Loop, req : Fs, file : File) -> Int = "moonbit_uv_fs_fsync_sync"
+
+///|
+/// Synchronously synchronizes a file's data and metadata with storage.
+///
+/// This function blocks the current thread until the file sync operation
+/// completes. Unlike the asynchronous `fs_fsync` function, this operation does
+/// not require callbacks and returns immediately upon successful completion or
+/// failure.
+///
+/// This is equivalent to the `fsync()` system call, which synchronizes both
+/// the file's data and metadata (such as timestamps and file size).
+///
+/// Parameters:
+///
+/// * `self` : The event loop instance to perform the operation on.
+/// * `file` : The file descriptor to synchronize, typically obtained from
+///   `fs_open` or `fs_open_sync`.
+///
+/// Throws an error of type `Errno` if the file cannot be synchronized (e.g.,
+/// invalid file descriptor, I/O error, or system resource exhaustion).
+///
+/// Example:
+///
+/// ```moonbit
+/// let uv = @uv.Loop::new()
+/// let path : Bytes = "test/fixtures/sync-test-sync.txt"
+/// let file = uv.fs_open_sync(
+///   path,
+///   @uv.OpenFlags::write_only(create=true),
+///   0o644
+/// )
+/// let data : Bytes = "Hello, World!"
+/// uv.fs_write_sync(file, [data])
+/// uv.fs_fsync_sync(file)
+/// uv.fs_close_sync(file)
+/// uv.fs_unlink_sync(path)
+/// uv.close()
+/// ```
+pub fn Loop::fs_fsync_sync(self : Loop, file : File) -> Unit raise Errno {
+  let req = uv_fs_make()
+  let status = uv_fs_fsync_sync(self, req, file)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
+extern "c" fn uv_fs_fdatasync(
+  uv : Loop,
+  req : Fs,
+  file : File,
+  cb : (Fs) -> Unit,
+) -> Int = "moonbit_uv_fs_fdatasync"
+
+///|
+/// Asynchronously synchronizes a file's data with storage.
+///
+/// This function initiates a file data sync operation that will be handled
+/// asynchronously by the event loop. The sync operation ensures that all
+/// in-memory data changes for the file are written to the underlying storage
+/// device, but does not necessarily synchronize metadata. When the operation
+/// completes, either the success callback or error callback will be invoked
+/// depending on the result.
+///
+/// This is equivalent to the `fdatasync()` system call, which synchronizes
+/// only the file's data but not necessarily the metadata (such as timestamps).
+/// This can be faster than `fs_fsync` since it doesn't need to wait for
+/// metadata writes.
+///
+/// Parameters:
+///
+/// * `self` : The event loop instance to schedule the operation on.
+/// * `file` : The file descriptor to synchronize, typically obtained from
+///   `fs_open` or `fs_open_sync`.
+/// * `sync_cb` : Success callback function that receives the filesystem request
+///   handle when the data sync operation completes successfully.
+/// * `error_cb` : Error callback function that receives the filesystem request
+///   handle and the error code when the operation fails.
+///
+/// Throws an error of type `Errno` if the operation cannot be initiated (e.g.,
+/// invalid file descriptor or system resource exhaustion).
+///
+/// Example:
+///
+/// ```moonbit
+/// let uv = @uv.Loop::new()
+/// let errors = []
+/// let path : Bytes = "test/fixtures/datasync-test.txt"
+/// let file = uv.fs_open_sync(
+///   path,
+///   @uv.OpenFlags::write_only(create=true),
+///   0o644
+/// )
+/// let data : Bytes = "Hello, World!"
+/// uv.fs_write_sync(file, [data])
+/// uv.fs_fdatasync(
+///   file,
+///   () => println("File data synced successfully"),
+///   error => errors.push(error),
+/// )
+/// |> ignore()
+/// uv.run(Default)
+/// uv.fs_close_sync(file)
+/// uv.fs_unlink_sync(path)
+/// uv.close()
+/// for error in errors {
+///   raise error
+/// }
+/// ```
+pub fn Loop::fs_fdatasync(
+  self : Loop,
+  file : File,
+  sync_cb : () -> Unit,
+  error_cb : (Errno) -> Unit,
+) -> Fs raise Errno {
+  fn cb(req : Fs) {
+    let result = req.result()
+    uv_fs_req_cleanup(req)
+    if result < 0 {
+      error_cb(Errno::of_int(result.to_int()))
+    } else {
+      sync_cb()
+    }
+  }
+
+  let req = uv_fs_make()
+  let status = uv_fs_fdatasync(self, req, file, cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  return req
+}
+
+///|
+extern "c" fn uv_fs_fdatasync_sync(uv : Loop, req : Fs, file : File) -> Int = "moonbit_uv_fs_fdatasync_sync"
+
+///|
+/// Synchronously synchronizes a file's data with storage.
+///
+/// This function blocks the current thread until the file data sync operation
+/// completes. Unlike the asynchronous `fs_fdatasync` function, this operation
+/// does not require callbacks and returns immediately upon successful
+/// completion or failure.
+///
+/// This is equivalent to the `fdatasync()` system call, which synchronizes
+/// only the file's data but not necessarily the metadata (such as timestamps).
+/// This can be faster than `fs_fsync_sync` since it doesn't need to wait for
+/// metadata writes.
+///
+/// Parameters:
+///
+/// * `self` : The event loop instance to perform the operation on.
+/// * `file` : The file descriptor to synchronize, typically obtained from
+///   `fs_open` or `fs_open_sync`.
+///
+/// Throws an error of type `Errno` if the file data cannot be synchronized
+/// (e.g., invalid file descriptor, I/O error, or system resource exhaustion).
+///
+/// Example:
+///
+/// ```moonbit
+/// let uv = @uv.Loop::new()
+/// let path : Bytes = "test/fixtures/datasync-test-sync.txt"
+/// let file = uv.fs_open_sync(
+///   path,
+///   @uv.OpenFlags::write_only(create=true),
+///   0o644
+/// )
+/// let data : Bytes = "Hello, World!"
+/// uv.fs_write_sync(file, [data])
+/// uv.fs_fdatasync_sync(file)
+/// uv.fs_close_sync(file)
+/// uv.fs_unlink_sync(path)
+/// uv.close()
+/// ```
+pub fn Loop::fs_fdatasync_sync(self : Loop, file : File) -> Unit raise Errno {
+  let req = uv_fs_make()
+  let status = uv_fs_fdatasync_sync(self, req, file)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
 pub fn stdin() -> File {
   0
 }

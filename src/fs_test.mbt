@@ -451,3 +451,89 @@ test "opendir-readdir-closedir" {
   sources.sort()
   @assert.eq(sources, ["example.txt", ".gitattributes"])
 }
+
+///|
+test "fs_fsync_sync" {
+  let uv = @uv.Loop::new()
+  let path : Bytes = "test-fsync-sync.txt"
+  let file = uv.fs_open_sync(
+    path,
+    @uv.OpenFlags::write_only(create=true),
+    0o644,
+  )
+  let data : Bytes = "Hello, fsync!"
+  uv.fs_write_sync(file, [data])
+  uv.fs_fsync_sync(file)
+  uv.fs_close_sync(file)
+  uv.fs_unlink_sync(path)
+  uv.close()
+}
+
+///|
+test "fs_fdatasync_sync" {
+  let uv = @uv.Loop::new()
+  let path : Bytes = "test-fdatasync-sync.txt"
+  let file = uv.fs_open_sync(
+    path,
+    @uv.OpenFlags::write_only(create=true),
+    0o644,
+  )
+  let data : Bytes = "Hello, fdatasync!"
+  uv.fs_write_sync(file, [data])
+  uv.fs_fdatasync_sync(file)
+  uv.fs_close_sync(file)
+  uv.fs_unlink_sync(path)
+  uv.close()
+}
+
+///|
+test "fs_fsync_async" {
+  let uv = @uv.Loop::new()
+  let mut error : @uv.Errno? = None
+  let mut synced = false
+  let path : Bytes = "test-fsync-async.txt"
+  let file = uv.fs_open_sync(
+    path,
+    @uv.OpenFlags::write_only(create=true),
+    0o644,
+  )
+  let data : Bytes = "Hello, async fsync!"
+  uv.fs_write_sync(file, [data])
+  try
+    uv.fs_fsync(file, () => synced = true, e => error = Some(e)) |> ignore()
+  catch {
+    e => error = Some(e)
+  }
+  uv.run(Default)
+  @assert.t(synced)
+  @assert.t(error.is_empty())
+  uv.fs_close_sync(file)
+  uv.fs_unlink_sync(path)
+  uv.close()
+}
+
+///|
+test "fs_fdatasync_async" {
+  let uv = @uv.Loop::new()
+  let mut error : @uv.Errno? = None
+  let mut synced = false
+  let path : Bytes = "test-fdatasync-async.txt"
+  let file = uv.fs_open_sync(
+    path,
+    @uv.OpenFlags::write_only(create=true),
+    0o644,
+  )
+  let data : Bytes = "Hello, async fdatasync!"
+  uv.fs_write_sync(file, [data])
+  try
+    uv.fs_fdatasync(file, () => synced = true, e => error = Some(e)) |> ignore()
+  catch {
+    e => error = Some(e)
+  }
+  uv.run(Default)
+  @assert.t(synced)
+  @assert.t(error.is_empty())
+  uv.fs_close_sync(file)
+  uv.fs_unlink_sync(path)
+  uv.close()
+}

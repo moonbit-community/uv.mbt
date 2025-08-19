@@ -366,6 +366,58 @@ moonbit_uv_fs_ftruncate(
 
 MOONBIT_FFI_EXPORT
 int32_t
+moonbit_uv_fs_fsync(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  int32_t file,
+  moonbit_uv_fs_cb_t *cb
+) {
+  moonbit_uv_fs_set_data(fs, cb);
+  int status = uv_fs_fsync(loop, &fs->fs, file, moonbit_uv_fs_cb);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_fsync_sync(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  int32_t file
+) {
+  moonbit_uv_fs_set_data(fs, NULL);
+  int status = uv_fs_fsync(loop, &fs->fs, file, NULL);
+  moonbit_decref(fs);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_fdatasync(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  int32_t file,
+  moonbit_uv_fs_cb_t *cb
+) {
+  moonbit_uv_fs_set_data(fs, cb);
+  int status = uv_fs_fdatasync(loop, &fs->fs, file, moonbit_uv_fs_cb);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_fdatasync_sync(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  int32_t file
+) {
+  moonbit_uv_fs_set_data(fs, NULL);
+  int status = uv_fs_fdatasync(loop, &fs->fs, file, NULL);
+  moonbit_decref(fs);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
 moonbit_uv_fs_mkdir(
   uv_loop_t *loop,
   moonbit_uv_fs_t *fs,
