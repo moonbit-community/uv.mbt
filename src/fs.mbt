@@ -2437,3 +2437,549 @@ pub fn Loop::fs_closedir(
   }
   return req
 }
+
+///|
+extern "c" fn uv_fs_link(
+  uv : Loop,
+  req : Fs,
+  path : Bytes,
+  new_path : Bytes,
+  cb : (Fs) -> Unit,
+) -> Int = "moonbit_uv_fs_link"
+
+///|
+/// Asynchronously creates a hard link from `new_path` to `path`.
+///
+/// This function initiates a hard link creation operation that will be handled
+/// asynchronously by the event loop. A hard link creates an additional directory
+/// entry that points to the same file data as the original path. When the
+/// operation completes, either the success callback or error callback will be
+/// invoked depending on the result.
+///
+/// Hard links can only be created for files (not directories) and both paths
+/// must be on the same filesystem. Unlike symbolic links, hard links point
+/// directly to the file data and remain valid even if the original path is
+/// removed.
+///
+/// Parameters:
+///
+/// * `self` : The event loop instance to schedule the operation on.
+/// * `path` : The existing file path to link to as a `Bytes` object. If you have
+///   a `String`, `@string.View`, or `@bytes.View`, convert it to `Bytes` first
+///   using `@encoding.encode(encoding=UTF8, string_value)`.
+/// * `new_path` : The new path for the hard link as a `Bytes` object.
+/// * `link_cb` : Success callback function that receives the filesystem request
+///   handle when the hard link is created successfully.
+/// * `error_cb` : Error callback function that receives the filesystem request
+///   handle and the error code when the operation fails.
+///
+/// Throws an error of type `Errno` if the operation cannot be initiated (e.g.,
+/// invalid parameters or system resource exhaustion).
+///
+/// Example:
+///
+/// ```moonbit
+/// let uv = @uv.Loop::new()
+/// let errors = []
+/// let original_file : Bytes = "test/fixtures/example.txt"
+/// let link_file : Bytes = "test/fixtures/example-link.txt"
+/// uv.fs_link(
+///   original_file,
+///   link_file,
+///   () => {
+///     println("Hard link created successfully")
+///     try uv.fs_unlink_sync(link_file) catch { e => errors.push(e) }
+///   },
+///   error => errors.push(error)
+/// )
+/// |> ignore()
+/// uv.run(Default)
+/// uv.close()
+/// for error in errors {
+///   raise error
+/// }
+/// ```
+pub fn Loop::fs_link(
+  self : Loop,
+  path : Bytes,
+  new_path : Bytes,
+  link_cb : () -> Unit,
+  error_cb : (Errno) -> Unit,
+) -> Fs raise Errno {
+  fn cb(req : Fs) {
+    let status = req.result().to_int()
+    uv_fs_req_cleanup(req)
+    if status < 0 {
+      error_cb(Errno::of_int(status))
+    } else {
+      link_cb()
+    }
+  }
+
+  let req = uv_fs_make()
+  let status = uv_fs_link(self, req, path, new_path, cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  return req
+}
+
+///|
+extern "c" fn uv_fs_link_sync(
+  uv : Loop,
+  req : Fs,
+  path : Bytes,
+  new_path : Bytes,
+) -> Int = "moonbit_uv_fs_link_sync"
+
+///|
+/// Synchronously creates a hard link from `new_path` to `path`.
+///
+/// This function blocks the current thread until the hard link creation
+/// operation completes. Unlike the asynchronous `fs_link` function, this
+/// operation does not require callbacks and returns immediately upon
+/// completion or failure.
+///
+/// Hard links can only be created for files (not directories) and both paths
+/// must be on the same filesystem. Unlike symbolic links, hard links point
+/// directly to the file data and remain valid even if the original path is
+/// removed.
+///
+/// Parameters:
+///
+/// * `self` : The event loop instance to perform the operation on.
+/// * `path` : The existing file path to link to as a `Bytes` object. If you have
+///   a `String`, `@string.View`, or `@bytes.View`, convert it to `Bytes` first
+///   using `@encoding.encode(encoding=UTF8, string_value)`.
+/// * `new_path` : The new path for the hard link as a `Bytes` object.
+///
+/// Throws an error of type `Errno` if the hard link cannot be created (e.g.,
+/// file does not exist, paths on different filesystems, insufficient
+/// permissions, or system resource exhaustion).
+///
+/// Example:
+///
+/// ```moonbit
+/// let uv = @uv.Loop::new()
+/// let original_file : Bytes = "test/fixtures/example.txt"
+/// let link_file : Bytes = "test/fixtures/example-link-sync.txt"
+/// uv.fs_link_sync(original_file, link_file)
+/// // Verify the link exists
+/// let stat = uv.fs_stat_sync(link_file)
+/// @assert.t(stat.is_file())
+/// // Clean up
+/// uv.fs_unlink_sync(link_file)
+/// uv.close()
+/// ```
+pub fn Loop::fs_link_sync(
+  self : Loop,
+  path : Bytes,
+  new_path : Bytes,
+) -> Unit raise Errno {
+  let req = uv_fs_make()
+  let status = uv_fs_link_sync(self, req, path, new_path)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
+extern "c" fn uv_fs_UV_FS_SYMLINK_DIR() -> Int = "moonbit_uv_fs_UV_FS_SYMLINK_DIR"
+
+///|
+let _UV_FS_SYMLINK_DIR : Int = uv_fs_UV_FS_SYMLINK_DIR()
+
+///|
+extern "c" fn uv_fs_UV_FS_SYMLINK_JUNCTION() -> Int = "moonbit_uv_fs_UV_FS_SYMLINK_JUNCTION"
+
+///|
+let _UV_FS_SYMLINK_JUNCTION : Int = uv_fs_UV_FS_SYMLINK_JUNCTION()
+
+///|
+struct SymlinkFlags(Int)
+
+///|
+/// Creates symbolic link flags for different types of symbolic links.
+///
+/// Parameters:
+///
+/// * `dir` : Whether the symlink points to a directory (Windows only). When
+///   `true`, creates a directory symlink on Windows. This flag is ignored on
+///   Unix-like systems where symlink type is determined automatically.
+///   Defaults to `false`.
+/// * `junction` : Whether to create a junction point (Windows only). When
+///   `true`, creates a junction point instead of a regular symlink on Windows.
+///   Junction points have different permissions and behavior than regular
+///   symlinks. This flag is ignored on Unix-like systems. Defaults to `false`.
+///
+/// Returns a `SymlinkFlags` instance configured with the specified behaviors.
+///
+/// Example:
+///
+/// ```moonbit
+/// // Regular file symlink (works on all platforms)
+/// ignore(@uv.SymlinkFlags::new())
+///
+/// // Directory symlink (needed on Windows for directories)
+/// ignore(@uv.SymlinkFlags::new(dir=true))
+///
+/// // Junction point (Windows-specific)
+/// ignore(@uv.SymlinkFlags::new(junction=true))
+/// ```
+pub fn SymlinkFlags::new(
+  dir~ : Bool = false,
+  junction~ : Bool = false,
+) -> SymlinkFlags {
+  let mut flags = 0
+  if dir {
+    flags = flags | _UV_FS_SYMLINK_DIR
+  }
+  if junction {
+    flags = flags | _UV_FS_SYMLINK_JUNCTION
+  }
+  flags
+}
+
+///|
+extern "c" fn uv_fs_symlink(
+  uv : Loop,
+  req : Fs,
+  path : Bytes,
+  new_path : Bytes,
+  flags : Int,
+  cb : (Fs) -> Unit,
+) -> Int = "moonbit_uv_fs_symlink"
+
+///|
+/// Asynchronously creates a symbolic link from `new_path` to `path`.
+///
+/// This function initiates a symbolic link creation operation that will be
+/// handled asynchronously by the event loop. A symbolic link creates a file
+/// that points to another file or directory by name. When the operation
+/// completes, either the success callback or error callback will be invoked
+/// depending on the result.
+///
+/// Unlike hard links, symbolic links can point to files or directories on
+/// different filesystems and can point to non-existent targets. If the target
+/// file is moved or deleted, the symlink becomes broken.
+///
+/// Parameters:
+///
+/// * `self` : The event loop instance to schedule the operation on.
+/// * `path` : The target path that the symlink will point to as a `Bytes`
+///   object. If you have a `String`, `@string.View`, or `@bytes.View`, convert
+///   it to `Bytes` first using `@encoding.encode(encoding=UTF8, string_value)`.
+/// * `new_path` : The path where the symbolic link will be created as a `Bytes`
+///   object.
+/// * `flags` : Symbolic link creation flags. Use `SymlinkFlags::new()` with
+///   optional parameters to specify symlink behavior on Windows.
+/// * `symlink_cb` : Success callback function that receives the filesystem
+///   request handle when the symbolic link is created successfully.
+/// * `error_cb` : Error callback function that receives the filesystem request
+///   handle and the error code when the operation fails.
+///
+/// Throws an error of type `Errno` if the operation cannot be initiated (e.g.,
+/// invalid parameters or system resource exhaustion).
+///
+/// Example:
+///
+/// ```moonbit
+/// let uv = @uv.Loop::new()
+/// let errors = []
+/// let target_file : Bytes = "test/fixtures/example.txt"
+/// let symlink_file : Bytes = "test/fixtures/example-symlink.txt"
+/// uv.fs_symlink(
+///   target_file,
+///   symlink_file,
+///   @uv.SymlinkFlags::new(),
+///   () => {
+///     println("Symbolic link created successfully")
+///     try uv.fs_unlink_sync(symlink_file) catch { e => errors.push(e) }
+///   },
+///   error => errors.push(error)
+/// )
+/// |> ignore()
+/// uv.run(Default)
+/// uv.close()
+/// for error in errors {
+///   raise error
+/// }
+/// ```
+pub fn Loop::fs_symlink(
+  self : Loop,
+  path : Bytes,
+  new_path : Bytes,
+  flags : SymlinkFlags,
+  symlink_cb : () -> Unit,
+  error_cb : (Errno) -> Unit,
+) -> Fs raise Errno {
+  fn cb(req : Fs) {
+    let status = req.result().to_int()
+    uv_fs_req_cleanup(req)
+    if status < 0 {
+      error_cb(Errno::of_int(status))
+    } else {
+      symlink_cb()
+    }
+  }
+
+  let req = uv_fs_make()
+  let status = uv_fs_symlink(self, req, path, new_path, flags.inner(), cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  return req
+}
+
+///|
+extern "c" fn uv_fs_symlink_sync(
+  uv : Loop,
+  req : Fs,
+  path : Bytes,
+  new_path : Bytes,
+  flags : Int,
+) -> Int = "moonbit_uv_fs_symlink_sync"
+
+///|
+/// Synchronously creates a symbolic link from `new_path` to `path`.
+///
+/// This function blocks the current thread until the symbolic link creation
+/// operation completes. Unlike the asynchronous `fs_symlink` function, this
+/// operation does not require callbacks and returns immediately upon
+/// completion or failure.
+///
+/// Unlike hard links, symbolic links can point to files or directories on
+/// different filesystems and can point to non-existent targets. If the target
+/// file is moved or deleted, the symlink becomes broken.
+///
+/// Parameters:
+///
+/// * `self` : The event loop instance to perform the operation on.
+/// * `path` : The target path that the symlink will point to as a `Bytes`
+///   object. If you have a `String`, `@string.View`, or `@bytes.View`, convert
+///   it to `Bytes` first using `@encoding.encode(encoding=UTF8, string_value)`.
+/// * `new_path` : The path where the symbolic link will be created as a `Bytes`
+///   object.
+/// * `flags` : Symbolic link creation flags. Use `SymlinkFlags::new()` with
+///   optional parameters to specify symlink behavior on Windows.
+///
+/// Throws an error of type `Errno` if the symbolic link cannot be created (e.g.,
+/// insufficient permissions, invalid path, or system resource exhaustion).
+///
+/// Example:
+///
+/// ```moonbit
+/// let uv = @uv.Loop::new()
+/// let target_file : Bytes = "test/fixtures/example.txt"
+/// let symlink_file : Bytes = "test/fixtures/example-symlink-sync.txt"
+/// uv.fs_symlink_sync(target_file, symlink_file, @uv.SymlinkFlags::new())
+/// // Verify the symlink exists
+/// let stat = uv.fs_lstat_sync(symlink_file)
+/// @assert.t(stat.is_symlink())
+/// // Clean up
+/// uv.fs_unlink_sync(symlink_file)
+/// uv.close()
+/// ```
+pub fn Loop::fs_symlink_sync(
+  self : Loop,
+  path : Bytes,
+  new_path : Bytes,
+  flags : SymlinkFlags,
+) -> Unit raise Errno {
+  let req = uv_fs_make()
+  let status = uv_fs_symlink_sync(self, req, path, new_path, flags.inner())
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
+extern "c" fn uv_fs_readlink(
+  uv : Loop,
+  req : Fs,
+  path : Bytes,
+  cb : (Fs) -> Unit,
+) -> Int = "moonbit_uv_fs_readlink"
+
+///|
+/// Asynchronously reads the target of a symbolic link.
+///
+/// This function initiates a symbolic link read operation that will be handled
+/// asynchronously by the event loop. The operation reads the target path that
+/// a symbolic link points to. When the operation completes, either the success
+/// callback or error callback will be invoked depending on the result.
+///
+/// Parameters:
+///
+/// * `self` : The event loop instance to schedule the operation on.
+/// * `path` : The symbolic link path to read as a `Bytes` object. If you have a
+///   `String`, `@string.View`, or `@bytes.View`, convert it to `Bytes` first
+///   using `@encoding.encode(encoding=UTF8, string_value)`.
+/// * `readlink_cb` : Success callback function that receives the filesystem
+///   request handle and the target path when the operation succeeds.
+/// * `error_cb` : Error callback function that receives the filesystem request
+///   handle and the error code when the operation fails.
+///
+/// Throws an error of type `Errno` if the operation cannot be initiated (e.g.,
+/// invalid parameters or system resource exhaustion).
+///
+/// Example:
+///
+/// ```moonbit
+/// let uv = @uv.Loop::new()
+/// let errors = []
+/// let target_file : Bytes = "test/fixtures/example.txt"
+/// let symlink_file : Bytes = "test/fixtures/example-symlink.txt"
+/// // First create a symlink
+/// uv.fs_symlink_sync(target_file, symlink_file, @uv.SymlinkFlags::new())
+/// // Then read its target
+/// uv.fs_readlink(
+///   symlink_file,
+///   target => {
+///     println("Symlink points to: \{target}")
+///     try {
+///       @assert.eq(target, target_file)
+///       uv.fs_unlink_sync(symlink_file)
+///     } catch { e => errors.push(e) }
+///   },
+///   error => errors.push(error)
+/// )
+/// |> ignore()
+/// uv.run(Default)
+/// uv.close()
+/// for error in errors {
+///   raise error
+/// }
+/// ```
+pub fn Loop::fs_readlink(
+  self : Loop,
+  path : Bytes,
+  readlink_cb : (Bytes) -> Unit,
+  error_cb : (Errno) -> Unit,
+) -> Fs raise Errno {
+  fn cb(req : Fs) {
+    let status = req.result().to_int()
+    if status < 0 {
+      uv_fs_req_cleanup(req)
+      error_cb(Errno::of_int(status))
+    } else {
+      let ptr : @c.Pointer[Byte] = uv_fs_get_ptr(req).cast()
+      let buffer = @buffer.new()
+      for i = 0; ptr[i] != 0; i = i + 1 {
+        buffer.write_byte(ptr[i])
+      }
+      let bytes = buffer.contents()
+      uv_fs_req_cleanup(req)
+      readlink_cb(bytes)
+    }
+  }
+
+  let req = uv_fs_make()
+  let status = uv_fs_readlink(self, req, path, cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  return req
+}
+
+///|
+extern "c" fn uv_fs_readlink_sync(
+  uv : Loop,
+  req : Fs,
+  path : Bytes,
+) -> Int = "moonbit_uv_fs_readlink_sync"
+
+///|
+/// Synchronously reads the target of a symbolic link.
+///
+/// This function blocks the current thread until the symbolic link read
+/// operation completes. Unlike the asynchronous `fs_readlink` function, this
+/// operation does not require callbacks and returns the target path immediately
+/// upon successful completion.
+///
+/// Parameters:
+///
+/// * `self` : The event loop instance to perform the operation on.
+/// * `path` : The symbolic link path to read as a `Bytes` object. If you have a
+///   `String`, `@string.View`, or `@bytes.View`, convert it to `Bytes` first
+///   using `@encoding.encode(encoding=UTF8, string_value)`.
+///
+/// Returns the target path that the symbolic link points to as a `Bytes` object.
+///
+/// Throws an error of type `Errno` if the symbolic link cannot be read (e.g.,
+/// path does not exist, path is not a symbolic link, insufficient permissions,
+/// or system resource exhaustion).
+///
+/// Example:
+///
+/// ```moonbit
+/// let uv = @uv.Loop::new()
+/// let target_file : Bytes = "test/fixtures/example.txt"
+/// let symlink_file : Bytes = "test/fixtures/example-symlink-sync.txt"
+/// // First create a symlink
+/// uv.fs_symlink_sync(target_file, symlink_file, @uv.SymlinkFlags::new())
+/// // Then read its target
+/// let target = uv.fs_readlink_sync(symlink_file)
+/// @assert.eq(target, target_file)
+/// // Clean up
+/// uv.fs_unlink_sync(symlink_file)
+/// uv.close()
+/// ```
+pub fn Loop::fs_readlink_sync(self : Loop, path : Bytes) -> Bytes raise Errno {
+  let req = uv_fs_make()
+  let status = uv_fs_readlink_sync(self, req, path)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  let ptr : @c.Pointer[Byte] = uv_fs_get_ptr(req).cast()
+  let buffer = @buffer.new()
+  for i = 0; ptr[i] != 0; i = i + 1 {
+    buffer.write_byte(ptr[i])
+  }
+  uv_fs_req_cleanup(req)
+  buffer.contents()
+}
+
+///|
+extern "c" fn uv_fs_lstat_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "moonbit_uv_fs_lstat_sync"
+
+///|
+/// Synchronously gets file status information for a symbolic link.
+///
+/// This function blocks the current thread until the lstat operation completes.
+/// Unlike `fs_stat_sync`, this function does not follow symbolic links and
+/// returns information about the link itself rather than the target.
+///
+/// Parameters:
+///
+/// * `self` : The event loop instance to perform the operation on.
+/// * `path` : The file or symbolic link path to examine as a `Bytes` object.
+///
+/// Returns a `Stat` structure containing file information.
+///
+/// Throws an error of type `Errno` if the file information cannot be obtained
+/// (e.g., file does not exist, insufficient permissions, or I/O error).
+///
+/// Example:
+///
+/// ```moonbit
+/// let uv = @uv.Loop::new()
+/// let target_file : Bytes = "test/fixtures/example.txt"
+/// let symlink_file : Bytes = "test/fixtures/example-lstat.txt"
+/// uv.fs_symlink_sync(target_file, symlink_file, @uv.SymlinkFlags::new())
+/// let stat = uv.fs_lstat_sync(symlink_file)
+/// @assert.t(stat.is_symlink())
+/// uv.fs_unlink_sync(symlink_file)
+/// uv.close()
+/// ```
+pub fn Loop::fs_lstat_sync(self : Loop, path : Bytes) -> Stat raise Errno {
+  let req = uv_fs_make()
+  let status = uv_fs_lstat_sync(self, req, path)
+  if status < 0 {
+    uv_fs_req_cleanup(req)
+    raise Errno::of_int(status)
+  }
+  let stat = uv_fs_get_statbuf(req)
+  uv_fs_req_cleanup(req)
+  return stat
+}

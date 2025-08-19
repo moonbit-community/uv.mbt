@@ -780,6 +780,20 @@ moonbit_uv_fs_lstat(
 
 MOONBIT_FFI_EXPORT
 int32_t
+moonbit_uv_fs_lstat_sync(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path
+) {
+  moonbit_uv_fs_set_data(fs, NULL);
+  int status = uv_fs_lstat(loop, &fs->fs, (const char *)path, NULL);
+  moonbit_decref(fs);
+  moonbit_decref(path);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
 moonbit_uv_fs_fstat(
   uv_loop_t *loop,
   moonbit_uv_fs_t *fs,
@@ -1056,5 +1070,121 @@ moonbit_uv_fs_readdir_sync(
   moonbit_uv_fs_set_data(fs, NULL);
   int status = uv_fs_readdir(loop, &fs->fs, dir, NULL);
   moonbit_decref(fs);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_link(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path,
+  moonbit_bytes_t new_path,
+  moonbit_uv_fs_cb_t *cb
+) {
+  moonbit_uv_fs_set_data(fs, cb);
+  int status = uv_fs_link(
+    loop, &fs->fs, (const char *)path, (const char *)new_path, moonbit_uv_fs_cb
+  );
+  moonbit_decref(path);
+  moonbit_decref(new_path);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_link_sync(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path,
+  moonbit_bytes_t new_path
+) {
+  moonbit_uv_fs_set_data(fs, NULL);
+  int status = uv_fs_link(
+    loop, &fs->fs, (const char *)path, (const char *)new_path, NULL
+  );
+  moonbit_decref(fs);
+  moonbit_decref(path);
+  moonbit_decref(new_path);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_UV_FS_SYMLINK_DIR(void) {
+  return UV_FS_SYMLINK_DIR;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_UV_FS_SYMLINK_JUNCTION(void) {
+  return UV_FS_SYMLINK_JUNCTION;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_symlink(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path,
+  moonbit_bytes_t new_path,
+  int32_t flags,
+  moonbit_uv_fs_cb_t *cb
+) {
+  moonbit_uv_fs_set_data(fs, cb);
+  int status = uv_fs_symlink(
+    loop, &fs->fs, (const char *)path, (const char *)new_path, flags, moonbit_uv_fs_cb
+  );
+  moonbit_decref(path);
+  moonbit_decref(new_path);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_symlink_sync(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path,
+  moonbit_bytes_t new_path,
+  int32_t flags
+) {
+  moonbit_uv_fs_set_data(fs, NULL);
+  int status = uv_fs_symlink(
+    loop, &fs->fs, (const char *)path, (const char *)new_path, flags, NULL
+  );
+  moonbit_decref(fs);
+  moonbit_decref(path);
+  moonbit_decref(new_path);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_readlink(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path,
+  moonbit_uv_fs_cb_t *cb
+) {
+  moonbit_uv_fs_set_data(fs, cb);
+  int status = uv_fs_readlink(
+    loop, &fs->fs, (const char *)path, moonbit_uv_fs_cb
+  );
+  moonbit_decref(path);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_readlink_sync(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path
+) {
+  moonbit_uv_fs_set_data(fs, NULL);
+  int status = uv_fs_readlink(loop, &fs->fs, (const char *)path, NULL);
+  moonbit_decref(fs);
+  moonbit_decref(path);
   return status;
 }

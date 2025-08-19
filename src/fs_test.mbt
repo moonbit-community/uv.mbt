@@ -489,7 +489,7 @@ test "fs_fdatasync_sync" {
 ///|
 test "fs_fsync_async" {
   let uv = @uv.Loop::new()
-  let mut error : @uv.Errno? = None
+  let errors : Array[Error] = []
   let mut synced = false
   let path : Bytes = "test-fsync-async.txt"
   let file = uv.fs_open_sync(
@@ -500,22 +500,24 @@ test "fs_fsync_async" {
   let data : Bytes = "Hello, async fsync!"
   uv.fs_write_sync(file, [data])
   try
-    uv.fs_fsync(file, () => synced = true, e => error = Some(e)) |> ignore()
+    uv.fs_fsync(file, () => synced = true, e => errors.push(e)) |> ignore()
   catch {
-    e => error = Some(e)
+    e => errors.push(e)
   }
   uv.run(Default)
   @assert.t(synced)
-  @assert.t(error.is_empty())
   uv.fs_close_sync(file)
   uv.fs_unlink_sync(path)
   uv.close()
+  for error in errors {
+    raise error
+  }
 }
 
 ///|
 test "fs_fdatasync_async" {
   let uv = @uv.Loop::new()
-  let mut error : @uv.Errno? = None
+  let errors : Array[Error] = []
   let mut synced = false
   let path : Bytes = "test-fdatasync-async.txt"
   let file = uv.fs_open_sync(
@@ -526,14 +528,177 @@ test "fs_fdatasync_async" {
   let data : Bytes = "Hello, async fdatasync!"
   uv.fs_write_sync(file, [data])
   try
-    uv.fs_fdatasync(file, () => synced = true, e => error = Some(e)) |> ignore()
+    uv.fs_fdatasync(file, () => synced = true, e => errors.push(e)) |> ignore()
+  catch {
+    e => errors.push(e)
+  }
+  uv.run(Default)
+  @assert.t(synced)
+  @assert.t(errors.is_empty())
+  uv.fs_close_sync(file)
+  uv.fs_unlink_sync(path)
+  uv.close()
+  for error in errors {
+    raise error
+  }
+}
+
+///|
+test "fs_link_sync" {
+  let uv = @uv.Loop::new()
+  let original_file : Bytes = "test/fixtures/example.txt"
+  let link_file : Bytes = "test-link-sync.txt"
+  uv.fs_link_sync(original_file, link_file)
+  // Verify the link exists and points to the same file
+  let original_stat = uv.fs_stat_sync(original_file)
+  let link_stat = uv.fs_stat_sync(link_file)
+  @assert.eq(original_stat.ino(), link_stat.ino()) // Same inode
+  @assert.t(link_stat.is_file())
+  // Clean up
+  uv.fs_unlink_sync(link_file)
+  uv.close()
+}
+
+///|
+test "fs_link_async" {
+  let uv = @uv.Loop::new()
+  let errors : Array[Error] = []
+  let mut linked = false
+  let original_file : Bytes = "test/fixtures/example.txt"
+  let link_file : Bytes = "test-link-async.txt"
+  try
+    uv.fs_link(
+      original_file,
+      link_file,
+      () => {
+        linked = true
+        uv.fs_unlink_sync(link_file) catch {
+          e => errors.push(e)
+        }
+      },
+      e => errors.push(e),
+    )
+    |> ignore()
+  catch {
+    e => errors.push(e)
+  }
+  uv.run(Default)
+  @assert.t(linked)
+  for error in errors {
+    raise error
+  }
+  uv.close()
+}
+
+///|
+test "fs_symlink_sync" {
+  let uv = @uv.Loop::new()
+  let target_file : Bytes = "test/fixtures/example.txt"
+  let symlink_file : Bytes = "test-symlink-sync.txt"
+  uv.fs_symlink_sync(target_file, symlink_file, @uv.SymlinkFlags::new())
+  // Verify the symlink exists
+  let stat = uv.fs_lstat_sync(symlink_file)
+  @assert.t(stat.is_symlink())
+  // Clean up
+  uv.fs_unlink_sync(symlink_file)
+  uv.close()
+}
+
+///|
+test "fs_symlink_async" {
+  let uv = @uv.Loop::new()
+  let mut error : @uv.Errno? = None
+  let mut symlinked = false
+  let target_file : Bytes = "test/fixtures/example.txt"
+  let symlink_file : Bytes = "test-symlink-async.txt"
+  try
+    uv.fs_symlink(
+      target_file,
+      symlink_file,
+      @uv.SymlinkFlags::new(),
+      () => {
+        symlinked = true
+        uv.fs_unlink_sync(symlink_file) catch {
+          e => error = Some(e)
+        }
+      },
+      e => error = Some(e),
+    )
+    |> ignore()
   catch {
     e => error = Some(e)
   }
   uv.run(Default)
-  @assert.t(synced)
+  @assert.t(symlinked)
   @assert.t(error.is_empty())
-  uv.fs_close_sync(file)
-  uv.fs_unlink_sync(path)
+  uv.close()
+}
+
+///|
+test "fs_readlink_sync" {
+  let uv = @uv.Loop::new()
+  let target_file : Bytes = "test/fixtures/example.txt"
+  let symlink_file : Bytes = "test-readlink-sync.txt"
+  // Create a symlink first
+  uv.fs_symlink_sync(target_file, symlink_file, @uv.SymlinkFlags::new())
+  // Read the symlink target
+  let target = uv.fs_readlink_sync(symlink_file)
+  @assert.eq(target, target_file)
+  // Clean up
+  uv.fs_unlink_sync(symlink_file)
+  uv.close()
+}
+
+///|
+test "fs_readlink_async" {
+  let uv = @uv.Loop::new()
+  let mut error : Error? = None
+  let mut target_read : Bytes? = None
+  let target_file : Bytes = "test/fixtures/example.txt"
+  let symlink_file : Bytes = "test-readlink-async.txt"
+  // Create a symlink first
+  uv.fs_symlink_sync(target_file, symlink_file, @uv.SymlinkFlags::new())
+  // Read the symlink target asynchronously
+  try
+    uv.fs_readlink(
+      symlink_file,
+      target => {
+        target_read = Some(target)
+        try {
+          @assert.eq(target, target_file)
+          uv.fs_unlink_sync(symlink_file)
+        } catch {
+          e => error = Some(e)
+        }
+      },
+      e => error = Some(e),
+    )
+    |> ignore()
+  catch {
+    e => error = Some(e)
+  }
+  uv.run(Default)
+  @assert.t(target_read is Some(_))
+  @assert.t(error.is_empty())
+  uv.close()
+}
+
+///|
+test "fs_lstat_sync" {
+  let uv = @uv.Loop::new()
+  let target_file : Bytes = "test/fixtures/example.txt"
+  let symlink_file : Bytes = "test-lstat-sync.txt"
+  // Create a symlink first
+  uv.fs_symlink_sync(target_file, symlink_file, @uv.SymlinkFlags::new())
+  // Use lstat to get info about the symlink itself
+  let symlink_stat = uv.fs_lstat_sync(symlink_file)
+  @assert.t(symlink_stat.is_symlink())
+  @assert.t(not(symlink_stat.is_file()))
+  // Compare with regular stat which follows the link
+  let target_stat = uv.fs_stat_sync(symlink_file)
+  @assert.t(target_stat.is_file())
+  @assert.t(not(target_stat.is_symlink()))
+  // Clean up
+  uv.fs_unlink_sync(symlink_file)
   uv.close()
 }

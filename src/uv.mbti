@@ -357,9 +357,16 @@ fn Loop::fs_close_sync(Self, File) -> Unit raise Errno
 fn Loop::fs_closedir(Self, Dir, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_copyfile(Self, Bytes, Bytes, CopyFileFlags, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_copyfile_sync(Self, Bytes, Bytes, CopyFileFlags) -> Unit raise Errno
+fn Loop::fs_fdatasync(Self, File, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_fdatasync_sync(Self, File) -> Unit raise Errno
 fn Loop::fs_fstat(Self, File, (Stat) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_fsync(Self, File, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_fsync_sync(Self, File) -> Unit raise Errno
 fn Loop::fs_ftruncate(Self, File, Int64, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_link(Self, Bytes, Bytes, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_link_sync(Self, Bytes, Bytes) -> Unit raise Errno
 fn Loop::fs_lstat(Self, Bytes, (Stat) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_lstat_sync(Self, Bytes) -> Stat raise Errno
 fn Loop::fs_mkdir(Self, Bytes, Int, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_mkdir_sync(Self, Bytes, Int) -> Unit raise Errno
 fn Loop::fs_mkdtemp(Self, Bytes, (Bytes) -> Unit, (Errno) -> Unit) -> Fs raise Errno
@@ -372,6 +379,8 @@ fn Loop::fs_opendir(Self, Bytes, (Dir) -> Unit, (Errno) -> Unit) -> Fs raise Err
 fn Loop::fs_read(Self, File, Array[@bytes.View], offset? : Int64, (Int) -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_read_sync(Self, File, Array[@bytes.View], offset? : Int64) -> Int raise Errno
 fn Loop::fs_readdir(Self, Dir, Int, (Array[Dirent]) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_readlink(Self, Bytes, (Bytes) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_readlink_sync(Self, Bytes) -> Bytes raise Errno
 fn Loop::fs_realpath(Self, Bytes, (Bytes) -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_realpath_sync(Self, Bytes) -> Bytes raise Errno
 fn Loop::fs_rename(Self, Bytes, Bytes, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
@@ -381,6 +390,8 @@ fn Loop::fs_scandir(Self, Bytes, Int, (Scandir) -> Unit, (Errno) -> Unit) -> Fs 
 fn Loop::fs_scandir_sync(Self, Bytes, Int) -> Scandir raise Errno
 fn Loop::fs_stat(Self, Bytes, (Stat) -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_stat_sync(Self, Bytes) -> Stat raise Errno
+fn Loop::fs_symlink(Self, Bytes, Bytes, SymlinkFlags, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_symlink_sync(Self, Bytes, Bytes, SymlinkFlags) -> Unit raise Errno
 fn Loop::fs_unlink(Self, Bytes, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_unlink_sync(Self, Bytes) -> Unit raise Errno
 fn Loop::fs_write(Self, File, Array[@bytes.View], offset? : Int64, (Int) -> Unit, (Errno) -> Unit) -> Fs raise Errno
@@ -616,6 +627,9 @@ fn Stream::write(Self, Array[@bytes.View], () -> Unit, (Errno) -> Unit) -> Write
 fn Stream::write2(Self, Array[@bytes.View], Self, () -> Unit, (Errno) -> Unit) -> Write raise Errno
 impl ToHandle for Stream
 impl ToStream for Stream
+
+type SymlinkFlags
+fn SymlinkFlags::new(dir? : Bool, junction? : Bool) -> Self
 
 type Tcp
 fn[Sockaddr : ToSockaddr] Tcp::bind(Self, Sockaddr, TcpBindFlags) -> Unit raise Errno
