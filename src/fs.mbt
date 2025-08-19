@@ -445,6 +445,440 @@ pub fn File::to_int(self : File) -> Int {
 }
 
 ///|
+extern "c" fn uv_fs_sendfile(
+  uv : Loop,
+  req : Fs,
+  out_fd : File,
+  in_fd : File,
+  in_offset : Int64,
+  length : UInt64,
+  cb : (Fs) -> Unit,
+) -> Int = "moonbit_uv_fs_sendfile"
+
+///|
+/// Asynchronously transfers data between file descriptors.
+///
+/// This function initiates a sendfile operation that will be handled
+/// asynchronously by the event loop. The sendfile operation is an efficient
+/// way to transfer data from one file descriptor to another without copying
+/// data through userspace. When the operation completes, either the success
+/// callback or error callback will be invoked depending on the result.
+///
+/// On platforms that support it, this function uses the native sendfile()
+/// system call for optimal performance. On platforms that don't support it,
+/// it falls back to a read/write loop.
+///
+/// Parameters:
+///
+/// * `self` : The event loop instance to schedule the operation on.
+/// * `out_fd` : The destination file descriptor to write to.
+/// * `in_fd` : The source file descriptor to read from.
+/// * `in_offset` : The offset in the input file to start reading from.
+/// * `length` : The maximum number of bytes to transfer.
+/// * `sendfile_cb` : Success callback function that receives the filesystem
+///   request handle and the number of bytes transferred when the operation
+///   succeeds.
+/// * `error_cb` : Error callback function that receives the filesystem request
+///   handle and the error code when the operation fails.
+///
+/// Throws an error of type `Errno` if the operation cannot be initiated (e.g.,
+/// invalid file descriptors or system resource exhaustion).
+///
+/// Example:
+///
+/// ```moonbit
+/// let uv = @uv.Loop::new()
+/// let errors = []
+/// let src_file = uv.fs_open_sync("input.txt", @uv.OpenFlags::read_only(), 0o644)
+/// let dst_file = uv.fs_open_sync("output.txt", @uv.OpenFlags::write_only(create=true), 0o644)
+/// uv.fs_sendfile(
+///   dst_file,
+///   src_file,
+///   0L,
+///   1024UL,
+///   bytes_sent => {
+///     println("Transferred \{bytes_sent} bytes")
+///     try {
+///       uv.fs_close_sync(src_file)
+///       uv.fs_close_sync(dst_file)
+///     } catch { e => errors.push(e) }
+///   },
+///   error => {
+///     errors.push(error)
+///     try {
+///       uv.fs_close_sync(src_file)
+///       uv.fs_close_sync(dst_file)
+///     } catch { e => errors.push(e) }
+///   }
+/// )
+/// |> ignore()
+/// uv.run(Default)
+/// uv.close()
+/// for error in errors {
+///   raise error
+/// }
+/// ```
+pub fn Loop::fs_sendfile(
+  self : Loop,
+  out_fd : File,
+  in_fd : File,
+  in_offset : Int64,
+  length : UInt64,
+  sendfile_cb : (Int64) -> Unit,
+  error_cb : (Errno) -> Unit,
+) -> Fs raise Errno {
+  fn cb(req : Fs) {
+    let result = req.result()
+    uv_fs_req_cleanup(req)
+    if result < 0 {
+      error_cb(Errno::of_int(result.to_int()))
+    } else {
+      sendfile_cb(result)
+    }
+  }
+
+  let req = uv_fs_make()
+  let status = uv_fs_sendfile(self, req, out_fd, in_fd, in_offset, length, cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  return req
+}
+
+///|
+extern "c" fn uv_fs_sendfile_sync(
+  uv : Loop,
+  req : Fs,
+  out_fd : File,
+  in_fd : File,
+  in_offset : Int64,
+  length : UInt64,
+) -> Int = "moonbit_uv_fs_sendfile_sync"
+
+///|
+/// Synchronously transfers data between file descriptors.
+///
+/// This function blocks the current thread until the sendfile operation
+/// completes. Unlike the asynchronous `fs_sendfile` function, this operation
+/// does not require callbacks and returns the number of bytes transferred
+/// immediately upon successful completion.
+///
+/// On platforms that support it, this function uses the native sendfile()
+/// system call for optimal performance. On platforms that don't support it,
+/// it falls back to a read/write loop.
+///
+/// Parameters:
+///
+/// * `self` : The event loop instance to perform the operation on.
+/// * `out_fd` : The destination file descriptor to write to.
+/// * `in_fd` : The source file descriptor to read from.
+/// * `in_offset` : The offset in the input file to start reading from.
+/// * `length` : The maximum number of bytes to transfer.
+///
+/// Returns the number of bytes actually transferred.
+///
+/// Throws an error of type `Errno` if the transfer cannot be completed (e.g.,
+/// invalid file descriptors, I/O error, or system resource exhaustion).
+///
+/// Example:
+///
+/// ```moonbit
+/// let uv = @uv.Loop::new()
+/// let src_file = uv.fs_open_sync("input.txt", @uv.OpenFlags::read_only(), 0o644)
+/// let dst_file = uv.fs_open_sync("output.txt", @uv.OpenFlags::write_only(create=true), 0o644)
+/// let bytes_sent = uv.fs_sendfile_sync(dst_file, src_file, 0L, 1024UL)
+/// println("Transferred \{bytes_sent} bytes")
+/// uv.fs_close_sync(src_file)
+/// uv.fs_close_sync(dst_file)
+/// uv.close()
+/// ```
+pub fn Loop::fs_sendfile_sync(
+  self : Loop,
+  out_fd : File,
+  in_fd : File,
+  in_offset : Int64,
+  length : UInt64,
+) -> Int64 raise Errno {
+  let req = uv_fs_make()
+  let status = uv_fs_sendfile_sync(self, req, out_fd, in_fd, in_offset, length)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  status.to_int64()
+}
+
+///|
+extern "c" fn uv_fs_chmod(
+  uv : Loop,
+  req : Fs,
+  path : Bytes,
+  mode : Int,
+  cb : (Fs) -> Unit,
+) -> Int = "moonbit_uv_fs_chmod"
+
+///|
+/// Asynchronously changes the permissions of a file.
+///
+/// This function initiates a file permission change operation that will be
+/// handled asynchronously by the event loop. When the operation completes,
+/// either the success callback or error callback will be invoked depending on
+/// the result.
+///
+/// Parameters:
+///
+/// * `self` : The event loop instance to schedule the operation on.
+/// * `path` : The file path whose permissions to change as a `Bytes` object.
+///   If you have a `String`, `@string.View`, or `@bytes.View`, convert it to
+///   `Bytes` first using `@encoding.encode(encoding=UTF8, string_value)`.
+/// * `mode` : The new file permissions (octal notation, e.g., `0o644` for
+///   read/write for owner, read-only for group and others).
+/// * `chmod_cb` : Success callback function that receives the filesystem
+///   request handle when the permission change succeeds.
+/// * `error_cb` : Error callback function that receives the filesystem request
+///   handle and the error code when the operation fails.
+///
+/// Throws an error of type `Errno` if the operation cannot be initiated (e.g.,
+/// invalid parameters or system resource exhaustion).
+///
+/// Note: On Windows, this function can only modify the write permission bit.
+/// All other permission bits are ignored.
+///
+/// Example:
+///
+/// ```moonbit
+/// let uv = @uv.Loop::new()
+/// let errors = []
+/// let path : Bytes = "test_file.txt"
+/// uv.fs_chmod(
+///   path,
+///   0o644,  // rw-r--r--
+///   () => println("File permissions changed successfully"),
+///   error => errors.push(error)
+/// )
+/// |> ignore()
+/// uv.run(Default)
+/// uv.close()
+/// for error in errors {
+///   raise error
+/// }
+/// ```
+pub fn Loop::fs_chmod(
+  self : Loop,
+  path : Bytes,
+  mode : Int,
+  chmod_cb : () -> Unit,
+  error_cb : (Errno) -> Unit,
+) -> Fs raise Errno {
+  fn cb(req : Fs) {
+    let status = req.result().to_int()
+    uv_fs_req_cleanup(req)
+    if status < 0 {
+      error_cb(Errno::of_int(status))
+    } else {
+      chmod_cb()
+    }
+  }
+
+  let req = uv_fs_make()
+  let status = uv_fs_chmod(self, req, path, mode, cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  return req
+}
+
+///|
+extern "c" fn uv_fs_chmod_sync(
+  uv : Loop,
+  req : Fs,
+  path : Bytes,
+  mode : Int,
+) -> Int = "moonbit_uv_fs_chmod_sync"
+
+///|
+/// Synchronously changes the permissions of a file.
+///
+/// This function blocks the current thread until the file permission change
+/// operation completes. Unlike the asynchronous `fs_chmod` function, this
+/// operation does not require callbacks and returns immediately upon
+/// completion or failure.
+///
+/// Parameters:
+///
+/// * `self` : The event loop instance to perform the operation on.
+/// * `path` : The file path whose permissions to change as a `Bytes` object.
+///   If you have a `String`, `@string.View`, or `@bytes.View`, convert it to
+///   `Bytes` first using `@encoding.encode(encoding=UTF8, string_value)`.
+/// * `mode` : The new file permissions (octal notation, e.g., `0o644` for
+///   read/write for owner, read-only for group and others).
+///
+/// Throws an error of type `Errno` if the permissions cannot be changed (e.g.,
+/// file does not exist, insufficient permissions, or system resource
+/// exhaustion).
+///
+/// Note: On Windows, this function can only modify the write permission bit.
+/// All other permission bits are ignored.
+///
+/// Example:
+///
+/// ```moonbit
+/// let uv = @uv.Loop::new()
+/// let path : Bytes = "test_file.txt"
+/// uv.fs_chmod_sync(path, 0o644)  // rw-r--r--
+/// uv.close()
+/// ```
+pub fn Loop::fs_chmod_sync(
+  self : Loop,
+  path : Bytes,
+  mode : Int,
+) -> Unit raise Errno {
+  let req = uv_fs_make()
+  let status = uv_fs_chmod_sync(self, req, path, mode)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
+extern "c" fn uv_fs_fchmod(
+  uv : Loop,
+  req : Fs,
+  file : File,
+  mode : Int,
+  cb : (Fs) -> Unit,
+) -> Int = "moonbit_uv_fs_fchmod"
+
+///|
+/// Asynchronously changes the permissions of a file by file descriptor.
+///
+/// This function initiates a file permission change operation using a file
+/// descriptor that will be handled asynchronously by the event loop. When the
+/// operation completes, either the success callback or error callback will be
+/// invoked depending on the result.
+///
+/// Parameters:
+///
+/// * `self` : The event loop instance to schedule the operation on.
+/// * `file` : The file descriptor whose permissions to change, typically
+///   obtained from `fs_open` or `fs_open_sync`.
+/// * `mode` : The new file permissions (octal notation, e.g., `0o644` for
+///   read/write for owner, read-only for group and others).
+/// * `fchmod_cb` : Success callback function that receives the filesystem
+///   request handle when the permission change succeeds.
+/// * `error_cb` : Error callback function that receives the filesystem request
+///   handle and the error code when the operation fails.
+///
+/// Throws an error of type `Errno` if the operation cannot be initiated (e.g.,
+/// invalid file descriptor or system resource exhaustion).
+///
+/// Note: On Windows, this function can only modify the write permission bit.
+/// All other permission bits are ignored.
+///
+/// Example:
+///
+/// ```moonbit
+/// let uv = @uv.Loop::new()
+/// let errors = []
+/// let path : Bytes = "test_file.txt"
+/// let file = uv.fs_open_sync(path, @uv.OpenFlags::read_write(), 0o644)
+/// uv.fs_fchmod(
+///   file,
+///   0o600,  // rw-------
+///   () => {
+///     println("File permissions changed successfully")
+///     try uv.fs_close_sync(file) catch { e => errors.push(e) }
+///   },
+///   error => {
+///     errors.push(error)
+///     try uv.fs_close_sync(file) catch { e => errors.push(e) }
+///   }
+/// )
+/// |> ignore()
+/// uv.run(Default)
+/// uv.close()
+/// for error in errors {
+///   raise error
+/// }
+/// ```
+pub fn Loop::fs_fchmod(
+  self : Loop,
+  file : File,
+  mode : Int,
+  fchmod_cb : () -> Unit,
+  error_cb : (Errno) -> Unit,
+) -> Fs raise Errno {
+  fn cb(req : Fs) {
+    let status = req.result().to_int()
+    uv_fs_req_cleanup(req)
+    if status < 0 {
+      error_cb(Errno::of_int(status))
+    } else {
+      fchmod_cb()
+    }
+  }
+
+  let req = uv_fs_make()
+  let status = uv_fs_fchmod(self, req, file, mode, cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  return req
+}
+
+///|
+extern "c" fn uv_fs_fchmod_sync(
+  uv : Loop,
+  req : Fs,
+  file : File,
+  mode : Int,
+) -> Int = "moonbit_uv_fs_fchmod_sync"
+
+///|
+/// Synchronously changes the permissions of a file by file descriptor.
+///
+/// This function blocks the current thread until the file permission change
+/// operation completes. Unlike the asynchronous `fs_fchmod` function, this
+/// operation does not require callbacks and returns immediately upon
+/// completion or failure.
+///
+/// Parameters:
+///
+/// * `self` : The event loop instance to perform the operation on.
+/// * `file` : The file descriptor whose permissions to change, typically
+///   obtained from `fs_open` or `fs_open_sync`.
+/// * `mode` : The new file permissions (octal notation, e.g., `0o644` for
+///   read/write for owner, read-only for group and others).
+///
+/// Throws an error of type `Errno` if the permissions cannot be changed (e.g.,
+/// invalid file descriptor, insufficient permissions, or system resource
+/// exhaustion).
+///
+/// Note: On Windows, this function can only modify the write permission bit.
+/// All other permission bits are ignored.
+///
+/// Example:
+///
+/// ```moonbit
+/// let uv = @uv.Loop::new()
+/// let path : Bytes = "test_file.txt"
+/// let file = uv.fs_open_sync(path, @uv.OpenFlags::read_write(), 0o644)
+/// uv.fs_fchmod_sync(file, 0o600)  // rw-------
+/// uv.fs_close_sync(file)
+/// uv.close()
+/// ```
+pub fn Loop::fs_fchmod_sync(
+  self : Loop,
+  file : File,
+  mode : Int,
+) -> Unit raise Errno {
+  let req = uv_fs_make()
+  let status = uv_fs_fchmod_sync(self, req, file, mode)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
 extern "c" fn uv_fs_read(
   uv : Loop,
   req : Fs,

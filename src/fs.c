@@ -1294,3 +1294,97 @@ moonbit_uv_fs_lchown_sync(
   moonbit_decref(path);
   return status;
 }
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_sendfile(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  int32_t out_fd,
+  int32_t in_fd,
+  int64_t in_offset,
+  uint64_t length,
+  moonbit_uv_fs_cb_t *cb
+) {
+  moonbit_uv_fs_set_data(fs, cb);
+  int status = uv_fs_sendfile(
+    loop, &fs->fs, out_fd, in_fd, in_offset, length, moonbit_uv_fs_cb
+  );
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_sendfile_sync(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  int32_t out_fd,
+  int32_t in_fd,
+  int64_t in_offset,
+  uint64_t length
+) {
+  moonbit_uv_fs_set_data(fs, NULL);
+  int status = uv_fs_sendfile(loop, &fs->fs, out_fd, in_fd, in_offset, length, NULL);
+  moonbit_decref(fs);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_chmod(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path,
+  int32_t mode,
+  moonbit_uv_fs_cb_t *cb
+) {
+  moonbit_uv_fs_set_data(fs, cb);
+  int status = uv_fs_chmod(
+    loop, &fs->fs, (const char *)path, mode, moonbit_uv_fs_cb
+  );
+  moonbit_decref(path);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_chmod_sync(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path,
+  int32_t mode
+) {
+  moonbit_uv_fs_set_data(fs, NULL);
+  int status = uv_fs_chmod(loop, &fs->fs, (const char *)path, mode, NULL);
+  moonbit_decref(fs);
+  moonbit_decref(path);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_fchmod(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  int32_t file,
+  int32_t mode,
+  moonbit_uv_fs_cb_t *cb
+) {
+  moonbit_uv_fs_set_data(fs, cb);
+  int status = uv_fs_fchmod(loop, &fs->fs, file, mode, moonbit_uv_fs_cb);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_fchmod_sync(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  int32_t file,
+  int32_t mode
+) {
+  moonbit_uv_fs_set_data(fs, NULL);
+  int status = uv_fs_fchmod(loop, &fs->fs, file, mode, NULL);
+  moonbit_decref(fs);
+  return status;
+}
