@@ -2,11 +2,14 @@
 package "tonyfettes/uv/internal/assert"
 
 // Values
-fn[T : Eq + Show] eq(T, T, msg? : String, loc~ : SourceLoc = _) -> Unit raise
+#callsite(autofill(loc))
+fn[T : Eq + Show] eq(T, T, msg? : String, loc~ : SourceLoc) -> Unit raise
 
-fn not(Bool, msg? : String, loc~ : SourceLoc = _) -> Unit raise
+#callsite(autofill(loc))
+fn not(Bool, msg? : String, loc~ : SourceLoc) -> Unit raise
 
-fn t(Bool, msg? : String, loc~ : SourceLoc = _) -> Unit raise
+#callsite(autofill(loc))
+fn t(Bool, msg? : String, loc~ : SourceLoc) -> Unit raise
 
 // Errors
 
