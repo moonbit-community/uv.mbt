@@ -1188,3 +1188,109 @@ moonbit_uv_fs_readlink_sync(
   moonbit_decref(path);
   return status;
 }
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_chown(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path,
+  uint32_t uid,
+  uint32_t gid,
+  moonbit_uv_fs_cb_t *cb
+) {
+  moonbit_uv_fs_set_data(fs, cb);
+  int status = uv_fs_chown(
+    loop, &fs->fs, (const char *)path, (uv_uid_t)uid, (uv_gid_t)gid, moonbit_uv_fs_cb
+  );
+  moonbit_decref(path);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_chown_sync(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path,
+  uint32_t uid,
+  uint32_t gid
+) {
+  moonbit_uv_fs_set_data(fs, NULL);
+  int status = uv_fs_chown(
+    loop, &fs->fs, (const char *)path, (uv_uid_t)uid, (uv_gid_t)gid, NULL
+  );
+  moonbit_decref(fs);
+  moonbit_decref(path);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_fchown(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  int32_t file,
+  uint32_t uid,
+  uint32_t gid,
+  moonbit_uv_fs_cb_t *cb
+) {
+  moonbit_uv_fs_set_data(fs, cb);
+  int status = uv_fs_fchown(
+    loop, &fs->fs, file, (uv_uid_t)uid, (uv_gid_t)gid, moonbit_uv_fs_cb
+  );
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_fchown_sync(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  int32_t file,
+  uint32_t uid,
+  uint32_t gid
+) {
+  moonbit_uv_fs_set_data(fs, NULL);
+  int status = uv_fs_fchown(
+    loop, &fs->fs, file, (uv_uid_t)uid, (uv_gid_t)gid, NULL
+  );
+  moonbit_decref(fs);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_lchown(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path,
+  uint32_t uid,
+  uint32_t gid,
+  moonbit_uv_fs_cb_t *cb
+) {
+  moonbit_uv_fs_set_data(fs, cb);
+  int status = uv_fs_lchown(
+    loop, &fs->fs, (const char *)path, (uv_uid_t)uid, (uv_gid_t)gid, moonbit_uv_fs_cb
+  );
+  moonbit_decref(path);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_lchown_sync(
+  uv_loop_t *loop,
+  moonbit_uv_fs_t *fs,
+  moonbit_bytes_t path,
+  uint32_t uid,
+  uint32_t gid
+) {
+  moonbit_uv_fs_set_data(fs, NULL);
+  int status = uv_fs_lchown(
+    loop, &fs->fs, (const char *)path, (uv_uid_t)uid, (uv_gid_t)gid, NULL
+  );
+  moonbit_decref(fs);
+  moonbit_decref(path);
+  return status;
+}

@@ -1119,6 +1119,455 @@ pub fn Loop::fs_unlink_sync(self : Loop, path : Bytes) -> Unit raise Errno {
 }
 
 ///|
+extern "c" fn uv_fs_chown(
+  uv : Loop,
+  req : Fs,
+  path : Bytes,
+  uid : UInt,
+  gid : UInt,
+  cb : (Fs) -> Unit,
+) -> Int = "moonbit_uv_fs_chown"
+
+///|
+/// Asynchronously changes the owner and group of a file.
+///
+/// This function initiates a file ownership change operation that will be
+/// handled asynchronously by the event loop. When the operation completes,
+/// either the success callback or error callback will be invoked depending on
+/// the result.
+///
+/// Parameters:
+///
+/// * `self` : The event loop instance to schedule the operation on.
+/// * `path` : The file path whose ownership to change as a `Bytes` object. If
+///   you have a `String`, `@string.View`, or `@bytes.View`, convert it to
+///   `Bytes` first using `@encoding.encode(encoding=UTF8, string_value)`.
+/// * `uid` : The new user ID (UID) for the file. Use `-1` (or `UInt::max_value`)
+///   to leave the current owner unchanged.
+/// * `gid` : The new group ID (GID) for the file. Use `-1` (or `UInt::max_value`)
+///   to leave the current group unchanged.
+/// * `chown_cb` : Success callback function that receives the filesystem request
+///   handle when the ownership change succeeds.
+/// * `error_cb` : Error callback function that receives the filesystem request
+///   handle and the error code when the operation fails.
+///
+/// Throws an error of type `Errno` if the operation cannot be initiated (e.g.,
+/// invalid parameters or system resource exhaustion).
+///
+/// Note: On Windows, this function is a no-op and always succeeds since Windows
+/// doesn't use the same ownership model as Unix-like systems.
+///
+/// Example:
+///
+/// ```moonbit
+/// let uv = @uv.Loop::new()
+/// let errors = []
+/// let path : Bytes = "test/fixtures/example.txt"
+/// uv.fs_chown(
+///   path,
+///   1000,  // uid
+///   1000,  // gid
+///   () => println("Ownership changed successfully"),
+///   error => errors.push(error)
+/// )
+/// |> ignore()
+/// uv.run(Default)
+/// uv.close()
+/// for error in errors {
+///   raise error
+/// }
+/// ```
+pub fn Loop::fs_chown(
+  self : Loop,
+  path : Bytes,
+  uid : UInt,
+  gid : UInt,
+  chown_cb : () -> Unit,
+  error_cb : (Errno) -> Unit,
+) -> Fs raise Errno {
+  fn cb(req : Fs) {
+    let status = req.result().to_int()
+    uv_fs_req_cleanup(req)
+    if status < 0 {
+      error_cb(Errno::of_int(status))
+    } else {
+      chown_cb()
+    }
+  }
+
+  let req = uv_fs_make()
+  let status = uv_fs_chown(self, req, path, uid, gid, cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  return req
+}
+
+///|
+extern "c" fn uv_fs_chown_sync(
+  uv : Loop,
+  req : Fs,
+  path : Bytes,
+  uid : UInt,
+  gid : UInt,
+) -> Int = "moonbit_uv_fs_chown_sync"
+
+///|
+/// Synchronously changes the owner and group of a file.
+///
+/// This function blocks the current thread until the file ownership change
+/// operation completes. Unlike the asynchronous `fs_chown` function, this
+/// operation does not require callbacks and returns immediately upon
+/// completion or failure.
+///
+/// Parameters:
+///
+/// * `self` : The event loop instance to perform the operation on.
+/// * `path` : The file path whose ownership to change as a `Bytes` object. If
+///   you have a `String`, `@string.View`, or `@bytes.View`, convert it to
+///   `Bytes` first using `@encoding.encode(encoding=UTF8, string_value)`.
+/// * `uid` : The new user ID (UID) for the file. Use `-1` (or `UInt::max_value`)
+///   to leave the current owner unchanged.
+/// * `gid` : The new group ID (GID) for the file. Use `-1` (or `UInt::max_value`)
+///   to leave the current group unchanged.
+///
+/// Throws an error of type `Errno` if the ownership cannot be changed (e.g.,
+/// file does not exist, insufficient permissions, or system resource
+/// exhaustion).
+///
+/// Note: On Windows, this function is a no-op and always succeeds since Windows
+/// doesn't use the same ownership model as Unix-like systems.
+///
+/// Example:
+///
+/// ```moonbit
+/// let uv = @uv.Loop::new()
+/// let path : Bytes = "test/fixtures/example.txt"
+/// // Change to user ID 1000 and group ID 1000 (typical values for first user on Linux)
+/// uv.fs_chown_sync(path, 1000, 1000)
+/// uv.close()
+/// ```
+pub fn Loop::fs_chown_sync(
+  self : Loop,
+  path : Bytes,
+  uid : UInt,
+  gid : UInt,
+) -> Unit raise Errno {
+  let req = uv_fs_make()
+  let status = uv_fs_chown_sync(self, req, path, uid, gid)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
+extern "c" fn uv_fs_fchown(
+  uv : Loop,
+  req : Fs,
+  file : File,
+  uid : UInt,
+  gid : UInt,
+  cb : (Fs) -> Unit,
+) -> Int = "moonbit_uv_fs_fchown"
+
+///|
+/// Asynchronously changes the owner and group of a file by file descriptor.
+///
+/// This function initiates a file ownership change operation using a file
+/// descriptor that will be handled asynchronously by the event loop. When the
+/// operation completes, either the success callback or error callback will be
+/// invoked depending on the result.
+///
+/// Parameters:
+///
+/// * `self` : The event loop instance to schedule the operation on.
+/// * `file` : The file descriptor whose ownership to change, typically obtained
+///   from `fs_open` or `fs_open_sync`.
+/// * `uid` : The new user ID (UID) for the file. Use `-1` (or `UInt::max_value`)
+///   to leave the current owner unchanged.
+/// * `gid` : The new group ID (GID) for the file. Use `-1` (or `UInt::max_value`)
+///   to leave the current group unchanged.
+/// * `fchown_cb` : Success callback function that receives the filesystem
+///   request handle when the ownership change succeeds.
+/// * `error_cb` : Error callback function that receives the filesystem request
+///   handle and the error code when the operation fails.
+///
+/// Throws an error of type `Errno` if the operation cannot be initiated (e.g.,
+/// invalid file descriptor or system resource exhaustion).
+///
+/// Note: On Windows, this function is a no-op and always succeeds since Windows
+/// doesn't use the same ownership model as Unix-like systems.
+///
+/// Example:
+///
+/// ```moonbit
+/// let uv = @uv.Loop::new()
+/// let errors = []
+/// let path : Bytes = "test/fixtures/example.txt"
+/// let file = uv.fs_open_sync(path, @uv.OpenFlags::read_write(), 0o644)
+/// uv.fs_fchown(
+///   file,
+///   1000,  // uid
+///   1000,  // gid
+///   () => {
+///     println("Ownership changed successfully")
+///     try uv.fs_close_sync(file) catch { e => errors.push(e) }
+///   },
+///   error => {
+///     errors.push(error)
+///     try uv.fs_close_sync(file) catch { e => errors.push(e) }
+///   }
+/// )
+/// |> ignore()
+/// uv.run(Default)
+/// uv.close()
+/// for error in errors {
+///   raise error
+/// }
+/// ```
+pub fn Loop::fs_fchown(
+  self : Loop,
+  file : File,
+  uid : UInt,
+  gid : UInt,
+  fchown_cb : () -> Unit,
+  error_cb : (Errno) -> Unit,
+) -> Fs raise Errno {
+  fn cb(req : Fs) {
+    let status = req.result().to_int()
+    uv_fs_req_cleanup(req)
+    if status < 0 {
+      error_cb(Errno::of_int(status))
+    } else {
+      fchown_cb()
+    }
+  }
+
+  let req = uv_fs_make()
+  let status = uv_fs_fchown(self, req, file, uid, gid, cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  return req
+}
+
+///|
+extern "c" fn uv_fs_fchown_sync(
+  uv : Loop,
+  req : Fs,
+  file : File,
+  uid : UInt,
+  gid : UInt,
+) -> Int = "moonbit_uv_fs_fchown_sync"
+
+///|
+/// Synchronously changes the owner and group of a file by file descriptor.
+///
+/// This function blocks the current thread until the file ownership change
+/// operation completes. Unlike the asynchronous `fs_fchown` function, this
+/// operation does not require callbacks and returns immediately upon
+/// completion or failure.
+///
+/// Parameters:
+///
+/// * `self` : The event loop instance to perform the operation on.
+/// * `file` : The file descriptor whose ownership to change, typically obtained
+///   from `fs_open` or `fs_open_sync`.
+/// * `uid` : The new user ID (UID) for the file. Use `-1` (or `UInt::max_value`)
+///   to leave the current owner unchanged.
+/// * `gid` : The new group ID (GID) for the file. Use `-1` (or `UInt::max_value`)
+///   to leave the current group unchanged.
+///
+/// Throws an error of type `Errno` if the ownership cannot be changed (e.g.,
+/// invalid file descriptor, insufficient permissions, or system resource
+/// exhaustion).
+///
+/// Note: On Windows, this function is a no-op and always succeeds since Windows
+/// doesn't use the same ownership model as Unix-like systems.
+///
+/// Example:
+///
+/// ```moonbit
+/// let uv = @uv.Loop::new()
+/// let path : Bytes = "test/fixtures/example.txt"
+/// let file = uv.fs_open_sync(path, @uv.OpenFlags::read_write(), 0o644)
+/// // Change to user ID 1000 and group ID 1000
+/// uv.fs_fchown_sync(file, 1000, 1000)
+/// uv.fs_close_sync(file)
+/// uv.close()
+/// ```
+pub fn Loop::fs_fchown_sync(
+  self : Loop,
+  file : File,
+  uid : UInt,
+  gid : UInt,
+) -> Unit raise Errno {
+  let req = uv_fs_make()
+  let status = uv_fs_fchown_sync(self, req, file, uid, gid)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
+extern "c" fn uv_fs_lchown(
+  uv : Loop,
+  req : Fs,
+  path : Bytes,
+  uid : UInt,
+  gid : UInt,
+  cb : (Fs) -> Unit,
+) -> Int = "moonbit_uv_fs_lchown"
+
+///|
+/// Asynchronously changes the owner and group of a symbolic link.
+///
+/// This function initiates a symbolic link ownership change operation that will
+/// be handled asynchronously by the event loop. Unlike `fs_chown`, this
+/// function changes the ownership of the symbolic link itself rather than the
+/// file it points to. When the operation completes, either the success callback
+/// or error callback will be invoked depending on the result.
+///
+/// Parameters:
+///
+/// * `self` : The event loop instance to schedule the operation on.
+/// * `path` : The symbolic link path whose ownership to change as a `Bytes`
+///   object. If you have a `String`, `@string.View`, or `@bytes.View`, convert
+///   it to `Bytes` first using `@encoding.encode(encoding=UTF8, string_value)`.
+/// * `uid` : The new user ID (UID) for the symbolic link. Use `-1` (or 
+///   `UInt::max_value`) to leave the current owner unchanged.
+/// * `gid` : The new group ID (GID) for the symbolic link. Use `-1` (or
+///   `UInt::max_value`) to leave the current group unchanged.
+/// * `lchown_cb` : Success callback function that receives the filesystem
+///   request handle when the ownership change succeeds.
+/// * `error_cb` : Error callback function that receives the filesystem request
+///   handle and the error code when the operation fails.
+///
+/// Throws an error of type `Errno` if the operation cannot be initiated (e.g.,
+/// invalid parameters or system resource exhaustion).
+///
+/// Note: On Windows, this function is a no-op and always succeeds since Windows
+/// doesn't use the same ownership model as Unix-like systems.
+///
+/// Example:
+///
+/// ```moonbit
+/// let uv = @uv.Loop::new()
+/// let errors = []
+/// let target_file : Bytes = "test/fixtures/example.txt"
+/// let symlink_file : Bytes = "test/fixtures/example-symlink.txt"
+/// // First create a symlink
+/// uv.fs_symlink_sync(target_file, symlink_file, @uv.SymlinkFlags::new())
+/// uv.fs_lchown(
+///   symlink_file,
+///   1000,  // uid
+///   1000,  // gid
+///   () => {
+///     println("Symlink ownership changed successfully")
+///     try uv.fs_unlink_sync(symlink_file) catch { e => errors.push(e) }
+///   },
+///   error => {
+///     errors.push(error)
+///     try uv.fs_unlink_sync(symlink_file) catch { e => errors.push(e) }
+///   }
+/// )
+/// |> ignore()
+/// uv.run(Default)
+/// uv.close()
+/// for error in errors {
+///   raise error
+/// }
+/// ```
+pub fn Loop::fs_lchown(
+  self : Loop,
+  path : Bytes,
+  uid : UInt,
+  gid : UInt,
+  lchown_cb : () -> Unit,
+  error_cb : (Errno) -> Unit,
+) -> Fs raise Errno {
+  fn cb(req : Fs) {
+    let status = req.result().to_int()
+    uv_fs_req_cleanup(req)
+    if status < 0 {
+      error_cb(Errno::of_int(status))
+    } else {
+      lchown_cb()
+    }
+  }
+
+  let req = uv_fs_make()
+  let status = uv_fs_lchown(self, req, path, uid, gid, cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  return req
+}
+
+///|
+extern "c" fn uv_fs_lchown_sync(
+  uv : Loop,
+  req : Fs,
+  path : Bytes,
+  uid : UInt,
+  gid : UInt,
+) -> Int = "moonbit_uv_fs_lchown_sync"
+
+///|
+/// Synchronously changes the owner and group of a symbolic link.
+///
+/// This function blocks the current thread until the symbolic link ownership
+/// change operation completes. Unlike the asynchronous `fs_lchown` function,
+/// this operation does not require callbacks and returns immediately upon
+/// completion or failure. Unlike `fs_chown_sync`, this function changes the
+/// ownership of the symbolic link itself rather than the file it points to.
+///
+/// Parameters:
+///
+/// * `self` : The event loop instance to perform the operation on.
+/// * `path` : The symbolic link path whose ownership to change as a `Bytes`
+///   object. If you have a `String`, `@string.View`, or `@bytes.View`, convert
+///   it to `Bytes` first using `@encoding.encode(encoding=UTF8, string_value)`.
+/// * `uid` : The new user ID (UID) for the symbolic link. Use `-1` (or
+///   `UInt::max_value`) to leave the current owner unchanged.
+/// * `gid` : The new group ID (GID) for the symbolic link. Use `-1` (or
+///   `UInt::max_value`) to leave the current group unchanged.
+///
+/// Throws an error of type `Errno` if the ownership cannot be changed (e.g.,
+/// symbolic link does not exist, insufficient permissions, or system resource
+/// exhaustion).
+///
+/// Note: On Windows, this function is a no-op and always succeeds since Windows
+/// doesn't use the same ownership model as Unix-like systems.
+///
+/// Example:
+///
+/// ```moonbit
+/// let uv = @uv.Loop::new()
+/// let target_file : Bytes = "test/fixtures/example.txt"
+/// let symlink_file : Bytes = "test/fixtures/example-symlink.txt"
+/// // First create a symlink
+/// uv.fs_symlink_sync(target_file, symlink_file, @uv.SymlinkFlags::new())
+/// // Change ownership of the symlink itself
+/// uv.fs_lchown_sync(symlink_file, 1000, 1000)
+/// // Clean up
+/// uv.fs_unlink_sync(symlink_file)
+/// uv.close()
+/// ```
+pub fn Loop::fs_lchown_sync(
+  self : Loop,
+  path : Bytes,
+  uid : UInt,
+  gid : UInt,
+) -> Unit raise Errno {
+  let req = uv_fs_make()
+  let status = uv_fs_lchown_sync(self, req, path, uid, gid)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
 extern "c" fn uv_fs_mkdir(
   uv : Loop,
   req : Fs,
@@ -2883,11 +3332,7 @@ pub fn Loop::fs_readlink(
 }
 
 ///|
-extern "c" fn uv_fs_readlink_sync(
-  uv : Loop,
-  req : Fs,
-  path : Bytes,
-) -> Int = "moonbit_uv_fs_readlink_sync"
+extern "c" fn uv_fs_readlink_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "moonbit_uv_fs_readlink_sync"
 
 ///|
 /// Synchronously reads the target of a symbolic link.
