@@ -26,7 +26,7 @@ pub fn t(x : Bool, msg? : String, loc~ : SourceLoc) -> Unit raise {
 
 ///|
 #autofill_callsite(loc)
-pub fn not(x : Bool, msg? : String, loc~ : SourceLoc) -> Unit raise {
+pub fn n(x : Bool, msg? : String, loc~ : SourceLoc) -> Unit raise {
   if x {
     let fail_msg = match msg {
       Some(msg) => msg

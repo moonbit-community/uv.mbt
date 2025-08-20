@@ -265,7 +265,7 @@ test "stat/sync" {
   let stat = uv.fs_stat_sync("test/fixtures/example.txt")
   uv.close()
   @assert.t(stat.is_file())
-  @assert.not(stat.is_directory())
+  @assert.n(stat.is_directory())
 }
 
 ///|
