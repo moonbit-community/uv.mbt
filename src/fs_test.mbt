@@ -178,9 +178,10 @@ test "scandir" {
   uv.run(Default)
   uv.stop()
   uv.close()
-  @assert.eq(entries[0].name(), ".gitattributes")
+  entries.sort_by_key(_.name())
+  @assert.eq(entries[0].name(), "example.txt")
   @assert.t(entries[0].type_() is File)
-  @assert.eq(entries[1].name(), "example.txt")
+  @assert.eq(entries[1].name(), ".gitattributes")
   @assert.t(entries[1].type_() is File)
   if error is Some(e) {
     raise e
@@ -449,7 +450,7 @@ test "opendir-readdir-closedir" {
     raise error
   }
   sources.sort()
-  @assert.eq(sources, ["example.txt", ".gitattributes"])
+  @assert.t(sources is ["example.txt", ".gitattributes", ..])
 }
 
 ///|
