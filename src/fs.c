@@ -379,11 +379,7 @@ moonbit_uv_fs_fsync(
 
 MOONBIT_FFI_EXPORT
 int32_t
-moonbit_uv_fs_fsync_sync(
-  uv_loop_t *loop,
-  moonbit_uv_fs_t *fs,
-  int32_t file
-) {
+moonbit_uv_fs_fsync_sync(uv_loop_t *loop, moonbit_uv_fs_t *fs, int32_t file) {
   moonbit_uv_fs_set_data(fs, NULL);
   int status = uv_fs_fsync(loop, &fs->fs, file, NULL);
   moonbit_decref(fs);
@@ -1100,9 +1096,8 @@ moonbit_uv_fs_link_sync(
   moonbit_bytes_t new_path
 ) {
   moonbit_uv_fs_set_data(fs, NULL);
-  int status = uv_fs_link(
-    loop, &fs->fs, (const char *)path, (const char *)new_path, NULL
-  );
+  int status =
+    uv_fs_link(loop, &fs->fs, (const char *)path, (const char *)new_path, NULL);
   moonbit_decref(fs);
   moonbit_decref(path);
   moonbit_decref(new_path);
@@ -1133,7 +1128,8 @@ moonbit_uv_fs_symlink(
 ) {
   moonbit_uv_fs_set_data(fs, cb);
   int status = uv_fs_symlink(
-    loop, &fs->fs, (const char *)path, (const char *)new_path, flags, moonbit_uv_fs_cb
+    loop, &fs->fs, (const char *)path, (const char *)new_path, flags,
+    moonbit_uv_fs_cb
   );
   moonbit_decref(path);
   moonbit_decref(new_path);
@@ -1168,9 +1164,8 @@ moonbit_uv_fs_readlink(
   moonbit_uv_fs_cb_t *cb
 ) {
   moonbit_uv_fs_set_data(fs, cb);
-  int status = uv_fs_readlink(
-    loop, &fs->fs, (const char *)path, moonbit_uv_fs_cb
-  );
+  int status =
+    uv_fs_readlink(loop, &fs->fs, (const char *)path, moonbit_uv_fs_cb);
   moonbit_decref(path);
   return status;
 }
@@ -1201,7 +1196,8 @@ moonbit_uv_fs_chown(
 ) {
   moonbit_uv_fs_set_data(fs, cb);
   int status = uv_fs_chown(
-    loop, &fs->fs, (const char *)path, (uv_uid_t)uid, (uv_gid_t)gid, moonbit_uv_fs_cb
+    loop, &fs->fs, (const char *)path, (uv_uid_t)uid, (uv_gid_t)gid,
+    moonbit_uv_fs_cb
   );
   moonbit_decref(path);
   return status;
@@ -1231,8 +1227,8 @@ moonbit_uv_fs_fchown(
   uv_loop_t *loop,
   moonbit_uv_fs_t *fs,
   int32_t file,
-  uint32_t uid,
-  uint32_t gid,
+  uint64_t uid,
+  uint64_t gid,
   moonbit_uv_fs_cb_t *cb
 ) {
   moonbit_uv_fs_set_data(fs, cb);
@@ -1248,13 +1244,12 @@ moonbit_uv_fs_fchown_sync(
   uv_loop_t *loop,
   moonbit_uv_fs_t *fs,
   int32_t file,
-  uint32_t uid,
-  uint32_t gid
+  uint64_t uid,
+  uint64_t gid
 ) {
   moonbit_uv_fs_set_data(fs, NULL);
-  int status = uv_fs_fchown(
-    loop, &fs->fs, file, (uv_uid_t)uid, (uv_gid_t)gid, NULL
-  );
+  int status =
+    uv_fs_fchown(loop, &fs->fs, file, (uv_uid_t)uid, (uv_gid_t)gid, NULL);
   moonbit_decref(fs);
   return status;
 }
@@ -1265,13 +1260,14 @@ moonbit_uv_fs_lchown(
   uv_loop_t *loop,
   moonbit_uv_fs_t *fs,
   moonbit_bytes_t path,
-  uint32_t uid,
-  uint32_t gid,
+  uint64_t uid,
+  uint64_t gid,
   moonbit_uv_fs_cb_t *cb
 ) {
   moonbit_uv_fs_set_data(fs, cb);
   int status = uv_fs_lchown(
-    loop, &fs->fs, (const char *)path, (uv_uid_t)uid, (uv_gid_t)gid, moonbit_uv_fs_cb
+    loop, &fs->fs, (const char *)path, (uv_uid_t)uid, (uv_gid_t)gid,
+    moonbit_uv_fs_cb
   );
   moonbit_decref(path);
   return status;
@@ -1283,8 +1279,8 @@ moonbit_uv_fs_lchown_sync(
   uv_loop_t *loop,
   moonbit_uv_fs_t *fs,
   moonbit_bytes_t path,
-  uint32_t uid,
-  uint32_t gid
+  uint64_t uid,
+  uint64_t gid
 ) {
   moonbit_uv_fs_set_data(fs, NULL);
   int status = uv_fs_lchown(
@@ -1324,7 +1320,8 @@ moonbit_uv_fs_sendfile_sync(
   uint64_t length
 ) {
   moonbit_uv_fs_set_data(fs, NULL);
-  int status = uv_fs_sendfile(loop, &fs->fs, out_fd, in_fd, in_offset, length, NULL);
+  int status =
+    uv_fs_sendfile(loop, &fs->fs, out_fd, in_fd, in_offset, length, NULL);
   moonbit_decref(fs);
   return status;
 }
@@ -1339,9 +1336,8 @@ moonbit_uv_fs_chmod(
   moonbit_uv_fs_cb_t *cb
 ) {
   moonbit_uv_fs_set_data(fs, cb);
-  int status = uv_fs_chmod(
-    loop, &fs->fs, (const char *)path, mode, moonbit_uv_fs_cb
-  );
+  int status =
+    uv_fs_chmod(loop, &fs->fs, (const char *)path, mode, moonbit_uv_fs_cb);
   moonbit_decref(path);
   return status;
 }

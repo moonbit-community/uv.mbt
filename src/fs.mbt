@@ -1645,8 +1645,8 @@ extern "c" fn uv_fs_chown_sync(
   uv : Loop,
   req : Fs,
   path : Bytes,
-  uid : UInt,
-  gid : UInt,
+  uid : Uid,
+  gid : Gid,
 ) -> Int = "moonbit_uv_fs_chown_sync"
 
 ///|
@@ -1680,14 +1680,15 @@ extern "c" fn uv_fs_chown_sync(
 /// ```moonbit
 /// let uv = @uv.Loop::new()
 /// let path : Bytes = "test/fixtures/example.txt"
-/// uv.fs_chown_sync(path, 1000, 1000)
+/// let passwd = @uv.os_get_passwd()
+/// uv.fs_chown_sync(path, passwd.uid(), passwd.gid())
 /// uv.close()
 /// ```
 pub fn Loop::fs_chown_sync(
   self : Loop,
   path : Bytes,
-  uid : UInt,
-  gid : UInt,
+  uid : Uid,
+  gid : Gid,
 ) -> Unit raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_chown_sync(self, req, path, uid, gid)
@@ -1701,8 +1702,8 @@ extern "c" fn uv_fs_fchown(
   uv : Loop,
   req : Fs,
   file : File,
-  uid : UInt,
-  gid : UInt,
+  uid : Uid,
+  gid : Gid,
   cb : (Fs) -> Unit,
 ) -> Int = "moonbit_uv_fs_fchown"
 
@@ -1740,13 +1741,13 @@ extern "c" fn uv_fs_fchown(
 /// let uv = @uv.Loop::new()
 /// let errors = []
 /// let path : Bytes = "test/fixtures/example.txt"
+/// let passwd = @uv.os_get_passwd()
 /// let file = uv.fs_open_sync(path, @uv.OpenFlags::read_write(), 0o644)
 /// uv.fs_fchown(
 ///   file,
-///   1000,  // uid
-///   1000,  // gid
+///   passwd.uid(),
+///   passwd.gid(),
 ///   () => {
-///     println("Ownership changed successfully")
 ///     try uv.fs_close_sync(file) catch { e => errors.push(e) }
 ///   },
 ///   error => {
@@ -1764,8 +1765,8 @@ extern "c" fn uv_fs_fchown(
 pub fn Loop::fs_fchown(
   self : Loop,
   file : File,
-  uid : UInt,
-  gid : UInt,
+  uid : Uid,
+  gid : Gid,
   fchown_cb : () -> Unit,
   error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
@@ -1792,8 +1793,8 @@ extern "c" fn uv_fs_fchown_sync(
   uv : Loop,
   req : Fs,
   file : File,
-  uid : UInt,
-  gid : UInt,
+  uid : Uid,
+  gid : Gid,
 ) -> Int = "moonbit_uv_fs_fchown_sync"
 
 ///|
@@ -1827,16 +1828,17 @@ extern "c" fn uv_fs_fchown_sync(
 /// let uv = @uv.Loop::new()
 /// let path : Bytes = "test/fixtures/example.txt"
 /// let file = uv.fs_open_sync(path, @uv.OpenFlags::read_write(), 0o644)
+/// let passwd = @uv.os_get_passwd()
 /// // Change to user ID 1000 and group ID 1000
-/// uv.fs_fchown_sync(file, 1000, 1000)
+/// uv.fs_fchown_sync(file, passwd.uid(), passwd.gid())
 /// uv.fs_close_sync(file)
 /// uv.close()
 /// ```
 pub fn Loop::fs_fchown_sync(
   self : Loop,
   file : File,
-  uid : UInt,
-  gid : UInt,
+  uid : Uid,
+  gid : Gid,
 ) -> Unit raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_fchown_sync(self, req, file, uid, gid)
@@ -1850,8 +1852,8 @@ extern "c" fn uv_fs_lchown(
   uv : Loop,
   req : Fs,
   path : Bytes,
-  uid : UInt,
-  gid : UInt,
+  uid : Uid,
+  gid : Gid,
   cb : (Fs) -> Unit,
 ) -> Int = "moonbit_uv_fs_lchown"
 
@@ -1891,15 +1893,15 @@ extern "c" fn uv_fs_lchown(
 /// let uv = @uv.Loop::new()
 /// let errors = []
 /// let target_file : Bytes = "test/fixtures/example.txt"
-/// let symlink_file : Bytes = "test/fixtures/example-symlink.txt"
+/// let symlink_file : Bytes = "test/fixtures/example-lchown.txt"
+/// let passwd = @uv.os_get_passwd()
 /// // First create a symlink
 /// uv.fs_symlink_sync(target_file, symlink_file, @uv.SymlinkFlags::new())
 /// uv.fs_lchown(
 ///   symlink_file,
-///   1000,  // uid
-///   1000,  // gid
+///   passwd.uid(),
+///   passwd.gid(),
 ///   () => {
-///     println("Symlink ownership changed successfully")
 ///     try uv.fs_unlink_sync(symlink_file) catch { e => errors.push(e) }
 ///   },
 ///   error => {
@@ -1917,8 +1919,8 @@ extern "c" fn uv_fs_lchown(
 pub fn Loop::fs_lchown(
   self : Loop,
   path : Bytes,
-  uid : UInt,
-  gid : UInt,
+  uid : Uid,
+  gid : Gid,
   lchown_cb : () -> Unit,
   error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
@@ -1945,8 +1947,8 @@ extern "c" fn uv_fs_lchown_sync(
   uv : Loop,
   req : Fs,
   path : Bytes,
-  uid : UInt,
-  gid : UInt,
+  uid : Uid,
+  gid : Gid,
 ) -> Int = "moonbit_uv_fs_lchown_sync"
 
 ///|
@@ -1981,20 +1983,18 @@ extern "c" fn uv_fs_lchown_sync(
 /// ```moonbit
 /// let uv = @uv.Loop::new()
 /// let target_file : Bytes = "test/fixtures/example.txt"
-/// let symlink_file : Bytes = "test/fixtures/example-symlink.txt"
-/// // First create a symlink
+/// let symlink_file : Bytes = "test/fixtures/example-lchown-sync.txt"
+/// let passwd = @uv.os_get_passwd()
 /// uv.fs_symlink_sync(target_file, symlink_file, @uv.SymlinkFlags::new())
-/// // Change ownership of the symlink itself
-/// uv.fs_lchown_sync(symlink_file, 1000, 1000)
-/// // Clean up
+/// uv.fs_lchown_sync(symlink_file, passwd.uid(), passwd.gid())
 /// uv.fs_unlink_sync(symlink_file)
 /// uv.close()
 /// ```
 pub fn Loop::fs_lchown_sync(
   self : Loop,
   path : Bytes,
-  uid : UInt,
-  gid : UInt,
+  uid : Uid,
+  gid : Gid,
 ) -> Unit raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_lchown_sync(self, req, path, uid, gid)
