@@ -198,32 +198,65 @@ struct UdpFlags(UInt)
 ///|
 pub fn UdpFlags::new(
   ipv6_only~ : Bool = false,
-  reuseaddr~ : Bool = false,
+  partial~ : Bool = false,
+  reuse_addr~ : Bool = false,
+  mmsg_chunk~ : Bool = false,
+  mmsg_free~ : Bool = false,
+  linux_recv_err~ : Bool = false,
+  reuse_port~ : Bool = false,
+  recvmmsg~ : Bool = false,
 ) -> UdpFlags {
   let mut flags = 0U
   if ipv6_only {
-    flags = flags | UDP_IPV6ONLY
+    flags = flags | UV_UDP_IPV6ONLY
   }
-  if reuseaddr {
-    flags = flags | UDP_REUSEADDR
+  if partial {
+    flags = flags | UV_UDP_PARTIAL
+  }
+  if reuse_addr {
+    flags = flags | UV_UDP_REUSEADDR
+  }
+  if mmsg_chunk {
+    flags = flags | UV_UDP_MMSG_CHUNK
+  }
+  if mmsg_free {
+    flags = flags | UV_UDP_MMSG_FREE
+  }
+  if linux_recv_err {
+    flags = flags | UV_UDP_LINUX_RECVERR
+  }
+  if reuse_port {
+    flags = flags | UV_UDP_REUSEPORT
+  }
+  if recvmmsg {
+    flags = flags | UV_UDP_RECVMMSG
   }
   UdpFlags(flags)
 }
 
 ///|
-const UDP_IPV6ONLY : UInt = 1
+const UV_UDP_IPV6ONLY : UInt = 1
 
 ///|
-const UDP_PARTIAL : UInt = 2
+const UV_UDP_PARTIAL : UInt = 2
 
 ///|
-const UDP_REUSEADDR : UInt = 4
+const UV_UDP_REUSEADDR : UInt = 4
 
 ///|
-const UDP_MMSG_CHUNK : UInt = 8
+const UV_UDP_MMSG_CHUNK : UInt = 8
 
 ///|
-const UDP_MMSG_FREE : UInt = 16
+const UV_UDP_MMSG_FREE : UInt = 16
+
+///|
+const UV_UDP_LINUX_RECVERR : UInt = 32
+
+///|
+const UV_UDP_REUSEPORT : UInt = 64
+
+///|
+const UV_UDP_RECVMMSG : UInt = 256
 
 ///|
 pub(all) enum Membership {
@@ -244,9 +277,14 @@ extern "c" fn uv_udp_init_ex(uv : Loop, udp : Udp, flags : UInt) -> Int = "moonb
 
 ///|
 /// Extended UDP initialization with flags
-pub fn Udp::new_ex(uv : Loop, flags : UdpFlags) -> Udp raise Errno {
+pub fn Udp::new_ex(
+  uv : Loop,
+  domain : AddressFamily,
+  flags : UdpFlags,
+) -> Udp raise Errno {
   let udp = uv_udp_make()
-  let result = uv_udp_init_ex(uv, udp, flags.inner())
+  let flags = domain.to_int().reinterpret_as_uint() | (flags.inner() >> 8 << 8)
+  let result = uv_udp_init_ex(uv, udp, flags)
   if result < 0 {
     raise Errno::of_int(result)
   }
@@ -296,8 +334,8 @@ pub fn Udp::getsockname(self : Udp) -> Sockaddr raise Errno {
 ///|
 extern "c" fn uv_udp_set_membership(
   udp : Udp,
-  multicast_addr : String,
-  interface_addr : @c.Nullable[String],
+  multicast_addr : Bytes,
+  interface_addr : Bytes,
   membership : Int,
 ) -> Int = "moonbit_uv_udp_set_membership"
 
@@ -305,14 +343,14 @@ extern "c" fn uv_udp_set_membership(
 /// Set UDP multicast group membership
 pub fn Udp::set_membership(
   self : Udp,
-  multicast_addr : String,
-  interface_addr? : String,
+  multicast_addr : Bytes,
+  interface_addr : Bytes,
   membership : Membership,
 ) -> Unit raise Errno {
   let result = uv_udp_set_membership(
     self,
     multicast_addr,
-    @c.Nullable::of(interface_addr),
+    interface_addr,
     membership.to_int(),
   )
   if result < 0 {
@@ -323,9 +361,9 @@ pub fn Udp::set_membership(
 ///|
 extern "c" fn uv_udp_set_source_membership(
   udp : Udp,
-  multicast_addr : String,
-  interface_addr : @c.Nullable[String],
-  source_addr : String,
+  multicast_addr : Bytes,
+  interface_addr : Bytes,
+  source_addr : Bytes,
   membership : Int,
 ) -> Int = "moonbit_uv_udp_set_source_membership"
 
@@ -333,15 +371,15 @@ extern "c" fn uv_udp_set_source_membership(
 /// Set UDP source-specific multicast group membership
 pub fn Udp::set_source_membership(
   self : Udp,
-  multicast_addr : String,
-  interface_addr? : String,
-  source_addr : String,
+  multicast_addr : Bytes,
+  interface_addr : Bytes,
+  source_addr : Bytes,
   membership : Membership,
 ) -> Unit raise Errno {
   let result = uv_udp_set_source_membership(
     self,
     multicast_addr,
-    @c.Nullable::of(interface_addr),
+    interface_addr,
     source_addr,
     membership.to_int(),
   )
@@ -377,14 +415,14 @@ pub fn Udp::set_multicast_ttl(self : Udp, ttl : Int) -> Unit raise Errno {
 ///|
 extern "c" fn uv_udp_set_multicast_interface(
   udp : Udp,
-  interface_addr : String,
+  interface_addr : Bytes,
 ) -> Int = "moonbit_uv_udp_set_multicast_interface"
 
 ///|
 /// Set the multicast interface to use
 pub fn Udp::set_multicast_interface(
   self : Udp,
-  interface_addr : String,
+  interface_addr : Bytes,
 ) -> Unit raise Errno {
   let result = uv_udp_set_multicast_interface(self, interface_addr)
   if result < 0 {

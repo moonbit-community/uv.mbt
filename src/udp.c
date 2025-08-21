@@ -330,6 +330,12 @@ moonbit_uv_udp_recv_stop(uv_udp_t *udp) {
 }
 
 MOONBIT_FFI_EXPORT
+uint32_t
+moonbit_uv_UDP_RECVMMSG() {
+  return UV_UDP_RECVMMSG;
+}
+
+MOONBIT_FFI_EXPORT
 int32_t
 moonbit_uv_udp_init_ex(uv_loop_t *loop, moonbit_uv_udp_t *udp, uint32_t flags) {
   return uv_udp_init_ex(loop, &udp->udp, flags);

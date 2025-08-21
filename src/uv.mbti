@@ -44,6 +44,8 @@ fn[Stream : ToStream] listen(Stream, Int, (Stream) -> Unit, (Stream, Errno) -> U
 
 fn os_environ() -> Environ raise Errno
 
+fn os_get_passwd() -> Passwd raise Errno
+
 fn os_getenv(Bytes) -> Bytes? raise Errno
 
 fn os_homedir() -> Bytes raise Errno
@@ -313,7 +315,8 @@ impl ToHandle for FsPoll
 type GetAddrInfo
 impl ToReq for GetAddrInfo
 
-type Gid
+pub(all) struct Gid(UInt64)
+fn Gid::inner(Self) -> UInt64
 
 type Handle
 fn Handle::close(Self, () -> Unit) -> Unit
@@ -352,23 +355,27 @@ fn Loop::close(Self) -> Unit raise Errno
 fn Loop::configure(Self, LoopOption) -> Unit raise Errno
 fn Loop::fs_access(Self, Bytes, AccessFlags, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_access_sync(Self, Bytes, AccessFlags) -> Unit raise Errno
-fn Loop::fs_chown(Self, Bytes, UInt, UInt, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
-fn Loop::fs_chown_sync(Self, Bytes, UInt, UInt) -> Unit raise Errno
+fn Loop::fs_chmod(Self, Bytes, Int, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_chmod_sync(Self, Bytes, Int) -> Unit raise Errno
+fn Loop::fs_chown(Self, Bytes, Uid, Gid, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_chown_sync(Self, Bytes, Uid, Gid) -> Unit raise Errno
 fn Loop::fs_close(Self, File, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_close_sync(Self, File) -> Unit raise Errno
 fn Loop::fs_closedir(Self, Dir, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_copyfile(Self, Bytes, Bytes, CopyFileFlags, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_copyfile_sync(Self, Bytes, Bytes, CopyFileFlags) -> Unit raise Errno
-fn Loop::fs_fchown(Self, File, UInt, UInt, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
-fn Loop::fs_fchown_sync(Self, File, UInt, UInt) -> Unit raise Errno
+fn Loop::fs_fchmod(Self, File, Int, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_fchmod_sync(Self, File, Int) -> Unit raise Errno
+fn Loop::fs_fchown(Self, File, Uid, Gid, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_fchown_sync(Self, File, Uid, Gid) -> Unit raise Errno
 fn Loop::fs_fdatasync(Self, File, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_fdatasync_sync(Self, File) -> Unit raise Errno
 fn Loop::fs_fstat(Self, File, (Stat) -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_fsync(Self, File, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_fsync_sync(Self, File) -> Unit raise Errno
 fn Loop::fs_ftruncate(Self, File, Int64, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
-fn Loop::fs_lchown(Self, Bytes, UInt, UInt, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
-fn Loop::fs_lchown_sync(Self, Bytes, UInt, UInt) -> Unit raise Errno
+fn Loop::fs_lchown(Self, Bytes, Uid, Gid, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_lchown_sync(Self, Bytes, Uid, Gid) -> Unit raise Errno
 fn Loop::fs_link(Self, Bytes, Bytes, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_link_sync(Self, Bytes, Bytes) -> Unit raise Errno
 fn Loop::fs_lstat(Self, Bytes, (Stat) -> Unit, (Errno) -> Unit) -> Fs raise Errno
@@ -394,6 +401,8 @@ fn Loop::fs_rmdir(Self, Bytes, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_rmdir_sync(Self, Bytes) -> Unit raise Errno
 fn Loop::fs_scandir(Self, Bytes, Int, (Scandir) -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_scandir_sync(Self, Bytes, Int) -> Scandir raise Errno
+fn Loop::fs_sendfile(Self, File, File, Int64, UInt64, (Int64) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_sendfile_sync(Self, File, File, Int64, UInt64) -> Int64 raise Errno
 fn Loop::fs_stat(Self, Bytes, (Stat) -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_stat_sync(Self, Bytes) -> Stat raise Errno
 fn Loop::fs_symlink(Self, Bytes, Bytes, SymlinkFlags, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
@@ -422,6 +431,12 @@ pub(all) enum LoopOption {
   UseIoUringSqPoll
 }
 
+pub(all) enum Membership {
+  LeaveGroup
+  JoinGroup
+}
+fn Membership::to_int(Self) -> Int
+
 type Metrics
 fn Metrics::events(Self) -> UInt64
 fn Metrics::events_waiting(Self) -> UInt64
@@ -444,6 +459,12 @@ fn OsFd::to_int(Self) -> Int raise Errno
 
 type OsSock
 fn OsSock::to_int(Self) -> Int
+
+type Passwd
+fn Passwd::gid(Self) -> Gid
+fn Passwd::shell(Self) -> Bytes
+fn Passwd::uid(Self) -> Uid
+fn Passwd::username(Self) -> Bytes
 
 type Pipe
 fn Pipe::bind(Self, Bytes, PipeBindFlags) -> Unit raise Errno
@@ -674,10 +695,12 @@ fn Timer::stop(Self) -> Unit raise Errno
 impl ToHandle for Timer
 
 type Tty
+fn Tty::get_vterm_state() -> Unit raise Errno
 fn Tty::get_winsize(Self) -> (Int, Int) raise Errno
 fn Tty::new(Loop, File) -> Self raise Errno
 fn Tty::reset_mode() -> Unit raise Errno
 fn Tty::set_mode(Self, TtyMode) -> Unit raise Errno
+fn Tty::set_vterm_state(TtyVtermState) -> Unit
 impl ToHandle for Tty
 impl ToStream for Tty
 
@@ -687,22 +710,45 @@ fn TtyMode::normal() -> Self
 fn TtyMode::raw() -> Self
 fn TtyMode::raw_vt() -> Self
 
+pub enum TtyVtermState {
+  Supported
+  Unsupported
+}
+fn TtyVtermState::supported() -> Self
+fn TtyVtermState::unsupported() -> Self
+
 type Udp
 fn[Sockaddr : ToSockaddr] Udp::bind(Self, Sockaddr, UdpFlags) -> Unit raise Errno
 fn[Sockaddr : ToSockaddr] Udp::connect(Self, Sockaddr) -> Unit raise Errno
+fn Udp::get_send_queue_count(Self) -> UInt64
+fn Udp::get_send_queue_size(Self) -> UInt64
+fn Udp::getpeername(Self) -> Sockaddr raise Errno
+fn Udp::getsockname(Self) -> Sockaddr raise Errno
 fn Udp::new(Loop) -> Self raise Errno
+fn Udp::new_ex(Loop, AddressFamily, UdpFlags) -> Self raise Errno
+fn Udp::open(Self, OsSock) -> Unit raise Errno
 fn Udp::recv_start(Self, (Handle, Int) -> @bytes.View, (Self, Int, @bytes.View, Sockaddr, UdpFlags) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
 fn Udp::recv_stop(Self) -> Unit raise Errno
 fn[Sockaddr : ToSockaddr] Udp::send(Self, Array[@bytes.View], () -> Unit, (Errno) -> Unit, addr? : Sockaddr) -> UdpSend raise Errno
+fn Udp::set_broadcast(Self, Bool) -> Unit raise Errno
+fn Udp::set_membership(Self, Bytes, Bytes, Membership) -> Unit raise Errno
+fn Udp::set_multicast_interface(Self, Bytes) -> Unit raise Errno
+fn Udp::set_multicast_loop(Self, Bool) -> Unit raise Errno
+fn Udp::set_multicast_ttl(Self, Int) -> Unit raise Errno
+fn Udp::set_source_membership(Self, Bytes, Bytes, Bytes, Membership) -> Unit raise Errno
+fn Udp::set_ttl(Self, Int) -> Unit raise Errno
+fn[Sockaddr : ToSockaddr] Udp::try_send(Self, Array[@bytes.View], addr? : Sockaddr) -> Int raise Errno
+fn Udp::using_recvmmsg(Self) -> Bool
 impl ToHandle for Udp
 
 type UdpFlags
-fn UdpFlags::new() -> Self
+fn UdpFlags::new(ipv6_only? : Bool, partial? : Bool, reuse_addr? : Bool, mmsg_chunk? : Bool, mmsg_free? : Bool, linux_recv_err? : Bool, reuse_port? : Bool, recvmmsg? : Bool) -> Self
 
 type UdpSend
 impl ToReq for UdpSend
 
-type Uid
+pub(all) struct Uid(UInt64)
+fn Uid::inner(Self) -> UInt64
 
 type Utsname
 fn Utsname::machine(Self) -> @bytes.View

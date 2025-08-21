@@ -54,7 +54,7 @@ test "udp" {
 }
 
 ///|
-test "udp getpeername and getsockname" {
+test "Udp::getsockname" {
   let uv = @uv.Loop::new()
   let socket = @uv.Udp::new(uv)
   let addr : @uv.SockaddrIn = @uv.ip4_addr("127.0.0.1", 0)
@@ -69,15 +69,28 @@ test "udp getpeername and getsockname" {
 }
 
 ///|
-test "udp broadcast and ttl" {
+test "Udp::set_broadcast" {
   let uv = @uv.Loop::new()
-  let socket = @uv.Udp::new(uv)
-
-  // Test broadcast
+  let socket = @uv.Udp::new_ex(
+    uv,
+    @uv.AddressFamily::inet(),
+    @uv.UdpFlags::new(),
+  )
   socket.set_broadcast(true)
   socket.set_broadcast(false)
+  socket.close(() => ())
+  uv.run(Default)
+  uv.close()
+}
 
-  // Test TTL
+///|
+test "Udp::set_ttl" {
+  let uv = @uv.Loop::new()
+  let socket = @uv.Udp::new_ex(
+    uv,
+    @uv.AddressFamily::inet(),
+    @uv.UdpFlags::new(),
+  )
   socket.set_ttl(64)
   socket.close(() => ())
   uv.run(Default)
@@ -85,14 +98,27 @@ test "udp broadcast and ttl" {
 }
 
 ///|
-test "udp multicast options" {
+test "Udp::set_multicast_ttl" {
   let uv = @uv.Loop::new()
-  let socket = @uv.Udp::new(uv)
-
-  // Test multicast TTL
+  let socket = @uv.Udp::new_ex(
+    uv,
+    @uv.AddressFamily::inet(),
+    @uv.UdpFlags::new(),
+  )
   socket.set_multicast_ttl(32)
+  socket.close(() => ())
+  uv.run(Default)
+  uv.close()
+}
 
-  // Test multicast loop
+///|
+test "Udp::set_multicast_loop" {
+  let uv = @uv.Loop::new()
+  let socket = @uv.Udp::new_ex(
+    uv,
+    @uv.AddressFamily::inet(),
+    @uv.UdpFlags::new(),
+  )
   socket.set_multicast_loop(false)
   socket.set_multicast_loop(true)
   socket.close(() => ())
@@ -101,86 +127,64 @@ test "udp multicast options" {
 }
 
 ///|
-test "udp multicast options" {
+test "Udp::get_send_queue_size" {
   let uv = @uv.Loop::new()
   let socket = @uv.Udp::new(uv)
-  let addr : @uv.SockaddrIn = @uv.ip4_addr("127.0.0.1", 0)
-  socket.bind(addr, @uv.UdpFlags::new())
-
-  // Test multicast TTL
-  socket.set_multicast_ttl(32)
-
-  // Test multicast loop
-  socket.set_multicast_loop(false)
-  socket.set_multicast_loop(true)
-  socket.close(() => ())
-  uv.run(Default)
-  uv.close()
-}
-
-///|
-test "udp queue info" {
-  let uv = @uv.Loop::new()
-  let socket = @uv.Udp::new(uv)
-
-  // Test queue size and count
   let size = socket.get_send_queue_size()
+  @assert.eq(size, 0)
+  socket.close(() => ())
+  uv.run(Default)
+  uv.close()
+}
+
+///|
+test "Udp::get_send_queue_count" {
+  let uv = @uv.Loop::new()
+  let socket = @uv.Udp::new(uv)
   let count = socket.get_send_queue_count()
-
-  // Should be 0 initially
-  inspect(size.to_int(), content="0")
-  inspect(count.to_int(), content="0")
+  @assert.eq(count, 0)
   socket.close(() => ())
   uv.run(Default)
   uv.close()
 }
 
 ///|
-test "udp using_recvmmsg" {
+test "Udp::using_recvmmsg" {
   let uv = @uv.Loop::new()
   let socket = @uv.Udp::new(uv)
-
-  // Test if using recvmmsg (platform dependent)
-  let using_mmsg = socket.using_recvmmsg()
-  // Just ensure it doesn't crash, result is platform-dependent
-  inspect(using_mmsg.to_string().length() > 0, content="true")
+  let _ = socket.using_recvmmsg()
   socket.close(() => ())
   uv.run(Default)
   uv.close()
 }
 
 ///|
-test "udp extended initialization" {
+test "Udp::new_ex" {
   let uv = @uv.Loop::new()
-
-  // Test new_ex with flags
-  let flags = @uv.UdpFlags::new(ipv6_only=false, reuseaddr=true)
-  let socket = @uv.Udp::new_ex(uv, flags)
+  let socket = @uv.Udp::new_ex(
+    uv,
+    @uv.AddressFamily::inet(),
+    @uv.UdpFlags::new(),
+  )
   socket.close(() => ())
   uv.run(Default)
   uv.close()
 }
 
 ///|
-test "udp membership" {
+test "Udp::set_membership" {
   let uv = @uv.Loop::new()
-  let socket = @uv.Udp::new(uv)
-
-  // Test multicast membership - this may fail on some systems
-  // so we just test that the function doesn't crash
+  let socket = @uv.Udp::new_ex(
+    uv,
+    @uv.AddressFamily::inet(),
+    @uv.UdpFlags::new(),
+  )
   try {
-    socket.set_membership(
-      "224.0.0.1",
-      interface_addr="0.0.0.0",
-      @uv.Membership::JoinGroup,
-    )
-    socket.set_membership(
-      "224.0.0.1",
-      interface_addr="0.0.0.0",
-      @uv.Membership::LeaveGroup,
-    )
+    socket.set_membership("224.0.0.1", "0.0.0.0", @uv.Membership::JoinGroup)
+    socket.set_membership("224.0.0.1", "0.0.0.0", @uv.Membership::LeaveGroup)
   } catch {
-    _ => () // Some systems may not support multicast
+    ENOTSUP => ()
+    error => raise error
   }
   socket.close(() => ())
   uv.run(Default)
