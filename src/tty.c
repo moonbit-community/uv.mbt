@@ -15,6 +15,7 @@
 
 #include "moonbit.h"
 #include "uv#include#uv.h"
+#include <stdint.h>
 
 MOONBIT_FFI_EXPORT
 uv_tty_t *
@@ -56,4 +57,16 @@ moonbit_uv_tty_get_winsize(uv_tty_t *handle, int32_t *width, int32_t *height) {
   moonbit_decref(width);
   moonbit_decref(height);
   return status;
+}
+
+MOONBIT_FFI_EXPORT
+void
+moonbit_uv_tty_set_vterm_state(uv_tty_vtermstate_t state) {
+  uv_tty_set_vterm_state(state);
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_tty_get_vterm_state(uv_tty_vtermstate_t *state) {
+  return uv_tty_get_vterm_state(state);
 }

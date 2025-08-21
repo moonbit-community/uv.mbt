@@ -110,3 +110,35 @@ pub fn Tty::get_winsize(self : Tty) -> (Int, Int) raise Errno {
   }
   (width[0], height[0])
 }
+
+///|
+pub enum TtyVtermState {
+  Supported = 0
+  Unsupported = 1
+}
+
+///|
+pub fn TtyVtermState::supported() -> TtyVtermState {
+  TtyVtermState::Supported
+}
+
+///|
+pub fn TtyVtermState::unsupported() -> TtyVtermState {
+  TtyVtermState::Unsupported
+}
+
+///|
+pub extern "c" fn Tty::set_vterm_state(state : TtyVtermState) = "moonbit_uv_tty_set_vterm_state"
+
+///|
+#borrow(state)
+extern "c" fn uv_tty_get_vterm_state(state : Ref[TtyVtermState]) -> Int = "moonbit_uv_tty_get_vterm_state"
+
+///|
+pub fn Tty::get_vterm_state() -> Unit raise Errno {
+  let state : Ref[TtyVtermState] = Ref::new(TtyVtermState::Unsupported)
+  let result = uv_tty_get_vterm_state(state)
+  if result < 0 {
+    raise Errno::of_int(result)
+  }
+}
