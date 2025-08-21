@@ -205,10 +205,10 @@ pub extern "c" fn StdioContainer::inherit_stream(
 ) -> StdioContainer = "moonbit_uv_stdio_container_inherit_stream"
 
 ///|
-struct Uid(Int)
+pub(all) struct Uid(UInt64)
 
 ///|
-struct Gid(Int)
+pub(all) struct Gid(UInt64)
 
 ///|
 extern "c" fn uv_spawn(

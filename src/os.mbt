@@ -330,10 +330,10 @@ extern "c" fn uv_passwd_make() -> Passwd = "moonbit_uv_passwd_make"
 pub extern "c" fn Passwd::username(passwd : Passwd) -> Bytes = "moonbit_uv_passwd_get_username"
 
 ///|
-pub extern "c" fn Passwd::uid(passwd : Passwd) -> UInt64 = "moonbit_uv_passwd_get_uid"
+pub extern "c" fn Passwd::uid(passwd : Passwd) -> Uid = "moonbit_uv_passwd_get_uid"
 
 ///|
-pub extern "c" fn Passwd::gid(passwd : Passwd) -> UInt64 = "moonbit_uv_passwd_get_gid"
+pub extern "c" fn Passwd::gid(passwd : Passwd) -> Gid = "moonbit_uv_passwd_get_gid"
 
 ///|
 pub extern "c" fn Passwd::shell(passwd : Passwd) -> Bytes = "moonbit_uv_passwd_get_shell"
@@ -345,8 +345,8 @@ extern "c" fn uv_os_get_passwd(passwd : Passwd) -> Int = "moonbit_uv_os_get_pass
 /// ```
 /// let passwd = @uv.os_get_passwd()
 /// println(passwd.username())
-/// println(passwd.uid())
-/// println(passwd.gid())
+/// println(passwd.uid().inner())
+/// println(passwd.gid().inner())
 /// println(passwd.shell())
 /// ```
 pub fn os_get_passwd() -> Passwd raise Errno {

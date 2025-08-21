@@ -1559,8 +1559,8 @@ extern "c" fn uv_fs_chown(
   uv : Loop,
   req : Fs,
   path : Bytes,
-  uid : UInt,
-  gid : UInt,
+  uid : Uid,
+  gid : Gid,
   cb : (Fs) -> Unit,
 ) -> Int = "moonbit_uv_fs_chown"
 
@@ -1599,10 +1599,11 @@ extern "c" fn uv_fs_chown(
 /// let uv = @uv.Loop::new()
 /// let errors = []
 /// let path : Bytes = "test/fixtures/example.txt"
+/// let passwd = @uv.os_get_passwd()
 /// uv.fs_chown(
 ///   path,
-///   1000,  // uid
-///   1000,  // gid
+///   passwd.uid(),
+///   passwd.gid(),
 ///   () => println("Ownership changed successfully"),
 ///   error => errors.push(error)
 /// )
@@ -1616,8 +1617,8 @@ extern "c" fn uv_fs_chown(
 pub fn Loop::fs_chown(
   self : Loop,
   path : Bytes,
-  uid : UInt,
-  gid : UInt,
+  uid : Uid,
+  gid : Gid,
   chown_cb : () -> Unit,
   error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
