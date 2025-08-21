@@ -16,6 +16,7 @@
 #include "moonbit.h"
 #include "uv#include#uv.h"
 #include "uv.h"
+#include <stdint.h>
 #include <stdlib.h>
 
 MOONBIT_FFI_EXPORT
@@ -111,4 +112,78 @@ moonbit_uv_chdir(moonbit_bytes_t path) {
   int status = uv_chdir((const char *)path);
   moonbit_decref(path);
   return status;
+}
+
+typedef struct moonbit_uv_passwd_s {
+  uv_passwd_t passwd;
+} moonbit_uv_passwd_t;
+
+static inline void
+moonbit_uv_os_free_passwd(void *object) {
+  moonbit_uv_passwd_t *passwd = (moonbit_uv_passwd_t *)object;
+  uv_os_free_passwd(&passwd->passwd);
+}
+
+MOONBIT_FFI_EXPORT
+moonbit_uv_passwd_t *
+moonbit_uv_passwd_make(void) {
+  moonbit_uv_passwd_t *passwd = moonbit_make_external_object(
+    moonbit_uv_os_free_passwd, sizeof(moonbit_uv_passwd_t)
+  );
+  memset(passwd, 0, sizeof(moonbit_uv_passwd_t));
+  return passwd;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_os_get_passwd(moonbit_uv_passwd_t *passwd) {
+  int32_t result = uv_os_get_passwd(&passwd->passwd);
+  moonbit_decref(passwd);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+moonbit_bytes_t
+moonbit_uv_passwd_get_username(moonbit_uv_passwd_t *passwd) {
+  size_t length = strlen(passwd->passwd.username);
+  moonbit_bytes_t username = moonbit_make_bytes(length, 0);
+  memcpy(username, passwd->passwd.username, length);
+  moonbit_decref(passwd);
+  return username;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_passwd_get_uid(moonbit_uv_passwd_t *passwd) {
+  uint64_t uid = passwd->passwd.uid;
+  moonbit_decref(passwd);
+  return uid;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_passwd_get_gid(moonbit_uv_passwd_t *passwd) {
+  uint64_t gid = passwd->passwd.gid;
+  moonbit_decref(passwd);
+  return gid;
+}
+
+MOONBIT_FFI_EXPORT
+moonbit_bytes_t
+moonbit_uv_passwd_get_homedir(moonbit_uv_passwd_t *passwd) {
+  size_t length = strlen(passwd->passwd.homedir);
+  moonbit_bytes_t homedir = moonbit_make_bytes(length, 0);
+  memcpy(homedir, passwd->passwd.homedir, length);
+  moonbit_decref(passwd);
+  return homedir;
+}
+
+MOONBIT_FFI_EXPORT
+moonbit_bytes_t
+moonbit_uv_passwd_get_shell(moonbit_uv_passwd_t *passwd) {
+  size_t length = strlen(passwd->passwd.shell);
+  moonbit_bytes_t shell = moonbit_make_bytes(length, 0);
+  memcpy(shell, passwd->passwd.shell, length);
+  moonbit_decref(passwd);
+  return shell;
 }
