@@ -196,6 +196,288 @@ pub fn Udp::recv_stop(self : Udp) -> Unit raise Errno {
 struct UdpFlags(UInt)
 
 ///|
-pub fn UdpFlags::new() -> UdpFlags {
-  UdpFlags(0)
+pub fn UdpFlags::new(
+  ipv6_only~ : Bool = false,
+  reuseaddr~ : Bool = false,
+) -> UdpFlags {
+  let mut flags = 0U
+  if ipv6_only {
+    flags = flags | UDP_IPV6ONLY
+  }
+  if reuseaddr {
+    flags = flags | UDP_REUSEADDR
+  }
+  UdpFlags(flags)
+}
+
+///|
+const UDP_IPV6ONLY : UInt = 1
+
+///|
+const UDP_PARTIAL : UInt = 2
+
+///|
+const UDP_REUSEADDR : UInt = 4
+
+///|
+const UDP_MMSG_CHUNK : UInt = 8
+
+///|
+const UDP_MMSG_FREE : UInt = 16
+
+///|
+pub(all) enum Membership {
+  LeaveGroup
+  JoinGroup
+}
+
+///|
+pub fn Membership::to_int(self : Membership) -> Int {
+  match self {
+    LeaveGroup => 0
+    JoinGroup => 1
+  }
+}
+
+///|
+extern "c" fn uv_udp_init_ex(uv : Loop, udp : Udp, flags : UInt) -> Int = "moonbit_uv_udp_init_ex"
+
+///|
+/// Extended UDP initialization with flags
+pub fn Udp::new_ex(uv : Loop, flags : UdpFlags) -> Udp raise Errno {
+  let udp = uv_udp_make()
+  let result = uv_udp_init_ex(uv, udp, flags.inner())
+  if result < 0 {
+    raise Errno::of_int(result)
+  }
+  udp
+}
+
+///|
+extern "c" fn uv_udp_open(udp : Udp, os_sock : OsSock) -> Int = "moonbit_uv_udp_open"
+
+///|
+/// Open UDP handle from existing socket
+pub fn Udp::open(self : Udp, os_sock : OsSock) -> Unit raise Errno {
+  let result = uv_udp_open(self, os_sock)
+  if result < 0 {
+    raise Errno::of_int(result)
+  }
+}
+
+///|
+extern "c" fn uv_udp_getpeername(udp : Udp, addr : Sockaddr) -> Int = "moonbit_uv_udp_getpeername"
+
+///|
+/// Get the address of the peer connected to the UDP handle
+pub fn Udp::getpeername(self : Udp) -> Sockaddr raise Errno {
+  let addr = uv_sockaddr_make()
+  let result = uv_udp_getpeername(self, addr)
+  if result < 0 {
+    raise Errno::of_int(result)
+  }
+  addr
+}
+
+///|
+extern "c" fn uv_udp_getsockname(udp : Udp, addr : Sockaddr) -> Int = "moonbit_uv_udp_getsockname"
+
+///|
+/// Get the current address to which the UDP handle is bound
+pub fn Udp::getsockname(self : Udp) -> Sockaddr raise Errno {
+  let addr = uv_sockaddr_make()
+  let result = uv_udp_getsockname(self, addr)
+  if result < 0 {
+    raise Errno::of_int(result)
+  }
+  addr
+}
+
+///|
+extern "c" fn uv_udp_set_membership(
+  udp : Udp,
+  multicast_addr : String,
+  interface_addr : @c.Nullable[String],
+  membership : Int,
+) -> Int = "moonbit_uv_udp_set_membership"
+
+///|
+/// Set UDP multicast group membership
+pub fn Udp::set_membership(
+  self : Udp,
+  multicast_addr : String,
+  interface_addr? : String,
+  membership : Membership,
+) -> Unit raise Errno {
+  let result = uv_udp_set_membership(
+    self,
+    multicast_addr,
+    @c.Nullable::of(interface_addr),
+    membership.to_int(),
+  )
+  if result < 0 {
+    raise Errno::of_int(result)
+  }
+}
+
+///|
+extern "c" fn uv_udp_set_source_membership(
+  udp : Udp,
+  multicast_addr : String,
+  interface_addr : @c.Nullable[String],
+  source_addr : String,
+  membership : Int,
+) -> Int = "moonbit_uv_udp_set_source_membership"
+
+///|
+/// Set UDP source-specific multicast group membership
+pub fn Udp::set_source_membership(
+  self : Udp,
+  multicast_addr : String,
+  interface_addr? : String,
+  source_addr : String,
+  membership : Membership,
+) -> Unit raise Errno {
+  let result = uv_udp_set_source_membership(
+    self,
+    multicast_addr,
+    @c.Nullable::of(interface_addr),
+    source_addr,
+    membership.to_int(),
+  )
+  if result < 0 {
+    raise Errno::of_int(result)
+  }
+}
+
+///|
+extern "c" fn uv_udp_set_multicast_loop(udp : Udp, on : Bool) -> Int = "moonbit_uv_udp_set_multicast_loop"
+
+///|
+/// Enable or disable multicast loopback
+pub fn Udp::set_multicast_loop(self : Udp, on : Bool) -> Unit raise Errno {
+  let result = uv_udp_set_multicast_loop(self, on)
+  if result < 0 {
+    raise Errno::of_int(result)
+  }
+}
+
+///|
+extern "c" fn uv_udp_set_multicast_ttl(udp : Udp, ttl : Int) -> Int = "moonbit_uv_udp_set_multicast_ttl"
+
+///|
+/// Set the multicast Time To Live (TTL)
+pub fn Udp::set_multicast_ttl(self : Udp, ttl : Int) -> Unit raise Errno {
+  let result = uv_udp_set_multicast_ttl(self, ttl)
+  if result < 0 {
+    raise Errno::of_int(result)
+  }
+}
+
+///|
+extern "c" fn uv_udp_set_multicast_interface(
+  udp : Udp,
+  interface_addr : String,
+) -> Int = "moonbit_uv_udp_set_multicast_interface"
+
+///|
+/// Set the multicast interface to use
+pub fn Udp::set_multicast_interface(
+  self : Udp,
+  interface_addr : String,
+) -> Unit raise Errno {
+  let result = uv_udp_set_multicast_interface(self, interface_addr)
+  if result < 0 {
+    raise Errno::of_int(result)
+  }
+}
+
+///|
+extern "c" fn uv_udp_set_broadcast(udp : Udp, on : Bool) -> Int = "moonbit_uv_udp_set_broadcast"
+
+///|
+/// Enable or disable broadcast mode
+pub fn Udp::set_broadcast(self : Udp, on : Bool) -> Unit raise Errno {
+  let result = uv_udp_set_broadcast(self, on)
+  if result < 0 {
+    raise Errno::of_int(result)
+  }
+}
+
+///|
+extern "c" fn uv_udp_set_ttl(udp : Udp, ttl : Int) -> Int = "moonbit_uv_udp_set_ttl"
+
+///|
+/// Set the Time To Live (TTL) for UDP packets
+pub fn Udp::set_ttl(self : Udp, ttl : Int) -> Unit raise Errno {
+  let result = uv_udp_set_ttl(self, ttl)
+  if result < 0 {
+    raise Errno::of_int(result)
+  }
+}
+
+///|
+extern "c" fn uv_udp_try_send(
+  udp : Udp,
+  bufs_base : FixedArray[Bytes],
+  bufs_offset : FixedArray[Int],
+  bufs_length : FixedArray[Int],
+  addr : @c.Nullable[Sockaddr],
+) -> Int = "moonbit_uv_udp_try_send"
+
+///|
+/// Try to send data synchronously (non-blocking)
+/// Returns the number of bytes written or a negative error code
+pub fn[Sockaddr : ToSockaddr] Udp::try_send(
+  self : Udp,
+  data : Array[@bytes.View],
+  addr? : Sockaddr,
+) -> Int raise Errno {
+  let bufs_size = data.length()
+  let bufs_base : FixedArray[Bytes] = FixedArray::make(bufs_size, [])
+  let bufs_offset = FixedArray::make(bufs_size, 0)
+  let bufs_length = FixedArray::make(bufs_size, 0)
+  for i in 0..<data.length() {
+    bufs_base[i] = data[i].data()
+    bufs_offset[i] = data[i].start_offset()
+    bufs_length[i] = data[i].length()
+  }
+  let result = uv_udp_try_send(
+    self,
+    bufs_base,
+    bufs_offset,
+    bufs_length,
+    @c.Nullable::of(addr.map(Sockaddr::to_sockaddr)),
+  )
+  if result < 0 {
+    raise Errno::of_int(result)
+  }
+  result
+}
+
+///|
+extern "c" fn uv_udp_using_recvmmsg(udp : Udp) -> Int = "moonbit_uv_udp_using_recvmmsg"
+
+///|
+/// Check if the UDP handle is using recvmmsg for receiving data
+pub fn Udp::using_recvmmsg(self : Udp) -> Bool {
+  uv_udp_using_recvmmsg(self) != 0
+}
+
+///|
+extern "c" fn uv_udp_get_send_queue_size(udp : Udp) -> UInt64 = "moonbit_uv_udp_get_send_queue_size"
+
+///|
+/// Get the size of the send queue
+pub fn Udp::get_send_queue_size(self : Udp) -> UInt64 {
+  uv_udp_get_send_queue_size(self)
+}
+
+///|
+extern "c" fn uv_udp_get_send_queue_count(udp : Udp) -> UInt64 = "moonbit_uv_udp_get_send_queue_count"
+
+///|
+/// Get the count of items in the send queue
+pub fn Udp::get_send_queue_count(self : Udp) -> UInt64 {
+  uv_udp_get_send_queue_count(self)
 }

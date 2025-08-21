@@ -328,3 +328,174 @@ moonbit_uv_udp_recv_stop(uv_udp_t *udp) {
   moonbit_decref(udp);
   return status;
 }
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_udp_init_ex(uv_loop_t *loop, moonbit_uv_udp_t *udp, uint32_t flags) {
+  return uv_udp_init_ex(loop, &udp->udp, flags);
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_udp_open(moonbit_uv_udp_t *udp, uv_os_sock_t sock) {
+  int result = uv_udp_open(&udp->udp, sock);
+  moonbit_decref(udp);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_udp_getpeername(moonbit_uv_udp_t *udp, struct sockaddr *name) {
+  int namelen = sizeof(struct sockaddr_storage);
+  int result = uv_udp_getpeername(&udp->udp, name, &namelen);
+  moonbit_decref(udp);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_udp_getsockname(moonbit_uv_udp_t *udp, struct sockaddr *name) {
+  int namelen = sizeof(struct sockaddr_storage);
+  int result = uv_udp_getsockname(&udp->udp, name, &namelen);
+  moonbit_decref(udp);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_udp_set_membership(
+  moonbit_uv_udp_t *udp,
+  moonbit_bytes_t multicast_addr,
+  moonbit_bytes_t interface_addr,
+  int32_t membership
+) {
+  char *multicast_str = (char *)multicast_addr;
+  char *interface_str = interface_addr ? (char *)interface_addr : NULL;
+  int result =
+    uv_udp_set_membership(&udp->udp, multicast_str, interface_str, membership);
+  moonbit_decref(multicast_addr);
+  if (interface_addr) {
+    moonbit_decref(interface_addr);
+  }
+  moonbit_decref(udp);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_udp_set_source_membership(
+  moonbit_uv_udp_t *udp,
+  moonbit_bytes_t multicast_addr,
+  moonbit_bytes_t interface_addr,
+  moonbit_bytes_t source_addr,
+  int32_t membership
+) {
+  char *multicast_str = (char *)multicast_addr;
+  char *interface_str = interface_addr ? (char *)interface_addr : NULL;
+  char *source_str = (char *)source_addr;
+  int result = uv_udp_set_source_membership(
+    &udp->udp, multicast_str, interface_str, source_str, membership
+  );
+  moonbit_decref(multicast_addr);
+  if (interface_addr) {
+    moonbit_decref(interface_addr);
+  }
+  moonbit_decref(source_addr);
+  moonbit_decref(udp);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_udp_set_multicast_loop(moonbit_uv_udp_t *udp, bool on) {
+  int result = uv_udp_set_multicast_loop(&udp->udp, on ? 1 : 0);
+  moonbit_decref(udp);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_udp_set_multicast_ttl(moonbit_uv_udp_t *udp, int32_t ttl) {
+  int result = uv_udp_set_multicast_ttl(&udp->udp, ttl);
+  moonbit_decref(udp);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_udp_set_multicast_interface(
+  moonbit_uv_udp_t *udp,
+  moonbit_bytes_t interface_addr
+) {
+  char *interface_str = (char *)interface_addr;
+  int result = uv_udp_set_multicast_interface(&udp->udp, interface_str);
+  moonbit_decref(interface_addr);
+  moonbit_decref(udp);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_udp_set_broadcast(moonbit_uv_udp_t *udp, bool on) {
+  int result = uv_udp_set_broadcast(&udp->udp, on ? 1 : 0);
+  moonbit_decref(udp);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_udp_set_ttl(moonbit_uv_udp_t *udp, int32_t ttl) {
+  int result = uv_udp_set_ttl(&udp->udp, ttl);
+  moonbit_decref(udp);
+  return result;
+}
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_udp_try_send(
+  moonbit_uv_udp_t *udp,
+  moonbit_bytes_t *bufs,
+  int32_t *bufs_offset,
+  int32_t *bufs_length,
+  struct sockaddr *addr
+) {
+  int bufs_size = Moonbit_array_length(bufs);
+  uv_buf_t *bufs_data = malloc(sizeof(uv_buf_t) * bufs_size);
+  for (int i = 0; i < bufs_size; i++) {
+    bufs_data[i] =
+      uv_buf_init((char *)bufs[i] + bufs_offset[i], bufs_length[i]);
+  }
+  int result = uv_udp_try_send(&udp->udp, bufs_data, bufs_size, addr);
+  free(bufs_data);
+  moonbit_decref(bufs);
+  moonbit_decref(bufs_offset);
+  moonbit_decref(bufs_length);
+  if (addr) {
+    moonbit_decref(addr);
+  }
+  moonbit_decref(udp);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_udp_using_recvmmsg(moonbit_uv_udp_t *udp) {
+  int result = uv_udp_using_recvmmsg(&udp->udp);
+  moonbit_decref(udp);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_udp_get_send_queue_size(moonbit_uv_udp_t *udp) {
+  size_t result = uv_udp_get_send_queue_size(&udp->udp);
+  moonbit_decref(udp);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_udp_get_send_queue_count(moonbit_uv_udp_t *udp) {
+  size_t result = uv_udp_get_send_queue_count(&udp->udp);
+  moonbit_decref(udp);
+  return result;
+}

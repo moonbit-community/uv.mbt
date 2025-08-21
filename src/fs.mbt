@@ -489,18 +489,19 @@ extern "c" fn uv_fs_sendfile(
 /// ```moonbit
 /// let uv = @uv.Loop::new()
 /// let errors = []
-/// let src_file = uv.fs_open_sync("input.txt", @uv.OpenFlags::read_only(), 0o644)
-/// let dst_file = uv.fs_open_sync("output.txt", @uv.OpenFlags::write_only(create=true), 0o644)
+/// let dst_path : Bytes = "test/fixtures/example-sent.txt"
+/// let src_file = uv.fs_open_sync("test/fixtures/example.txt", @uv.OpenFlags::read_only(), 0o644)
+/// let dst_file = uv.fs_open_sync(dst_path, @uv.OpenFlags::write_only(create=true), 0o644)
 /// uv.fs_sendfile(
 ///   dst_file,
 ///   src_file,
 ///   0L,
 ///   1024UL,
-///   bytes_sent => {
-///     println("Transferred \{bytes_sent} bytes")
+///   _ => {
 ///     try {
 ///       uv.fs_close_sync(src_file)
 ///       uv.fs_close_sync(dst_file)
+///       uv.fs_unlink_sync(dst_path)
 ///     } catch { e => errors.push(e) }
 ///   },
 ///   error => {
@@ -508,6 +509,7 @@ extern "c" fn uv_fs_sendfile(
 ///     try {
 ///       uv.fs_close_sync(src_file)
 ///       uv.fs_close_sync(dst_file)
+///       uv.fs_unlink_sync(dst_path)
 ///     } catch { e => errors.push(e) }
 ///   }
 /// )
@@ -584,12 +586,13 @@ extern "c" fn uv_fs_sendfile_sync(
 ///
 /// ```moonbit
 /// let uv = @uv.Loop::new()
-/// let src_file = uv.fs_open_sync("input.txt", @uv.OpenFlags::read_only(), 0o644)
-/// let dst_file = uv.fs_open_sync("output.txt", @uv.OpenFlags::write_only(create=true), 0o644)
-/// let bytes_sent = uv.fs_sendfile_sync(dst_file, src_file, 0L, 1024UL)
-/// println("Transferred \{bytes_sent} bytes")
+/// let dst_path : Bytes = "test/fixtures/example-sent.txt"
+/// let src_file = uv.fs_open_sync("test/fixtures/example.txt", @uv.OpenFlags::read_only(), 0o644)
+/// let dst_file = uv.fs_open_sync(dst_path, @uv.OpenFlags::write_only(create=true), 0o644)
+/// let _ = uv.fs_sendfile_sync(dst_file, src_file, 0L, 1024UL)
 /// uv.fs_close_sync(src_file)
 /// uv.fs_close_sync(dst_file)
+/// uv.fs_unlink_sync(dst_path)
 /// uv.close()
 /// ```
 pub fn Loop::fs_sendfile_sync(
@@ -648,11 +651,11 @@ extern "c" fn uv_fs_chmod(
 /// ```moonbit
 /// let uv = @uv.Loop::new()
 /// let errors = []
-/// let path : Bytes = "test_file.txt"
+/// let path : Bytes = "test/fixtures/example-chmod.txt"
 /// uv.fs_chmod(
 ///   path,
 ///   0o644,  // rw-r--r--
-///   () => println("File permissions changed successfully"),
+///   () => (),
 ///   error => errors.push(error)
 /// )
 /// |> ignore()
@@ -723,7 +726,7 @@ extern "c" fn uv_fs_chmod_sync(
 ///
 /// ```moonbit
 /// let uv = @uv.Loop::new()
-/// let path : Bytes = "test_file.txt"
+/// let path : Bytes = "test/fixtures/example-chmod-sync.txt"
 /// uv.fs_chmod_sync(path, 0o644)  // rw-r--r--
 /// uv.close()
 /// ```
@@ -779,13 +782,12 @@ extern "c" fn uv_fs_fchmod(
 /// ```moonbit
 /// let uv = @uv.Loop::new()
 /// let errors = []
-/// let path : Bytes = "test_file.txt"
+/// let path : Bytes = "test/fixtures/example-fchmod.txt"
 /// let file = uv.fs_open_sync(path, @uv.OpenFlags::read_write(), 0o644)
 /// uv.fs_fchmod(
 ///   file,
 ///   0o600,  // rw-------
 ///   () => {
-///     println("File permissions changed successfully")
 ///     try uv.fs_close_sync(file) catch { e => errors.push(e) }
 ///   },
 ///   error => {
@@ -860,7 +862,7 @@ extern "c" fn uv_fs_fchmod_sync(
 ///
 /// ```moonbit
 /// let uv = @uv.Loop::new()
-/// let path : Bytes = "test_file.txt"
+/// let path : Bytes = "test/fixtures/example-fchmod-sync.txt"
 /// let file = uv.fs_open_sync(path, @uv.OpenFlags::read_write(), 0o644)
 /// uv.fs_fchmod_sync(file, 0o600)  // rw-------
 /// uv.fs_close_sync(file)
@@ -1677,7 +1679,6 @@ extern "c" fn uv_fs_chown_sync(
 /// ```moonbit
 /// let uv = @uv.Loop::new()
 /// let path : Bytes = "test/fixtures/example.txt"
-/// // Change to user ID 1000 and group ID 1000 (typical values for first user on Linux)
 /// uv.fs_chown_sync(path, 1000, 1000)
 /// uv.close()
 /// ```
