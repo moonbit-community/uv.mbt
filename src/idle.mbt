@@ -50,6 +50,7 @@ pub impl ToHandle for Idle with of_handle(handle : Handle) -> Idle = "%identity"
 extern "c" fn uv_idle_make() -> Idle = "moonbit_uv_idle_make"
 
 ///|
+#owned(uv, idle)
 extern "c" fn uv_idle_init(uv : Loop, idle : Idle) -> Int = "moonbit_uv_idle_init"
 
 ///|
@@ -63,9 +64,11 @@ pub fn Idle::new(self : Loop) -> Idle raise Errno {
 }
 
 ///|
+#owned(idle)
 extern "c" fn uv_idle_start(idle : Idle, cb : (Idle) -> Unit) -> Int = "moonbit_uv_idle_start"
 
 ///|
+#owned(idle)
 extern "c" fn uv_idle_stop(idle : Idle) -> Int = "moonbit_uv_idle_stop"
 
 ///|

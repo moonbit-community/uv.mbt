@@ -13,6 +13,7 @@
 // limitations under the License.
 
 ///|
+#owned(bytes)
 extern "c" fn strerror_r(err : Int, bytes : Bytes) = "moonbit_uv_strerror_r"
 
 ///|

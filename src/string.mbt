@@ -13,9 +13,11 @@
 // limitations under the License.
 
 ///|
+#owned(utf16)
 extern "c" fn uv_utf16_length_as_wtf8(utf16 : String) -> UInt64 = "moonbit_uv_utf16_length_as_wtf8"
 
 ///|
+#owned(utf16, wtf8)
 extern "c" fn uv_utf16_to_wtf8(utf16 : String, wtf8 : Bytes) -> Int = "moonbit_uv_utf16_to_wtf8"
 
 ///|
@@ -28,9 +30,11 @@ pub fn string_to_wtf8(utf16 : String) -> Bytes {
 }
 
 ///|
+#owned(wtf8)
 extern "c" fn uv_wtf8_length_as_utf16(wtf8 : Bytes) -> Int64 = "moonbit_uv_wtf8_length_as_utf16"
 
 ///|
+#owned(wtf8, utf16)
 extern "c" fn uv_wtf8_to_utf16(wtf8 : Bytes, utf16 : String) = "moonbit_uv_wtf8_to_utf16"
 
 ///|

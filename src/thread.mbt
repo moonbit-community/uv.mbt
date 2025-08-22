@@ -19,6 +19,7 @@ type Thread
 extern "c" fn uv_thread_make() -> Thread = "moonbit_uv_thread_make"
 
 ///|
+#owned(thread)
 extern "c" fn uv_thread_create(thread : Thread, cb : () -> Unit) -> Int = "moonbit_uv_thread_create"
 
 ///|
@@ -32,12 +33,15 @@ pub fn Thread::new(cb : () -> Unit) -> Thread raise Errno {
 }
 
 ///|
+#owned(thread)
 extern "c" fn uv_thread_join(thread : Thread) -> Int = "moonbit_uv_thread_join"
 
 ///|
+#owned(thread)
 extern "c" fn uv_thread_self(thread : Thread) -> Int = "moonbit_uv_thread_self"
 
 ///|
+#owned(thread, other)
 extern "c" fn uv_thread_equal(thread : Thread, other : Thread) -> Int = "moonbit_uv_thread_equal"
 
 ///|
@@ -46,6 +50,7 @@ pub impl Eq for Thread with op_equal(self : Thread, other : Thread) -> Bool {
 }
 
 ///|
+#owned(thread, other)
 extern "c" fn uv_thread_copy(thread : Thread, other : Thread) -> Unit = "moonbit_uv_thread_copy"
 
 ///|
@@ -85,6 +90,7 @@ extern "c" fn uv_cpumask_size() -> Int = "moonbit_uv_cpumask_size"
 extern "c" fn uv_thread_getcpu() -> Int = "moonbit_uv_thread_getcpu"
 
 ///|
+#owned(thread, cpumask, oldmask)
 extern "c" fn uv_thread_setaffinity(
   thread : Thread,
   cpumask : CpuSet,
@@ -93,6 +99,7 @@ extern "c" fn uv_thread_setaffinity(
 ) -> Int = "moonbit_uv_thread_setaffinity"
 
 ///|
+#owned(thread, cpumask)
 extern "c" fn uv_thread_getaffinity(
   thread : Thread,
   cpumask : CpuSet,

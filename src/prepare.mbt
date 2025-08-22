@@ -25,6 +25,7 @@ pub impl ToHandle for Prepare with of_handle(handle : Handle) -> Prepare = "%ide
 extern "c" fn uv_prepare_make() -> Prepare = "moonbit_uv_prepare_make"
 
 ///|
+#owned(uv, prepare)
 extern "c" fn uv_prepare_init(uv : Loop, prepare : Prepare) -> Int = "moonbit_uv_prepare_init"
 
 ///|
@@ -38,12 +39,14 @@ pub fn Prepare::new(self : Loop) -> Prepare raise Errno {
 }
 
 ///|
+#owned(prepare)
 extern "c" fn uv_prepare_start(
   prepare : Prepare,
   cb : (Prepare) -> Unit,
 ) -> Int = "moonbit_uv_prepare_start"
 
 ///|
+#owned(prepare)
 extern "c" fn uv_prepare_stop(prepare : Prepare) -> Int = "moonbit_uv_prepare_stop"
 
 ///|

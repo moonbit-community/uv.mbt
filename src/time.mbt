@@ -36,6 +36,7 @@ pub fn sleep(milliseconds : UInt) -> Unit {
 }
 
 ///|
+#owned(uv)
 extern "c" fn uv_now(uv : Loop) -> UInt64 = "moonbit_uv_now"
 
 ///|
@@ -53,6 +54,7 @@ pub fn Loop::now(self : Loop) -> UInt64 {
 }
 
 ///|
+#owned(uv)
 extern "c" fn uv_update_time(uv : Loop) = "moonbit_uv_update_time"
 
 ///|

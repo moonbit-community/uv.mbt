@@ -13,6 +13,7 @@
 // limitations under the License.
 
 ///|
+#owned(uv)
 extern "c" fn uv_print_all_handles(uv : Loop, fd : Int) -> Unit = "moonbit_uv_print_all_handles"
 
 ///|

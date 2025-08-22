@@ -13,6 +13,7 @@
 // limitations under the License.
 
 ///|
+#owned(buffer)
 extern "c" fn uv_os_uname(buffer : Bytes) -> Int = "moonbit_uv_os_uname"
 
 ///|
@@ -84,6 +85,7 @@ pub fn os_uname() -> Utsname raise Errno {
 }
 
 ///|
+#owned(bytes, size)
 extern "c" fn uv_os_tmpdir(bytes : Bytes, size : FixedArray[Int]) -> Int = "moonbit_uv_os_tmpdir"
 
 ///|
@@ -116,6 +118,7 @@ pub fn os_tmpdir() -> Bytes raise Errno {
 }
 
 ///|
+#owned(bytes, size)
 extern "c" fn uv_exepath(bytes : Bytes, size : FixedArray[Int]) -> Int = "moonbit_uv_exepath"
 
 ///|
@@ -135,6 +138,7 @@ pub fn exepath() -> Bytes raise Errno {
 }
 
 ///|
+#owned(bytes, size)
 extern "c" fn uv_os_homedir(bytes : Bytes, size : FixedArray[Int]) -> Int = "moonbit_uv_os_homedir"
 
 ///|
@@ -154,6 +158,7 @@ pub fn os_homedir() -> Bytes raise Errno {
 }
 
 ///|
+#owned(path)
 extern "c" fn uv_chdir(path : Bytes) -> Int = "moonbit_uv_chdir"
 
 ///|
@@ -221,6 +226,7 @@ pub fn CpuTimes::irq(self : CpuTimes) -> UInt64 {
 }
 
 ///|
+#owned(cpu_infos, count)
 extern "c" fn uv_cpu_info(
   cpu_infos : FixedArray[@c.Pointer[CpuInfo]],
   count : FixedArray[Int],
@@ -327,18 +333,23 @@ type Passwd
 extern "c" fn uv_passwd_make() -> Passwd = "moonbit_uv_passwd_make"
 
 ///|
+#owned(passwd)
 pub extern "c" fn Passwd::username(passwd : Passwd) -> Bytes = "moonbit_uv_passwd_get_username"
 
 ///|
+#owned(passwd)
 pub extern "c" fn Passwd::uid(passwd : Passwd) -> Uid = "moonbit_uv_passwd_get_uid"
 
 ///|
+#owned(passwd)
 pub extern "c" fn Passwd::gid(passwd : Passwd) -> Gid = "moonbit_uv_passwd_get_gid"
 
 ///|
+#owned(passwd)
 pub extern "c" fn Passwd::shell(passwd : Passwd) -> Bytes = "moonbit_uv_passwd_get_shell"
 
 ///|
+#owned(passwd)
 extern "c" fn uv_os_get_passwd(passwd : Passwd) -> Int = "moonbit_uv_os_get_passwd"
 
 ///|

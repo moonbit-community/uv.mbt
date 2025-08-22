@@ -42,6 +42,7 @@ pub impl ToHandle for Async with of_handle(handle : Handle) -> Async = "%identit
 extern "c" fn uv_async_make() -> Async = "moonbit_uv_async_make"
 
 ///|
+#owned(uv, handle)
 extern "c" fn uv_async_init(
   uv : Loop,
   handle : Async,
@@ -64,6 +65,7 @@ pub fn Async::new(self : Loop, cb : (Async) -> Unit) -> Async raise Errno {
 }
 
 ///|
+#owned(handle)
 extern "c" fn uv_async_send(handle : Async) -> Int = "moonbit_uv_async_send"
 
 ///|

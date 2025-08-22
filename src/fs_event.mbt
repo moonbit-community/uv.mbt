@@ -25,6 +25,7 @@ pub impl ToHandle for FsEvent with of_handle(handle : Handle) -> FsEvent = "%ide
 extern "c" fn uv_fs_event_make() -> FsEvent = "moonbit_uv_fs_event_make"
 
 ///|
+#owned(uv, fs_event)
 extern "c" fn uv_fs_event_init(uv : Loop, fs_event : FsEvent) -> Int = "moonbit_uv_fs_event_init"
 
 ///|
@@ -50,6 +51,7 @@ const UV_RENAME = 1
 const UV_CHANGE = 2
 
 ///|
+#owned(fs_event, path)
 extern "c" fn uv_fs_event_start(
   fs_event : FsEvent,
   cb : (FsEvent, @c.Pointer[Byte], Int, Int) -> Unit,
@@ -116,6 +118,7 @@ pub fn FsEvent::start(
 }
 
 ///|
+#owned(fs_event)
 extern "c" fn uv_fs_event_stop(fs_event : FsEvent) -> Int = "moonbit_uv_fs_event_stop"
 
 ///|
@@ -127,6 +130,7 @@ pub fn FsEvent::stop(self : FsEvent) -> Unit raise Errno {
 }
 
 ///|
+#owned(fs_event, buffer, length)
 extern "c" fn uv_fs_event_getpath(
   fs_event : FsEvent,
   buffer : Bytes,

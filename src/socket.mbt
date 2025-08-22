@@ -130,6 +130,7 @@ pub fn OsSock::to_int(self : OsSock) -> Int {
 }
 
 ///|
+#owned(sock0, sock1)
 extern "c" fn uv_socketpair(
   type_ : Int,
   protocol : Int,

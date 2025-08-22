@@ -19,6 +19,7 @@ type Signal
 extern "c" fn uv_signal_make() -> Signal = "moonbit_uv_signal_make"
 
 ///|
+#owned(uv, signal)
 extern "c" fn uv_signal_init(uv : Loop, signal : Signal) -> Int = "moonbit_uv_signal_init"
 
 ///|
@@ -32,6 +33,7 @@ pub fn Signal::new(self : Loop) -> Signal raise Errno {
 }
 
 ///|
+#owned(signal)
 extern "c" fn uv_signal_start(
   signal : Signal,
   cb : (Signal, Int) -> Unit,
@@ -55,6 +57,7 @@ pub fn Signal::start(
 }
 
 ///|
+#owned(signal)
 extern "c" fn uv_signal_stop(signal : Signal) -> Int = "moonbit_uv_signal_stop"
 
 ///|

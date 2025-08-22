@@ -58,6 +58,7 @@ pub impl ToHandle for Check with of_handle(handle : Handle) -> Check = "%identit
 extern "c" fn uv_check_make() -> Check = "moonbit_uv_check_make"
 
 ///|
+#owned(uv, check)
 extern "c" fn uv_check_init(uv : Loop, check : Check) -> Int = "moonbit_uv_check_init"
 
 ///|
@@ -71,9 +72,11 @@ pub fn Check::new(self : Loop) -> Check raise Errno {
 }
 
 ///|
+#owned(check)
 extern "c" fn uv_check_start(check : Check, cb : (Check) -> Unit) -> Int = "moonbit_uv_check_start"
 
 ///|
+#owned(check)
 extern "c" fn uv_check_stop(check : Check) -> Int = "moonbit_uv_check_stop"
 
 ///|

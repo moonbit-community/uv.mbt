@@ -32,6 +32,7 @@ type Cond
 extern "c" fn uv_cond_make() -> Cond = "moonbit_uv_cond_make"
 
 ///|
+#owned(cond)
 extern "c" fn uv_cond_init(cond : Cond) -> Int = "moonbit_uv_cond_init"
 
 ///|
@@ -45,18 +46,23 @@ pub fn Cond::new() -> Cond raise Errno {
 }
 
 ///|
+#owned(cond, other)
 extern "c" fn uv_cond_copy(cond : Cond, other : Cond) = "moonbit_uv_cond_copy"
 
 ///|
+#owned(cond)
 extern "c" fn uv_cond_signal(cond : Cond) = "moonbit_uv_cond_signal"
 
 ///|
+#owned(cond)
 extern "c" fn uv_cond_broadcast(cond : Cond) = "moonbit_uv_cond_broadcast"
 
 ///|
+#owned(cond, mutex)
 extern "c" fn uv_cond_wait(cond : Cond, mutex : Mutex) = "moonbit_uv_cond_wait"
 
 ///|
+#owned(cond, mutex)
 extern "c" fn uv_cond_timedwait(
   cond : Cond,
   mutex : Mutex,

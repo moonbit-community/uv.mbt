@@ -25,6 +25,7 @@ pub impl ToHandle for Udp with of_handle(self : Handle) -> Udp = "%identity"
 extern "c" fn uv_udp_make() -> Udp = "moonbit_uv_udp_make"
 
 ///|
+#owned(uv, udp)
 extern "c" fn uv_udp_init(uv : Loop, udp : Udp) -> Int = "moonbit_uv_udp_init"
 
 ///|
@@ -38,6 +39,7 @@ pub fn Udp::new(uv : Loop) -> Udp raise Errno {
 }
 
 ///|
+#owned(handle, addr)
 extern "c" fn uv_udp_connect(handle : Udp, addr : Sockaddr) -> Int = "moonbit_uv_udp_connect"
 
 ///|
@@ -52,6 +54,7 @@ pub fn[Sockaddr : ToSockaddr] Udp::connect(
 }
 
 ///|
+#owned(handle, addr)
 extern "c" fn uv_udp_bind(handle : Udp, addr : Sockaddr, flags : UInt) -> Int = "moonbit_uv_udp_bind"
 
 ///|
@@ -76,6 +79,7 @@ pub impl ToReq for UdpSend with to_req(self : UdpSend) -> Req = "%identity"
 extern "c" fn uv_udp_send_make() -> UdpSend = "moonbit_uv_udp_send_make"
 
 ///|
+#owned(send, udp, bufs_base, bufs_offset, bufs_length)
 extern "c" fn uv_udp_send(
   send : UdpSend,
   udp : Udp,
@@ -128,6 +132,7 @@ pub fn[Sockaddr : ToSockaddr] Udp::send(
 }
 
 ///|
+#owned(udp)
 extern "c" fn uv_udp_recv_start(
   udp : Udp,
   alloc_cb : (Handle, UInt64, @c.Pointer[Int], @c.Pointer[Int]) -> Bytes,
@@ -182,6 +187,7 @@ pub fn Udp::recv_start(
 }
 
 ///|
+#owned(udp)
 extern "c" fn uv_udp_recv_stop(udp : Udp) -> Int = "moonbit_uv_udp_recv_stop"
 
 ///|
@@ -273,6 +279,7 @@ pub fn Membership::to_int(self : Membership) -> Int {
 }
 
 ///|
+#owned(uv, udp)
 extern "c" fn uv_udp_init_ex(uv : Loop, udp : Udp, flags : UInt) -> Int = "moonbit_uv_udp_init_ex"
 
 ///|
@@ -292,6 +299,7 @@ pub fn Udp::new_ex(
 }
 
 ///|
+#owned(udp, os_sock)
 extern "c" fn uv_udp_open(udp : Udp, os_sock : OsSock) -> Int = "moonbit_uv_udp_open"
 
 ///|
@@ -304,6 +312,7 @@ pub fn Udp::open(self : Udp, os_sock : OsSock) -> Unit raise Errno {
 }
 
 ///|
+#owned(udp, addr)
 extern "c" fn uv_udp_getpeername(udp : Udp, addr : Sockaddr) -> Int = "moonbit_uv_udp_getpeername"
 
 ///|
@@ -318,6 +327,7 @@ pub fn Udp::getpeername(self : Udp) -> Sockaddr raise Errno {
 }
 
 ///|
+#owned(udp, addr)
 extern "c" fn uv_udp_getsockname(udp : Udp, addr : Sockaddr) -> Int = "moonbit_uv_udp_getsockname"
 
 ///|
@@ -332,6 +342,7 @@ pub fn Udp::getsockname(self : Udp) -> Sockaddr raise Errno {
 }
 
 ///|
+#owned(udp, multicast_addr, interface_addr)
 extern "c" fn uv_udp_set_membership(
   udp : Udp,
   multicast_addr : Bytes,
@@ -359,6 +370,7 @@ pub fn Udp::set_membership(
 }
 
 ///|
+#owned(udp, multicast_addr, interface_addr, source_addr)
 extern "c" fn uv_udp_set_source_membership(
   udp : Udp,
   multicast_addr : Bytes,
@@ -389,6 +401,7 @@ pub fn Udp::set_source_membership(
 }
 
 ///|
+#owned(udp)
 extern "c" fn uv_udp_set_multicast_loop(udp : Udp, on : Bool) -> Int = "moonbit_uv_udp_set_multicast_loop"
 
 ///|
@@ -401,6 +414,7 @@ pub fn Udp::set_multicast_loop(self : Udp, on : Bool) -> Unit raise Errno {
 }
 
 ///|
+#owned(udp)
 extern "c" fn uv_udp_set_multicast_ttl(udp : Udp, ttl : Int) -> Int = "moonbit_uv_udp_set_multicast_ttl"
 
 ///|
@@ -413,6 +427,7 @@ pub fn Udp::set_multicast_ttl(self : Udp, ttl : Int) -> Unit raise Errno {
 }
 
 ///|
+#owned(udp, interface_addr)
 extern "c" fn uv_udp_set_multicast_interface(
   udp : Udp,
   interface_addr : Bytes,
@@ -431,6 +446,7 @@ pub fn Udp::set_multicast_interface(
 }
 
 ///|
+#owned(udp)
 extern "c" fn uv_udp_set_broadcast(udp : Udp, on : Bool) -> Int = "moonbit_uv_udp_set_broadcast"
 
 ///|
@@ -443,6 +459,7 @@ pub fn Udp::set_broadcast(self : Udp, on : Bool) -> Unit raise Errno {
 }
 
 ///|
+#owned(udp)
 extern "c" fn uv_udp_set_ttl(udp : Udp, ttl : Int) -> Int = "moonbit_uv_udp_set_ttl"
 
 ///|
@@ -455,6 +472,7 @@ pub fn Udp::set_ttl(self : Udp, ttl : Int) -> Unit raise Errno {
 }
 
 ///|
+#owned(udp, bufs_base, bufs_offset, bufs_length)
 extern "c" fn uv_udp_try_send(
   udp : Udp,
   bufs_base : FixedArray[Bytes],
@@ -494,6 +512,7 @@ pub fn[Sockaddr : ToSockaddr] Udp::try_send(
 }
 
 ///|
+#owned(udp)
 extern "c" fn uv_udp_using_recvmmsg(udp : Udp) -> Int = "moonbit_uv_udp_using_recvmmsg"
 
 ///|
@@ -503,6 +522,7 @@ pub fn Udp::using_recvmmsg(self : Udp) -> Bool {
 }
 
 ///|
+#owned(udp)
 extern "c" fn uv_udp_get_send_queue_size(udp : Udp) -> UInt64 = "moonbit_uv_udp_get_send_queue_size"
 
 ///|
@@ -512,6 +532,7 @@ pub fn Udp::get_send_queue_size(self : Udp) -> UInt64 {
 }
 
 ///|
+#owned(udp)
 extern "c" fn uv_udp_get_send_queue_count(udp : Udp) -> UInt64 = "moonbit_uv_udp_get_send_queue_count"
 
 ///|

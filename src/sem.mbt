@@ -19,6 +19,7 @@ type Sem
 extern "c" fn uv_sem_make() -> Sem = "moonbit_uv_sem_make"
 
 ///|
+#owned(sem)
 extern "c" fn uv_sem_init(sem : Sem, value : UInt) -> Int = "moonbit_uv_sem_init"
 
 ///|
@@ -32,15 +33,19 @@ pub fn Sem::new(value : UInt) -> Sem raise Errno {
 }
 
 ///|
+#owned(sem, other)
 extern "c" fn uv_sem_copy(sem : Sem, other : Sem) = "moonbit_uv_sem_copy"
 
 ///|
+#owned(sem)
 extern "c" fn uv_sem_post(sem : Sem) = "moonbit_uv_sem_post"
 
 ///|
+#owned(sem)
 extern "c" fn uv_sem_wait(sem : Sem) = "moonbit_uv_sem_wait"
 
 ///|
+#owned(sem)
 extern "c" fn uv_sem_trywait(sem : Sem) -> Int = "moonbit_uv_sem_trywait"
 
 ///|

@@ -22,6 +22,7 @@ pub impl ToReq for Fs with to_req(self : Fs) -> Req = "%identity"
 extern "c" fn uv_fs_make() -> Fs = "moonbit_uv_fs_make"
 
 ///|
+#owned(req)
 extern "c" fn uv_fs_req_cleanup(req : Fs) = "moonbit_uv_fs_req_cleanup"
 
 ///|
@@ -197,6 +198,7 @@ extern "c" fn uv_fs_O_EXCL() -> Int = "moonbit_uv_fs_O_EXCL"
 let _O_EXCL : Int = uv_fs_O_EXCL()
 
 ///|
+#owned(uv, req, path)
 extern "c" fn uv_fs_open(
   uv : Loop,
   req : Fs,
@@ -281,6 +283,7 @@ pub fn Loop::fs_open(
 }
 
 ///|
+#owned(uv, req, path)
 extern "c" fn uv_fs_open_sync(
   uv : Loop,
   req : Fs,
@@ -342,6 +345,7 @@ pub fn Loop::fs_open_sync(
 }
 
 ///|
+#owned(uv, req)
 extern "c" fn uv_fs_close(
   uv : Loop,
   req : Fs,
@@ -412,6 +416,7 @@ pub fn Loop::fs_close(
 }
 
 ///|
+#owned(uv, req)
 extern "c" fn uv_fs_close_sync(uv : Loop, req : Fs, file : File) -> Int = "moonbit_uv_fs_close_sync"
 
 ///|
@@ -424,6 +429,7 @@ pub fn Loop::fs_close_sync(self : Loop, file : File) -> Unit raise Errno {
 }
 
 ///|
+#owned(req)
 extern "c" fn uv_fs_get_result(req : Fs) -> Int64 = "moonbit_uv_fs_get_result"
 
 ///|
@@ -445,6 +451,7 @@ pub fn File::to_int(self : File) -> Int {
 }
 
 ///|
+#owned(uv, req)
 extern "c" fn uv_fs_sendfile(
   uv : Loop,
   req : Fs,
@@ -548,6 +555,7 @@ pub fn Loop::fs_sendfile(
 }
 
 ///|
+#owned(uv, req)
 extern "c" fn uv_fs_sendfile_sync(
   uv : Loop,
   req : Fs,
@@ -611,6 +619,7 @@ pub fn Loop::fs_sendfile_sync(
 }
 
 ///|
+#owned(uv, req, path)
 extern "c" fn uv_fs_chmod(
   uv : Loop,
   req : Fs,
@@ -691,6 +700,7 @@ pub fn Loop::fs_chmod(
 }
 
 ///|
+#owned(uv, req, path)
 extern "c" fn uv_fs_chmod_sync(
   uv : Loop,
   req : Fs,
@@ -743,6 +753,7 @@ pub fn Loop::fs_chmod_sync(
 }
 
 ///|
+#owned(uv, req)
 extern "c" fn uv_fs_fchmod(
   uv : Loop,
   req : Fs,
@@ -828,6 +839,7 @@ pub fn Loop::fs_fchmod(
 }
 
 ///|
+#owned(uv, req)
 extern "c" fn uv_fs_fchmod_sync(
   uv : Loop,
   req : Fs,
@@ -881,6 +893,7 @@ pub fn Loop::fs_fchmod_sync(
 }
 
 ///|
+#owned(uv, req, bufs_base, bufs_offset, bufs_length)
 extern "c" fn uv_fs_read(
   uv : Loop,
   req : Fs,
@@ -976,6 +989,7 @@ pub fn Loop::fs_read(
 }
 
 ///|
+#owned(uv, req, bufs_base, bufs_offset, bufs_length)
 extern "c" fn uv_fs_read_sync(
   uv : Loop,
   req : Fs,
@@ -1013,6 +1027,7 @@ pub fn Loop::fs_read_sync(
 }
 
 ///|
+#owned(uv, req, bufs_base, bufs_offset, bufs_length)
 extern "c" fn uv_fs_write(
   uv : Loop,
   req : Fs,
@@ -1117,6 +1132,7 @@ pub fn Loop::fs_write(
 }
 
 ///|
+#owned(uv, req, bufs_base, bufs_offset, bufs_length)
 extern "c" fn uv_fs_write_sync(
   uv : Loop,
   req : Fs,
@@ -1191,6 +1207,7 @@ pub fn Loop::fs_write_sync(
 }
 
 ///|
+#owned(uv, req)
 extern "c" fn uv_fs_ftruncate(
   uv : Loop,
   req : Fs,
@@ -1226,6 +1243,7 @@ pub fn Loop::fs_ftruncate(
 }
 
 ///|
+#owned(uv, req)
 extern "c" fn uv_fs_fsync(
   uv : Loop,
   req : Fs,
@@ -1310,6 +1328,7 @@ pub fn Loop::fs_fsync(
 }
 
 ///|
+#owned(uv, req)
 extern "c" fn uv_fs_fsync_sync(uv : Loop, req : Fs, file : File) -> Int = "moonbit_uv_fs_fsync_sync"
 
 ///|
@@ -1358,6 +1377,7 @@ pub fn Loop::fs_fsync_sync(self : Loop, file : File) -> Unit raise Errno {
 }
 
 ///|
+#owned(uv, req)
 extern "c" fn uv_fs_fdatasync(
   uv : Loop,
   req : Fs,
@@ -1445,6 +1465,7 @@ pub fn Loop::fs_fdatasync(
 }
 
 ///|
+#owned(uv, req)
 extern "c" fn uv_fs_fdatasync_sync(uv : Loop, req : Fs, file : File) -> Int = "moonbit_uv_fs_fdatasync_sync"
 
 ///|
@@ -1510,6 +1531,7 @@ pub fn stderr() -> File {
 }
 
 ///|
+#owned(uv, req, path)
 extern "c" fn uv_fs_unlink(
   uv : Loop,
   req : Fs,
@@ -1543,6 +1565,7 @@ pub fn Loop::fs_unlink(
 }
 
 ///|
+#owned(uv, req, path)
 extern "c" fn uv_fs_unlink_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "moonbit_uv_fs_unlink_sync"
 
 ///|
@@ -1555,6 +1578,7 @@ pub fn Loop::fs_unlink_sync(self : Loop, path : Bytes) -> Unit raise Errno {
 }
 
 ///|
+#owned(uv, req, path)
 extern "c" fn uv_fs_chown(
   uv : Loop,
   req : Fs,
@@ -1641,6 +1665,7 @@ pub fn Loop::fs_chown(
 }
 
 ///|
+#owned(uv, req, path)
 extern "c" fn uv_fs_chown_sync(
   uv : Loop,
   req : Fs,
@@ -1698,6 +1723,7 @@ pub fn Loop::fs_chown_sync(
 }
 
 ///|
+#owned(uv, req)
 extern "c" fn uv_fs_fchown(
   uv : Loop,
   req : Fs,
@@ -1789,6 +1815,7 @@ pub fn Loop::fs_fchown(
 }
 
 ///|
+#owned(uv, req)
 extern "c" fn uv_fs_fchown_sync(
   uv : Loop,
   req : Fs,
@@ -1848,6 +1875,7 @@ pub fn Loop::fs_fchown_sync(
 }
 
 ///|
+#owned(uv, req, path)
 extern "c" fn uv_fs_lchown(
   uv : Loop,
   req : Fs,
@@ -1943,6 +1971,7 @@ pub fn Loop::fs_lchown(
 }
 
 ///|
+#owned(uv, req, path)
 extern "c" fn uv_fs_lchown_sync(
   uv : Loop,
   req : Fs,
@@ -2004,6 +2033,7 @@ pub fn Loop::fs_lchown_sync(
 }
 
 ///|
+#owned(uv, req, path)
 extern "c" fn uv_fs_mkdir(
   uv : Loop,
   req : Fs,
@@ -2082,6 +2112,7 @@ pub fn Loop::fs_mkdir(
 }
 
 ///|
+#owned(uv, req, path)
 extern "c" fn uv_fs_mkdir_sync(
   uv : Loop,
   req : Fs,
@@ -2136,6 +2167,7 @@ pub fn Loop::fs_mkdir_sync(
 }
 
 ///|
+#owned(uv, req, path)
 extern "c" fn uv_fs_rmdir(
   uv : Loop,
   req : Fs,
@@ -2169,6 +2201,7 @@ pub fn Loop::fs_rmdir(
 }
 
 ///|
+#owned(uv, req, path)
 extern "c" fn uv_fs_rmdir_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "moonbit_uv_fs_rmdir_sync"
 
 ///|
@@ -2181,6 +2214,7 @@ pub fn Loop::fs_rmdir_sync(self : Loop, path : Bytes) -> Unit raise Errno {
 }
 
 ///|
+#owned(uv, req, path)
 extern "c" fn uv_fs_scandir(
   uv : Loop,
   req : Fs,
@@ -2257,6 +2291,7 @@ extern "c" fn uv_dirent_get_type(
 extern "c" fn uv_dirent_delete(dirent : @c.Pointer[Dirent]) = "moonbit_uv_dirent_delete"
 
 ///|
+#owned(req)
 extern "c" fn uv_fs_scandir_next(req : Fs, ent : @c.Pointer[Dirent]) -> Int = "moonbit_uv_fs_scandir_next"
 
 ///|
@@ -2302,6 +2337,7 @@ pub fn Loop::fs_scandir(
 }
 
 ///|
+#owned(uv, req, path)
 extern "c" fn uv_fs_scandir_sync(
   uv : Loop,
   req : Fs,
@@ -2325,6 +2361,7 @@ pub fn fs_scandir_sync(
 }
 
 ///|
+#owned(uv, req, path, new_path)
 extern "c" fn uv_fs_rename(
   uv : Loop,
   req : Fs,
@@ -2393,6 +2430,7 @@ pub fn CopyFileFlags::new(
 }
 
 ///|
+#owned(uv, req, path, new_path)
 extern "c" fn uv_fs_copyfile(
   uv : Loop,
   req : Fs,
@@ -2430,6 +2468,7 @@ pub fn Loop::fs_copyfile(
 }
 
 ///|
+#owned(uv, req, path, new_path)
 extern "c" fn uv_fs_copyfile_sync(
   uv : Loop,
   req : Fs,
@@ -2453,6 +2492,7 @@ pub fn Loop::fs_copyfile_sync(
 }
 
 ///|
+#owned(buffer, length)
 extern "c" fn uv_cwd(buffer : Bytes, length : FixedArray[Int]) -> Int = "moonbit_uv_cwd"
 
 ///|
@@ -2471,12 +2511,15 @@ pub fn cwd() -> Bytes raise Errno {
 }
 
 ///|
+#owned(req)
 extern "c" fn uv_fs_get_ptr(req : Fs) -> @c.Pointer[Unit] = "moonbit_uv_fs_get_ptr"
 
 ///|
+#owned(req)
 extern "c" fn uv_fs_get_dir(req : Fs) -> Dir = "moonbit_uv_fs_get_dir"
 
 ///|
+#owned(uv, req, path)
 extern "c" fn uv_fs_realpath(
   uv : Loop,
   req : Fs,
@@ -2488,63 +2531,83 @@ extern "c" fn uv_fs_realpath(
 struct Stat(Bytes)
 
 ///|
+#owned(stat)
 extern "c" fn moonbit_uv_stat_get_dev(stat : Stat) -> UInt64 = "moonbit_uv_stat_get_dev"
 
 ///|
+#owned(stat)
 extern "c" fn moonbit_uv_stat_get_mode(stat : Stat) -> UInt64 = "moonbit_uv_stat_get_mode"
 
 ///|
+#owned(stat)
 extern "c" fn moonbit_uv_stat_get_nlink(stat : Stat) -> UInt64 = "moonbit_uv_stat_get_nlink"
 
 ///|
+#owned(stat)
 extern "c" fn moonbit_uv_stat_get_uid(stat : Stat) -> UInt64 = "moonbit_uv_stat_get_uid"
 
 ///|
+#owned(stat)
 extern "c" fn moonbit_uv_stat_get_gid(stat : Stat) -> UInt64 = "moonbit_uv_stat_get_gid"
 
 ///|
+#owned(stat)
 extern "c" fn moonbit_uv_stat_get_rdev(stat : Stat) -> UInt64 = "moonbit_uv_stat_get_rdev"
 
 ///|
+#owned(stat)
 extern "c" fn moonbit_uv_stat_get_ino(stat : Stat) -> UInt64 = "moonbit_uv_stat_get_ino"
 
 ///|
+#owned(stat)
 extern "c" fn moonbit_uv_stat_get_size(stat : Stat) -> UInt64 = "moonbit_uv_stat_get_size"
 
 ///|
+#owned(stat)
 extern "c" fn moonbit_uv_stat_get_blksize(stat : Stat) -> UInt64 = "moonbit_uv_stat_get_blksize"
 
 ///|
+#owned(stat)
 extern "c" fn moonbit_uv_stat_get_blocks(stat : Stat) -> UInt64 = "moonbit_uv_stat_get_blocks"
 
 ///|
+#owned(stat)
 extern "c" fn moonbit_uv_stat_get_flags(stat : Stat) -> UInt64 = "moonbit_uv_stat_get_flags"
 
 ///|
+#owned(stat)
 extern "c" fn moonbit_uv_stat_get_gen(stat : Stat) -> UInt64 = "moonbit_uv_stat_get_gen"
 
 ///|
+#owned(stat)
 extern "c" fn moonbit_uv_stat_get_atim_sec(stat : Stat) -> Int64 = "moonbit_uv_stat_get_atim_sec"
 
 ///|
+#owned(stat)
 extern "c" fn moonbit_uv_stat_get_atim_nsec(stat : Stat) -> Int64 = "moonbit_uv_stat_get_atim_nsec"
 
 ///|
+#owned(stat)
 extern "c" fn moonbit_uv_stat_get_mtim_sec(stat : Stat) -> Int64 = "moonbit_uv_stat_get_mtim_sec"
 
 ///|
+#owned(stat)
 extern "c" fn moonbit_uv_stat_get_mtim_nsec(stat : Stat) -> Int64 = "moonbit_uv_stat_get_mtim_nsec"
 
 ///|
+#owned(stat)
 extern "c" fn moonbit_uv_stat_get_ctim_sec(stat : Stat) -> Int64 = "moonbit_uv_stat_get_ctim_sec"
 
 ///|
+#owned(stat)
 extern "c" fn moonbit_uv_stat_get_ctim_nsec(stat : Stat) -> Int64 = "moonbit_uv_stat_get_ctim_nsec"
 
 ///|
+#owned(stat)
 extern "c" fn moonbit_uv_stat_get_birthtim_sec(stat : Stat) -> Int64 = "moonbit_uv_stat_get_birthtim_sec"
 
 ///|
+#owned(stat)
 extern "c" fn moonbit_uv_stat_get_birthtim_nsec(stat : Stat) -> Int64 = "moonbit_uv_stat_get_birthtim_nsec"
 
 ///|
@@ -2770,9 +2833,11 @@ extern "c" fn uv_fs_S_IFCHR() -> UInt64 = "moonbit_uv_fs_S_IFCHR"
 let _S_IFCHR : UInt64 = uv_fs_S_IFCHR()
 
 ///|
+#owned(req)
 extern "c" fn uv_fs_get_statbuf(req : Fs) -> Stat = "moonbit_uv_fs_get_statbuf"
 
 ///|
+#owned(uv, req, path)
 extern "c" fn uv_fs_stat(
   uv : Loop,
   req : Fs,
@@ -2808,6 +2873,7 @@ pub fn Loop::fs_stat(
 }
 
 ///|
+#owned(uv, req, path)
 extern "c" fn uv_fs_stat_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "moonbit_uv_fs_stat_sync"
 
 ///|
@@ -2824,6 +2890,7 @@ pub fn Loop::fs_stat_sync(self : Loop, path : Bytes) -> Stat raise Errno {
 }
 
 ///|
+#owned(uv, req, path)
 extern "c" fn uv_fs_lstat(
   uv : Loop,
   req : Fs,
@@ -2859,6 +2926,7 @@ pub fn Loop::fs_lstat(
 }
 
 ///|
+#owned(uv, req)
 extern "c" fn uv_fs_fstat(
   uv : Loop,
   req : Fs,
@@ -2966,6 +3034,7 @@ pub fn Loop::fs_realpath(
 }
 
 ///|
+#owned(uv, req, path)
 extern "c" fn uv_fs_realpath_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "moonbit_uv_fs_realpath_sync"
 
 ///|
@@ -3034,6 +3103,7 @@ pub fn AccessFlags::new(
 }
 
 ///|
+#owned(uv, req, path)
 extern "c" fn uv_fs_access(
   uv : Loop,
   req : Fs,
@@ -3069,6 +3139,7 @@ pub fn Loop::fs_access(
 }
 
 ///|
+#owned(uv, req, path)
 extern "c" fn uv_fs_access_sync(
   uv : Loop,
   req : Fs,
@@ -3090,6 +3161,7 @@ pub fn Loop::fs_access_sync(
 }
 
 ///|
+#owned(req)
 extern "c" fn uv_fs_get_path(req : Fs) -> Bytes = "moonbit_uv_fs_get_path"
 
 ///|
@@ -3098,6 +3170,7 @@ fn Fs::get_path(req : Fs) -> Bytes {
 }
 
 ///|
+#owned(uv, req, template)
 extern "c" fn uv_fs_mkdtemp(
   uv : Loop,
   req : Fs,
@@ -3133,6 +3206,7 @@ pub fn Loop::fs_mkdtemp(
 }
 
 ///|
+#owned(uv, req, template)
 extern "c" fn uv_fs_mkdtemp_sync(uv : Loop, req : Fs, template : Bytes) -> Int = "moonbit_uv_fs_mkdtemp_sync"
 
 ///|
@@ -3151,6 +3225,7 @@ pub fn Loop::fs_mkdtemp_sync(
 }
 
 ///|
+#owned(uv, req, template)
 extern "c" fn uv_fs_mkstemp(
   uv : Loop,
   req : Fs,
@@ -3185,6 +3260,7 @@ pub fn Loop::fs_mkstemp(
 }
 
 ///|
+#owned(uv, req, template)
 extern "c" fn uv_fs_mkstemp_sync(uv : Loop, req : Fs, template : Bytes) -> Int = "moonbit_uv_fs_mkstemp_sync"
 
 ///|
@@ -3211,6 +3287,7 @@ type Dir
 extern "c" fn uv_dir_set(dir : Dir, entries : @c.Pointer[Dirent], n : Int) = "moonbit_uv_dir_set"
 
 ///|
+#owned(uv, req, path)
 extern "c" fn uv_fs_opendir(
   uv : Loop,
   req : Fs,
@@ -3246,6 +3323,7 @@ pub fn Loop::fs_opendir(
 }
 
 ///|
+#owned(uv, req, dir)
 extern "c" fn uv_fs_readdir(
   uv : Loop,
   req : Fs,
@@ -3291,6 +3369,7 @@ pub fn Loop::fs_readdir(
 }
 
 ///|
+#owned(uv, req, dir)
 extern "c" fn uv_fs_closedir(
   uv : Loop,
   req : Fs,
@@ -3324,6 +3403,7 @@ pub fn Loop::fs_closedir(
 }
 
 ///|
+#owned(uv, req, path, new_path)
 extern "c" fn uv_fs_link(
   uv : Loop,
   req : Fs,
@@ -3410,6 +3490,7 @@ pub fn Loop::fs_link(
 }
 
 ///|
+#owned(uv, req, path, new_path)
 extern "c" fn uv_fs_link_sync(
   uv : Loop,
   req : Fs,
@@ -3526,6 +3607,7 @@ pub fn SymlinkFlags::new(
 }
 
 ///|
+#owned(uv, req, path, new_path)
 extern "c" fn uv_fs_symlink(
   uv : Loop,
   req : Fs,
@@ -3617,6 +3699,7 @@ pub fn Loop::fs_symlink(
 }
 
 ///|
+#owned(uv, req, path, new_path)
 extern "c" fn uv_fs_symlink_sync(
   uv : Loop,
   req : Fs,
@@ -3679,6 +3762,7 @@ pub fn Loop::fs_symlink_sync(
 }
 
 ///|
+#owned(uv, req, path)
 extern "c" fn uv_fs_readlink(
   uv : Loop,
   req : Fs,
@@ -3768,6 +3852,7 @@ pub fn Loop::fs_readlink(
 }
 
 ///|
+#owned(uv, req, path)
 extern "c" fn uv_fs_readlink_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "moonbit_uv_fs_readlink_sync"
 
 ///|
@@ -3822,6 +3907,7 @@ pub fn Loop::fs_readlink_sync(self : Loop, path : Bytes) -> Bytes raise Errno {
 }
 
 ///|
+#owned(uv, req, path)
 extern "c" fn uv_fs_lstat_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "moonbit_uv_fs_lstat_sync"
 
 ///|

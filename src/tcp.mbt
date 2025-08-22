@@ -31,6 +31,7 @@ pub impl ToStream for Tcp with of_stream(self : Stream) -> Tcp = "%identity"
 extern "c" fn uv_tcp_make() -> Tcp = "moonbit_uv_tcp_make"
 
 ///|
+#owned(uv, tcp)
 extern "c" fn uv_tcp_init(uv : Loop, tcp : Tcp) -> Int = "moonbit_uv_tcp_init"
 
 ///|
@@ -44,6 +45,7 @@ pub fn Tcp::new(uv : Loop) -> Tcp raise Errno {
 }
 
 ///|
+#owned(tcp, os_sock)
 extern "c" fn uv_tcp_open(tcp : Tcp, os_sock : OsSock) -> Int = "moonbit_uv_tcp_open"
 
 ///|
@@ -55,6 +57,7 @@ pub fn Tcp::open(self : Tcp, os_sock : OsSock) -> Unit raise Errno {
 }
 
 ///|
+#owned(tcp, addr)
 extern "c" fn uv_tcp_bind(tcp : Tcp, addr : Sockaddr, flags : UInt) -> Int = "moonbit_uv_tcp_bind"
 
 ///|
@@ -120,6 +123,7 @@ pub fn[Sockaddr : ToSockaddr] Tcp::bind(
 }
 
 ///|
+#owned(req, handle, addr)
 extern "c" fn uv_tcp_connect(
   req : Connect,
   handle : Tcp,
@@ -151,6 +155,7 @@ pub fn[Sockaddr : ToSockaddr] Tcp::connect(
 }
 
 ///|
+#owned(tcp)
 extern "c" fn uv_tcp_nodelay(tcp : Tcp, enable : Bool) -> Int = "moonbit_uv_tcp_nodelay"
 
 ///|
@@ -163,6 +168,7 @@ pub fn Tcp::nodelay(self : Tcp, enable : Bool) -> Unit raise Errno {
 }
 
 ///|
+#owned(tcp)
 extern "c" fn uv_tcp_keepalive(tcp : Tcp, enable : Bool, delay : UInt) -> Int = "moonbit_uv_tcp_keepalive"
 
 ///|
@@ -189,6 +195,7 @@ pub fn Tcp::keepalive(
 }
 
 ///|
+#owned(tcp, addr)
 extern "c" fn uv_tcp_getsockname(tcp : Tcp, addr : Sockaddr) -> Int = "moonbit_uv_tcp_getsockname"
 
 ///|
@@ -204,6 +211,7 @@ pub fn Tcp::getsockname(self : Tcp) -> Sockaddr raise Errno {
 }
 
 ///|
+#owned(tcp, addr)
 extern "c" fn uv_tcp_getpeername(tcp : Tcp, addr : Sockaddr) -> Int = "moonbit_uv_tcp_getpeername"
 
 ///|
@@ -219,6 +227,7 @@ pub fn Tcp::getpeername(self : Tcp) -> Sockaddr raise Errno {
 }
 
 ///|
+#owned(tcp)
 extern "c" fn uv_tcp_close_reset(tcp : Tcp, cb : () -> Unit) -> Int = "moonbit_uv_tcp_close_reset"
 
 ///|
@@ -236,6 +245,7 @@ pub fn Tcp::close_reset(self : Tcp, close_cb : () -> Unit) -> Unit raise Errno {
 }
 
 ///|
+#owned(tcp)
 extern "c" fn uv_tcp_simultaneous_accepts(tcp : Tcp, enable : Bool) -> Int = "moonbit_uv_tcp_simultaneous_accepts"
 
 ///|

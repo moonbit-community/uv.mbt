@@ -41,12 +41,15 @@ pub impl ToStream for Pipe with of_stream(self) = "%identity"
 extern "c" fn uv_pipe_make() -> Pipe = "moonbit_uv_pipe_make"
 
 ///|
+#owned(uv, pipe)
 extern "c" fn uv_pipe_init(uv : Loop, pipe : Pipe, ipc : Bool) -> Int = "moonbit_uv_pipe_init"
 
 ///|
+#owned(pipe, name)
 extern "c" fn uv_pipe_bind(pipe : Pipe, name : Bytes, flags : UInt) -> Int = "moonbit_uv_pipe_bind"
 
 ///|
+#owned(fds)
 extern "c" fn uv_pipe(
   fds : FixedArray[Int],
   read_flags : Int,
@@ -119,6 +122,7 @@ pub fn pipe(
 }
 
 ///|
+#owned(pipe)
 extern "c" fn uv_pipe_open(pipe : Pipe, file : Int) -> Int = "moonbit_uv_pipe_open"
 
 ///|
@@ -130,6 +134,7 @@ pub fn Pipe::open(self : Pipe, file : File) -> Unit raise Errno {
 }
 
 ///|
+#owned(pipe)
 extern "c" fn uv_pipe_pending_count(pipe : Pipe) -> UInt = "moonbit_uv_pipe_pending_count"
 
 ///|
@@ -138,6 +143,7 @@ pub fn Pipe::pending_count(self : Pipe) -> UInt {
 }
 
 ///|
+#owned(pipe)
 extern "c" fn uv_pipe_pending_type(pipe : Pipe) -> HandleType = "moonbit_uv_pipe_pending_type"
 
 ///|

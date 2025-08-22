@@ -13,6 +13,7 @@
 // limitations under the License.
 
 ///|
+#owned(name, bytes, size)
 extern "c" fn uv_os_getenv(
   name : Bytes,
   bytes : Bytes,
@@ -39,6 +40,7 @@ pub fn os_getenv(name : Bytes) -> Bytes? raise Errno {
 }
 
 ///|
+#owned(name, value)
 extern "c" fn uv_os_setenv(name : Bytes, value : Bytes) -> Int = "moonbit_uv_os_setenv"
 
 ///|
@@ -50,6 +52,7 @@ pub fn os_setenv(name : Bytes, value : Bytes) -> Unit raise Errno {
 }
 
 ///|
+#owned(name)
 extern "c" fn uv_os_unsetenv(name : Bytes) -> Int = "moonbit_uv_os_unsetenv"
 
 ///|
@@ -67,6 +70,7 @@ type Environ
 extern "c" fn uv_environ_make() -> Environ = "moonbit_uv_environ_make"
 
 ///|
+#owned(environ)
 extern "c" fn uv_os_environ(environ : Environ) -> Int = "moonbit_uv_os_environ"
 
 ///|

@@ -19,6 +19,7 @@ type Work
 extern "c" fn uv_work_make() -> Work = "moonbit_uv_work_make"
 
 ///|
+#owned(uv, req)
 extern "c" fn uv_queue_work(
   uv : Loop,
   req : Work,

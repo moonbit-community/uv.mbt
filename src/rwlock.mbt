@@ -23,6 +23,7 @@ pub typealias RwLock as RWLock
 extern "c" fn uv_rwlock_make() -> RwLock = "moonbit_uv_rwlock_make"
 
 ///|
+#owned(rwlock)
 extern "c" fn uv_rwlock_init(rwlock : RwLock) -> Int = "moonbit_uv_rwlock_init"
 
 ///|
@@ -36,24 +37,31 @@ pub fn RwLock::new() -> RwLock raise Errno {
 }
 
 ///|
+#owned(rwlock, other)
 extern "c" fn uv_rwlock_copy(rwlock : RwLock, other : RwLock) = "moonbit_uv_rwlock_copy"
 
 ///|
+#owned(rwlock)
 extern "c" fn uv_rwlock_rdlock(rwlock : RwLock) = "moonbit_uv_rwlock_rdlock"
 
 ///|
+#owned(rwlock)
 extern "c" fn uv_rwlock_tryrdlock(rwlock : RwLock) -> Int = "moonbit_uv_rwlock_tryrdlock"
 
 ///|
+#owned(rwlock)
 extern "c" fn uv_rwlock_rdunlock(rwlock : RwLock) = "moonbit_uv_rwlock_rdunlock"
 
 ///|
+#owned(rwlock)
 extern "c" fn uv_rwlock_wrlock(rwlock : RwLock) = "moonbit_uv_rwlock_wrlock"
 
 ///|
+#owned(rwlock)
 extern "c" fn uv_rwlock_trywrlock(rwlock : RwLock) -> Int = "moonbit_uv_rwlock_trywrlock"
 
 ///|
+#owned(rwlock)
 extern "c" fn uv_rwlock_wrunlock(rwlock : RwLock) = "moonbit_uv_rwlock_wrunlock"
 
 ///|

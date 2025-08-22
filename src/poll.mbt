@@ -90,6 +90,7 @@ pub impl BitAnd for PollEvent with land(self : PollEvent, other : PollEvent) -> 
 extern "c" fn uv_poll_make() -> Poll = "moonbit_uv_poll_make"
 
 ///|
+#owned(uv, poll)
 extern "c" fn uv_poll_init(uv : Loop, poll : Poll, fd : Int) -> Int = "moonbit_uv_poll_init"
 
 ///|
@@ -103,6 +104,7 @@ pub fn Poll::file(self : Loop, fd : File) -> Poll raise Errno {
 }
 
 ///|
+#owned(uv, poll, socket)
 extern "c" fn uv_poll_init_socket(
   uv : Loop,
   poll : Poll,
@@ -120,6 +122,7 @@ pub fn Poll::socket(self : Loop, socket : OsSock) -> Poll raise Errno {
 }
 
 ///|
+#owned(poll)
 extern "c" fn uv_poll_start(
   poll : Poll,
   events : Int,
@@ -127,6 +130,7 @@ extern "c" fn uv_poll_start(
 ) -> Int = "moonbit_uv_poll_start"
 
 ///|
+#owned(poll)
 extern "c" fn uv_poll_stop(poll : Poll) -> Int = "moonbit_uv_poll_stop"
 
 ///|

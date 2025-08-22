@@ -16,6 +16,7 @@
 type Handle
 
 ///|
+#owned(handle)
 extern "c" fn uv_close(handle : Handle, cb : () -> Unit) = "moonbit_uv_close"
 
 ///|
@@ -30,6 +31,7 @@ pub fn[Handle : ToHandle] close(handle : Handle, cb : () -> Unit) -> Unit {
 }
 
 ///|
+#owned(handle)
 extern "c" fn uv_is_closing(handle : Handle) -> Bool = "moonbit_uv_is_closing"
 
 ///|
@@ -65,6 +67,7 @@ impl ToHandle with is_closing(self) {
 }
 
 ///|
+#owned(handle)
 extern "c" fn uv_handle_loop(handle : Handle) -> Loop = "moonbit_uv_handle_loop"
 
 ///|
@@ -150,6 +153,7 @@ impl ToHandle with fileno(self) {
 }
 
 ///|
+#owned(handle, sock)
 extern "c" fn uv_handle_os_sock(handle : Handle, sock : OsSock) -> Int = "moonbit_uv_handle_os_sock"
 
 ///|

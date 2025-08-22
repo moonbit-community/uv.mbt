@@ -25,6 +25,7 @@ pub impl ToHandle for Timer with of_handle(self : Handle) -> Timer = "%identity"
 extern "c" fn uv_timer_make() -> Timer = "moonbit_uv_timer_make"
 
 ///|
+#owned(uv, timer)
 extern "c" fn uv_timer_init(uv : Loop, timer : Timer) -> Int = "moonbit_uv_timer_init"
 
 ///|
@@ -38,6 +39,7 @@ pub fn Timer::new(self : Loop) -> Timer raise Errno {
 }
 
 ///|
+#owned(timer)
 extern "c" fn uv_timer_start(
   timer : Timer,
   cb : (Timer) -> Unit,
@@ -60,6 +62,7 @@ pub fn Timer::start(
 }
 
 ///|
+#owned(timer)
 extern "c" fn uv_timer_stop(timer : Timer) -> Int = "moonbit_uv_timer_stop"
 
 ///|
@@ -71,6 +74,7 @@ pub fn Timer::stop(self : Timer) -> Unit raise Errno {
 }
 
 ///|
+#owned(timer)
 extern "c" fn uv_timer_set_repeat(timer : Timer, repeat : UInt64) = "moonbit_uv_timer_set_repeat"
 
 ///|
@@ -79,6 +83,7 @@ pub fn Timer::set_repeat(self : Timer, repeat : UInt64) -> Unit {
 }
 
 ///|
+#owned(timer)
 extern "c" fn uv_timer_get_repeat(timer : Timer) -> UInt64 = "moonbit_uv_timer_get_repeat"
 
 ///|
@@ -87,6 +92,7 @@ pub fn Timer::get_repeat(self : Timer) -> UInt64 {
 }
 
 ///|
+#owned(timer)
 extern "c" fn uv_timer_get_due_in(timer : Timer) -> UInt64 = "moonbit_uv_timer_get_due_in"
 
 ///|

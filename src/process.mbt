@@ -25,6 +25,7 @@ pub impl ToHandle for Process with to_handle(self : Process) -> Handle = "%ident
 pub impl ToHandle for Process with of_handle(handle) = "%identity"
 
 ///|
+#owned(process)
 extern "c" fn uv_process_get_pid(process : Process) -> Int = "moonbit_uv_process_get_pid"
 
 ///|
@@ -57,54 +58,63 @@ fn ProcessFlag::to_int(self : ProcessFlag) -> UInt = "%identity"
 extern "c" fn uv_process_options_make() -> ProcessOptions = "moonbit_uv_process_options_make"
 
 ///|
+#owned(process_options)
 extern "c" fn uv_process_options_set_exit_cb(
   process_options : ProcessOptions,
   exit_cb : (Process, Int64, Int) -> Unit,
 ) = "moonbit_uv_process_options_set_exit_cb"
 
 ///|
+#owned(process_options, file)
 extern "c" fn uv_process_options_set_file(
   process_options : ProcessOptions,
   file : Bytes,
 ) = "moonbit_uv_process_options_set_file"
 
 ///|
+#owned(process_options, args)
 extern "c" fn uv_process_options_set_args(
   process_options : ProcessOptions,
   args : FixedArray[Bytes?],
 ) = "moonbit_uv_process_options_set_args"
 
 ///|
+#owned(process_options, env)
 extern "c" fn uv_process_options_set_env(
   process_options : ProcessOptions,
   env : FixedArray[Bytes?],
 ) = "moonbit_uv_process_options_set_env"
 
 ///|
+#owned(process_options, cwd)
 extern "c" fn uv_process_options_set_cwd(
   process_options : ProcessOptions,
   cwd : Bytes,
 ) = "moonbit_uv_process_options_set_cwd"
 
 ///|
+#owned(process_options)
 extern "c" fn uv_process_options_set_flags(
   process_options : ProcessOptions,
   flags : UInt,
 ) = "moonbit_uv_process_options_set_flags"
 
 ///|
+#owned(process_options, stdio)
 extern "c" fn uv_process_options_set_stdio(
   process_options : ProcessOptions,
   stdio : FixedArray[StdioContainer],
 ) = "moonbit_uv_process_options_set_stdio"
 
 ///|
+#owned(process_options)
 extern "c" fn uv_process_options_set_uid(
   process_options : ProcessOptions,
   uid : Uid,
 ) = "moonbit_uv_process_options_set_uid"
 
 ///|
+#owned(process_options)
 extern "c" fn uv_process_options_set_gid(
   process_options : ProcessOptions,
   gid : Gid,
@@ -169,6 +179,7 @@ struct StdioContainer(Bytes)
 pub extern "c" fn StdioContainer::ignore() -> StdioContainer = "moonbit_uv_stdio_container_ignore"
 
 ///|
+#owned(stream)
 extern "c" fn uv_stdio_container_create_pipe(
   stream : Stream,
   readable~ : Bool = false,
@@ -200,6 +211,7 @@ pub fn StdioContainer::inherit_file(file : File) -> StdioContainer {
 }
 
 ///|
+#owned(stream)
 pub extern "c" fn StdioContainer::inherit_stream(
   stream : Stream,
 ) -> StdioContainer = "moonbit_uv_stdio_container_inherit_stream"
@@ -211,6 +223,7 @@ pub(all) struct Uid(UInt64)
 pub(all) struct Gid(UInt64)
 
 ///|
+#owned(uv, process, options)
 extern "c" fn uv_spawn(
   uv : Loop,
   process : Process,
@@ -231,6 +244,7 @@ pub fn Loop::spawn(
 }
 
 ///|
+#owned(process)
 extern "c" fn uv_process_kill(process : Process, signum : Int) -> Int = "moonbit_uv_process_kill"
 
 ///|

@@ -19,6 +19,7 @@ struct Loop(Bytes)
 extern "c" fn uv_loop_make() -> Loop = "moonbit_uv_loop_make"
 
 ///|
+#owned(uv)
 extern "c" fn uv_loop_init(uv : Loop) -> Int = "moonbit_uv_loop_init"
 
 ///|
@@ -52,9 +53,11 @@ pub(all) enum LoopOption {
 }
 
 ///|
+#owned(uv)
 extern "c" fn uv_loop_configure_block_signal(uv : Loop, signum : Signum) -> Int = "moonbit_uv_loop_configure_block_signal"
 
 ///|
+#owned(uv)
 extern "c" fn uv_loop_configure(uv : Loop, option : Int) -> Int = "moonbit_uv_loop_configure"
 
 ///|
@@ -71,6 +74,7 @@ pub fn Loop::configure(self : Loop, option : LoopOption) -> Unit raise Errno {
 }
 
 ///|
+#owned(uv)
 extern "c" fn uv_loop_close(uv : Loop) -> Int = "moonbit_uv_loop_close"
 
 ///|
@@ -104,6 +108,7 @@ pub(all) enum RunMode {
 }
 
 ///|
+#owned(uv)
 extern "c" fn uv_run(uv : Loop, mode : RunMode) -> Int = "moonbit_uv_run"
 
 ///|
@@ -133,6 +138,7 @@ pub fn Loop::run(self : Loop, mode : RunMode) -> Unit raise Errno {
 }
 
 ///|
+#owned(uv)
 extern "c" fn uv_stop(uv : Loop) = "moonbit_uv_stop"
 
 ///|
@@ -141,6 +147,7 @@ pub fn Loop::stop(self : Loop) -> Unit {
 }
 
 ///|
+#owned(uv)
 extern "c" fn uv_walk(uv : Loop, walk_cb : (Handle) -> Unit) = "moonbit_uv_walk"
 
 ///|
@@ -149,6 +156,7 @@ pub fn Loop::walk(self : Loop, walk_cb : (Handle) -> Unit) -> Unit {
 }
 
 ///|
+#owned(uv)
 extern "c" fn uv_loop_alive(uv : Loop) -> Int = "moonbit_uv_loop_alive"
 
 ///|

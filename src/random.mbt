@@ -22,6 +22,7 @@ pub impl ToReq for Random with to_req(self : Random) -> Req = "%identity"
 extern "c" fn uv_random_make() -> Random = "moonbit_uv_random_make"
 
 ///|
+#owned(uv, req, buffer)
 extern "c" fn uv_random(
   uv : Loop,
   req : Random,

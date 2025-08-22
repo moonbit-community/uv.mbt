@@ -25,6 +25,7 @@ pub impl ToHandle for FsPoll with of_handle(handle : Handle) -> FsPoll = "%ident
 extern "c" fn uv_fs_poll_make() -> FsPoll = "moonbit_uv_fs_poll_make"
 
 ///|
+#owned(uv, fs_poll)
 extern "c" fn uv_fs_poll_init(uv : Loop, fs_poll : FsPoll) -> Int = "moonbit_uv_fs_poll_init"
 
 ///|
@@ -38,6 +39,7 @@ pub fn FsPoll::new(self : Loop) -> FsPoll raise Errno {
 }
 
 ///|
+#owned(fs_poll, path)
 extern "c" fn uv_fs_poll_start(
   fs_poll : FsPoll,
   cb : (FsPoll, Int, Stat, Stat) -> Unit,
@@ -68,6 +70,7 @@ pub fn FsPoll::start(
 }
 
 ///|
+#owned(fs_poll)
 extern "c" fn uv_fs_poll_stop(fs_poll : FsPoll) -> Int = "moonbit_uv_fs_poll_stop"
 
 ///|
@@ -79,6 +82,7 @@ pub fn FsPoll::stop(self : FsPoll) -> Unit raise Errno {
 }
 
 ///|
+#owned(fs_poll, buffer, length)
 extern "c" fn uv_fs_poll_getpath(
   fs_poll : FsPoll,
   buffer : Bytes,

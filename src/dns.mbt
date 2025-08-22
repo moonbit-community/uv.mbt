@@ -293,6 +293,7 @@ fn AddrInfoResults::iter(self : AddrInfoResults) -> Iter[AddrInfo] {
 }
 
 ///|
+#owned(uv, req, node, service, hints)
 extern "c" fn uv_getaddrinfo(
   uv : Loop,
   req : GetAddrInfo,

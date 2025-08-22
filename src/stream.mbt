@@ -27,6 +27,7 @@ pub impl ToHandle for Stream with to_handle(self) {
 pub impl ToHandle for Stream with of_handle(self) = "%identity"
 
 ///|
+#owned(stream)
 extern "c" fn uv_read_start(
   stream : Stream,
   alloc_cb : (Handle, UInt64, @c.Pointer[Int], @c.Pointer[Int]) -> Bytes,
@@ -98,6 +99,7 @@ pub fn[Stream : ToStream] read_start(
 }
 
 ///|
+#owned(stream)
 extern "c" fn uv_read_stop(stream : Stream) -> Int = "moonbit_uv_read_stop"
 
 ///|
@@ -124,6 +126,7 @@ pub impl ToReq for Write with to_req(self : Write) -> Req = "%identity"
 extern "c" fn uv_write_make() -> Write = "moonbit_uv_write_make"
 
 ///|
+#owned(write, handle, bufs_base, bufs_offset, bufs_length)
 extern "c" fn uv_write(
   write : Write,
   handle : Stream,
@@ -177,6 +180,7 @@ pub fn[Stream : ToStream] write(
 }
 
 ///|
+#owned(write, handle, bufs_base, bufs_offset, bufs_length, send_handle)
 extern "c" fn uv_write2(
   write : Write,
   handle : Stream,
@@ -331,6 +335,7 @@ pub impl ToReq for Shutdown with to_req(self : Shutdown) -> Req = "%identity"
 extern "c" fn uv_shutdown_make() -> Shutdown = "moonbit_uv_shutdown_make"
 
 ///|
+#owned(shutdown, handle)
 extern "c" fn uv_shutdown(
   shutdown : Shutdown,
   handle : Stream,
@@ -375,6 +380,7 @@ impl ToStream with shutdown(self, shutdown_cb, error_cb) {
 }
 
 ///|
+#owned(stream)
 extern "c" fn uv_listen(
   stream : Stream,
   backlog : Int,
@@ -413,6 +419,7 @@ impl ToStream with listen(
 }
 
 ///|
+#owned(server, client)
 extern "c" fn uv_accept(server : Stream, client : Stream) -> Int = "moonbit_uv_accept"
 
 ///|

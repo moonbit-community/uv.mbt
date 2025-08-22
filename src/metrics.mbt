@@ -16,21 +16,26 @@
 struct Metrics(Bytes)
 
 ///|
+#owned(metrics)
 extern "c" fn uv_metrics_get_loop_count(metrics : Metrics) -> UInt64 = "moonbit_uv_metrics_get_loop_count"
 
 ///|
+#owned(metrics)
 extern "c" fn uv_metrics_get_events(metrics : Metrics) -> UInt64 = "moonbit_uv_metrics_get_events"
 
 ///|
+#owned(metrics)
 extern "c" fn uv_metrics_get_events_waiting(metrics : Metrics) -> UInt64 = "moonbit_uv_metrics_get_events_waiting"
 
 ///|
 extern "c" fn uv_metrics_make() -> Metrics = "moonbit_uv_metrics_make"
 
 ///|
+#owned(uv, metrics)
 extern "c" fn uv_metrics_info(uv : Loop, metrics : Metrics) -> Int = "moonbit_uv_metrics_info"
 
 ///|
+#owned(uv)
 extern "c" fn uv_metrics_idle_time(uv : Loop) -> UInt64 = "moonbit_uv_metrics_idle_time"
 
 ///|

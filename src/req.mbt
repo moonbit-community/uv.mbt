@@ -27,6 +27,7 @@ pub trait Cancelable: ToReq {
 }
 
 ///|
+#owned(req)
 extern "c" fn uv_cancel(req : Req) -> Int = "moonbit_uv_cancel"
 
 ///|
@@ -71,6 +72,7 @@ fn init {
 }
 
 ///|
+#owned(req)
 extern "c" fn uv_req_get_type(req : Req) -> ReqType = "moonbit_uv_req_get_type"
 
 ///|
