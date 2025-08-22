@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-#autofill_callsite(loc)
+#callsite(autofill(loc))
 pub fn t(x : Bool, msg? : String, loc~ : SourceLoc) -> Unit raise {
   if !x {
     let fail_msg = match msg {
@@ -25,7 +25,7 @@ pub fn t(x : Bool, msg? : String, loc~ : SourceLoc) -> Unit raise {
 }
 
 ///|
-#autofill_callsite(loc)
+#callsite(autofill(loc))
 pub fn n(x : Bool, msg? : String, loc~ : SourceLoc) -> Unit raise {
   if x {
     let fail_msg = match msg {
@@ -44,7 +44,7 @@ fn[T : Show] debug_string(t : T) -> String {
 }
 
 ///|
-#autofill_callsite(loc)
+#callsite(autofill(loc))
 pub fn[T : Eq + Show] eq(
   a : T,
   b : T,
