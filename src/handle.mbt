@@ -165,3 +165,6 @@ impl ToHandle with os_sock(self : Self) -> OsSock raise Errno {
   }
   sock
 }
+
+///|
+pub extern "c" fn guess_handle(file : File) -> HandleType = "moonbit_uv_guess_handle"

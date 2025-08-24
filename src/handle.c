@@ -78,3 +78,9 @@ moonbit_uv_handle_os_sock(uv_handle_t *handle, uv_os_sock_t *sock) {
   moonbit_decref(sock);
   return result;
 }
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_guess_handle(int32_t file) {
+  return uv_guess_handle(file);
+}
