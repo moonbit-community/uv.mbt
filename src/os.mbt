@@ -310,7 +310,7 @@ extern "c" fn uv_free_cpu_info(cpu_infos : @c.Pointer[CpuInfo], count : Int) = "
 /// }
 /// ```
 pub fn cpu_info() -> Array[CpuInfo] raise Errno {
-  let uv_cpu_infos : FixedArray[@c.Pointer[CpuInfo]] = [@c.null()]
+  let uv_cpu_infos : FixedArray[@c.Pointer[CpuInfo]] = [@c.Pointer::null()]
   let count : FixedArray[Int] = [0]
   let status = uv_cpu_info(uv_cpu_infos, count)
   if status < 0 {

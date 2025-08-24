@@ -3344,7 +3344,7 @@ pub fn Loop::fs_readdir(
     let status = req.result().to_int()
     if status < 0 {
       uv_fs_req_cleanup(req)
-      uv_dir_set(dir, @c.null(), 0)
+      uv_dir_set(dir, @c.Pointer::null(), 0)
       uv_dirent_delete(uv_dirents)
       error_cb(Errno::of_int(status))
     } else {
@@ -3353,7 +3353,7 @@ pub fn Loop::fs_readdir(
         dirents.push(uv_dirents[i])
       }
       uv_fs_req_cleanup(req)
-      uv_dir_set(dir, @c.null(), 0)
+      uv_dir_set(dir, @c.Pointer::null(), 0)
       uv_dirent_delete(uv_dirents)
       readdir_cb(dirents)
     }
