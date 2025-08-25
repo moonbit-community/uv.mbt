@@ -399,12 +399,16 @@ fn Loop::fs_fstat(Self, File, (Stat) -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_fsync(Self, File, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_fsync_sync(Self, File) -> Unit raise Errno
 fn Loop::fs_ftruncate(Self, File, Int64, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_futime(Self, Int, Double, Double, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_futime_sync(Self, Int, Double, Double) -> Unit raise Errno
 fn Loop::fs_lchown(Self, Bytes, Uid, Gid, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_lchown_sync(Self, Bytes, Uid, Gid) -> Unit raise Errno
 fn Loop::fs_link(Self, Bytes, Bytes, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_link_sync(Self, Bytes, Bytes) -> Unit raise Errno
 fn Loop::fs_lstat(Self, Bytes, (Stat) -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_lstat_sync(Self, Bytes) -> Stat raise Errno
+fn Loop::fs_lutime(Self, Bytes, Double, Double, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_lutime_sync(Self, Bytes, Double, Double) -> Unit raise Errno
 fn Loop::fs_mkdir(Self, Bytes, Int, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_mkdir_sync(Self, Bytes, Int) -> Unit raise Errno
 fn Loop::fs_mkdtemp(Self, Bytes, (Bytes) -> Unit, (Errno) -> Unit) -> Fs raise Errno
@@ -430,10 +434,14 @@ fn Loop::fs_sendfile(Self, File, File, Int64, UInt64, (Int64) -> Unit, (Errno) -
 fn Loop::fs_sendfile_sync(Self, File, File, Int64, UInt64) -> Int64 raise Errno
 fn Loop::fs_stat(Self, Bytes, (Stat) -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_stat_sync(Self, Bytes) -> Stat raise Errno
+fn Loop::fs_statfs(Self, Bytes, (StatFs) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_statfs_sync(Self, Bytes) -> StatFs raise Errno
 fn Loop::fs_symlink(Self, Bytes, Bytes, SymlinkFlags, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_symlink_sync(Self, Bytes, Bytes, SymlinkFlags) -> Unit raise Errno
 fn Loop::fs_unlink(Self, Bytes, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_unlink_sync(Self, Bytes) -> Unit raise Errno
+fn Loop::fs_utime(Self, Bytes, Double, Double, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_utime_sync(Self, Bytes, Double, Double) -> Unit raise Errno
 fn Loop::fs_write(Self, File, Array[@bytes.View], offset? : Int64, (Int) -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_write_sync(Self, File, Array[@bytes.View], offset? : Int64) -> Unit raise Errno
 fn Loop::getaddrinfo(Self, (Iter[AddrInfo]) -> Unit, (Errno) -> Unit, Bytes, Bytes, hints? : AddrInfoHints) -> GetAddrInfo raise Errno
@@ -665,6 +673,15 @@ fn Stat::rdev(Self) -> UInt64
 fn Stat::size(Self) -> UInt64
 fn Stat::type_(Self) -> DirentType
 fn Stat::uid(Self) -> UInt64
+
+type StatFs
+fn StatFs::get_bavail(Self) -> UInt64
+fn StatFs::get_bfree(Self) -> UInt64
+fn StatFs::get_blocks(Self) -> UInt64
+fn StatFs::get_bsize(Self) -> UInt64
+fn StatFs::get_ffree(Self) -> UInt64
+fn StatFs::get_files(Self) -> UInt64
+fn StatFs::get_type(Self) -> UInt64
 
 type StdioContainer
 fn[Stream : ToStream] StdioContainer::create_pipe(Stream, readable? : Bool, writable? : Bool, non_block? : Bool) -> Self
