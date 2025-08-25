@@ -3952,74 +3952,74 @@ pub fn Loop::fs_lstat_sync(self : Loop, path : Bytes) -> Stat raise Errno {
 }
 
 ///|
-struct StatFS(Bytes)
+struct StatFs(Bytes)
 
 ///|
 #owned(statfs)
-extern "c" fn moonbit_uv_statfs_get_type(statfs : StatFS) -> UInt64 = "moonbit_uv_statfs_get_type"
+extern "c" fn moonbit_uv_statfs_get_type(statfs : StatFs) -> UInt64 = "moonbit_uv_statfs_get_type"
 
 ///|
 #owned(statfs)
-extern "c" fn moonbit_uv_statfs_get_bsize(statfs : StatFS) -> UInt64 = "moonbit_uv_statfs_get_bsize"
+extern "c" fn moonbit_uv_statfs_get_bsize(statfs : StatFs) -> UInt64 = "moonbit_uv_statfs_get_bsize"
 
 ///|
 #owned(statfs)
-extern "c" fn moonbit_uv_statfs_get_blocks(statfs : StatFS) -> UInt64 = "moonbit_uv_statfs_get_blocks"
+extern "c" fn moonbit_uv_statfs_get_blocks(statfs : StatFs) -> UInt64 = "moonbit_uv_statfs_get_blocks"
 
 ///|
 #owned(statfs)
-extern "c" fn moonbit_uv_statfs_get_bfree(statfs : StatFS) -> UInt64 = "moonbit_uv_statfs_get_bfree"
+extern "c" fn moonbit_uv_statfs_get_bfree(statfs : StatFs) -> UInt64 = "moonbit_uv_statfs_get_bfree"
 
 ///|
 #owned(statfs)
-extern "c" fn moonbit_uv_statfs_get_bavail(statfs : StatFS) -> UInt64 = "moonbit_uv_statfs_get_bavail"
+extern "c" fn moonbit_uv_statfs_get_bavail(statfs : StatFs) -> UInt64 = "moonbit_uv_statfs_get_bavail"
 
 ///|
 #owned(statfs)
-extern "c" fn moonbit_uv_statfs_get_files(statfs : StatFS) -> UInt64 = "moonbit_uv_statfs_get_files"
+extern "c" fn moonbit_uv_statfs_get_files(statfs : StatFs) -> UInt64 = "moonbit_uv_statfs_get_files"
 
 ///|
 #owned(statfs)
-extern "c" fn moonbit_uv_statfs_get_ffree(statfs : StatFS) -> UInt64 = "moonbit_uv_statfs_get_ffree"
+extern "c" fn moonbit_uv_statfs_get_ffree(statfs : StatFs) -> UInt64 = "moonbit_uv_statfs_get_ffree"
 
 ///|
-pub fn StatFS::get_type(self : StatFS) -> UInt64 {
+pub fn StatFs::get_type(self : StatFs) -> UInt64 {
   moonbit_uv_statfs_get_type(self)
 }
 
 ///|
-pub fn StatFS::get_bsize(self : StatFS) -> UInt64 {
+pub fn StatFs::get_bsize(self : StatFs) -> UInt64 {
   moonbit_uv_statfs_get_bsize(self)
 }
 
 ///|
-pub fn StatFS::get_blocks(self : StatFS) -> UInt64 {
+pub fn StatFs::get_blocks(self : StatFs) -> UInt64 {
   moonbit_uv_statfs_get_blocks(self)
 }
 
 ///|
-pub fn StatFS::get_bfree(self : StatFS) -> UInt64 {
+pub fn StatFs::get_bfree(self : StatFs) -> UInt64 {
   moonbit_uv_statfs_get_bfree(self)
 }
 
 ///|
-pub fn StatFS::get_bavail(self : StatFS) -> UInt64 {
+pub fn StatFs::get_bavail(self : StatFs) -> UInt64 {
   moonbit_uv_statfs_get_bavail(self)
 }
 
 ///|
-pub fn StatFS::get_files(self : StatFS) -> UInt64 {
+pub fn StatFs::get_files(self : StatFs) -> UInt64 {
   moonbit_uv_statfs_get_files(self)
 }
 
 ///|
-pub fn StatFS::get_ffree(self : StatFS) -> UInt64 {
+pub fn StatFs::get_ffree(self : StatFs) -> UInt64 {
   moonbit_uv_statfs_get_ffree(self)
 }
 
 ///|
 #owned(req)
-extern "c" fn uv_fs_get_statfs(req : Fs) -> StatFS = "moonbit_uv_fs_get_statfs"
+extern "c" fn uv_fs_get_statfs(req : Fs) -> StatFs = "moonbit_uv_fs_get_statfs"
 
 ///|
 #owned(uv, req, path)
@@ -4034,7 +4034,7 @@ extern "c" fn uv_fs_statfs(
 pub fn Loop::fs_statfs(
   self : Loop,
   path : Bytes,
-  statfs_cb : (StatFS) -> Unit,
+  statfs_cb : (StatFs) -> Unit,
   error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
   fn cb(req : Fs) {
@@ -4062,7 +4062,7 @@ pub fn Loop::fs_statfs(
 extern "c" fn uv_fs_statfs_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "moonbit_uv_fs_statfs_sync"
 
 ///|
-pub fn Loop::fs_statfs_sync(self : Loop, path : Bytes) -> StatFS raise Errno {
+pub fn Loop::fs_statfs_sync(self : Loop, path : Bytes) -> StatFs raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_statfs_sync(self, req, path)
   if status < 0 {

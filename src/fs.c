@@ -15,6 +15,7 @@
 
 #include "moonbit.h"
 #include "uv#include#uv.h"
+#include <stdint.h>
 #include <stdlib.h>
 #ifdef _WIN32
 #else
@@ -1422,6 +1423,42 @@ moonbit_uv_fs_get_statfs(moonbit_uv_fs_t *fs) {
   memcpy(statfs, fs->fs.ptr, sizeof(uv_statfs_t));
   moonbit_decref(fs);
   return statfs;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_statfs_get_type(uv_statfs_t *statfs) {
+  return statfs->f_type;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_statfs_get_bsize(uv_statfs_t *statfs) {
+  return statfs->f_bsize;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_statfs_get_bavail(uv_statfs_t *statfs) {
+  return statfs->f_bavail;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_statfs_get_bfree(uv_statfs_t *statfs) {
+  return statfs->f_bfree;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_statfs_get_files(uv_statfs_t *statfs) {
+  return statfs->f_files;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_statfs_get_ffree(uv_statfs_t *statfs) {
+  return statfs->f_ffree;
 }
 
 MOONBIT_FFI_EXPORT
