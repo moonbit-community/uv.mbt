@@ -47,3 +47,37 @@ This is a MoonBit binding to the [libuv](https://libuv.org) library.
      }
    }
    ```
+
+## Roadmap
+
+### Thread
+
+- `uv_thread_create_ex()` - Extended thread creation with options
+
+### DNS Utilities
+
+- `uv_getnameinfo()` - Reverse DNS lookup (name resolution from address)
+
+### Miscellaneous Utilities
+
+- `uv_replace_allocator()` - Replace memory allocator
+- `uv_library_shutdown()` - Shutdown library
+- `uv_setup_args()` - Setup command line arguments
+- `uv_get_process_title()` - Get process title
+- `uv_set_process_title()` - Set process title
+- `uv_resident_set_memory()` - Get RSS memory usage
+- `uv_uptime()` - Get system uptime
+- `uv_getrusage()` - Get resource usage
+- `uv_getrusage_thread()` - Get thread resource usage
+- `uv_os_getpid()` - Get process ID
+- `uv_os_getppid()` - Get parent process ID
+- `uv_available_parallelism()` - Get available CPU parallelism
+- `uv_loadavg()` - Get system load average
+- `uv_gettimeofday()` - Get current time
+
+### Network Utilities
+
+- `uv_inet_ntop()` - Convert network address to string
+- `uv_inet_pton()` - Convert string to network address
+- `uv_if_indextoname()` - Convert interface index to name
+- `uv_if_indextoiid()` - Convert interface index to IID
