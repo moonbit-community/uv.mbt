@@ -3950,3 +3950,315 @@ pub fn Loop::fs_lstat_sync(self : Loop, path : Bytes) -> Stat raise Errno {
   uv_fs_req_cleanup(req)
   return stat
 }
+
+///|
+struct StatFS(Bytes)
+
+///|
+#owned(statfs)
+extern "c" fn moonbit_uv_statfs_get_type(statfs : StatFS) -> UInt64 = "moonbit_uv_statfs_get_type"
+
+///|
+#owned(statfs)
+extern "c" fn moonbit_uv_statfs_get_bsize(statfs : StatFS) -> UInt64 = "moonbit_uv_statfs_get_bsize"
+
+///|
+#owned(statfs)
+extern "c" fn moonbit_uv_statfs_get_blocks(statfs : StatFS) -> UInt64 = "moonbit_uv_statfs_get_blocks"
+
+///|
+#owned(statfs)
+extern "c" fn moonbit_uv_statfs_get_bfree(statfs : StatFS) -> UInt64 = "moonbit_uv_statfs_get_bfree"
+
+///|
+#owned(statfs)
+extern "c" fn moonbit_uv_statfs_get_bavail(statfs : StatFS) -> UInt64 = "moonbit_uv_statfs_get_bavail"
+
+///|
+#owned(statfs)
+extern "c" fn moonbit_uv_statfs_get_files(statfs : StatFS) -> UInt64 = "moonbit_uv_statfs_get_files"
+
+///|
+#owned(statfs)
+extern "c" fn moonbit_uv_statfs_get_ffree(statfs : StatFS) -> UInt64 = "moonbit_uv_statfs_get_ffree"
+
+///|
+pub fn StatFS::get_type(self : StatFS) -> UInt64 {
+  moonbit_uv_statfs_get_type(self)
+}
+
+///|
+pub fn StatFS::get_bsize(self : StatFS) -> UInt64 {
+  moonbit_uv_statfs_get_bsize(self)
+}
+
+///|
+pub fn StatFS::get_blocks(self : StatFS) -> UInt64 {
+  moonbit_uv_statfs_get_blocks(self)
+}
+
+///|
+pub fn StatFS::get_bfree(self : StatFS) -> UInt64 {
+  moonbit_uv_statfs_get_bfree(self)
+}
+
+///|
+pub fn StatFS::get_bavail(self : StatFS) -> UInt64 {
+  moonbit_uv_statfs_get_bavail(self)
+}
+
+///|
+pub fn StatFS::get_files(self : StatFS) -> UInt64 {
+  moonbit_uv_statfs_get_files(self)
+}
+
+///|
+pub fn StatFS::get_ffree(self : StatFS) -> UInt64 {
+  moonbit_uv_statfs_get_ffree(self)
+}
+
+///|
+#owned(req)
+extern "c" fn uv_fs_get_statfs(req : Fs) -> StatFS = "moonbit_uv_fs_get_statfs"
+
+///|
+#owned(uv, req, path)
+extern "c" fn uv_fs_statfs(
+  uv : Loop,
+  req : Fs,
+  path : Bytes,
+  cb : (Fs) -> Unit,
+) -> Int = "moonbit_uv_fs_statfs"
+
+///|
+pub fn Loop::fs_statfs(
+  self : Loop,
+  path : Bytes,
+  statfs_cb : (StatFS) -> Unit,
+  error_cb : (Errno) -> Unit,
+) -> Fs raise Errno {
+  fn cb(req : Fs) {
+    let status = req.result().to_int()
+    if status < 0 {
+      uv_fs_req_cleanup(req)
+      error_cb(Errno::of_int(status))
+    } else {
+      let statfs = uv_fs_get_statfs(req)
+      uv_fs_req_cleanup(req)
+      statfs_cb(statfs)
+    }
+  }
+
+  let req = uv_fs_make()
+  let status = uv_fs_statfs(self, req, path, cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  return req
+}
+
+///|
+#owned(uv, req, path)
+extern "c" fn uv_fs_statfs_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "moonbit_uv_fs_statfs_sync"
+
+///|
+pub fn Loop::fs_statfs_sync(self : Loop, path : Bytes) -> StatFS raise Errno {
+  let req = uv_fs_make()
+  let status = uv_fs_statfs_sync(self, req, path)
+  if status < 0 {
+    uv_fs_req_cleanup(req)
+    raise Errno::of_int(status)
+  }
+  let statfs = uv_fs_get_statfs(req)
+  uv_fs_req_cleanup(req)
+  return statfs
+}
+
+///|
+#owned(uv, req, path)
+extern "c" fn uv_fs_utime(
+  uv : Loop,
+  req : Fs,
+  path : Bytes,
+  atime : Double,
+  mtime : Double,
+  cb : (Fs) -> Unit,
+) -> Int = "moonbit_uv_fs_utime"
+
+///|
+pub fn Loop::fs_utime(
+  self : Loop,
+  path : Bytes,
+  atime : Double,
+  mtime : Double,
+  success_cb : () -> Unit,
+  error_cb : (Errno) -> Unit,
+) -> Fs raise Errno {
+  fn cb(req : Fs) {
+    let status = req.result().to_int()
+    uv_fs_req_cleanup(req)
+    if status < 0 {
+      error_cb(Errno::of_int(status))
+    } else {
+      success_cb()
+    }
+  }
+
+  let req = uv_fs_make()
+  let status = uv_fs_utime(self, req, path, atime, mtime, cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  return req
+}
+
+///|
+#owned(uv, req, path)
+extern "c" fn uv_fs_utime_sync(
+  uv : Loop,
+  req : Fs,
+  path : Bytes,
+  atime : Double,
+  mtime : Double,
+) -> Int = "moonbit_uv_fs_utime_sync"
+
+///|
+pub fn Loop::fs_utime_sync(
+  self : Loop,
+  path : Bytes,
+  atime : Double,
+  mtime : Double,
+) -> Unit raise Errno {
+  let req = uv_fs_make()
+  let status = uv_fs_utime_sync(self, req, path, atime, mtime)
+  uv_fs_req_cleanup(req)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
+#owned(uv, req)
+extern "c" fn uv_fs_futime(
+  uv : Loop,
+  req : Fs,
+  file : Int,
+  atime : Double,
+  mtime : Double,
+  cb : (Fs) -> Unit,
+) -> Int = "moonbit_uv_fs_futime"
+
+///|
+pub fn Loop::fs_futime(
+  self : Loop,
+  file : Int,
+  atime : Double,
+  mtime : Double,
+  success_cb : () -> Unit,
+  error_cb : (Errno) -> Unit,
+) -> Fs raise Errno {
+  fn cb(req : Fs) {
+    let status = req.result().to_int()
+    uv_fs_req_cleanup(req)
+    if status < 0 {
+      error_cb(Errno::of_int(status))
+    } else {
+      success_cb()
+    }
+  }
+
+  let req = uv_fs_make()
+  let status = uv_fs_futime(self, req, file, atime, mtime, cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  return req
+}
+
+///|
+#owned(uv, req)
+extern "c" fn uv_fs_futime_sync(
+  uv : Loop,
+  req : Fs,
+  file : Int,
+  atime : Double,
+  mtime : Double,
+) -> Int = "moonbit_uv_fs_futime_sync"
+
+///|
+pub fn Loop::fs_futime_sync(
+  self : Loop,
+  file : Int,
+  atime : Double,
+  mtime : Double,
+) -> Unit raise Errno {
+  let req = uv_fs_make()
+  let status = uv_fs_futime_sync(self, req, file, atime, mtime)
+  uv_fs_req_cleanup(req)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
+#owned(uv, req, path)
+extern "c" fn uv_fs_lutime(
+  uv : Loop,
+  req : Fs,
+  path : Bytes,
+  atime : Double,
+  mtime : Double,
+  cb : (Fs) -> Unit,
+) -> Int = "moonbit_uv_fs_lutime"
+
+///|
+pub fn Loop::fs_lutime(
+  self : Loop,
+  path : Bytes,
+  atime : Double,
+  mtime : Double,
+  success_cb : () -> Unit,
+  error_cb : (Errno) -> Unit,
+) -> Fs raise Errno {
+  fn cb(req : Fs) {
+    let status = req.result().to_int()
+    uv_fs_req_cleanup(req)
+    if status < 0 {
+      error_cb(Errno::of_int(status))
+    } else {
+      success_cb()
+    }
+  }
+
+  let req = uv_fs_make()
+  let status = uv_fs_lutime(self, req, path, atime, mtime, cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  return req
+}
+
+///|
+#owned(uv, req, path)
+extern "c" fn uv_fs_lutime_sync(
+  uv : Loop,
+  req : Fs,
+  path : Bytes,
+  atime : Double,
+  mtime : Double,
+) -> Int = "moonbit_uv_fs_lutime_sync"
+
+///|
+pub fn Loop::fs_lutime_sync(
+  self : Loop,
+  path : Bytes,
+  atime : Double,
+  mtime : Double,
+) -> Unit raise Errno {
+  let req = uv_fs_make()
+  let status = uv_fs_lutime_sync(self, req, path, atime, mtime)
+  uv_fs_req_cleanup(req)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
