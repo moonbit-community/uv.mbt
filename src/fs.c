@@ -1419,7 +1419,7 @@ uv_statfs_t *
 moonbit_uv_fs_get_statfs(moonbit_uv_fs_t *fs) {
   uv_statfs_t *statfs =
     (uv_statfs_t *)moonbit_make_bytes(sizeof(uv_statfs_t), 0);
-  memcpy(statfs, &fs->fs.statfs, sizeof(uv_statfs_t));
+  memcpy(statfs, fs->fs.ptr, sizeof(uv_statfs_t));
   moonbit_decref(fs);
   return statfs;
 }
