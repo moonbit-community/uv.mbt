@@ -37,21 +37,23 @@ extern "c" fn uv_dlerror(lib : Lib) -> @c.Pointer[Byte] = "moonbit_uv_dlerror"
 ///|
 suberror DlError Bytes
 
+///|
 pub fn Lib::open(filename : Bytes) -> Lib raise DlError {
-  let lib = uv_lib_make();
+  let lib = uv_lib_make()
   if uv_dlopen(filename, lib) != 0 {
-    let ptr = uv_dlerror(lib);
-    let buf = @buffer.new();
+    let ptr = uv_dlerror(lib)
+    let buf = @buffer.new()
     for i = 0; ptr[i] != 0; i = i + 1 {
       buf.write_byte(ptr[i])
     }
-    raise DlError(buf.to_bytes());
+    raise DlError(buf.to_bytes())
   }
   lib
 }
 
+///|
 pub fn[T] Lib::symbol(lib : Lib, name : Bytes) -> T? {
-  let ptr = Ref::new(@c.Pointer::null());
+  let ptr = Ref::new(@c.Pointer::null())
   if uv_dlsym(lib, name, ptr) != 0 {
     return None
   }

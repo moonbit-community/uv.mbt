@@ -71,8 +71,8 @@ const TCP_REUSEPORT : UInt = 2
 
 ///|
 pub fn TcpBindFlags::new(
-  ipv6_only~ : Bool = false,
-  reuse_port~ : Bool = false,
+  ipv6_only? : Bool = false,
+  reuse_port? : Bool = false,
 ) -> TcpBindFlags {
   let mut flags = 0U
   if ipv6_only {
@@ -186,7 +186,7 @@ extern "c" fn uv_tcp_keepalive(tcp : Tcp, enable : Bool, delay : UInt) -> Int = 
 pub fn Tcp::keepalive(
   self : Tcp,
   enable : Bool,
-  delay~ : UInt = 0U,
+  delay? : UInt = 0U,
 ) -> Unit raise Errno {
   let status = uv_tcp_keepalive(self, enable, delay)
   if status < 0 {

@@ -1394,7 +1394,8 @@ moonbit_uv_fs_statfs(
   moonbit_uv_fs_cb_t *cb
 ) {
   moonbit_uv_fs_set_data(fs, cb);
-  int status = uv_fs_statfs(loop, &fs->fs, (const char *)path, moonbit_uv_fs_cb);
+  int status =
+    uv_fs_statfs(loop, &fs->fs, (const char *)path, moonbit_uv_fs_cb);
   moonbit_decref(path);
   return status;
 }
@@ -1416,7 +1417,8 @@ moonbit_uv_fs_statfs_sync(
 MOONBIT_FFI_EXPORT
 uv_statfs_t *
 moonbit_uv_fs_get_statfs(moonbit_uv_fs_t *fs) {
-  uv_statfs_t *statfs = (uv_statfs_t *)moonbit_make_bytes(sizeof(uv_statfs_t), 0);
+  uv_statfs_t *statfs =
+    (uv_statfs_t *)moonbit_make_bytes(sizeof(uv_statfs_t), 0);
   memcpy(statfs, &fs->fs.statfs, sizeof(uv_statfs_t));
   moonbit_decref(fs);
   return statfs;
@@ -1433,7 +1435,9 @@ moonbit_uv_fs_utime(
   moonbit_uv_fs_cb_t *cb
 ) {
   moonbit_uv_fs_set_data(fs, cb);
-  int status = uv_fs_utime(loop, &fs->fs, (const char *)path, atime, mtime, moonbit_uv_fs_cb);
+  int status = uv_fs_utime(
+    loop, &fs->fs, (const char *)path, atime, mtime, moonbit_uv_fs_cb
+  );
   moonbit_decref(path);
   return status;
 }
@@ -1448,7 +1452,8 @@ moonbit_uv_fs_utime_sync(
   double mtime
 ) {
   moonbit_uv_fs_set_data(fs, NULL);
-  int status = uv_fs_utime(loop, &fs->fs, (const char *)path, atime, mtime, NULL);
+  int status =
+    uv_fs_utime(loop, &fs->fs, (const char *)path, atime, mtime, NULL);
   moonbit_decref(fs);
   moonbit_decref(path);
   return status;
@@ -1465,7 +1470,8 @@ moonbit_uv_fs_futime(
   moonbit_uv_fs_cb_t *cb
 ) {
   moonbit_uv_fs_set_data(fs, cb);
-  int status = uv_fs_futime(loop, &fs->fs, file, atime, mtime, moonbit_uv_fs_cb);
+  int status =
+    uv_fs_futime(loop, &fs->fs, file, atime, mtime, moonbit_uv_fs_cb);
   return status;
 }
 
@@ -1495,7 +1501,9 @@ moonbit_uv_fs_lutime(
   moonbit_uv_fs_cb_t *cb
 ) {
   moonbit_uv_fs_set_data(fs, cb);
-  int status = uv_fs_lutime(loop, &fs->fs, (const char *)path, atime, mtime, moonbit_uv_fs_cb);
+  int status = uv_fs_lutime(
+    loop, &fs->fs, (const char *)path, atime, mtime, moonbit_uv_fs_cb
+  );
   moonbit_decref(path);
   return status;
 }
@@ -1510,7 +1518,8 @@ moonbit_uv_fs_lutime_sync(
   double mtime
 ) {
   moonbit_uv_fs_set_data(fs, NULL);
-  int status = uv_fs_lutime(loop, &fs->fs, (const char *)path, atime, mtime, NULL);
+  int status =
+    uv_fs_lutime(loop, &fs->fs, (const char *)path, atime, mtime, NULL);
   moonbit_decref(fs);
   moonbit_decref(path);
   return status;

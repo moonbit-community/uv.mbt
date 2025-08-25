@@ -79,13 +79,13 @@ let _AI_V4MAPPED : Int = uv_AI_V4MAPPED()
 
 ///|
 pub fn AddrInfoFlags::new(
-  passive~ : Bool = false,
-  canonname~ : Bool = false,
-  numeric_host~ : Bool = false,
-  numeric_serv~ : Bool = false,
-  all~ : Bool = false,
-  addrconfig~ : Bool = false,
-  v4mapped~ : Bool = false,
+  passive? : Bool = false,
+  canonname? : Bool = false,
+  numeric_host? : Bool = false,
+  numeric_serv? : Bool = false,
+  all? : Bool = false,
+  addrconfig? : Bool = false,
+  v4mapped? : Bool = false,
 ) -> AddrInfoFlags {
   let mut flags = 0
   if passive {

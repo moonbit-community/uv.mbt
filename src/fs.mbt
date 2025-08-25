@@ -80,10 +80,10 @@ pub fn OpenFlags::read_only() -> OpenFlags {
 /// uv.close()
 /// ```
 pub fn OpenFlags::write_only(
-  append~ : Bool = false,
-  create~ : Bool = false,
-  truncate~ : Bool = false,
-  exclusive~ : Bool = false,
+  append? : Bool = false,
+  create? : Bool = false,
+  truncate? : Bool = false,
+  exclusive? : Bool = false,
 ) -> OpenFlags {
   let mut flags = _O_WRONLY
   if append {
@@ -134,10 +134,10 @@ pub fn OpenFlags::write_only(
 /// uv.close()
 /// ```
 pub fn OpenFlags::read_write(
-  append~ : Bool = false,
-  create~ : Bool = false,
-  truncate~ : Bool = false,
-  exclusive~ : Bool = false,
+  append? : Bool = false,
+  create? : Bool = false,
+  truncate? : Bool = false,
+  exclusive? : Bool = false,
 ) -> OpenFlags {
   let mut flags = _O_RDWR
   if append {
@@ -955,7 +955,7 @@ pub fn Loop::fs_read(
   self : Loop,
   file : File,
   bufs : Array[@bytes.View],
-  offset~ : Int64 = -1,
+  offset? : Int64 = -1,
   read_cb : (Int) -> Unit,
   error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
@@ -1005,7 +1005,7 @@ pub fn Loop::fs_read_sync(
   self : Loop,
   file : File,
   bufs : Array[@bytes.View],
-  offset~ : Int64 = -1,
+  offset? : Int64 = -1,
 ) -> Int raise Errno {
   let req = uv_fs_make()
   let bufs_size = bufs.length()
@@ -1098,7 +1098,7 @@ pub fn Loop::fs_write(
   self : Loop,
   file : File,
   bufs : Array[@bytes.View],
-  offset~ : Int64 = -1,
+  offset? : Int64 = -1,
   write_cb : (Int) -> Unit,
   error_cb : (Errno) -> Unit,
 ) -> Fs raise Errno {
@@ -1186,7 +1186,7 @@ pub fn Loop::fs_write_sync(
   self : Loop,
   file : File,
   bufs : Array[@bytes.View],
-  offset~ : Int64 = -1,
+  offset? : Int64 = -1,
 ) -> Unit raise Errno {
   let req = uv_fs_make()
   let bufs_size = bufs.length()
@@ -2417,8 +2417,8 @@ pub(all) enum CopyOnWrite {
 
 ///|
 pub fn CopyFileFlags::new(
-  allow_exists~ : Bool = true,
-  copy_on_write~ : CopyOnWrite = False,
+  allow_exists? : Bool = true,
+  copy_on_write? : CopyOnWrite = False,
 ) -> CopyFileFlags {
   let mut flags = if allow_exists { 0 } else { uv_fs_COPYFILE_EXCL() }
   match copy_on_write {
@@ -3082,9 +3082,9 @@ struct AccessFlags(Int)
 
 ///|
 pub fn AccessFlags::new(
-  read~ : Bool = false,
-  write~ : Bool = false,
-  execute~ : Bool = false,
+  read? : Bool = false,
+  write? : Bool = false,
+  execute? : Bool = false,
 ) -> AccessFlags {
   if not(read) && not(write) && not(execute) {
     return _F_OK
@@ -3593,8 +3593,8 @@ struct SymlinkFlags(Int)
 /// ignore(@uv.SymlinkFlags::new(junction=true))
 /// ```
 pub fn SymlinkFlags::new(
-  dir~ : Bool = false,
-  junction~ : Bool = false,
+  dir? : Bool = false,
+  junction? : Bool = false,
 ) -> SymlinkFlags {
   let mut flags = 0
   if dir {
