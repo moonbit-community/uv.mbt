@@ -46,3 +46,12 @@ test "chdir" {
   @uv.chdir(old_cwd)
   uv.close()
 }
+
+///|
+test "rusage" {
+  let rusage = @uv.getrusage()
+  ignore(rusage.utime().sec)
+  ignore(rusage.utime().usec)
+  ignore(rusage.stime().sec)
+  ignore(rusage.stime().usec)
+}
