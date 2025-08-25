@@ -179,11 +179,9 @@ moonbit_uv_passwd_get_homedir(moonbit_uv_passwd_t *passwd) {
 }
 
 MOONBIT_FFI_EXPORT
-moonbit_bytes_t
+const char *
 moonbit_uv_passwd_get_shell(moonbit_uv_passwd_t *passwd) {
-  size_t length = strlen(passwd->passwd.shell);
-  moonbit_bytes_t shell = moonbit_make_bytes(length, 0);
-  memcpy(shell, passwd->passwd.shell, length);
+  const char *shell = passwd->passwd.shell;
   moonbit_decref(passwd);
   return shell;
 }

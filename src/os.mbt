@@ -358,7 +358,21 @@ pub extern "c" fn Passwd::gid(passwd : Passwd) -> Gid = "moonbit_uv_passwd_get_g
 
 ///|
 #owned(passwd)
-pub extern "c" fn Passwd::shell(passwd : Passwd) -> Bytes = "moonbit_uv_passwd_get_shell"
+extern "c" fn passwd_get_shell(passwd : Passwd) -> @c.Pointer[Byte] = "moonbit_uv_passwd_get_shell"
+
+///|
+pub fn Passwd::shell(passwd : Passwd) -> Bytes {
+  let ptr = passwd_get_shell(passwd)
+  if ptr.is_null() {
+    b""
+  } else {
+    let buf = @buffer.new()
+    for i = 0; ptr[i] != 0; i = i + 1 {
+      buf.write_byte(ptr[i])
+    }
+    buf.contents()
+  }
+}
 
 ///|
 #owned(passwd)
