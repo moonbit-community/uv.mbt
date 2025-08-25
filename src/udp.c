@@ -364,6 +364,7 @@ moonbit_uv_udp_getsockname(moonbit_uv_udp_t *udp, struct sockaddr *name) {
   int namelen = sizeof(struct sockaddr_storage);
   int result = uv_udp_getsockname(&udp->udp, name, &namelen);
   moonbit_decref(udp);
+  moonbit_decref(name);
   return result;
 }
 

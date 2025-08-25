@@ -3955,31 +3955,31 @@ pub fn Loop::fs_lstat_sync(self : Loop, path : Bytes) -> Stat raise Errno {
 struct StatFs(Bytes)
 
 ///|
-#owned(statfs)
+#borrow(statfs)
 extern "c" fn moonbit_uv_statfs_get_type(statfs : StatFs) -> UInt64 = "moonbit_uv_statfs_get_type"
 
 ///|
-#owned(statfs)
+#borrow(statfs)
 extern "c" fn moonbit_uv_statfs_get_bsize(statfs : StatFs) -> UInt64 = "moonbit_uv_statfs_get_bsize"
 
 ///|
-#owned(statfs)
+#borrow(statfs)
 extern "c" fn moonbit_uv_statfs_get_blocks(statfs : StatFs) -> UInt64 = "moonbit_uv_statfs_get_blocks"
 
 ///|
-#owned(statfs)
+#borrow(statfs)
 extern "c" fn moonbit_uv_statfs_get_bfree(statfs : StatFs) -> UInt64 = "moonbit_uv_statfs_get_bfree"
 
 ///|
-#owned(statfs)
+#borrow(statfs)
 extern "c" fn moonbit_uv_statfs_get_bavail(statfs : StatFs) -> UInt64 = "moonbit_uv_statfs_get_bavail"
 
 ///|
-#owned(statfs)
+#borrow(statfs)
 extern "c" fn moonbit_uv_statfs_get_files(statfs : StatFs) -> UInt64 = "moonbit_uv_statfs_get_files"
 
 ///|
-#owned(statfs)
+#borrow(statfs)
 extern "c" fn moonbit_uv_statfs_get_ffree(statfs : StatFs) -> UInt64 = "moonbit_uv_statfs_get_ffree"
 
 ///|
