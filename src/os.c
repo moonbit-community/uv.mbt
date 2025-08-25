@@ -187,3 +187,27 @@ moonbit_uv_passwd_get_shell(moonbit_uv_passwd_t *passwd) {
   moonbit_decref(passwd);
   return shell;
 }
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_get_free_memory(void) {
+  return uv_get_free_memory();
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_get_total_memory(void) {
+  return uv_get_total_memory();
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_get_constrained_memory(void) {
+  return uv_get_constrained_memory();
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_get_available_memory(void) {
+  return uv_get_available_memory();
+}

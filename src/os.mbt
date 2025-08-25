@@ -327,6 +327,18 @@ pub fn cpu_info() -> Array[CpuInfo] raise Errno {
 }
 
 ///|
+pub extern "c" fn get_free_memory() -> UInt64 = "moonbit_uv_get_free_memory"
+
+///|
+pub extern "c" fn get_total_memory() -> UInt64 = "moonbit_uv_get_total_memory"
+
+///|
+pub extern "c" fn get_constrained_memory() -> UInt64 = "moonbit_uv_get_constrained_memory"
+
+///|
+pub extern "c" fn get_available_memory() -> UInt64 = "moonbit_uv_get_available_memory"
+
+///|
 type Passwd
 
 ///|
