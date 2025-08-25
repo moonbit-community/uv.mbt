@@ -33,6 +33,8 @@ fn get_total_memory() -> UInt64
 
 fn getcpu() -> Int raise Errno
 
+fn getrusage() -> Rusage raise Errno
+
 fn guess_handle(File) -> HandleType
 
 fn hrtime() -> UInt64
@@ -587,6 +589,24 @@ pub(all) enum RunMode {
   NoWait
 }
 
+type Rusage
+fn Rusage::idrss(Self) -> Int
+fn Rusage::inblock(Self) -> Int
+fn Rusage::isrss(Self) -> Int
+fn Rusage::ixrss(Self) -> Int
+fn Rusage::majflt(Self) -> Int
+fn Rusage::maxrss(Self) -> Int
+fn Rusage::minflt(Self) -> Int
+fn Rusage::msgrcv(Self) -> Int
+fn Rusage::msgsnd(Self) -> Int
+fn Rusage::nivcsw(Self) -> Int
+fn Rusage::nsignals(Self) -> Int
+fn Rusage::nswap(Self) -> Int
+fn Rusage::nvcsw(Self) -> Int
+fn Rusage::oublock(Self) -> Int
+fn Rusage::stime(Self) -> Timeval
+fn Rusage::utime(Self) -> Timeval
+
 type RwLock
 fn RwLock::new() -> Self raise Errno
 fn RwLock::rdlock(Self) -> Unit
@@ -752,6 +772,11 @@ fn Timer::set_repeat(Self, UInt64) -> Unit
 fn Timer::start(Self, timeout~ : UInt64, repeat~ : UInt64, (Self) -> Unit) -> Unit raise Errno
 fn Timer::stop(Self) -> Unit raise Errno
 impl ToHandle for Timer
+
+pub struct Timeval {
+  sec : Int64
+  usec : Int64
+}
 
 type Tty
 fn Tty::get_vterm_state() -> Unit raise Errno
