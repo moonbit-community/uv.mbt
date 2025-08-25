@@ -175,3 +175,78 @@ moonbit_uv_thread_getaffinity(
   moonbit_decref(thread);
   return status;
 }
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_thread_detach(moonbit_uv_thread_t *thread) {
+  int32_t status = uv_thread_detach(&thread->block->object);
+  moonbit_decref(thread);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_thread_setname(moonbit_bytes_t name) {
+  int32_t status = uv_thread_setname((const char *)name);
+  moonbit_decref(name);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_thread_getname(
+  moonbit_uv_thread_t *thread,
+  void *name,
+  int32_t size
+) {
+  int32_t status =
+    uv_thread_getname(&thread->block->object, (char *)name, (size_t)size);
+  moonbit_decref(thread);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_thread_setpriority(moonbit_uv_thread_t *thread, int32_t priority) {
+  int32_t status = uv_thread_setpriority(thread->block->object, priority);
+  moonbit_decref(thread);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_thread_getpriority(moonbit_uv_thread_t *thread, int32_t *priority) {
+  int32_t status = uv_thread_getpriority(thread->block->object, priority);
+  moonbit_decref(thread);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_THREAD_PRIORITY_HIGHEST(void) {
+  return UV_THREAD_PRIORITY_HIGHEST;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_THREAD_PRIORITY_ABOVE_NORMAL(void) {
+  return UV_THREAD_PRIORITY_ABOVE_NORMAL;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_THREAD_PRIORITY_NORMAL(void) {
+  return UV_THREAD_PRIORITY_NORMAL;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_THREAD_PRIORITY_BELOW_NORMAL(void) {
+  return UV_THREAD_PRIORITY_BELOW_NORMAL;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_THREAD_PRIORITY_LOWEST(void) {
+  return UV_THREAD_PRIORITY_LOWEST;
+}
