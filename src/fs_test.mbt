@@ -703,3 +703,16 @@ test "fs_lstat_sync" {
   uv.fs_unlink_sync(symlink_file)
   uv.close()
 }
+
+///|
+test "fs_statfs" {
+  let uv = @uv.Loop::new()
+  let errors : Array[Error] = []
+  uv.fs_statfs("/", stat => ignore(stat.get_type()), error => errors.push(error))
+  |> ignore()
+  uv.run(Default)
+  for error in errors {
+    raise error
+  }
+  uv.close()
+}

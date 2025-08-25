@@ -57,7 +57,7 @@ extern "c" fn uv_pipe(
 ) -> Int = "moonbit_uv_pipe"
 
 ///|
-pub fn Pipe::new(self : Loop, ipc~ : Bool = false) -> Pipe raise Errno {
+pub fn Pipe::new(self : Loop, ipc? : Bool = false) -> Pipe raise Errno {
   let pipe = uv_pipe_make()
   let status = uv_pipe_init(self, pipe, ipc)
   if status < 0 {
@@ -73,7 +73,7 @@ struct PipeBindFlags(UInt)
 const PIPE_NO_TRUNCATE : UInt = 1U << 0
 
 ///|
-pub fn PipeBindFlags::new(truncate~ : Bool = true) -> PipeBindFlags {
+pub fn PipeBindFlags::new(truncate? : Bool = true) -> PipeBindFlags {
   let mut flags = 0U
   if not(truncate) {
     flags = flags | PIPE_NO_TRUNCATE
@@ -100,7 +100,7 @@ struct PipeFlags(Int)
 const UV_NONBLOCK_PIPE : Int = 0x40
 
 ///|
-pub fn PipeFlags::new(non_block~ : Bool = true) -> PipeFlags {
+pub fn PipeFlags::new(non_block? : Bool = true) -> PipeFlags {
   if non_block {
     UV_NONBLOCK_PIPE
   } else {
@@ -110,8 +110,8 @@ pub fn PipeFlags::new(non_block~ : Bool = true) -> PipeFlags {
 
 ///|
 pub fn pipe(
-  read_flags~ : PipeFlags = UV_NONBLOCK_PIPE,
-  write_flags~ : PipeFlags = UV_NONBLOCK_PIPE,
+  read_flags? : PipeFlags = UV_NONBLOCK_PIPE,
+  write_flags? : PipeFlags = UV_NONBLOCK_PIPE,
 ) -> (File, File) raise Errno {
   let fds : FixedArray[Int] = [0, 0]
   let status = uv_pipe(fds, read_flags.inner(), write_flags.inner())

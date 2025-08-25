@@ -203,14 +203,14 @@ struct UdpFlags(UInt)
 
 ///|
 pub fn UdpFlags::new(
-  ipv6_only~ : Bool = false,
-  partial~ : Bool = false,
-  reuse_addr~ : Bool = false,
-  mmsg_chunk~ : Bool = false,
-  mmsg_free~ : Bool = false,
-  linux_recv_err~ : Bool = false,
-  reuse_port~ : Bool = false,
-  recvmmsg~ : Bool = false,
+  ipv6_only? : Bool = false,
+  partial? : Bool = false,
+  reuse_addr? : Bool = false,
+  mmsg_chunk? : Bool = false,
+  mmsg_free? : Bool = false,
+  linux_recv_err? : Bool = false,
+  reuse_port? : Bool = false,
+  recvmmsg? : Bool = false,
 ) -> UdpFlags {
   let mut flags = 0U
   if ipv6_only {

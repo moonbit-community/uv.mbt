@@ -181,9 +181,38 @@ moonbit_uv_passwd_get_homedir(moonbit_uv_passwd_t *passwd) {
 MOONBIT_FFI_EXPORT
 moonbit_bytes_t
 moonbit_uv_passwd_get_shell(moonbit_uv_passwd_t *passwd) {
-  size_t length = strlen(passwd->passwd.shell);
-  moonbit_bytes_t shell = moonbit_make_bytes(length, 0);
-  memcpy(shell, passwd->passwd.shell, length);
-  moonbit_decref(passwd);
-  return shell;
+  if (passwd->passwd.shell) {
+    size_t length = strlen(passwd->passwd.shell);
+    moonbit_bytes_t shell = moonbit_make_bytes(length, 0);
+    memcpy(shell, passwd->passwd.shell, length);
+    moonbit_decref(passwd);
+    return shell;
+  } else {
+    moonbit_decref(passwd);
+    return moonbit_empty_int8_array;
+  }
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_get_free_memory(void) {
+  return uv_get_free_memory();
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_get_total_memory(void) {
+  return uv_get_total_memory();
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_get_constrained_memory(void) {
+  return uv_get_constrained_memory();
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_get_available_memory(void) {
+  return uv_get_available_memory();
 }

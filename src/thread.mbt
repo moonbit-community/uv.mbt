@@ -264,3 +264,157 @@ pub fn Thread::get_affinity(self : Thread) -> CpuSet raise Errno {
   }
   cpu_set
 }
+
+///|
+#owned(thread)
+extern "c" fn uv_thread_detach(thread : Thread) -> Int = "moonbit_uv_thread_detach"
+
+///|
+pub fn Thread::detach(self : Thread) -> Unit raise Errno {
+  let status = uv_thread_detach(self)
+  if status != 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
+#owned(name)
+extern "c" fn uv_thread_setname(name : Bytes) -> Int = "moonbit_uv_thread_setname"
+
+///|
+pub fn Thread::set_name(name : Bytes) -> Unit raise Errno {
+  let status = uv_thread_setname(name)
+  if status != 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
+#owned(thread, name)
+extern "c" fn uv_thread_getname(
+  thread : Thread,
+  name : Bytes,
+  size : Int,
+) -> Int = "moonbit_uv_thread_getname"
+
+///|
+pub fn Thread::get_name(self : Thread) -> Bytes raise Errno {
+  let buffer = Bytes::make(256, 0)
+  let status = uv_thread_getname(self, buffer, buffer.length())
+  if status != 0 {
+    raise Errno::of_int(status)
+  }
+
+  // Find the null terminator and truncate
+  let mut end = 0
+  for i in 0..<buffer.length() {
+    if buffer[i] == 0 {
+      end = i
+      break
+    }
+  }
+  buffer.shrink(end)
+  buffer
+}
+
+///|
+pub enum ThreadPriority {
+  Highest
+  AboveNormal
+  Normal
+  BelowNormal
+  Lowest
+}
+
+///|
+extern "c" fn uv_THREAD_PRIORITY_HIGHEST() -> Int = "moonbit_uv_THREAD_PRIORITY_HIGHEST"
+
+///|
+extern "c" fn uv_THREAD_PRIORITY_ABOVE_NORMAL() -> Int = "moonbit_uv_THREAD_PRIORITY_ABOVE_NORMAL"
+
+///|
+extern "c" fn uv_THREAD_PRIORITY_NORMAL() -> Int = "moonbit_uv_THREAD_PRIORITY_NORMAL"
+
+///|
+extern "c" fn uv_THREAD_PRIORITY_BELOW_NORMAL() -> Int = "moonbit_uv_THREAD_PRIORITY_BELOW_NORMAL"
+
+///|
+extern "c" fn uv_THREAD_PRIORITY_LOWEST() -> Int = "moonbit_uv_THREAD_PRIORITY_LOWEST"
+
+///|
+let _THREAD_PRIORITY_HIGHEST : Int = uv_THREAD_PRIORITY_HIGHEST()
+
+///|
+let _THREAD_PRIORITY_ABOVE_NORMAL : Int = uv_THREAD_PRIORITY_ABOVE_NORMAL()
+
+///|
+let _THREAD_PRIORITY_NORMAL : Int = uv_THREAD_PRIORITY_NORMAL()
+
+///|
+let _THREAD_PRIORITY_BELOW_NORMAL : Int = uv_THREAD_PRIORITY_BELOW_NORMAL()
+
+///|
+let _THREAD_PRIORITY_LOWEST : Int = uv_THREAD_PRIORITY_LOWEST()
+
+///|
+fn ThreadPriority::to_int(self : ThreadPriority) -> Int {
+  match self {
+    Highest => _THREAD_PRIORITY_HIGHEST
+    AboveNormal => _THREAD_PRIORITY_ABOVE_NORMAL
+    Normal => _THREAD_PRIORITY_NORMAL
+    BelowNormal => _THREAD_PRIORITY_BELOW_NORMAL
+    Lowest => _THREAD_PRIORITY_LOWEST
+  }
+}
+
+///|
+fn ThreadPriority::of_int(priority : Int) -> ThreadPriority raise Errno {
+  if priority == _THREAD_PRIORITY_HIGHEST {
+    return Highest
+  }
+  if priority == _THREAD_PRIORITY_ABOVE_NORMAL {
+    return AboveNormal
+  }
+  if priority == _THREAD_PRIORITY_NORMAL {
+    return Normal
+  }
+  if priority == _THREAD_PRIORITY_BELOW_NORMAL {
+    return BelowNormal
+  }
+  if priority == _THREAD_PRIORITY_LOWEST {
+    return Lowest
+  }
+  raise EINVAL
+}
+
+///|
+#owned(thread)
+extern "c" fn uv_thread_setpriority(thread : Thread, priority : Int) -> Int = "moonbit_uv_thread_setpriority"
+
+///|
+pub fn Thread::set_priority(
+  self : Thread,
+  priority : ThreadPriority,
+) -> Unit raise Errno {
+  let status = uv_thread_setpriority(self, priority.to_int())
+  if status != 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
+#owned(thread, priority)
+extern "c" fn uv_thread_getpriority(
+  thread : Thread,
+  priority : FixedArray[Int],
+) -> Int = "moonbit_uv_thread_getpriority"
+
+///|
+pub fn Thread::get_priority(self : Thread) -> ThreadPriority raise Errno {
+  let priority : FixedArray[Int] = [0]
+  let status = uv_thread_getpriority(self, priority)
+  if status != 0 {
+    raise Errno::of_int(status)
+  }
+  ThreadPriority::of_int(priority[0])
+}

@@ -66,7 +66,7 @@ struct FsEventFlags(Int)
 const UV_FS_EVENT_RECURSIVE = 4
 
 ///|
-pub fn FsEventFlags::new(recursive~ : Bool = false) -> FsEventFlags {
+pub fn FsEventFlags::new(recursive? : Bool = false) -> FsEventFlags {
   let mut flags = 0
   if recursive {
     flags = flags | UV_FS_EVENT_RECURSIVE

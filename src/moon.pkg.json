@@ -16,7 +16,23 @@
       "native",
       "llvm"
     ],
+    "barrier.mbt": [
+      "native",
+      "llvm"
+    ],
     "bytes.mbt": [
+      "native",
+      "llvm"
+    ],
+    "cond.mbt": [
+      "native",
+      "llvm"
+    ],
+    "cond_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "dl.mbt": [
       "native",
       "llvm"
     ],
@@ -96,6 +112,10 @@
       "native",
       "llvm"
     ],
+    "key.mbt": [
+      "native",
+      "llvm"
+    ],
     "loop_test.mbt": [
       "native",
       "llvm"
@@ -116,11 +136,7 @@
       "native",
       "llvm"
     ],
-    "cond.mbt": [
-      "native",
-      "llvm"
-    ],
-    "cond_test.mbt": [
+    "once.mbt": [
       "native",
       "llvm"
     ],
