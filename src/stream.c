@@ -16,6 +16,7 @@
 #include "stream.h"
 
 #include "handle.h"
+#include "moonbit.h"
 #include "uv.h"
 
 typedef struct moonbit_uv_read_cb {
@@ -206,5 +207,13 @@ moonbit_uv_accept(uv_stream_t *server, uv_stream_t *client) {
   int status = uv_accept(server, client);
   moonbit_decref(server);
   moonbit_decref(client);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_stream_set_blocking(uv_stream_t *stream, int32_t blocking) {
+  int status = uv_stream_set_blocking(stream, blocking);
+  moonbit_decref(stream);
   return status;
 }

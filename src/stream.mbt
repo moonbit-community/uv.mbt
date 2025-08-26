@@ -242,6 +242,7 @@ pub trait ToStream: ToHandle {
   is_readable(Self) -> Bool = _
   is_writable(Self) -> Bool = _
   shutdown(Self, () -> Unit, (Errno) -> Unit) -> Shutdown raise Errno = _
+  set_blocking(Self, Bool) -> Int = _
 }
 
 ///|
@@ -283,6 +284,11 @@ impl ToStream with read_stop(self) {
 ///|
 impl ToStream with write(self, bufs, write_cb, error_cb) {
   self.to_stream().write(bufs, write_cb, error_cb)
+}
+
+///|
+impl ToStream with set_blocking(self, blocking) {
+  uv_stream_set_blocking(self.to_stream(), blocking)
 }
 
 ///|
@@ -441,3 +447,7 @@ pub impl ToReq for Connect with to_req(self : Connect) -> Req = "%identity"
 
 ///|
 extern "c" fn uv_connect_make() -> Connect = "moonbit_uv_connect_make"
+
+///|
+#owned(stream)
+extern "c" fn uv_stream_set_blocking(stream : Stream, blocking : Bool) -> Int = "moonbit_uv_stream_set_blocking"
