@@ -242,7 +242,7 @@ pub trait ToStream: ToHandle {
   is_readable(Self) -> Bool = _
   is_writable(Self) -> Bool = _
   shutdown(Self, () -> Unit, (Errno) -> Unit) -> Shutdown raise Errno = _
-  set_blocking(Self, Bool) -> Int = _
+  set_blocking(Self, Bool) -> Unit raise Errno = _
 }
 
 ///|
@@ -288,7 +288,10 @@ impl ToStream with write(self, bufs, write_cb, error_cb) {
 
 ///|
 impl ToStream with set_blocking(self, blocking) {
-  uv_stream_set_blocking(self.to_stream(), blocking)
+  let status = uv_stream_set_blocking(self.to_stream(), blocking)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
 }
 
 ///|

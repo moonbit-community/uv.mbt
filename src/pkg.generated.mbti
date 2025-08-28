@@ -896,6 +896,6 @@ pub trait ToStream : ToHandle {
   is_readable(Self) -> Bool
   is_writable(Self) -> Bool
   shutdown(Self, () -> Unit, (Errno) -> Unit) -> Shutdown raise Errno
-  set_blocking(Self, Bool) -> Int
+  set_blocking(Self, Bool) -> Unit raise Errno
 }
 
