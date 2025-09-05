@@ -23,7 +23,7 @@ fn test_close(uv : @uv.Loop, file : @uv.File, error : Ref[Errno?]) -> Unit {
 fn test_write(
   uv : @uv.Loop,
   file : @uv.File,
-  buffer : @buffer.T,
+  buffer : @buffer.Buffer,
   bytes : Bytes,
   start : Int,
   count : Int,
@@ -37,7 +37,7 @@ fn test_write(
 fn test_read(
   uv : @uv.Loop,
   file : @uv.File,
-  buffer : @buffer.T,
+  buffer : @buffer.Buffer,
   bytes : Bytes,
   error : Ref[Errno?],
 ) -> Unit {
