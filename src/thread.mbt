@@ -45,7 +45,7 @@ extern "c" fn uv_thread_self(thread : Thread) -> Int = "moonbit_uv_thread_self"
 extern "c" fn uv_thread_equal(thread : Thread, other : Thread) -> Int = "moonbit_uv_thread_equal"
 
 ///|
-pub impl Eq for Thread with op_equal(self : Thread, other : Thread) -> Bool {
+pub impl Eq for Thread with equal(self : Thread, other : Thread) -> Bool {
   return uv_thread_equal(self, other) != 0
 }
 
