@@ -18,7 +18,7 @@ test "udp" {
   let mut error : Error? = None
   let in_socket = @uv.Udp::new(uv)
   let out_socket = @uv.Udp::new(uv)
-  let addr : @uv.SockaddrIn = @uv.ip4_addr("127.0.0.1", 8543)
+  let addr : @inet.Sockaddr = @uv.ip4_addr("127.0.0.1", 8543)
   in_socket.bind(addr, @uv.UdpFlags::new())
   in_socket.recv_start(
     fn(_, _) { Bytes::make(100, 0)[:] },
@@ -57,12 +57,12 @@ test "udp" {
 test "Udp::getsockname" {
   let uv = @uv.Loop::new()
   let socket = @uv.Udp::new(uv)
-  let addr : @uv.SockaddrIn = @uv.ip4_addr("127.0.0.1", 0)
+  let addr : @inet.Sockaddr = @uv.ip4_addr("127.0.0.1", 0)
   socket.bind(addr, @uv.UdpFlags::new())
 
   // Test getsockname
   let sockname = socket.getsockname()
-  inspect(sockname.ip_name() is "127.0.0.1", content="true")
+  inspect(@utf8.decode(@uv.ip_name(sockname)), content="127.0.0.1")
   socket.close(() => ())
   uv.run(Default)
   uv.close()
@@ -71,11 +71,7 @@ test "Udp::getsockname" {
 ///|
 test "Udp::set_broadcast" {
   let uv = @uv.Loop::new()
-  let socket = @uv.Udp::new_ex(
-    uv,
-    @uv.AddressFamily::inet(),
-    @uv.UdpFlags::new(),
-  )
+  let socket = @uv.Udp::new_ex(uv, @inet.address_family, @uv.UdpFlags::new())
   socket.set_broadcast(true)
   socket.set_broadcast(false)
   socket.close(() => ())
@@ -86,11 +82,7 @@ test "Udp::set_broadcast" {
 ///|
 test "Udp::set_ttl" {
   let uv = @uv.Loop::new()
-  let socket = @uv.Udp::new_ex(
-    uv,
-    @uv.AddressFamily::inet(),
-    @uv.UdpFlags::new(),
-  )
+  let socket = @uv.Udp::new_ex(uv, @inet.address_family, @uv.UdpFlags::new())
   socket.set_ttl(64)
   socket.close(() => ())
   uv.run(Default)
@@ -100,11 +92,7 @@ test "Udp::set_ttl" {
 ///|
 test "Udp::set_multicast_ttl" {
   let uv = @uv.Loop::new()
-  let socket = @uv.Udp::new_ex(
-    uv,
-    @uv.AddressFamily::inet(),
-    @uv.UdpFlags::new(),
-  )
+  let socket = @uv.Udp::new_ex(uv, @inet.address_family, @uv.UdpFlags::new())
   socket.set_multicast_ttl(32)
   socket.close(() => ())
   uv.run(Default)
@@ -114,11 +102,7 @@ test "Udp::set_multicast_ttl" {
 ///|
 test "Udp::set_multicast_loop" {
   let uv = @uv.Loop::new()
-  let socket = @uv.Udp::new_ex(
-    uv,
-    @uv.AddressFamily::inet(),
-    @uv.UdpFlags::new(),
-  )
+  let socket = @uv.Udp::new_ex(uv, @inet.address_family, @uv.UdpFlags::new())
   socket.set_multicast_loop(false)
   socket.set_multicast_loop(true)
   socket.close(() => ())
@@ -161,11 +145,7 @@ test "Udp::using_recvmmsg" {
 ///|
 test "Udp::new_ex" {
   let uv = @uv.Loop::new()
-  let socket = @uv.Udp::new_ex(
-    uv,
-    @uv.AddressFamily::inet(),
-    @uv.UdpFlags::new(),
-  )
+  let socket = @uv.Udp::new_ex(uv, @inet.address_family, @uv.UdpFlags::new())
   socket.close(() => ())
   uv.run(Default)
   uv.close()
@@ -174,11 +154,7 @@ test "Udp::new_ex" {
 ///|
 test "Udp::set_membership" {
   let uv = @uv.Loop::new()
-  let socket = @uv.Udp::new_ex(
-    uv,
-    @uv.AddressFamily::inet(),
-    @uv.UdpFlags::new(),
-  )
+  let socket = @uv.Udp::new_ex(uv, @inet.address_family, @uv.UdpFlags::new())
   try {
     socket.set_membership("224.0.0.1", "0.0.0.0", @uv.Membership::JoinGroup)
     socket.set_membership("224.0.0.1", "0.0.0.0", @uv.Membership::LeaveGroup)

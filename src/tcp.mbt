@@ -58,7 +58,11 @@ pub fn Tcp::open(self : Tcp, os_sock : OsSock) -> Unit raise Errno {
 
 ///|
 #owned(tcp, addr)
-extern "c" fn uv_tcp_bind(tcp : Tcp, addr : Sockaddr, flags : UInt) -> Int = "moonbit_uv_tcp_bind"
+extern "c" fn uv_tcp_bind(
+  tcp : Tcp,
+  addr : @socket.Sockaddr,
+  flags : UInt,
+) -> Int = "moonbit_uv_tcp_bind"
 
 ///|
 struct TcpBindFlags(UInt)
@@ -111,7 +115,7 @@ pub fn TcpBindFlags::new(
 ///   0 on success, or an error code < 0 on failure.
 ///
 /// *Changed in version 1.49.0*: added the `UV_TCP_REUSEPORT` flag.
-pub fn[Sockaddr : ToSockaddr] Tcp::bind(
+pub fn[Sockaddr : @socket.ToSockaddr] Tcp::bind(
   self : Tcp,
   addr : Sockaddr,
   flags : TcpBindFlags,
@@ -127,12 +131,12 @@ pub fn[Sockaddr : ToSockaddr] Tcp::bind(
 extern "c" fn uv_tcp_connect(
   req : Connect,
   handle : Tcp,
-  addr : Sockaddr,
+  addr : @socket.Sockaddr,
   cb : (Connect, Int) -> Unit,
 ) -> Int = "moonbit_uv_tcp_connect"
 
 ///|
-pub fn[Sockaddr : ToSockaddr] Tcp::connect(
+pub fn[Sockaddr : @socket.ToSockaddr] Tcp::connect(
   self : Tcp,
   addr : Sockaddr,
   connect_cb : () -> Unit,
@@ -196,13 +200,13 @@ pub fn Tcp::keepalive(
 
 ///|
 #owned(tcp, addr)
-extern "c" fn uv_tcp_getsockname(tcp : Tcp, addr : Sockaddr) -> Int = "moonbit_uv_tcp_getsockname"
+extern "c" fn uv_tcp_getsockname(tcp : Tcp, addr : @socket.Sockaddr) -> Int = "moonbit_uv_tcp_getsockname"
 
 ///|
 /// Get the current address to which the handle is bound.
 /// `struct sockaddr_storage` is used for IPv4 and IPv6 support.
-pub fn Tcp::getsockname(self : Tcp) -> Sockaddr raise Errno {
-  let addr = uv_sockaddr_make()
+pub fn Tcp::getsockname(self : Tcp) -> @socket.Sockaddr raise Errno {
+  let addr = @socket.Sockaddr::new()
   let status = uv_tcp_getsockname(self, addr)
   if status < 0 {
     raise Errno::of_int(status)
@@ -212,13 +216,13 @@ pub fn Tcp::getsockname(self : Tcp) -> Sockaddr raise Errno {
 
 ///|
 #owned(tcp, addr)
-extern "c" fn uv_tcp_getpeername(tcp : Tcp, addr : Sockaddr) -> Int = "moonbit_uv_tcp_getpeername"
+extern "c" fn uv_tcp_getpeername(tcp : Tcp, addr : @socket.Sockaddr) -> Int = "moonbit_uv_tcp_getpeername"
 
 ///|
 /// Get the address of the peer connected to the handle.
 /// `struct sockaddr_storage` is used for IPv4 and IPv6 support.
-pub fn Tcp::getpeername(self : Tcp) -> Sockaddr raise Errno {
-  let addr = uv_sockaddr_make()
+pub fn Tcp::getpeername(self : Tcp) -> @socket.Sockaddr raise Errno {
+  let addr = @socket.Sockaddr::new()
   let status = uv_tcp_getpeername(self, addr)
   if status < 0 {
     raise Errno::of_int(status)

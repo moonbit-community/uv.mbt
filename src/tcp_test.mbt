@@ -130,11 +130,11 @@ test "tcp" {
 
 ///|
 test "Tcp::getsockname" {
-  let uv = Loop::new()
-  let server = Tcp::new(uv)
+  let uv = @uv.Loop::new()
+  let server = @uv.Tcp::new(uv)
   let addr = ip4_addr("127.0.0.1", 0)
   server.bind(addr, TcpBindFlags::new())
-  @assert.eq(server.getsockname().ip_name(), "127.0.0.1")
+  @assert.eq(@uv.ip_name(server.getsockname()), "127.0.0.1")
   server.close(() => ())
   uv.run(Default)
   uv.close()
@@ -142,8 +142,8 @@ test "Tcp::getsockname" {
 
 ///|
 test "Tcp::nodelay" {
-  let uv = Loop::new()
-  let server = Tcp::new(uv)
+  let uv = @uv.Loop::new()
+  let server = @uv.Tcp::new(uv)
   let addr = ip4_addr("127.0.0.1", 0)
   server.bind(addr, TcpBindFlags::new())
   server.nodelay(true)
@@ -154,9 +154,9 @@ test "Tcp::nodelay" {
 
 ///|
 test "Tcp::keepalive" {
-  let uv = Loop::new()
-  let server = Tcp::new(uv)
-  let addr = ip4_addr("127.0.0.1", 0)
+  let uv = @uv.Loop::new()
+  let server = @uv.Tcp::new(uv)
+  let addr = @uv.ip4_addr("127.0.0.1", 0)
   server.bind(addr, TcpBindFlags::new())
   server.keepalive(true, delay=60U)
   server.close(() => ())
@@ -166,15 +166,15 @@ test "Tcp::keepalive" {
 
 ///|
 test "Tcp::close_reset" {
-  let uv = Loop::new()
-  let server = Tcp::new(uv)
+  let uv = @uv.Loop::new()
+  let server = @uv.Tcp::new(uv)
   let addr = ip4_addr("127.0.0.1", 8545)
   let errors : Array[Error] = []
   server.bind(addr, TcpBindFlags::new())
   server.listen(
     128,
     _ => {
-      let client = Tcp::new(uv) catch {
+      let client = @uv.Tcp::new(uv) catch {
         e => {
           errors.push(e)
           server.close(() => ())
@@ -240,7 +240,7 @@ test "Tcp::close_reset" {
       server.close(() => ())
     }
   }
-  let client = Tcp::new(uv)
+  let client = @uv.Tcp::new(uv)
   try
     client.connect(
       addr,
@@ -306,8 +306,8 @@ test "Tcp::close_reset" {
 
 ///|
 test "Tcp::simultaneous_accepts" {
-  let uv = Loop::new()
-  let server = Tcp::new(uv)
+  let uv = @uv.Loop::new()
+  let server = @uv.Tcp::new(uv)
   let addr = ip4_addr("127.0.0.1", 0)
   server.bind(addr, TcpBindFlags::new())
   server.simultaneous_accepts(true)

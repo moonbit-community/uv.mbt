@@ -13,8 +13,17 @@
 // limitations under the License.
 
 ///|
-pub impl ToSockaddr for Sockaddr with ip_name(self : Sockaddr) -> Bytes raise Errno {
-  let self = self.to_sockaddr()
+pub fn[IpName : IpName] ip_name(sockaddr : IpName) -> Bytes raise Errno {
+  sockaddr.ip_name()
+}
+
+///|
+pub trait IpName {
+  ip_name(self : Self) -> Bytes raise Errno
+}
+
+///|
+pub impl IpName for @socket.Sockaddr with ip_name(self : @socket.Sockaddr) -> Bytes raise Errno {
   let bytes = Bytes::make(_IF_NAMESIZE, 0)
   let status = uv_ip_name(self, bytes)
   if status < 0 {
@@ -29,7 +38,7 @@ pub impl ToSockaddr for Sockaddr with ip_name(self : Sockaddr) -> Bytes raise Er
 
 ///|
 #borrow(ip, addr)
-extern "c" fn uv_ip4_addr(ip : Bytes, port : Int, addr : SockaddrIn) -> Int = "moonbit_uv_ip4_addr"
+extern "c" fn uv_ip4_addr(ip : Bytes, port : Int, addr : @inet.Sockaddr) -> Int = "moonbit_uv_ip4_addr"
 
 ///|
 /// Creates an IPv4 socket address structure from an IP address and port number.
@@ -47,10 +56,13 @@ extern "c" fn uv_ip4_addr(ip : Bytes, port : Int, addr : SockaddrIn) -> Int = "m
 ///
 /// ```moonbit
 /// let addr = @uv.ip4_addr("127.0.0.1", 8080)
-/// println(addr.ip_name())
+/// println(@uv.ip_name(addr))
 /// ```
-pub fn ip4_addr(ip : Bytes, port : Int) -> SockaddrIn raise Errno {
-  let addr = uv_sockaddr_in_make()
+pub fn ip4_addr(ip : Bytes, port : Int) -> @inet.Sockaddr raise Errno {
+  let addr = @inet.Sockaddr::new(
+    @inet.Addr::new(0, 0, 0, 0),
+    @inet.Port::new(0),
+  )
   let status = uv_ip4_addr(ip, port, addr)
   if status < 0 {
     raise Errno::of_int(status)
@@ -60,10 +72,10 @@ pub fn ip4_addr(ip : Bytes, port : Int) -> SockaddrIn raise Errno {
 
 ///|
 #borrow(addr, dst)
-extern "c" fn uv_ip4_name(addr : SockaddrIn, dst : Bytes) -> Int = "moonbit_uv_ip4_name"
+extern "c" fn uv_ip4_name(addr : @inet.Sockaddr, dst : Bytes) -> Int = "moonbit_uv_ip4_name"
 
 ///|
-pub impl ToSockaddr for SockaddrIn with ip_name(self : SockaddrIn) -> Bytes raise Errno {
+pub impl IpName for @inet.Sockaddr with ip_name(self : @inet.Sockaddr) -> Bytes raise Errno {
   let bytes = Bytes::make(_IF_NAMESIZE, 0)
   let status = uv_ip4_name(self, bytes)
   if status < 0 {
@@ -78,11 +90,18 @@ pub impl ToSockaddr for SockaddrIn with ip_name(self : SockaddrIn) -> Bytes rais
 
 ///|
 #borrow(ip, addr)
-extern "c" fn uv_ip6_addr(ip : Bytes, port : Int, addr : SockaddrIn6) -> Int = "moonbit_uv_ip6_addr"
+extern "c" fn uv_ip6_addr(
+  ip : Bytes,
+  port : Int,
+  addr : @inet6.Sockaddr,
+) -> Int = "moonbit_uv_ip6_addr"
 
 ///|
-pub fn ip6_addr(ip : Bytes, port : Int) -> SockaddrIn6 raise Errno {
-  let addr = uv_sockaddr_in6_make()
+pub fn ip6_addr(ip : Bytes, port : Int) -> @inet6.Sockaddr raise Errno {
+  let addr = @inet6.Sockaddr::new(
+    @inet6.Addr::new(0, 0, 0, 0, 0, 0, 0, 0),
+    @inet6.Port::new(0),
+  )
   let status = uv_ip6_addr(ip, port, addr)
   if status < 0 {
     raise Errno::of_int(status)
@@ -92,10 +111,10 @@ pub fn ip6_addr(ip : Bytes, port : Int) -> SockaddrIn6 raise Errno {
 
 ///|
 #borrow(addr, dst)
-extern "c" fn uv_ip6_name(addr : SockaddrIn6, dst : Bytes) -> Int = "moonbit_uv_ip6_name"
+extern "c" fn uv_ip6_name(addr : @inet6.Sockaddr, dst : Bytes) -> Int = "moonbit_uv_ip6_name"
 
 ///|
-pub impl ToSockaddr for SockaddrIn6 with ip_name(self : SockaddrIn6) -> Bytes raise Errno {
+pub impl IpName for @inet6.Sockaddr with ip_name(self : @inet6.Sockaddr) -> Bytes raise Errno {
   let bytes = Bytes::make(_IF_NAMESIZE, 0)
   let status = uv_ip6_name(self, bytes)
   if status < 0 {
@@ -109,58 +128,5 @@ pub impl ToSockaddr for SockaddrIn6 with ip_name(self : SockaddrIn6) -> Bytes ra
 }
 
 ///|
-pub enum Protocol {
-  Tcp
-  Udp
-}
-
-///|
-pub fn Protocol::tcp() -> Protocol {
-  return Tcp
-}
-
-///|
-pub fn Protocol::udp() -> Protocol {
-  return Udp
-}
-
-///|
-extern "c" fn uv_IPPROTO_UDP() -> Int = "moonbit_uv_IPPROTO_UDP"
-
-///|
-let _IPPROTO_UDP : Int = uv_IPPROTO_UDP()
-
-///|
-extern "c" fn uv_IPPROTO_TCP() -> Int = "moonbit_uv_IPPROTO_TCP"
-
-///|
-let _IPPROTO_TCP : Int = uv_IPPROTO_TCP()
-
-///|
-extern "c" fn uv_IPPROTO_IP() -> Int = "moonbit_uv_IPPROTO_IP"
-
-///|
-let _IPPROTO_IP : Int = uv_IPPROTO_IP()
-
-///|
-fn Protocol::of_int(self : Int) -> Protocol raise Errno {
-  if self == _IPPROTO_TCP {
-    return Tcp
-  }
-  if self == _IPPROTO_UDP {
-    return Udp
-  }
-  raise EINVAL
-}
-
-///|
-fn Protocol::to_int(self : Protocol) -> Int {
-  match self {
-    Tcp => _IPPROTO_TCP
-    Udp => _IPPROTO_UDP
-  }
-}
-
-///|
 #borrow(src, dst)
-extern "c" fn uv_ip_name(src : Sockaddr, dst : Bytes) -> Int = "moonbit_uv_ip_name"
+extern "c" fn uv_ip_name(src : @socket.Sockaddr, dst : Bytes) -> Int = "moonbit_uv_ip_name"

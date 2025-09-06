@@ -17,7 +17,7 @@ test "socketpair" {
   let uv = @uv.Loop::new()
   let errors = []
   let socks = @uv.socketpair(
-    @uv.SockType::stream(),
+    @socket.STREAM,
     (PipeFlags::new(), PipeFlags::new()),
   )
   let reader = @uv.Tcp::new(uv)

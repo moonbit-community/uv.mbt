@@ -86,66 +86,6 @@ moonbit_uv_ip_name(const struct sockaddr *src, moonbit_bytes_t dst) {
 }
 
 MOONBIT_FFI_EXPORT
-int32_t
-moonbit_uv_SOCK_RAW(void) {
-  return SOCK_RAW;
-}
-
-MOONBIT_FFI_EXPORT
-int32_t
-moonbit_uv_SOCK_DGRAM(void) {
-  return SOCK_DGRAM;
-}
-
-MOONBIT_FFI_EXPORT
-int32_t
-moonbit_uv_SOCK_STREAM(void) {
-  return SOCK_STREAM;
-}
-
-MOONBIT_FFI_EXPORT
-int32_t
-moonbit_uv_AF_INET(void) {
-  return AF_INET;
-}
-
-MOONBIT_FFI_EXPORT
-int32_t
-moonbit_uv_AF_INET6(void) {
-  return AF_INET6;
-}
-
-MOONBIT_FFI_EXPORT
-int32_t
-moonbit_uv_AF_UNSPEC(void) {
-  return AF_UNSPEC;
-}
-
-MOONBIT_FFI_EXPORT
-int32_t
-moonbit_uv_AF_UNIX(void) {
-  return AF_UNIX;
-}
-
-MOONBIT_FFI_EXPORT
-int32_t
-moonbit_uv_IPPROTO_IP(void) {
-  return IPPROTO_IP;
-}
-
-MOONBIT_FFI_EXPORT
-int32_t
-moonbit_uv_IPPROTO_UDP(void) {
-  return IPPROTO_UDP;
-}
-
-MOONBIT_FFI_EXPORT
-int32_t
-moonbit_uv_IPPROTO_TCP(void) {
-  return IPPROTO_TCP;
-}
-
-MOONBIT_FFI_EXPORT
 moonbit_uv_os_sock_t *
 moonbit_uv_os_sock_make(void) {
   moonbit_uv_os_sock_t *sock =

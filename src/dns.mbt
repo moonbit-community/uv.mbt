@@ -115,24 +115,24 @@ pub fn AddrInfoFlags::new(
 ///|
 pub fn AddrInfoHints::new(
   flags? : AddrInfoFlags,
-  family? : AddressFamily,
-  socktype? : SockType,
-  protocol? : Protocol,
+  family? : Int,
+  socktype? : @socket.Type,
+  protocol? : Int,
 ) -> AddrInfoHints {
   let flags = match flags {
     Some(flags) => flags.inner()
     None => 0
   }
   let family = match family {
-    Some(family) => family.to_int()
-    None => _AF_UNSPEC
+    Some(family) => family
+    None => 0
   }
   let socktype = match socktype {
     Some(socktype) => socktype.to_int()
     None => 0
   }
   let protocol = match protocol {
-    Some(protocol) => protocol.to_int()
+    Some(protocol) => protocol
     None => 0
   }
   uv_addrinfo_hints(flags, family, socktype, protocol)
@@ -148,7 +148,7 @@ priv type AddrInfoResults
 #borrow(addrinfo_results, cb)
 extern "c" fn uv_addrinfo_results_iterate(
   addrinfo_results : AddrInfoResults,
-  cb : (Int, Int, Int, Int, Sockaddr, @c.Pointer[Byte]) -> Bool,
+  cb : (Int, Int, @socket.Type, Int, @socket.Sockaddr, @c.Pointer[Byte]) -> Bool,
 ) -> Bool = "moonbit_uv_addrinfo_results_iterate"
 
 ///|
@@ -160,99 +160,30 @@ let _IF_NAMESIZE : Int = uv_IF_NAMESIZE()
 ///|
 struct AddrInfo {
   family : Int
-  socktype : Int
+  socktype : @socket.Type
   protocol : Int
-  addr : Sockaddr
+  addr : @socket.Sockaddr
   canonname : Bytes?
 }
 
 ///|
-extern "c" fn uv_AF_INET() -> Int = "moonbit_uv_AF_INET"
-
-///|
-let _AF_INET : Int = uv_AF_INET()
-
-///|
-extern "c" fn uv_AF_INET6() -> Int = "moonbit_uv_AF_INET6"
-
-///|
-let _AF_INET6 : Int = uv_AF_INET6()
-
-///|
-extern "c" fn uv_AF_UNSPEC() -> Int = "moonbit_uv_AF_UNSPEC"
-
-///|
-let _AF_UNSPEC : Int = uv_AF_UNSPEC()
-
-///|
-/// Represents the address family for network communication, specifying the
-/// format of network addresses.
-///
-/// Constructors:
-///
-/// * `Inet` : IPv4 address family
-/// * `Inet6` : IPv6 address family
-///
-/// Example:
-///
-/// ```moonbit
-/// let ipv4 = AddressFamily::inet()
-/// let ipv6 = AddressFamily::inet6()
-/// @assert.t(ipv4 is Inet)
-/// @assert.t(ipv6 is Inet6)
-/// ```
-pub enum AddressFamily {
-  Inet
-  Inet6
+pub fn AddrInfo::family(self : AddrInfo) -> Int {
+  self.family
 }
 
 ///|
-pub fn AddressFamily::inet() -> AddressFamily {
-  return Inet
-}
-
-///|
-pub fn AddressFamily::inet6() -> AddressFamily {
-  return Inet6
-}
-
-///|
-fn AddressFamily::of_int(self : Int) -> AddressFamily raise Errno {
-  if self == _AF_INET {
-    return Inet
-  }
-  if self == _AF_INET6 {
-    return Inet6
-  }
-  raise EINVAL
-}
-
-///|
-fn AddressFamily::to_int(self : AddressFamily) -> Int {
-  match self {
-    Inet => _AF_INET
-    Inet6 => _AF_INET6
-  }
-}
-
-///|
-pub fn AddrInfo::family(self : AddrInfo) -> AddressFamily raise Errno {
-  AddressFamily::of_int(self.family)
-}
-
-///|
-pub fn AddrInfo::addr(self : AddrInfo) -> Sockaddr {
+pub fn AddrInfo::addr(self : AddrInfo) -> @socket.Sockaddr {
   self.addr
 }
 
 ///|
-pub fn AddrInfo::socktype(self : AddrInfo) -> SockType raise Errno {
-  return SockType::of_int(self.socktype)
+pub fn AddrInfo::socktype(self : AddrInfo) -> @socket.Type {
+  self.socktype
 }
 
 ///|
-pub fn AddrInfo::protocol(self : AddrInfo) -> Protocol raise Errno {
-  Protocol::of_int(self.protocol)
+pub fn AddrInfo::protocol(self : AddrInfo) -> Int {
+  self.protocol
 }
 
 ///|
@@ -262,7 +193,7 @@ pub fn AddrInfo::canonname(self : AddrInfo) -> Bytes? {
 
 ///|
 fn AddrInfoResults::iter(self : AddrInfoResults) -> Iter[AddrInfo] {
-  Iter::new(fn(yield_) {
+  Iter::new(fn(each) {
     if uv_addrinfo_results_iterate(self, fn(
         _,
         family,
@@ -280,7 +211,7 @@ fn AddrInfoResults::iter(self : AddrInfoResults) -> Iter[AddrInfo] {
           }
           Some(buffer.contents())
         }
-        match yield_({ family, socktype, protocol, addr, canonname }) {
+        match each({ family, socktype, protocol, addr, canonname }) {
           IterEnd => true
           IterContinue => false
         }
