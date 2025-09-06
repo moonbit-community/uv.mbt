@@ -215,3 +215,82 @@ int32_t
 moonbit_uv_AI_CANONNAME(void) {
   return AI_CANONNAME;
 }
+
+typedef struct moonbit_uv_getnameinfo_s {
+  uv_getnameinfo_t getnameinfo;
+} moonbit_uv_getnameinfo_t;
+
+static inline void
+moonbit_uv_getnameinfo_finalize(void *object) {
+  moonbit_uv_getnameinfo_t *getnameinfo = object;
+  if (getnameinfo->getnameinfo.data) {
+    moonbit_decref(getnameinfo->getnameinfo.data);
+  }
+}
+
+MOONBIT_FFI_EXPORT
+moonbit_uv_getnameinfo_t *
+moonbit_uv_getnameinfo_make(void) {
+  moonbit_uv_getnameinfo_t *getnameinfo =
+    (moonbit_uv_getnameinfo_t *)moonbit_make_external_object(
+      moonbit_uv_getnameinfo_finalize, sizeof(moonbit_uv_getnameinfo_t)
+    );
+  memset(getnameinfo, 0, sizeof(moonbit_uv_getnameinfo_t));
+  return getnameinfo;
+}
+
+typedef struct moonbit_uv_getnameinfo_cb_s {
+  int32_t (*code)(
+    struct moonbit_uv_getnameinfo_cb_s *,
+    moonbit_uv_getnameinfo_t *req,
+    int32_t status,
+    moonbit_bytes_t host,
+    moonbit_bytes_t service
+  );
+} moonbit_uv_getnameinfo_cb_t;
+
+static inline void
+moonbit_uv_getnameinfo_cb(
+  uv_getnameinfo_t *req,
+  int32_t status,
+  const char *hostname,
+  const char *service
+) {
+  moonbit_uv_getnameinfo_cb_t *cb = req->data;
+  req->data = NULL;
+  moonbit_uv_getnameinfo_t *getnameinfo =
+    containerof(req, moonbit_uv_getnameinfo_t, getnameinfo);
+  moonbit_bytes_t host = NULL;
+  moonbit_bytes_t serv = NULL;
+  if (hostname) {
+    host = moonbit_make_bytes(strlen(hostname) + 1, 0);
+    memcpy((void *)host, hostname, strlen(hostname) + 1);
+  }
+  if (service) {
+    serv = moonbit_make_bytes(strlen(service) + 1, 0);
+    memcpy((void *)serv, service, strlen(service) + 1);
+  }
+  cb->code(cb, getnameinfo, status, host, serv);
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_getnameinfo(
+  uv_loop_t *loop,
+  moonbit_uv_getnameinfo_t *req,
+  moonbit_uv_getnameinfo_cb_t *cb,
+  moonbit_bytes_t addr,
+  int32_t flags
+) {
+  if (req->getnameinfo.data) {
+    moonbit_decref(req->getnameinfo.data);
+  }
+  req->getnameinfo.data = cb;
+  struct sockaddr *sockaddr = (struct sockaddr *)addr;
+  int32_t status = uv_getnameinfo(
+    loop, &req->getnameinfo, moonbit_uv_getnameinfo_cb, sockaddr, flags
+  );
+  moonbit_decref(loop);
+  moonbit_decref(addr);
+  return status;
+}

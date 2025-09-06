@@ -331,3 +331,46 @@ pub fn Loop::getaddrinfo(
   }
   return req
 }
+
+///|
+type GetNameInfo
+
+///|
+extern "c" fn uv_getnameinfo_make() -> GetNameInfo = "moonbit_uv_getnameinfo_make"
+
+///|
+pub impl ToReq for GetNameInfo with to_req(self : GetNameInfo) -> Req = "%identity"
+
+///|
+#owned(uv, req, getnameinfo_cb, addr)
+extern "c" fn uv_getnameinfo(
+  uv : Loop,
+  req : GetNameInfo,
+  getnameinfo_cb : (GetNameInfo, Int, Bytes?, Bytes?) -> Unit,
+  addr : Sockaddr,
+  flags : Int,
+) -> Int = "moonbit_uv_getnameinfo"
+
+///|
+pub fn Loop::getnameinfo(
+  self : Loop,
+  getnameinfo_cb : (Bytes?, Bytes?) -> Unit,
+  error_cb : (Errno) -> Unit,
+  addr : Sockaddr,
+  flags? : Int = 0,
+) -> GetNameInfo raise Errno {
+  fn uv_cb(_ : GetNameInfo, status : Int, hostname : Bytes?, service : Bytes?) {
+    if status < 0 {
+      error_cb(Errno::of_int(status))
+    } else {
+      getnameinfo_cb(hostname, service)
+    }
+  }
+
+  let req = uv_getnameinfo_make()
+  let status = uv_getnameinfo(self, req, uv_cb, addr, flags)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  return req
+}
