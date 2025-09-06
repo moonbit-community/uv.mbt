@@ -3,6 +3,9 @@ package "tonyfettes/uv"
 
 import(
   "moonbitlang/core/bytes"
+  "tonyfettes/socket"
+  "tonyfettes/socket/inet"
+  "tonyfettes/socket/inet6"
 )
 
 // Values
@@ -43,9 +46,11 @@ fn guess_handle(File) -> HandleType
 
 fn hrtime() -> UInt64
 
-fn ip4_addr(Bytes, Int) -> SockaddrIn raise Errno
+fn ip4_addr(Bytes, Int) -> @inet.Sockaddr raise Errno
 
-fn ip6_addr(Bytes, Int) -> SockaddrIn6 raise Errno
+fn ip6_addr(Bytes, Int) -> @inet6.Sockaddr raise Errno
+
+fn[IpName : IpName] ip_name(IpName) -> Bytes raise Errno
 
 #deprecated
 fn[Handle : ToHandle] is_closing(Handle) -> Bool
@@ -95,7 +100,7 @@ fn[Stream : ToStream] shutdown(Stream, () -> Unit, (Errno) -> Unit) -> Shutdown 
 
 fn sleep(UInt) -> Unit
 
-fn socketpair(SockType, protocol? : Protocol, (PipeFlags, PipeFlags)) -> (OsSock, OsSock) raise Errno
+fn socketpair(@socket.Type, protocol? : Protocol, (PipeFlags, PipeFlags)) -> (OsSock, OsSock) raise Errno
 
 fn stderr() -> File
 
@@ -213,11 +218,11 @@ type AccessFlags
 fn AccessFlags::new(read? : Bool, write? : Bool, execute? : Bool) -> Self
 
 type AddrInfo
-fn AddrInfo::addr(Self) -> Sockaddr
+fn AddrInfo::addr(Self) -> @socket.Sockaddr
 fn AddrInfo::canonname(Self) -> Bytes?
-fn AddrInfo::family(Self) -> AddressFamily raise Errno
+fn AddrInfo::family(Self) -> Int
 fn AddrInfo::protocol(Self) -> Protocol raise Errno
-fn AddrInfo::socktype(Self) -> SockType raise Errno
+fn AddrInfo::socktype(Self) -> @socket.Type
 
 type AddrInfoFlags
 fn AddrInfoFlags::new(passive? : Bool, canonname? : Bool, numeric_host? : Bool, numeric_serv? : Bool, all? : Bool, addrconfig? : Bool, v4mapped? : Bool) -> Self
@@ -677,22 +682,6 @@ fn Signum::sigterm() -> Self
 fn Signum::sigtstp() -> Self raise Errno
 fn Signum::sigwinch() -> Self
 
-type SockType
-fn SockType::datagram() -> Self
-#deprecated
-fn SockType::dgram() -> Self
-fn SockType::raw() -> Self
-fn SockType::stream() -> Self
-
-type Sockaddr
-impl ToSockaddr for Sockaddr
-
-type SockaddrIn
-impl ToSockaddr for SockaddrIn
-
-type SockaddrIn6
-impl ToSockaddr for SockaddrIn6
-
 type Stat
 fn Stat::atim_nsec(Self) -> Int64
 fn Stat::atim_sec(Self) -> Int64
@@ -757,11 +746,11 @@ type SymlinkFlags
 fn SymlinkFlags::new(dir? : Bool, junction? : Bool) -> Self
 
 type Tcp
-fn[Sockaddr : ToSockaddr] Tcp::bind(Self, Sockaddr, TcpBindFlags) -> Unit raise Errno
+fn[Sockaddr : @socket.ToSockaddr] Tcp::bind(Self, Sockaddr, TcpBindFlags) -> Unit raise Errno
 fn Tcp::close_reset(Self, () -> Unit) -> Unit raise Errno
-fn[Sockaddr : ToSockaddr] Tcp::connect(Self, Sockaddr, () -> Unit, (Errno) -> Unit) -> Connect raise Errno
-fn Tcp::getpeername(Self) -> Sockaddr raise Errno
-fn Tcp::getsockname(Self) -> Sockaddr raise Errno
+fn[Sockaddr : @socket.ToSockaddr] Tcp::connect(Self, Sockaddr, () -> Unit, (Errno) -> Unit) -> Connect raise Errno
+fn Tcp::getpeername(Self) -> @socket.Sockaddr raise Errno
+fn Tcp::getsockname(Self) -> @socket.Sockaddr raise Errno
 fn Tcp::keepalive(Self, Bool, delay? : UInt) -> Unit raise Errno
 fn Tcp::new(Loop) -> Self raise Errno
 fn Tcp::nodelay(Self, Bool) -> Unit raise Errno
@@ -844,18 +833,18 @@ fn TtyVtermState::supported() -> Self
 fn TtyVtermState::unsupported() -> Self
 
 type Udp
-fn[Sockaddr : ToSockaddr] Udp::bind(Self, Sockaddr, UdpFlags) -> Unit raise Errno
-fn[Sockaddr : ToSockaddr] Udp::connect(Self, Sockaddr) -> Unit raise Errno
+fn[Sockaddr : @socket.ToSockaddr] Udp::bind(Self, Sockaddr, UdpFlags) -> Unit raise Errno
+fn[Sockaddr : @socket.ToSockaddr] Udp::connect(Self, Sockaddr) -> Unit raise Errno
 fn Udp::get_send_queue_count(Self) -> UInt64
 fn Udp::get_send_queue_size(Self) -> UInt64
-fn Udp::getpeername(Self) -> Sockaddr raise Errno
-fn Udp::getsockname(Self) -> Sockaddr raise Errno
+fn Udp::getpeername(Self) -> @socket.Sockaddr raise Errno
+fn Udp::getsockname(Self) -> @socket.Sockaddr raise Errno
 fn Udp::new(Loop) -> Self raise Errno
-fn Udp::new_ex(Loop, AddressFamily, UdpFlags) -> Self raise Errno
+fn Udp::new_ex(Loop, Int, UdpFlags) -> Self raise Errno
 fn Udp::open(Self, OsSock) -> Unit raise Errno
-fn Udp::recv_start(Self, (Handle, Int) -> @bytes.View, (Self, Int, @bytes.View, Sockaddr, UdpFlags) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
+fn Udp::recv_start(Self, (Handle, Int) -> @bytes.View, (Self, Int, @bytes.View, @socket.Sockaddr, UdpFlags) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
 fn Udp::recv_stop(Self) -> Unit raise Errno
-fn[Sockaddr : ToSockaddr] Udp::send(Self, Array[@bytes.View], () -> Unit, (Errno) -> Unit, addr? : Sockaddr) -> UdpSend raise Errno
+fn[Sockaddr : @socket.ToSockaddr] Udp::send(Self, Array[@bytes.View], () -> Unit, (Errno) -> Unit, addr? : Sockaddr) -> UdpSend raise Errno
 fn Udp::set_broadcast(Self, Bool) -> Unit raise Errno
 fn Udp::set_membership(Self, Bytes, Bytes, Membership) -> Unit raise Errno
 fn Udp::set_multicast_interface(Self, Bytes) -> Unit raise Errno
@@ -863,7 +852,7 @@ fn Udp::set_multicast_loop(Self, Bool) -> Unit raise Errno
 fn Udp::set_multicast_ttl(Self, Int) -> Unit raise Errno
 fn Udp::set_source_membership(Self, Bytes, Bytes, Bytes, Membership) -> Unit raise Errno
 fn Udp::set_ttl(Self, Int) -> Unit raise Errno
-fn[Sockaddr : ToSockaddr] Udp::try_send(Self, Array[@bytes.View], addr? : Sockaddr) -> Int raise Errno
+fn[Sockaddr : @socket.ToSockaddr] Udp::try_send(Self, Array[@bytes.View], addr? : Sockaddr) -> Int raise Errno
 fn Udp::using_recvmmsg(Self) -> Bool
 impl ToHandle for Udp
 
@@ -904,6 +893,13 @@ pub trait Cancelable : ToReq {
   cancel(Self) -> Unit raise Errno
 }
 
+pub trait IpName {
+  ip_name(Self) -> Bytes raise Errno
+}
+impl IpName for @socket.Sockaddr
+impl IpName for @inet.Sockaddr
+impl IpName for @inet6.Sockaddr
+
 pub trait Share {
   share(Self) -> Self
 }
@@ -921,11 +917,6 @@ pub trait ToHandle {
 pub trait ToReq {
   to_req(Self) -> Req
   type_(Self) -> ReqType
-}
-
-pub trait ToSockaddr {
-  to_sockaddr(Self) -> Sockaddr
-  ip_name(Self) -> Bytes raise Errno
 }
 
 pub trait ToStream : ToHandle {

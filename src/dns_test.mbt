@@ -21,7 +21,7 @@ test "dns/ipv4" {
     fn(infos) {
       try {
         for info in infos {
-          resolved.push(info.addr().ip_name())
+          resolved.push(@uv.ip_name(info.addr()))
         }
       } catch {
         e => error = Some(e)
@@ -31,9 +31,9 @@ test "dns/ipv4" {
     "localhost",
     "http",
     hints=@uv.AddrInfoHints::new(
-      protocol=@uv.Protocol::tcp(),
+      protocol=@ip.IPPROTO_TCP,
       flags=@uv.AddrInfoFlags::new(canonname=true),
-      family=@uv.AddressFamily::inet(),
+      family=@inet.address_family,
     ),
   )
   |> ignore()
@@ -55,7 +55,7 @@ test "dns/ipv6" {
     fn(infos) {
       try {
         for info in infos {
-          resolved.push(info.addr().ip_name())
+          resolved.push(@uv.ip_name(info.addr()))
         }
       } catch {
         e => error = Some(e)
@@ -65,9 +65,9 @@ test "dns/ipv6" {
     "localhost",
     "http",
     hints=@uv.AddrInfoHints::new(
-      protocol=@uv.Protocol::tcp(),
+      protocol=@ip.IPPROTO_TCP,
       flags=@uv.AddrInfoFlags::new(canonname=true),
-      family=@uv.AddressFamily::inet6(),
+      family=@inet6.address_family,
     ),
   )
   |> ignore()
