@@ -68,3 +68,66 @@ extern "c" fn uv_update_time(uv : Loop) = "moonbit_uv_update_time"
 pub fn Loop::update_time(self : Loop) -> Unit {
   uv_update_time(self)
 }
+
+///|
+pub(all) enum ClockId {
+  Monotonic = 0
+  Realtime = 1
+}
+
+///|
+#owned(ts)
+extern "c" fn uv_clock_gettime(
+  clock_id : ClockId,
+  ts : FixedArray[Int64],
+) -> Int = "moonbit_uv_clock_gettime"
+
+///|
+pub struct Timespec64(FixedArray[Int64])
+
+///|
+pub fn Timespec64::sec(self : Timespec64) -> Int64 {
+  self.0[0]
+}
+
+///|
+pub fn Timespec64::nsec(self : Timespec64) -> Int {
+  self.0[1].to_int()
+}
+
+///|
+pub fn clock_gettime(clock_id : ClockId) -> Timespec64 raise Errno {
+  let ts : FixedArray[Int64] = FixedArray::make(2, 0)
+  let result : Int = uv_clock_gettime(clock_id, ts)
+  if result < 0 {
+    raise Errno::of_int(result)
+  }
+  Timespec64(ts)
+}
+
+///|
+pub struct Timeval64(FixedArray[Int64])
+
+///|
+pub fn Timeval64::sec(self : Timeval64) -> Int64 {
+  self.0[0]
+}
+
+///|
+pub fn Timeval64::usec(self : Timeval64) -> Int {
+  self.0[1].to_int()
+}
+
+///|
+#owned(tv)
+pub extern "c" fn uv_gettimeofday(tv : FixedArray[Int64]) -> Int = "moonbit_uv_gettimeofday"
+
+///|
+pub fn gettimeofday() -> Timeval64 raise Errno {
+  let tv : FixedArray[Int64] = FixedArray::make(2, 0)
+  let result : Int = uv_gettimeofday(tv)
+  if result < 0 {
+    raise Errno::of_int(result)
+  }
+  Timeval64(tv)
+}

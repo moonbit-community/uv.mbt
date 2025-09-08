@@ -35,3 +35,17 @@ test "timer" {
     raise error
   }
 }
+
+///|
+test "clock_gettime" {
+  let ts = @uv.clock_gettime(Realtime)
+  println(ts.sec())
+  println(ts.nsec())
+}
+
+///|
+test "gettimeofday" {
+  let tv = @uv.gettimeofday()
+  println(tv.sec())
+  println(tv.usec())
+}
