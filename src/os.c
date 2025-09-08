@@ -330,3 +330,15 @@ uv_rusage_t *
 moonbit_uv_rusage_make(void) {
   return (uv_rusage_t *)moonbit_make_bytes(sizeof(uv_rusage_t), 0);
 }
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_os_getpid(void) {
+  return uv_os_getpid();
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_os_getppid(void) {
+  return uv_os_getppid();
+}
