@@ -55,3 +55,18 @@ test "rusage" {
   ignore(rusage.stime().sec)
   ignore(rusage.stime().usec)
 }
+
+///|
+test "getpid" {
+  ignore(@uv.os_getpid())
+}
+
+///|
+test "getppid" {
+  ignore(@uv.os_getppid())
+}
+
+///|
+test "gethostname" {
+  ignore(@uv.os_gethostname())
+}
