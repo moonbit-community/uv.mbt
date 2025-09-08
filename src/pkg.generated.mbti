@@ -60,6 +60,10 @@ fn os_get_passwd() -> Passwd raise Errno
 
 fn os_getenv(Bytes) -> Bytes? raise Errno
 
+fn os_getpid() -> Int
+
+fn os_getppid() -> Int
+
 fn os_homedir() -> Bytes raise Errno
 
 fn os_setenv(Bytes, Bytes) -> Unit raise Errno
@@ -333,6 +337,9 @@ impl ToHandle for FsPoll
 type GetAddrInfo
 impl ToReq for GetAddrInfo
 
+type GetNameInfo
+impl ToReq for GetNameInfo
+
 pub(all) struct Gid(UInt64)
 fn Gid::inner(Self) -> UInt64
 
@@ -447,6 +454,7 @@ fn Loop::fs_utime_sync(Self, Bytes, Double, Double) -> Unit raise Errno
 fn Loop::fs_write(Self, File, Array[@bytes.View], offset? : Int64, (Int) -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_write_sync(Self, File, Array[@bytes.View], offset? : Int64) -> Unit raise Errno
 fn Loop::getaddrinfo(Self, (Iter[AddrInfo]) -> Unit, (Errno) -> Unit, Bytes, Bytes, hints? : AddrInfoHints) -> GetAddrInfo raise Errno
+fn Loop::getnameinfo(Self, (Bytes?, Bytes?) -> Unit, (Errno) -> Unit, Sockaddr, flags? : Int) -> GetNameInfo raise Errno
 fn Loop::metrics_idle_time(Self) -> UInt64
 fn Loop::metrics_info(Self) -> Metrics raise Errno
 fn Loop::new() -> Self raise Errno

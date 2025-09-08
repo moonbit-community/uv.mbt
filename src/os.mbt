@@ -398,6 +398,7 @@ extern "c" fn uv_rusage_get_utime_sec(rusage : Rusage) -> Int64 = "moonbit_uv_ru
 #borrow(rusage)
 extern "c" fn uv_rusage_get_utime_usec(rusage : Rusage) -> Int64 = "moonbit_uv_rusage_get_utime_usec"
 
+///|
 pub fn Rusage::utime(rusage : Rusage) -> Timeval {
   let sec = uv_rusage_get_utime_sec(rusage)
   let usec = uv_rusage_get_utime_usec(rusage)
@@ -412,6 +413,7 @@ extern "c" fn uv_rusage_get_stime_sec(rusage : Rusage) -> Int64 = "moonbit_uv_ru
 #borrow(rusage)
 extern "c" fn uv_rusage_get_stime_usec(rusage : Rusage) -> Int64 = "moonbit_uv_rusage_get_stime_usec"
 
+///|
 pub fn Rusage::stime(rusage : Rusage) -> Timeval {
   let sec = uv_rusage_get_stime_sec(rusage)
   let usec = uv_rusage_get_stime_usec(rusage)
@@ -490,3 +492,9 @@ pub fn getrusage() -> Rusage raise Errno {
   }
   rusage
 }
+
+///|
+pub extern "c" fn os_getpid() -> Int = "moonbit_uv_os_getpid"
+
+///|
+pub extern "c" fn os_getppid() -> Int = "moonbit_uv_os_getppid"
