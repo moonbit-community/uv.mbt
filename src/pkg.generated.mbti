@@ -12,6 +12,8 @@ fn args() -> Array[Bytes]
 
 fn chdir(Bytes) -> Unit raise Errno
 
+fn clock_gettime(ClockId) -> Timespec64 raise Errno
+
 #deprecated
 fn[Handle : ToHandle] close(Handle, () -> Unit) -> Unit
 
@@ -34,6 +36,8 @@ fn get_total_memory() -> UInt64
 fn getcpu() -> Int raise Errno
 
 fn getrusage() -> Rusage raise Errno
+
+fn gettimeofday() -> Timeval64 raise Errno
 
 fn guess_handle(File) -> HandleType
 
@@ -59,6 +63,8 @@ fn os_environ() -> Environ raise Errno
 fn os_get_passwd() -> Passwd raise Errno
 
 fn os_getenv(Bytes) -> Bytes? raise Errno
+
+fn os_gethostname() -> Bytes raise Errno
 
 fn os_getpid() -> Int
 
@@ -96,6 +102,8 @@ fn stdin() -> File
 fn stdout() -> File
 
 fn string_to_wtf8(String) -> Bytes
+
+fn uv_gettimeofday(FixedArray[Int64]) -> Int
 
 fn version() -> Version
 
@@ -236,6 +244,11 @@ fn Check::new(Loop) -> Self raise Errno
 fn Check::start(Self, (Self) -> Unit) -> Unit raise Errno
 fn Check::stop(Self) -> Unit raise Errno
 impl ToHandle for Check
+
+pub(all) enum ClockId {
+  Monotonic
+  Realtime
+}
 
 type Cond
 fn Cond::broadcast(Self) -> Unit
@@ -781,10 +794,20 @@ fn Timer::start(Self, timeout~ : UInt64, repeat~ : UInt64, (Self) -> Unit) -> Un
 fn Timer::stop(Self) -> Unit raise Errno
 impl ToHandle for Timer
 
+pub struct Timespec64(FixedArray[Int64])
+fn Timespec64::inner(Self) -> FixedArray[Int64]
+fn Timespec64::nsec(Self) -> Int
+fn Timespec64::sec(Self) -> Int64
+
 pub struct Timeval {
   sec : Int64
   usec : Int64
 }
+
+pub struct Timeval64(FixedArray[Int64])
+fn Timeval64::inner(Self) -> FixedArray[Int64]
+fn Timeval64::sec(Self) -> Int64
+fn Timeval64::usec(Self) -> Int
 
 type Tty
 fn Tty::get_vterm_state() -> Unit raise Errno

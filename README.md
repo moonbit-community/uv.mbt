@@ -54,10 +54,6 @@ This is a MoonBit binding to the [libuv](https://libuv.org) library.
 
 - `uv_thread_create_ex()` - Extended thread creation with options
 
-### DNS Utilities
-
-- `uv_getnameinfo()` - Reverse DNS lookup (name resolution from address)
-
 ### Miscellaneous Utilities
 
 - `uv_replace_allocator()` - Replace memory allocator
@@ -69,11 +65,8 @@ This is a MoonBit binding to the [libuv](https://libuv.org) library.
 - `uv_uptime()` - Get system uptime
 - `uv_getrusage()` - Get resource usage
 - `uv_getrusage_thread()` - Get thread resource usage
-- `uv_os_getpid()` - Get process ID
-- `uv_os_getppid()` - Get parent process ID
 - `uv_available_parallelism()` - Get available CPU parallelism
 - `uv_loadavg()` - Get system load average
-- `uv_gettimeofday()` - Get current time
 
 ### Network Utilities
 
