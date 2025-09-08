@@ -342,3 +342,14 @@ int32_t
 moonbit_uv_os_getppid(void) {
   return uv_os_getppid();
 }
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_os_gethostname(moonbit_bytes_t name, int32_t *size) {
+  size_t size_value = *size;
+  int32_t status = uv_os_gethostname((char *)name, &size_value);
+  *size = size_value;
+  moonbit_decref(name);
+  moonbit_decref(size);
+  return status;
+}

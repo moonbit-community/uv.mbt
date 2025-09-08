@@ -498,3 +498,24 @@ pub extern "c" fn os_getpid() -> Int = "moonbit_uv_os_getpid"
 
 ///|
 pub extern "c" fn os_getppid() -> Int = "moonbit_uv_os_getppid"
+
+///|
+#owned(name, size)
+extern "c" fn uv_os_gethostname(name : Bytes, size : Ref[Int]) -> Int = "moonbit_uv_os_gethostname"
+
+///|
+pub fn os_gethostname() -> Bytes raise Errno {
+  let mut buffer = Bytes::make(257, 0)
+  let length = Ref::new(buffer.length())
+  let mut status = uv_os_gethostname(buffer, length)
+  if status == _ENOBUFS {
+    buffer = Bytes::make(length.val, 0)
+    length.val = buffer.length()
+    status = uv_os_gethostname(buffer, length)
+  }
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  buffer.shrink(length.val)
+  buffer
+}
