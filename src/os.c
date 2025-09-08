@@ -353,3 +353,25 @@ moonbit_uv_os_gethostname(moonbit_bytes_t name, int32_t *size) {
   moonbit_decref(size);
   return status;
 }
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_clock_gettime(uv_clock_id clock_id, int64_t *timespec) {
+  uv_timespec64_t ts;
+  int status = uv_clock_gettime(clock_id, &ts);
+  timespec[0] = ts.tv_sec;
+  timespec[1] = ts.tv_nsec;
+  moonbit_decref(timespec);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_gettimeofday(int64_t *timeval) {
+  uv_timeval64_t tv;
+  int status = uv_gettimeofday(&tv);
+  timeval[0] = tv.tv_sec;
+  timeval[1] = tv.tv_usec;
+  moonbit_decref(timeval);
+  return status;
+}
