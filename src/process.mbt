@@ -25,11 +25,24 @@ pub impl ToHandle for Process with to_handle(self : Process) -> Handle = "%ident
 pub impl ToHandle for Process with of_handle(handle) = "%identity"
 
 ///|
+struct Pid(Int) derive(Show, Eq, Compare, Hash)
+
+///|
+pub fn Pid::to_int(self : Pid) -> Int {
+  self.0
+}
+
+///|
+pub fn Pid::of_int(pid : Int) -> Pid {
+  Pid(pid)
+}
+
+///|
 #owned(process)
 extern "c" fn uv_process_get_pid(process : Process) -> Int = "moonbit_uv_process_get_pid"
 
 ///|
-pub fn Process::pid(self : Process) -> Int {
+pub fn Process::pid(self : Process) -> Pid {
   return uv_process_get_pid(self)
 }
 
@@ -259,9 +272,15 @@ pub fn Process::kill(self : Process, signum : Signum) -> Unit raise Errno {
 extern "c" fn uv_kill(pid : Int, signum : Signum) -> Int = "moonbit_uv_kill"
 
 ///|
-pub fn kill(pid : Int, signum : Signum) -> Unit raise Errno {
-  let status = uv_kill(pid, signum.inner())
+pub fn kill(pid : Pid, signum : Signum) -> Unit raise Errno {
+  let status = uv_kill(pid.0, signum.inner())
   if status < 0 {
     raise Errno::of_int(status)
   }
 }
+
+///|
+pub extern "c" fn os_getpid() -> Pid = "moonbit_uv_os_getpid"
+
+///|
+pub extern "c" fn os_getppid() -> Pid = "moonbit_uv_os_getppid"

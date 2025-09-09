@@ -2346,7 +2346,7 @@ extern "c" fn uv_fs_scandir_sync(
 ) -> Int = "moonbit_uv_fs_scandir_sync"
 
 ///|
-pub fn fs_scandir_sync(
+pub fn Loop::fs_scandir_sync(
   self : Loop,
   path : Bytes,
   flags : Int,
