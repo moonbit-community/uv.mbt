@@ -254,3 +254,14 @@ pub fn Process::kill(self : Process, signum : Signum) -> Unit raise Errno {
     raise Errno::of_int(status)
   }
 }
+
+///|
+extern "c" fn uv_kill(pid : Int, signum : Signum) -> Int = "moonbit_uv_kill"
+
+///|
+pub fn kill(pid : Int, signum : Signum) -> Unit raise Errno {
+  let status = uv_kill(pid, signum.inner())
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
