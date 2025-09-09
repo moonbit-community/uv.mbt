@@ -17,6 +17,7 @@
 #include "uv#include#uv.h"
 
 #include "uv.h"
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -386,3 +387,8 @@ moonbit_uv_os_getppid(void) {
   return uv_os_getppid();
 }
 
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_kill(int32_t pid, int32_t signum) {
+  return uv_kill(pid, signum);
+}
