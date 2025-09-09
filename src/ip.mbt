@@ -109,7 +109,7 @@ pub impl ToSockaddr for SockaddrIn6 with ip_name(self : SockaddrIn6) -> Bytes ra
 }
 
 ///|
-pub enum Protocol {
+pub(all) enum Protocol {
   Tcp
   Udp
 }

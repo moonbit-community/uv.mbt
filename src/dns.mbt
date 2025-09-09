@@ -201,7 +201,7 @@ let _AF_UNSPEC : Int = uv_AF_UNSPEC()
 /// @assert.t(ipv4 is Inet)
 /// @assert.t(ipv6 is Inet6)
 /// ```
-pub enum AddressFamily {
+pub(all) enum AddressFamily {
   Inet
   Inet6
 }

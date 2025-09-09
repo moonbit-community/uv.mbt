@@ -494,12 +494,6 @@ pub fn getrusage() -> Rusage raise Errno {
 }
 
 ///|
-pub extern "c" fn os_getpid() -> Int = "moonbit_uv_os_getpid"
-
-///|
-pub extern "c" fn os_getppid() -> Int = "moonbit_uv_os_getppid"
-
-///|
 #owned(name, size)
 extern "c" fn uv_os_gethostname(name : Bytes, size : Ref[Int]) -> Int = "moonbit_uv_os_gethostname"
 

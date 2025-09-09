@@ -56,7 +56,7 @@ fn[Stream : ToStream] is_readable(Stream) -> Bool
 #deprecated
 fn[Stream : ToStream] is_writable(Stream) -> Bool
 
-fn kill(Int, Signum) -> Unit raise Errno
+fn kill(Pid, Signum) -> Unit raise Errno
 
 fn[Stream : ToStream] listen(Stream, Int, (Stream) -> Unit, (Stream, Errno) -> Unit) -> Unit raise Errno
 
@@ -68,9 +68,9 @@ fn os_getenv(Bytes) -> Bytes? raise Errno
 
 fn os_gethostname() -> Bytes raise Errno
 
-fn os_getpid() -> Int
+fn os_getpid() -> Pid
 
-fn os_getppid() -> Int
+fn os_getppid() -> Pid
 
 fn os_homedir() -> Bytes raise Errno
 
@@ -225,7 +225,7 @@ fn AddrInfoFlags::new(passive? : Bool, canonname? : Bool, numeric_host? : Bool, 
 type AddrInfoHints
 fn AddrInfoHints::new(flags? : AddrInfoFlags, family? : AddressFamily, socktype? : SockType, protocol? : Protocol) -> Self
 
-pub enum AddressFamily {
+pub(all) enum AddressFamily {
   Inet
   Inet6
 }
@@ -528,6 +528,14 @@ fn Passwd::shell(Self) -> Bytes
 fn Passwd::uid(Self) -> Uid
 fn Passwd::username(Self) -> Bytes
 
+type Pid
+fn Pid::of_int(Int) -> Self
+fn Pid::to_int(Self) -> Int
+impl Compare for Pid
+impl Eq for Pid
+impl Hash for Pid
+impl Show for Pid
+
 type Pipe
 fn Pipe::bind(Self, Bytes, PipeBindFlags) -> Unit raise Errno
 fn Pipe::new(Loop, ipc? : Bool) -> Self raise Errno
@@ -572,13 +580,13 @@ impl ToHandle for Prepare
 
 type Process
 fn Process::kill(Self, Signum) -> Unit raise Errno
-fn Process::pid(Self) -> Int
+fn Process::pid(Self) -> Pid
 impl ToHandle for Process
 
 type ProcessOptions
 fn ProcessOptions::new(Bytes, Array[Bytes], env? : Array[Bytes], cwd? : Bytes, stdio? : Array[StdioContainer], uid? : Uid, gid? : Gid, (Process, Int64, Int) -> Unit) -> Self
 
-pub enum Protocol {
+pub(all) enum Protocol {
   Tcp
   Udp
 }
