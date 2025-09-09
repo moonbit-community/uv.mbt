@@ -373,3 +373,16 @@ moonbit_uv_process_kill(moonbit_uv_process_t *process, int32_t signum) {
   moonbit_decref(process);
   return result;
 }
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_os_getpid(void) {
+  return uv_os_getpid();
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_os_getppid(void) {
+  return uv_os_getppid();
+}
+
