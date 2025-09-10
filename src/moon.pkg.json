@@ -256,6 +256,10 @@
       "native",
       "llvm"
     ],
+    "time_test.mbt": [
+      "native",
+      "llvm"
+    ],
     "timer.mbt": [
       "native",
       "llvm"

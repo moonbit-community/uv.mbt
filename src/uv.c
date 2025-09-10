@@ -63,6 +63,7 @@
 #include "string.c"
 #include "tcp.c"
 #include "thread.c"
+#include "time.c"
 #include "timer.c"
 #include "tty.c"
 #include "udp.c"
