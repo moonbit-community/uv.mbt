@@ -200,6 +200,14 @@
       "native",
       "llvm"
     ],
+    "rusage_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "rusage.mbt": [
+      "native",
+      "llvm"
+    ],
     "rwlock_test.mbt": [
       "native",
       "llvm"

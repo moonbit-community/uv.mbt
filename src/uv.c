@@ -54,6 +54,7 @@
 #include "process.c"
 #include "random.c"
 #include "req.c"
+#include "rusage.c"
 #include "rwlock.c"
 #include "sem.c"
 #include "signal.c"
