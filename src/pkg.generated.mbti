@@ -674,6 +674,7 @@ fn Signum::sigpipe() -> Self raise Errno
 fn Signum::sigprof() -> Self raise Errno
 fn Signum::sigquit() -> Self
 fn Signum::sigterm() -> Self
+fn Signum::sigtstp() -> Self raise Errno
 fn Signum::sigwinch() -> Self
 
 type SockType

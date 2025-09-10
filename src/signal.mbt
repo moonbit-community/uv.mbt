@@ -117,6 +117,12 @@ extern "c" fn uv_SIGPROF() -> Int = "moonbit_uv_SIGPROF"
 let _SIGPROF : Int = uv_SIGPROF()
 
 ///|
+extern "c" fn uv_SIGTSTP() -> Int = "moonbit_uv_SIGTSTP"
+
+///|
+let _SIGTSTP : Int = uv_SIGTSTP()
+
+///|
 struct Signum(Int)
 
 ///|
@@ -163,4 +169,12 @@ pub fn Signum::sigprof() -> Signum raise Errno {
     raise ENOSYS
   }
   _SIGPROF
+}
+
+///|
+pub fn Signum::sigtstp() -> Signum raise Errno {
+  if _SIGTSTP == -1 {
+    raise ENOSYS
+  }
+  _SIGTSTP
 }
