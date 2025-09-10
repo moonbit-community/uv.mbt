@@ -143,3 +143,13 @@ moonbit_uv_SIGPROF(void) {
   return SIGPROF;
 #endif
 }
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_SIGTSTP(void) {
+#ifdef _WIN32
+  return -1;
+#else
+  return SIGTSTP;
+#endif
+}
