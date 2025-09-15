@@ -43,8 +43,12 @@ struct OpenFlags(Int)
 /// uv.fs_close_sync(file)
 /// uv.close()
 /// ```
-pub fn OpenFlags::read_only() -> OpenFlags {
-  _O_RDONLY
+pub fn OpenFlags::read_only(symlink? : Bool = false) -> OpenFlags {
+  let mut flags = fs_O_RDONLY
+  if symlink {
+    flags = flags | fs_O_SYMLINK
+  }
+  flags
 }
 
 ///|
@@ -84,19 +88,23 @@ pub fn OpenFlags::write_only(
   create? : Bool = false,
   truncate? : Bool = false,
   exclusive? : Bool = false,
+  symlink? : Bool = false,
 ) -> OpenFlags {
-  let mut flags = _O_WRONLY
+  let mut flags = fs_O_WRONLY
   if append {
-    flags = flags | _O_APPEND
+    flags = flags | fs_O_APPEND
   }
   if create {
-    flags = flags | _O_CREAT
+    flags = flags | fs_O_CREAT
   }
   if truncate {
-    flags = flags | _O_TRUNC
+    flags = flags | fs_O_TRUNC
   }
   if exclusive {
-    flags = flags | _O_EXCL
+    flags = flags | fs_O_EXCL
+  }
+  if symlink {
+    flags = flags | fs_O_SYMLINK
   }
   flags
 }
@@ -138,64 +146,152 @@ pub fn OpenFlags::read_write(
   create? : Bool = false,
   truncate? : Bool = false,
   exclusive? : Bool = false,
+  symlink? : Bool = false,
 ) -> OpenFlags {
-  let mut flags = _O_RDWR
+  let mut flags = fs_O_RDWR
   if append {
-    flags = flags | _O_APPEND
+    flags = flags | fs_O_APPEND
   }
   if create {
-    flags = flags | _O_CREAT
+    flags = flags | fs_O_CREAT
   }
   if truncate {
-    flags = flags | _O_TRUNC
+    flags = flags | fs_O_TRUNC
   }
   if exclusive {
-    flags = flags | _O_EXCL
+    flags = flags | fs_O_EXCL
+  }
+  if symlink {
+    flags = flags | fs_O_SYMLINK
   }
   flags
 }
 
 ///|
-extern "c" fn uv_fs_O_RDONLY() -> Int = "moonbit_uv_fs_O_RDONLY"
+extern "c" fn uv_fs_O_APPEND() -> Int = "moonbit_uv_fs_O_APPEND"
 
 ///|
-let _O_RDONLY : Int = uv_fs_O_RDONLY()
-
-///|
-extern "c" fn uv_fs_O_WRONLY() -> Int = "moonbit_uv_fs_O_WRONLY"
-
-///|
-let _O_WRONLY : Int = uv_fs_O_WRONLY()
-
-///|
-extern "c" fn uv_fs_O_RDWR() -> Int = "moonbit_uv_fs_O_RDWR"
-
-///|
-let _O_RDWR : Int = uv_fs_O_RDWR()
+let fs_O_APPEND : Int = uv_fs_O_APPEND()
 
 ///|
 extern "c" fn uv_fs_O_CREAT() -> Int = "moonbit_uv_fs_O_CREAT"
 
 ///|
-let _O_CREAT : Int = uv_fs_O_CREAT()
+let fs_O_CREAT : Int = uv_fs_O_CREAT()
 
 ///|
-extern "c" fn uv_fs_O_TRUNC() -> Int = "moonbit_uv_fs_O_TRUNC"
+extern "c" fn uv_fs_O_DIRECT() -> Int = "moonbit_uv_fs_O_DIRECT"
 
 ///|
-let _O_TRUNC : Int = uv_fs_O_TRUNC()
+let fs_O_DIRECT : Int = uv_fs_O_DIRECT()
 
 ///|
-extern "c" fn uv_fs_O_APPEND() -> Int = "moonbit_uv_fs_O_APPEND"
+extern "c" fn uv_fs_O_DIRECTORY() -> Int = "moonbit_uv_fs_O_DIRECTORY"
 
 ///|
-let _O_APPEND : Int = uv_fs_O_APPEND()
+let fs_O_DIRECTORY : Int = uv_fs_O_DIRECTORY()
+
+///|
+extern "c" fn uv_fs_O_DSYNC() -> Int = "moonbit_uv_fs_O_DSYNC"
+
+///|
+let fs_O_DSYNC : Int = uv_fs_O_DSYNC()
 
 ///|
 extern "c" fn uv_fs_O_EXCL() -> Int = "moonbit_uv_fs_O_EXCL"
 
 ///|
-let _O_EXCL : Int = uv_fs_O_EXCL()
+let fs_O_EXCL : Int = uv_fs_O_EXCL()
+
+///|
+extern "c" fn uv_fs_O_EXLOCK() -> Int = "moonbit_uv_fs_O_EXLOCK"
+
+///|
+let fs_O_EXLOCK : Int = uv_fs_O_EXLOCK()
+
+///|
+extern "c" fn uv_fs_O_FILEMAP() -> Int = "moonbit_uv_fs_O_FILEMAP"
+
+///|
+let fs_O_FILEMAP : Int = uv_fs_O_FILEMAP()
+
+///|
+extern "c" fn uv_fs_O_NOATIME() -> Int = "moonbit_uv_fs_O_NOATIME"
+
+///|
+let fs_O_NOATIME : Int = uv_fs_O_NOATIME()
+
+///|
+extern "c" fn uv_fs_O_NOCTTY() -> Int = "moonbit_uv_fs_O_NOCTTY"
+
+///|
+let fs_O_NOCTTY : Int = uv_fs_O_NOCTTY()
+
+///|
+extern "c" fn uv_fs_O_NOFOLLOW() -> Int = "moonbit_uv_fs_O_NOFOLLOW"
+
+///|
+let fs_O_NOFOLLOW : Int = uv_fs_O_NOFOLLOW()
+
+///|
+extern "c" fn uv_fs_O_NONBLOCK() -> Int = "moonbit_uv_fs_O_NONBLOCK"
+
+///|
+let fs_O_NONBLOCK : Int = uv_fs_O_NONBLOCK()
+
+///|
+extern "c" fn uv_fs_O_RDONLY() -> Int = "moonbit_uv_fs_O_RDONLY"
+
+///|
+let fs_O_RDONLY : Int = uv_fs_O_RDONLY()
+
+///|
+extern "c" fn uv_fs_O_RDWR() -> Int = "moonbit_uv_fs_O_RDWR"
+
+///|
+let fs_O_RDWR : Int = uv_fs_O_RDWR()
+
+///|
+extern "c" fn uv_fs_O_SEQUENTIAL() -> Int = "moonbit_uv_fs_O_SEQUENTIAL"
+
+///|
+let fs_O_SEQUENTIAL : Int = uv_fs_O_SEQUENTIAL()
+
+///|
+extern "c" fn uv_fs_O_SHORT_LIVED() -> Int = "moonbit_uv_fs_O_SHORT_LIVED"
+
+///|
+let fs_O_SHORT_LIVED : Int = uv_fs_O_SHORT_LIVED()
+
+///|
+extern "c" fn uv_fs_O_SYMLINK() -> Int = "moonbit_uv_fs_O_SYMLINK"
+
+///|
+let fs_O_SYMLINK : Int = uv_fs_O_SYMLINK()
+
+///|
+extern "c" fn uv_fs_O_SYNC() -> Int = "moonbit_uv_fs_O_SYNC"
+
+///|
+let fs_O_SYNC : Int = uv_fs_O_SYNC()
+
+///|
+extern "c" fn uv_fs_O_TEMPORARY() -> Int = "moonbit_uv_fs_O_TEMPORARY"
+
+///|
+let fs_O_TEMPORARY : Int = uv_fs_O_TEMPORARY()
+
+///|
+extern "c" fn uv_fs_O_TRUNC() -> Int = "moonbit_uv_fs_O_TRUNC"
+
+///|
+let fs_O_TRUNC : Int = uv_fs_O_TRUNC()
+
+///|
+extern "c" fn uv_fs_O_WRONLY() -> Int = "moonbit_uv_fs_O_WRONLY"
+
+///|
+let fs_O_WRONLY : Int = uv_fs_O_WRONLY()
 
 ///|
 #owned(uv, req, path)
