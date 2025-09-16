@@ -51,7 +51,7 @@ jobs:
         run: |
           python3 scripts/test.py --target=native
 
-  test-bleeding-llvm:
+  test-nightly-llvm:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -65,7 +65,7 @@ jobs:
       - name: Install MoonBit
         uses: ./.github/actions/install-moonbit
         with:
-          channel: bleeding
+          channel: nightly
 
       - name: Inspect MoonBit version
         run: |
@@ -124,7 +124,7 @@ jobs:
   check-example:
     strategy:
       matrix:
-        channel: [pre-release, bleeding]
+        channel: [pre-release, nightly]
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:

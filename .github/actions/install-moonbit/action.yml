@@ -16,7 +16,7 @@ name: "Install MoonBit"
 description: "Install MoonBit CLI for the specified channel"
 inputs:
   channel:
-    description: "MoonBit channel to install (stable, pre-release, nightly, bleeding)"
+    description: "MoonBit channel to install (stable, pre-release, nightly)"
     required: true
     default: "stable"
 runs:
@@ -58,21 +58,21 @@ runs:
         "C:\Users\runneradmin\.moon\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
 
     - name: Bundle LLVM (Linux)
-      if: runner.os == 'Linux' && inputs.channel == 'bleeding'
+      if: runner.os == 'Linux' && inputs.channel == 'nightly'
       shell: bash
       run: |
         cd ${HOME}/.moon/lib/core
         moon bundle --target llvm
 
     - name: Bundle LLVM (Windows)
-      if: runner.os == 'Windows' && inputs.channel == 'bleeding'
+      if: runner.os == 'Windows' && inputs.channel == 'nightly'
       shell: powershell
       working-directory: "C:\\Users\\runneradmin\\.moon\\lib\\core"
       run: |
         moon bundle --target llvm
 
     - name: Bundle LLVM (macOS)
-      if: runner.os == 'macOS' && inputs.channel == 'bleeding'
+      if: runner.os == 'macOS' && inputs.channel == 'nightly'
       shell: bash
       run: |
         cd ${HOME}/.moon/lib/core
