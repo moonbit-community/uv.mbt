@@ -185,6 +185,12 @@ moonbit_uv_fs_O_NONBLOCK(void) {
 
 MOONBIT_FFI_EXPORT
 int32_t
+moonbit_uv_fs_O_RANDOM(void) {
+  return UV_FS_O_RANDOM;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
 moonbit_uv_fs_O_RDONLY(void) {
   return UV_FS_O_RDONLY;
 }
@@ -199,12 +205,6 @@ MOONBIT_FFI_EXPORT
 int32_t
 moonbit_uv_fs_O_SEQUENTIAL(void) {
   return UV_FS_O_SEQUENTIAL;
-}
-
-MOONBIT_FFI_EXPORT
-int32_t
-moonbit_uv_fs_O_SHORT_LIVED(void) {
-  return UV_FS_O_SHORT_LIVED;
 }
 
 MOONBIT_FFI_EXPORT
