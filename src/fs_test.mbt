@@ -686,6 +686,10 @@ test "fs_readlink_async" {
 
 ///|
 test "fs_lstat_sync" {
+  guard @uv.os_uname().sysname() != "Windows_NT" else {
+    // Windows doesn't support symlink creation without elevated privileges
+    return
+  }
   let uv = @uv.Loop::new()
   let target_file : Bytes = "test/fixtures/example.txt"
   let symlink_file : Bytes = "test-lstat-sync.txt"
