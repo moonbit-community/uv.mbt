@@ -514,8 +514,8 @@ fn Once::new() -> Self
 
 type OpenFlags
 fn OpenFlags::read_only(access_hint? : AccessHint, direct? : Bool, directory? : Bool, exclusive_lock? : Bool, filemap? : Bool, noatime? : Bool, nofollow? : Bool, nonblock? : Bool, symlink? : Bool) -> Self
-fn OpenFlags::read_write(access_hint? : AccessHint, append? : Bool, create? : Bool, direct? : Bool, directory? : Bool, exclusive? : Bool, exclusive_lock? : Bool, filemap? : Bool, noatime? : Bool, noctty? : Bool, nofollow? : Bool, nonblock? : Bool, symlink? : Bool, sync? : Sync, temporary? : Bool, truncate? : Bool) -> Self
-fn OpenFlags::write_only(append? : Bool, create? : Bool, direct? : Bool, directory? : Bool, exclusive? : Bool, exclusive_lock? : Bool, filemap? : Bool, nofollow? : Bool, nonblock? : Bool, sync? : Sync, temporary? : Bool, truncate? : Bool) -> Self
+fn OpenFlags::read_write(access_hint? : AccessHint, append? : Bool, create? : Bool, direct? : Bool, exclusive? : Bool, exclusive_lock? : Bool, filemap? : Bool, noatime? : Bool, noctty? : Bool, nofollow? : Bool, nonblock? : Bool, symlink? : Bool, sync? : Sync, temporary? : Bool, truncate? : Bool) -> Self
+fn OpenFlags::write_only(append? : Bool, create? : Bool, direct? : Bool, exclusive? : Bool, exclusive_lock? : Bool, filemap? : Bool, nofollow? : Bool, nonblock? : Bool, sync? : Sync, temporary? : Bool, truncate? : Bool) -> Self
 
 type OsFd
 fn OsFd::to_int(Self) -> Int raise Errno

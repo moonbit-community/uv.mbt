@@ -135,7 +135,6 @@ pub fn OpenFlags::write_only(
   append? : Bool = false,
   create? : Bool = false,
   direct? : Bool = false,
-  directory? : Bool = false,
   exclusive? : Bool = false,
   exclusive_lock? : Bool = false,
   filemap? : Bool = false,
@@ -154,9 +153,6 @@ pub fn OpenFlags::write_only(
   }
   if direct {
     flags = flags | fs_O_DIRECT
-  }
-  if directory {
-    flags = flags | fs_O_DIRECTORY
   }
   if exclusive {
     flags = flags | fs_O_EXCL
@@ -224,7 +220,6 @@ pub fn OpenFlags::read_write(
   append? : Bool = false,
   create? : Bool = false,
   direct? : Bool = false,
-  directory? : Bool = false,
   exclusive? : Bool = false,
   exclusive_lock? : Bool = false,
   filemap? : Bool = false,
@@ -251,9 +246,6 @@ pub fn OpenFlags::read_write(
   }
   if direct {
     flags = flags | fs_O_DIRECT
-  }
-  if directory {
-    flags = flags | fs_O_DIRECTORY
   }
   if exclusive {
     flags = flags | fs_O_EXCL
