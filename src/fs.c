@@ -113,20 +113,8 @@ moonbit_uv_fs_set_bufs(moonbit_uv_fs_t *fs, moonbit_bytes_t *bufs_base) {
 
 MOONBIT_FFI_EXPORT
 int32_t
-moonbit_uv_fs_O_RDONLY(void) {
-  return UV_FS_O_RDONLY;
-}
-
-MOONBIT_FFI_EXPORT
-int32_t
-moonbit_uv_fs_O_WRONLY(void) {
-  return UV_FS_O_WRONLY;
-}
-
-MOONBIT_FFI_EXPORT
-int32_t
-moonbit_uv_fs_O_RDWR(void) {
-  return UV_FS_O_RDWR;
+moonbit_uv_fs_O_APPEND(void) {
+  return UV_FS_O_APPEND;
 }
 
 MOONBIT_FFI_EXPORT
@@ -137,20 +125,116 @@ moonbit_uv_fs_O_CREAT(void) {
 
 MOONBIT_FFI_EXPORT
 int32_t
-moonbit_uv_fs_O_TRUNC(void) {
-  return UV_FS_O_TRUNC;
+moonbit_uv_fs_O_DIRECT(void) {
+  return UV_FS_O_DIRECT;
 }
 
 MOONBIT_FFI_EXPORT
 int32_t
-moonbit_uv_fs_O_APPEND(void) {
-  return UV_FS_O_APPEND;
+moonbit_uv_fs_O_DIRECTORY(void) {
+  return UV_FS_O_DIRECTORY;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_O_DSYNC(void) {
+  return UV_FS_O_DSYNC;
 }
 
 MOONBIT_FFI_EXPORT
 int32_t
 moonbit_uv_fs_O_EXCL(void) {
   return UV_FS_O_EXCL;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_O_EXLOCK(void) {
+  return UV_FS_O_EXLOCK;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_O_FILEMAP(void) {
+  return UV_FS_O_FILEMAP;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_O_NOATIME(void) {
+  return UV_FS_O_NOATIME;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_O_NOCTTY(void) {
+  return UV_FS_O_NOCTTY;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_O_NOFOLLOW(void) {
+  return UV_FS_O_NOFOLLOW;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_O_NONBLOCK(void) {
+  return UV_FS_O_NONBLOCK;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_O_RANDOM(void) {
+  return UV_FS_O_RANDOM;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_O_RDONLY(void) {
+  return UV_FS_O_RDONLY;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_O_RDWR(void) {
+  return UV_FS_O_RDWR;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_O_SEQUENTIAL(void) {
+  return UV_FS_O_SEQUENTIAL;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_O_SYMLINK(void) {
+  return UV_FS_O_SYMLINK;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_O_SYNC(void) {
+  return UV_FS_O_SYNC;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_O_TEMPORARY(void) {
+  return UV_FS_O_TEMPORARY;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_O_TRUNC(void) {
+  return UV_FS_O_TRUNC;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_fs_O_WRONLY(void) {
+  return UV_FS_O_WRONLY;
 }
 
 MOONBIT_FFI_EXPORT

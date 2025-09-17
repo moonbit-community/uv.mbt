@@ -1,10 +1,6 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "tonyfettes/uv"
 
-import(
-  "moonbitlang/core/bytes"
-)
-
 // Values
 fn[Server : ToStream, Client : ToStream] accept(Server, Client) -> Unit raise Errno
 
@@ -85,7 +81,7 @@ fn os_unsetenv(Bytes) -> Unit raise Errno
 fn pipe(read_flags? : PipeFlags, write_flags? : PipeFlags) -> (File, File) raise Errno
 
 #deprecated
-fn[Stream : ToStream] read_start(Stream, (Stream, Int) -> @bytes.View, (Stream, Int, @bytes.View) -> Unit, (Stream, Errno) -> Unit) -> Unit raise Errno
+fn[Stream : ToStream] read_start(Stream, (Stream, Int) -> BytesView, (Stream, Int, BytesView) -> Unit, (Stream, Errno) -> Unit) -> Unit raise Errno
 
 #deprecated
 fn[Stream : ToStream] read_stop(Stream) -> Unit raise Errno
@@ -110,7 +106,7 @@ fn uv_gettimeofday(FixedArray[Int64]) -> Int
 fn version() -> Version
 
 #deprecated
-fn[Stream : ToStream] write(Stream, Array[@bytes.View], () -> Unit, (Errno) -> Unit) -> Write raise Errno
+fn[Stream : ToStream] write(Stream, Array[BytesView], () -> Unit, (Errno) -> Unit) -> Write raise Errno
 
 fn wtf8_to_string(Bytes) -> String
 
@@ -211,6 +207,11 @@ impl Hash for Errno
 // Types and methods
 type AccessFlags
 fn AccessFlags::new(read? : Bool, write? : Bool, execute? : Bool) -> Self
+
+pub(all) enum AccessHint {
+  Random
+  Sequential
+}
 
 type AddrInfo
 fn AddrInfo::addr(Self) -> Sockaddr
@@ -442,8 +443,8 @@ fn Loop::fs_mkstemp_sync(Self, Bytes) -> Bytes raise Errno
 fn Loop::fs_open(Self, Bytes, OpenFlags, Int, (File) -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_open_sync(Self, Bytes, OpenFlags, Int) -> File raise Errno
 fn Loop::fs_opendir(Self, Bytes, (Dir) -> Unit, (Errno) -> Unit) -> Fs raise Errno
-fn Loop::fs_read(Self, File, Array[@bytes.View], offset? : Int64, (Int) -> Unit, (Errno) -> Unit) -> Fs raise Errno
-fn Loop::fs_read_sync(Self, File, Array[@bytes.View], offset? : Int64) -> Int raise Errno
+fn Loop::fs_read(Self, File, Array[BytesView], offset? : Int64, (Int) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_read_sync(Self, File, Array[BytesView], offset? : Int64) -> Int raise Errno
 fn Loop::fs_readdir(Self, Dir, Int, (Array[Dirent]) -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_readlink(Self, Bytes, (Bytes) -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_readlink_sync(Self, Bytes) -> Bytes raise Errno
@@ -466,8 +467,8 @@ fn Loop::fs_unlink(Self, Bytes, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_unlink_sync(Self, Bytes) -> Unit raise Errno
 fn Loop::fs_utime(Self, Bytes, Double, Double, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_utime_sync(Self, Bytes, Double, Double) -> Unit raise Errno
-fn Loop::fs_write(Self, File, Array[@bytes.View], offset? : Int64, (Int) -> Unit, (Errno) -> Unit) -> Fs raise Errno
-fn Loop::fs_write_sync(Self, File, Array[@bytes.View], offset? : Int64) -> Unit raise Errno
+fn Loop::fs_write(Self, File, Array[BytesView], offset? : Int64, (Int) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_write_sync(Self, File, Array[BytesView], offset? : Int64) -> Unit raise Errno
 fn Loop::getaddrinfo(Self, (Iter[AddrInfo]) -> Unit, (Errno) -> Unit, Bytes, Bytes, hints? : AddrInfoHints) -> GetAddrInfo raise Errno
 fn Loop::getnameinfo(Self, (Bytes?, Bytes?) -> Unit, (Errno) -> Unit, Sockaddr, flags? : Int) -> GetNameInfo raise Errno
 fn Loop::metrics_idle_time(Self) -> UInt64
@@ -476,7 +477,7 @@ fn Loop::new() -> Self raise Errno
 fn Loop::now(Self) -> UInt64
 fn Loop::print_all_handles(Self, File) -> Unit
 fn Loop::queue_work(Self, () -> Unit, () -> Unit, (Errno) -> Unit) -> Work raise Errno
-fn Loop::random(Self, @bytes.View, Int, (@bytes.View) -> Unit, (Errno) -> Unit) -> Random raise Errno
+fn Loop::random(Self, BytesView, Int, (BytesView) -> Unit, (Errno) -> Unit) -> Random raise Errno
 fn Loop::run(Self, RunMode) -> Unit raise Errno
 fn Loop::spawn(Self, ProcessOptions) -> Process raise Errno
 fn Loop::stop(Self) -> Unit
@@ -512,9 +513,9 @@ fn Once::call(Self, FuncRef[() -> Unit]) -> Unit
 fn Once::new() -> Self
 
 type OpenFlags
-fn OpenFlags::read_only() -> Self
-fn OpenFlags::read_write(append? : Bool, create? : Bool, truncate? : Bool, exclusive? : Bool) -> Self
-fn OpenFlags::write_only(append? : Bool, create? : Bool, truncate? : Bool, exclusive? : Bool) -> Self
+fn OpenFlags::read_only(access_hint? : AccessHint, direct? : Bool, directory? : Bool, exclusive_lock? : Bool, filemap? : Bool, noatime? : Bool, nofollow? : Bool, nonblock? : Bool, symlink? : Bool) -> Self
+fn OpenFlags::read_write(access_hint? : AccessHint, append? : Bool, create? : Bool, direct? : Bool, exclusive? : Bool, exclusive_lock? : Bool, filemap? : Bool, noatime? : Bool, noctty? : Bool, nofollow? : Bool, nonblock? : Bool, symlink? : Bool, sync? : Sync, temporary? : Bool, truncate? : Bool) -> Self
+fn OpenFlags::write_only(append? : Bool, create? : Bool, direct? : Bool, exclusive? : Bool, exclusive_lock? : Bool, filemap? : Bool, nofollow? : Bool, nonblock? : Bool, sync? : Sync, temporary? : Bool, truncate? : Bool) -> Self
 
 type OsFd
 fn OsFd::to_int(Self) -> Int raise Errno
@@ -744,17 +745,22 @@ fn StdioContainer::inherit_stream(Stream) -> Self
 type Stream
 fn Stream::is_readable(Self) -> Bool
 fn Stream::is_writable(Self) -> Bool
-fn Stream::read_start(Self, (Handle, Int) -> @bytes.View, (Self, Int, @bytes.View) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
+fn Stream::read_start(Self, (Handle, Int) -> BytesView, (Self, Int, BytesView) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
 fn Stream::read_stop(Self) -> Unit raise Errno
 fn Stream::shutdown(Self, () -> Unit, (Errno) -> Unit) -> Shutdown raise Errno
 fn Stream::to_handle(Self) -> Handle
-fn Stream::write(Self, Array[@bytes.View], () -> Unit, (Errno) -> Unit) -> Write raise Errno
-fn Stream::write2(Self, Array[@bytes.View], Self, () -> Unit, (Errno) -> Unit) -> Write raise Errno
+fn Stream::write(Self, Array[BytesView], () -> Unit, (Errno) -> Unit) -> Write raise Errno
+fn Stream::write2(Self, Array[BytesView], Self, () -> Unit, (Errno) -> Unit) -> Write raise Errno
 impl ToHandle for Stream
 impl ToStream for Stream
 
 type SymlinkFlags
 fn SymlinkFlags::new(dir? : Bool, junction? : Bool) -> Self
+
+pub(all) enum Sync {
+  Data
+  Full
+}
 
 type Tcp
 fn[Sockaddr : ToSockaddr] Tcp::bind(Self, Sockaddr, TcpBindFlags) -> Unit raise Errno
@@ -853,9 +859,9 @@ fn Udp::getsockname(Self) -> Sockaddr raise Errno
 fn Udp::new(Loop) -> Self raise Errno
 fn Udp::new_ex(Loop, AddressFamily, UdpFlags) -> Self raise Errno
 fn Udp::open(Self, OsSock) -> Unit raise Errno
-fn Udp::recv_start(Self, (Handle, Int) -> @bytes.View, (Self, Int, @bytes.View, Sockaddr, UdpFlags) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
+fn Udp::recv_start(Self, (Handle, Int) -> BytesView, (Self, Int, BytesView, Sockaddr, UdpFlags) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
 fn Udp::recv_stop(Self) -> Unit raise Errno
-fn[Sockaddr : ToSockaddr] Udp::send(Self, Array[@bytes.View], () -> Unit, (Errno) -> Unit, addr? : Sockaddr) -> UdpSend raise Errno
+fn[Sockaddr : ToSockaddr] Udp::send(Self, Array[BytesView], () -> Unit, (Errno) -> Unit, addr? : Sockaddr) -> UdpSend raise Errno
 fn Udp::set_broadcast(Self, Bool) -> Unit raise Errno
 fn Udp::set_membership(Self, Bytes, Bytes, Membership) -> Unit raise Errno
 fn Udp::set_multicast_interface(Self, Bytes) -> Unit raise Errno
@@ -863,7 +869,7 @@ fn Udp::set_multicast_loop(Self, Bool) -> Unit raise Errno
 fn Udp::set_multicast_ttl(Self, Int) -> Unit raise Errno
 fn Udp::set_source_membership(Self, Bytes, Bytes, Bytes, Membership) -> Unit raise Errno
 fn Udp::set_ttl(Self, Int) -> Unit raise Errno
-fn[Sockaddr : ToSockaddr] Udp::try_send(Self, Array[@bytes.View], addr? : Sockaddr) -> Int raise Errno
+fn[Sockaddr : ToSockaddr] Udp::try_send(Self, Array[BytesView], addr? : Sockaddr) -> Int raise Errno
 fn Udp::using_recvmmsg(Self) -> Bool
 impl ToHandle for Udp
 
@@ -877,10 +883,10 @@ pub(all) struct Uid(UInt64)
 fn Uid::inner(Self) -> UInt64
 
 type Utsname
-fn Utsname::machine(Self) -> @bytes.View
-fn Utsname::release(Self) -> @bytes.View
-fn Utsname::sysname(Self) -> @bytes.View
-fn Utsname::version(Self) -> @bytes.View
+fn Utsname::machine(Self) -> BytesView
+fn Utsname::release(Self) -> BytesView
+fn Utsname::sysname(Self) -> BytesView
+fn Utsname::version(Self) -> BytesView
 
 type Version
 fn Version::major(Self) -> Int
@@ -931,9 +937,9 @@ pub trait ToSockaddr {
 pub trait ToStream : ToHandle {
   to_stream(Self) -> Stream
   of_stream(Stream) -> Self
-  read_start(Self, (Self, Int) -> @bytes.View, (Self, Int, @bytes.View) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
+  read_start(Self, (Self, Int) -> BytesView, (Self, Int, BytesView) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
   read_stop(Self) -> Unit raise Errno
-  write(Self, Array[@bytes.View], () -> Unit, (Errno) -> Unit) -> Write raise Errno
+  write(Self, Array[BytesView], () -> Unit, (Errno) -> Unit) -> Write raise Errno
   listen(Self, Int, (Self) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
   is_readable(Self) -> Bool
   is_writable(Self) -> Bool

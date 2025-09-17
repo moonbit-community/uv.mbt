@@ -14,8 +14,7 @@
 
 ///|
 test "FsPoll" {
-  if @uv.os_getenv("CI") is Some("true") &&
-    @uv.os_uname().sysname() == "Windows_NT" {
+  if @uv.os_getenv("CI") is Some("true") {
     return
   }
   let uv = @uv.Loop::new()

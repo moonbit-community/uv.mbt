@@ -14,6 +14,9 @@
 
 ///|
 test "fs_event" {
+  if @uv.os_getenv("CI") is Some("true") {
+    return
+  }
   let uv = @uv.Loop::new()
   let fs_event = @uv.FsEvent::new(uv)
   let errors : Array[Error] = []

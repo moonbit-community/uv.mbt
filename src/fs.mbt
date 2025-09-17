@@ -29,6 +29,18 @@ extern "c" fn uv_fs_req_cleanup(req : Fs) = "moonbit_uv_fs_req_cleanup"
 struct OpenFlags(Int)
 
 ///|
+pub(all) enum AccessHint {
+  Random
+  Sequential
+}
+
+///|
+pub(all) enum Sync {
+  Data
+  Full
+}
+
+///|
 /// Creates file open flags for read-only access.
 ///
 /// Returns an `OpenFlags` instance configured for read-only file access. Files
@@ -43,8 +55,48 @@ struct OpenFlags(Int)
 /// uv.fs_close_sync(file)
 /// uv.close()
 /// ```
-pub fn OpenFlags::read_only() -> OpenFlags {
-  _O_RDONLY
+pub fn OpenFlags::read_only(
+  access_hint? : AccessHint,
+  direct? : Bool = false,
+  directory? : Bool = false,
+  exclusive_lock? : Bool = false,
+  filemap? : Bool = false,
+  noatime? : Bool = false,
+  nofollow? : Bool = false,
+  nonblock? : Bool = false,
+  symlink? : Bool = false,
+) -> OpenFlags {
+  let mut flags = fs_O_RDONLY
+  match access_hint {
+    None => ()
+    Some(Random) => flags = flags | fs_O_RANDOM
+    Some(Sequential) => flags = flags | fs_O_SEQUENTIAL
+  }
+  if direct {
+    flags = flags | fs_O_DIRECT
+  }
+  if directory {
+    flags = flags | fs_O_DIRECTORY
+  }
+  if exclusive_lock {
+    flags = flags | fs_O_EXLOCK
+  }
+  if filemap {
+    flags = flags | fs_O_FILEMAP
+  }
+  if noatime {
+    flags = flags | fs_O_NOATIME
+  }
+  if nofollow {
+    flags = flags | fs_O_NOFOLLOW
+  }
+  if nonblock {
+    flags = flags | fs_O_NONBLOCK
+  }
+  if symlink {
+    flags = flags | fs_O_SYMLINK
+  }
+  flags
 }
 
 ///|
@@ -82,21 +134,51 @@ pub fn OpenFlags::read_only() -> OpenFlags {
 pub fn OpenFlags::write_only(
   append? : Bool = false,
   create? : Bool = false,
-  truncate? : Bool = false,
+  direct? : Bool = false,
   exclusive? : Bool = false,
+  exclusive_lock? : Bool = false,
+  filemap? : Bool = false,
+  nofollow? : Bool = false,
+  nonblock? : Bool = false,
+  sync? : Sync,
+  temporary? : Bool = false,
+  truncate? : Bool = false,
 ) -> OpenFlags {
-  let mut flags = _O_WRONLY
+  let mut flags = fs_O_WRONLY
   if append {
-    flags = flags | _O_APPEND
+    flags = flags | fs_O_APPEND
   }
   if create {
-    flags = flags | _O_CREAT
+    flags = flags | fs_O_CREAT
   }
-  if truncate {
-    flags = flags | _O_TRUNC
+  if direct {
+    flags = flags | fs_O_DIRECT
   }
   if exclusive {
-    flags = flags | _O_EXCL
+    flags = flags | fs_O_EXCL
+  }
+  if exclusive_lock {
+    flags = flags | fs_O_EXLOCK
+  }
+  if filemap {
+    flags = flags | fs_O_FILEMAP
+  }
+  if nofollow {
+    flags = flags | fs_O_NOFOLLOW
+  }
+  if nonblock {
+    flags = flags | fs_O_NONBLOCK
+  }
+  match sync {
+    None => ()
+    Some(Data) => flags = flags | fs_O_DSYNC
+    Some(Full) => flags = flags | fs_O_SYNC
+  }
+  if temporary {
+    flags = flags | fs_O_TEMPORARY
+  }
+  if truncate {
+    flags = flags | fs_O_TRUNC
   }
   flags
 }
@@ -134,68 +216,200 @@ pub fn OpenFlags::write_only(
 /// uv.close()
 /// ```
 pub fn OpenFlags::read_write(
+  access_hint? : AccessHint,
   append? : Bool = false,
   create? : Bool = false,
-  truncate? : Bool = false,
+  direct? : Bool = false,
   exclusive? : Bool = false,
+  exclusive_lock? : Bool = false,
+  filemap? : Bool = false,
+  noatime? : Bool = false,
+  noctty? : Bool = false,
+  nofollow? : Bool = false,
+  nonblock? : Bool = false,
+  symlink? : Bool = false,
+  sync? : Sync,
+  temporary? : Bool = false,
+  truncate? : Bool = false,
 ) -> OpenFlags {
-  let mut flags = _O_RDWR
+  let mut flags = fs_O_RDWR
   if append {
-    flags = flags | _O_APPEND
+    flags = flags | fs_O_APPEND
+  }
+  match access_hint {
+    None => ()
+    Some(Random) => flags = flags | fs_O_RANDOM
+    Some(Sequential) => flags = flags | fs_O_SEQUENTIAL
   }
   if create {
-    flags = flags | _O_CREAT
+    flags = flags | fs_O_CREAT
   }
-  if truncate {
-    flags = flags | _O_TRUNC
+  if direct {
+    flags = flags | fs_O_DIRECT
   }
   if exclusive {
-    flags = flags | _O_EXCL
+    flags = flags | fs_O_EXCL
+  }
+  if exclusive_lock {
+    flags = flags | fs_O_EXLOCK
+  }
+  if filemap {
+    flags = flags | fs_O_FILEMAP
+  }
+  if noatime {
+    flags = flags | fs_O_NOATIME
+  }
+  if noctty {
+    flags = flags | fs_O_NOCTTY
+  }
+  if nofollow {
+    flags = flags | fs_O_NOFOLLOW
+  }
+  if nonblock {
+    flags = flags | fs_O_NONBLOCK
+  }
+  if symlink {
+    flags = flags | fs_O_SYMLINK
+  }
+  match sync {
+    None => ()
+    Some(Data) => flags = flags | fs_O_DSYNC
+    Some(Full) => flags = flags | fs_O_SYNC
+  }
+  if temporary {
+    flags = flags | fs_O_TEMPORARY
+  }
+  if truncate {
+    flags = flags | fs_O_TRUNC
   }
   flags
 }
 
 ///|
-extern "c" fn uv_fs_O_RDONLY() -> Int = "moonbit_uv_fs_O_RDONLY"
+extern "c" fn uv_fs_O_APPEND() -> Int = "moonbit_uv_fs_O_APPEND"
 
 ///|
-let _O_RDONLY : Int = uv_fs_O_RDONLY()
-
-///|
-extern "c" fn uv_fs_O_WRONLY() -> Int = "moonbit_uv_fs_O_WRONLY"
-
-///|
-let _O_WRONLY : Int = uv_fs_O_WRONLY()
-
-///|
-extern "c" fn uv_fs_O_RDWR() -> Int = "moonbit_uv_fs_O_RDWR"
-
-///|
-let _O_RDWR : Int = uv_fs_O_RDWR()
+let fs_O_APPEND : Int = uv_fs_O_APPEND()
 
 ///|
 extern "c" fn uv_fs_O_CREAT() -> Int = "moonbit_uv_fs_O_CREAT"
 
 ///|
-let _O_CREAT : Int = uv_fs_O_CREAT()
+let fs_O_CREAT : Int = uv_fs_O_CREAT()
 
 ///|
-extern "c" fn uv_fs_O_TRUNC() -> Int = "moonbit_uv_fs_O_TRUNC"
+extern "c" fn uv_fs_O_DIRECT() -> Int = "moonbit_uv_fs_O_DIRECT"
 
 ///|
-let _O_TRUNC : Int = uv_fs_O_TRUNC()
+let fs_O_DIRECT : Int = uv_fs_O_DIRECT()
 
 ///|
-extern "c" fn uv_fs_O_APPEND() -> Int = "moonbit_uv_fs_O_APPEND"
+extern "c" fn uv_fs_O_DIRECTORY() -> Int = "moonbit_uv_fs_O_DIRECTORY"
 
 ///|
-let _O_APPEND : Int = uv_fs_O_APPEND()
+let fs_O_DIRECTORY : Int = uv_fs_O_DIRECTORY()
+
+///|
+extern "c" fn uv_fs_O_DSYNC() -> Int = "moonbit_uv_fs_O_DSYNC"
+
+///|
+let fs_O_DSYNC : Int = uv_fs_O_DSYNC()
 
 ///|
 extern "c" fn uv_fs_O_EXCL() -> Int = "moonbit_uv_fs_O_EXCL"
 
 ///|
-let _O_EXCL : Int = uv_fs_O_EXCL()
+let fs_O_EXCL : Int = uv_fs_O_EXCL()
+
+///|
+extern "c" fn uv_fs_O_EXLOCK() -> Int = "moonbit_uv_fs_O_EXLOCK"
+
+///|
+let fs_O_EXLOCK : Int = uv_fs_O_EXLOCK()
+
+///|
+extern "c" fn uv_fs_O_FILEMAP() -> Int = "moonbit_uv_fs_O_FILEMAP"
+
+///|
+let fs_O_FILEMAP : Int = uv_fs_O_FILEMAP()
+
+///|
+extern "c" fn uv_fs_O_NOATIME() -> Int = "moonbit_uv_fs_O_NOATIME"
+
+///|
+let fs_O_NOATIME : Int = uv_fs_O_NOATIME()
+
+///|
+extern "c" fn uv_fs_O_NOCTTY() -> Int = "moonbit_uv_fs_O_NOCTTY"
+
+///|
+let fs_O_NOCTTY : Int = uv_fs_O_NOCTTY()
+
+///|
+extern "c" fn uv_fs_O_NOFOLLOW() -> Int = "moonbit_uv_fs_O_NOFOLLOW"
+
+///|
+let fs_O_NOFOLLOW : Int = uv_fs_O_NOFOLLOW()
+
+///|
+extern "c" fn uv_fs_O_NONBLOCK() -> Int = "moonbit_uv_fs_O_NONBLOCK"
+
+///|
+let fs_O_NONBLOCK : Int = uv_fs_O_NONBLOCK()
+
+///|
+extern "c" fn uv_fs_O_RANDOM() -> Int = "moonbit_uv_fs_O_RANDOM"
+
+///|
+let fs_O_RANDOM : Int = uv_fs_O_RANDOM()
+
+///|
+extern "c" fn uv_fs_O_RDONLY() -> Int = "moonbit_uv_fs_O_RDONLY"
+
+///|
+let fs_O_RDONLY : Int = uv_fs_O_RDONLY()
+
+///|
+extern "c" fn uv_fs_O_RDWR() -> Int = "moonbit_uv_fs_O_RDWR"
+
+///|
+let fs_O_RDWR : Int = uv_fs_O_RDWR()
+
+///|
+extern "c" fn uv_fs_O_SEQUENTIAL() -> Int = "moonbit_uv_fs_O_SEQUENTIAL"
+
+///|
+let fs_O_SEQUENTIAL : Int = uv_fs_O_SEQUENTIAL()
+
+///|
+extern "c" fn uv_fs_O_SYMLINK() -> Int = "moonbit_uv_fs_O_SYMLINK"
+
+///|
+let fs_O_SYMLINK : Int = uv_fs_O_SYMLINK()
+
+///|
+extern "c" fn uv_fs_O_SYNC() -> Int = "moonbit_uv_fs_O_SYNC"
+
+///|
+let fs_O_SYNC : Int = uv_fs_O_SYNC()
+
+///|
+extern "c" fn uv_fs_O_TEMPORARY() -> Int = "moonbit_uv_fs_O_TEMPORARY"
+
+///|
+let fs_O_TEMPORARY : Int = uv_fs_O_TEMPORARY()
+
+///|
+extern "c" fn uv_fs_O_TRUNC() -> Int = "moonbit_uv_fs_O_TRUNC"
+
+///|
+let fs_O_TRUNC : Int = uv_fs_O_TRUNC()
+
+///|
+extern "c" fn uv_fs_O_WRONLY() -> Int = "moonbit_uv_fs_O_WRONLY"
+
+///|
+let fs_O_WRONLY : Int = uv_fs_O_WRONLY()
 
 ///|
 #owned(uv, req, path)
