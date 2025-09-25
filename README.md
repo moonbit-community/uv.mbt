@@ -63,7 +63,6 @@ This is a MoonBit binding to the [libuv](https://libuv.org) library.
 - `uv_set_process_title()` - Set process title
 - `uv_resident_set_memory()` - Get RSS memory usage
 - `uv_uptime()` - Get system uptime
-- `uv_getrusage()` - Get resource usage
 - `uv_getrusage_thread()` - Get thread resource usage
 - `uv_available_parallelism()` - Get available CPU parallelism
 - `uv_loadavg()` - Get system load average
