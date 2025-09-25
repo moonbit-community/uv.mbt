@@ -357,6 +357,7 @@ type GetNameInfo
 impl ToReq for GetNameInfo
 
 pub(all) struct Gid(UInt64)
+#deprecated
 fn Gid::inner(Self) -> UInt64
 
 type Handle
@@ -812,6 +813,7 @@ fn Timer::stop(Self) -> Unit raise Errno
 impl ToHandle for Timer
 
 pub struct Timespec64(FixedArray[Int64])
+#deprecated
 fn Timespec64::inner(Self) -> FixedArray[Int64]
 fn Timespec64::nsec(Self) -> Int
 fn Timespec64::sec(Self) -> Int64
@@ -822,6 +824,7 @@ pub struct Timeval {
 }
 
 pub struct Timeval64(FixedArray[Int64])
+#deprecated
 fn Timeval64::inner(Self) -> FixedArray[Int64]
 fn Timeval64::sec(Self) -> Int64
 fn Timeval64::usec(Self) -> Int
@@ -880,6 +883,7 @@ type UdpSend
 impl ToReq for UdpSend
 
 pub(all) struct Uid(UInt64)
+#deprecated
 fn Uid::inner(Self) -> UInt64
 
 type Utsname

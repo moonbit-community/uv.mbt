@@ -368,8 +368,8 @@ extern "c" fn uv_os_get_passwd(passwd : Passwd) -> Int = "moonbit_uv_os_get_pass
 /// ```
 /// let passwd = @uv.os_get_passwd()
 /// println(passwd.username())
-/// println(passwd.uid().inner())
-/// println(passwd.gid().inner())
+/// println(passwd.uid().0)
+/// println(passwd.gid().0)
 /// println(passwd.shell())
 /// ```
 pub fn os_get_passwd() -> Passwd raise Errno {
