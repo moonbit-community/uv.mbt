@@ -76,7 +76,7 @@ extern "c" fn uv_random_sync(
 ///|
 /// Synchronously generates random data.
 ///
-/// The synchronous version may block indefinitely when not enough entropy is 
+/// The synchronous version may block indefinitely when not enough entropy is
 /// available. This function blocks the current thread until the random data
 /// generation completes. Unlike the asynchronous `random` function, this 
 /// operation does not require callbacks and returns immediately upon successful 
