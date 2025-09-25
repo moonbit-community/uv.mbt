@@ -132,7 +132,6 @@ moonbit_uv_random_sync(
     loop, &random->random, (char *)buffer + buffer_offset, buffer_length, flags,
     NULL
   );
-  moonbit_decref(loop);
   moonbit_decref(random);
   moonbit_decref(buffer);
   return status;
