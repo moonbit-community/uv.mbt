@@ -135,7 +135,7 @@ moonbit_uv_random_sync(
     loop, &random->random, (char *)buffer + buffer_offset, buffer_length, flags,
     NULL
   );
-  // It seems that synchronous uv_random does set the `loop` field in `random`.
+  // It seems that synchronous uv_random does not set the `loop` field in `random`.
   // Therefore we have to decref the loop here.
   moonbit_decref(loop);
   moonbit_decref(random);
