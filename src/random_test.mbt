@@ -30,3 +30,21 @@ test "random" {
     raise errno
   }
 }
+
+///|
+test "random_sync" {
+  let uv = @uv.Loop::new()
+  let buffer = Bytes::make(16, 0)
+  let original_buffer = buffer.copy()
+  
+  // Perform synchronous random generation
+  uv.random_sync(buffer[:], 0)
+  
+  // Verify that the buffer was modified (contains random data)
+  assert_true(buffer != original_buffer)
+  
+  // Verify the buffer size remains the same
+  assert_true(buffer.length() == 16)
+  
+  uv.close()
+}

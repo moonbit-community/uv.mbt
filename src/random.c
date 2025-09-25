@@ -113,3 +113,27 @@ moonbit_uv_random(
   moonbit_decref(loop);
   return status;
 }
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_random_sync(
+  uv_loop_t *loop,
+  moonbit_uv_random_t *random,
+  moonbit_bytes_t buffer,
+  int32_t buffer_offset,
+  int32_t buffer_length,
+  int32_t flags
+) {
+  if (random->random.data) {
+    moonbit_decref(random->random.data);
+  }
+  random->random.data = NULL;
+  int32_t status = uv_random(
+    loop, &random->random, (char *)buffer + buffer_offset, buffer_length, flags,
+    NULL
+  );
+  moonbit_decref(loop);
+  moonbit_decref(random);
+  moonbit_decref(buffer);
+  return status;
+}
