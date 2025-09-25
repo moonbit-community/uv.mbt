@@ -419,6 +419,8 @@ fn Loop::now(Self) -> UInt64
 fn Loop::print_all_handles(Self, File) -> Unit
 fn Loop::queue_work(Self, () -> Unit, () -> Unit, (Errno) -> Unit) -> Work raise Errno
 fn Loop::random(Self, @bytes.View, Int, (@bytes.View) -> Unit, (Errno) -> Unit) -> Random raise Errno
+
+fn Loop::random_sync(Self, @bytes.View, Int) -> Unit raise Errno
 fn Loop::run(Self, RunMode) -> Unit raise Errno
 fn Loop::spawn(Self, ProcessOptions) -> Process raise Errno
 fn Loop::stop(Self) -> Unit

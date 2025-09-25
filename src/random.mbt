@@ -61,3 +61,58 @@ pub fn Loop::random(
   }
   return req
 }
+
+///|
+#owned(uv, req, buffer)
+extern "c" fn uv_random_sync(
+  uv : Loop,
+  req : Random,
+  buffer : Bytes,
+  buffer_offset : Int,
+  buffer_length : Int,
+  flags : Int,
+) -> Int = "moonbit_uv_random_sync"
+
+///|
+/// Synchronously generates random data.
+///
+/// The synchronous version may block indefinitely when not enough entropy is
+/// available. This function blocks the current thread until the random data
+/// generation completes. Unlike the asynchronous `random` function, this 
+/// operation does not require callbacks and returns immediately upon successful 
+/// completion or failure.
+///
+/// Parameters:
+///
+/// * `self` : The event loop instance to perform the operation on.
+/// * `buffer` : A view of the buffer to fill with random data.
+/// * `flags` : Flags to control the random data generation (typically 0).
+///
+/// Throws an error of type `Errno` if random data cannot be generated (e.g.,
+/// insufficient entropy or system resource exhaustion).
+///
+/// Example:
+///
+/// ```moonbit
+/// let uv = @uv.Loop::new()
+/// let buffer = Bytes::make(16, 0)
+/// uv.random_sync(buffer[:], 0)
+/// // buffer now contains random data
+/// uv.close()
+/// ```
+pub fn Loop::random_sync(
+  self : Loop,
+  buffer : @bytes.View,
+  flags : Int,
+) -> Unit raise Errno {
+  let req = uv_random_make()
+  let buffer_offset = buffer.start_offset()
+  let buffer_length = buffer.length()
+  let buffer_data = buffer.data()
+  let status = uv_random_sync(
+    self, req, buffer_data, buffer_offset, buffer_length, flags,
+  )
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}

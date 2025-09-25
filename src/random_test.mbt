@@ -30,3 +30,13 @@ test "random" {
     raise errno
   }
 }
+
+///|
+test "random_sync" {
+  let uv = @uv.Loop::new()
+  let buffer = Bytes::make(16, 0)
+  uv.random_sync(buffer[:], 0)
+  assert_not_eq(buffer, Bytes::make(16, 0))
+  assert_true(buffer.length() == 16)
+  uv.close()
+}
