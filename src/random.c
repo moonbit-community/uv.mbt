@@ -72,8 +72,12 @@ moonbit_uv_random_cb(uv_random_t *req, int status, void *start, size_t length) {
 static inline void
 moonbit_uv_random_finalize(void *object) {
   moonbit_uv_random_t *random = object;
+  if (random->random.loop) {
+    moonbit_decref(random->random.loop);
+  }
   if (random->random.data) {
     moonbit_decref(random->random.data);
+    random->random.data = NULL;
   }
 }
 
@@ -110,7 +114,6 @@ moonbit_uv_random(
     loop, &random->random, (char *)buffer + buffer_offset, buffer_length, flags,
     moonbit_uv_random_cb
   );
-  moonbit_decref(loop);
   return status;
 }
 
@@ -132,6 +135,9 @@ moonbit_uv_random_sync(
     loop, &random->random, (char *)buffer + buffer_offset, buffer_length, flags,
     NULL
   );
+  // It seems that synchronous uv_random does set the `loop` field in `random`.
+  // Therefore we have to decref the loop here.
+  moonbit_decref(loop);
   moonbit_decref(random);
   moonbit_decref(buffer);
   return status;
