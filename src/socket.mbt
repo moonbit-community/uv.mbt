@@ -126,22 +126,13 @@ pub fn SockaddrIn6::scope_id(self : SockaddrIn6) -> IfIndex {
 struct In6Addr(UInt64, UInt64)
 
 ///|
-pub extern "c" fn uv_htons(value : UInt16) -> UInt16 = "moonbit_uv_htons"
+extern "c" fn uv_htonll(value : UInt64) -> UInt64 = "moonbit_uv_htonll"
 
 ///|
-pub extern "c" fn uv_htonl(value : UInt) -> UInt = "moonbit_uv_htonl"
+extern "c" fn uv_ntohl(value : UInt) -> UInt = "moonbit_uv_ntohl"
 
 ///|
-pub extern "c" fn uv_htonll(value : UInt64) -> UInt64 = "moonbit_uv_htonll"
-
-///|
-pub extern "c" fn uv_ntohs(value : UInt16) -> UInt16 = "moonbit_uv_ntohs"
-
-///|
-pub extern "c" fn uv_ntohl(value : UInt) -> UInt = "moonbit_uv_ntohl"
-
-///|
-pub extern "c" fn uv_ntohll(value : UInt64) -> UInt64 = "moonbit_uv_ntohll"
+extern "c" fn uv_ntohll(value : UInt64) -> UInt64 = "moonbit_uv_ntohll"
 
 ///|
 pub fn In6Addr::new(

@@ -88,6 +88,7 @@ test "open/sync" {
   uv.close()
 }
 
+///|
 test "open/directory" {
   let uv = @uv.Loop::new()
   let errors : Array[Error] = []
