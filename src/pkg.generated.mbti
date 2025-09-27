@@ -485,6 +485,7 @@ fn Loop::fs_readlink_sync(Self, Bytes) -> Bytes raise Errno
 fn Loop::fs_realpath(Self, Bytes, (Bytes) -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_realpath_sync(Self, Bytes) -> Bytes raise Errno
 fn Loop::fs_rename(Self, Bytes, Bytes, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_rename_sync(Self, Bytes, Bytes) -> Unit raise Errno
 fn Loop::fs_rmdir(Self, Bytes, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 fn Loop::fs_rmdir_sync(Self, Bytes) -> Unit raise Errno
 fn Loop::fs_scandir(Self, Bytes, Int, (Scandir) -> Unit, (Errno) -> Unit) -> Fs raise Errno
