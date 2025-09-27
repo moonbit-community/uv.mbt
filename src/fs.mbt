@@ -2611,6 +2611,58 @@ pub fn Loop::fs_rename(
 }
 
 ///|
+#owned(uv, req, path, new_path)
+extern "c" fn uv_fs_rename_sync(
+  uv : Loop,
+  req : Fs,
+  path : Bytes,
+  new_path : Bytes,
+) -> Int = "moonbit_uv_fs_rename_sync"
+
+///|
+/// Synchronously renames a file or directory.
+///
+/// This function blocks the current thread until the rename operation
+/// completes. Unlike the asynchronous `fs_rename` function, this operation does
+/// not require callbacks and returns immediately upon successful completion or
+/// failure.
+///
+/// # Parameters
+/// - `path`: The current path of the file or directory to rename
+/// - `new_path`: The new path for the file or directory
+///
+/// # Errors
+/// Raises an `Errno` error if the rename operation fails, such as:
+/// - Source path does not exist
+/// - Destination path already exists (for files)
+/// - Insufficient permissions
+/// - Cross-device rename not supported
+///
+/// # Example
+/// ```moonbit
+/// let uv = @uv.Loop::new()
+/// try {
+///   uv.fs_rename_sync("old_file.txt", "new_file.txt")
+///   println("File renamed successfully")
+/// } catch {
+///   error => println("Rename failed: " + error.to_string())
+/// }
+/// uv.close()
+/// ```
+pub fn Loop::fs_rename_sync(
+  self : Loop,
+  path : Bytes,
+  new_path : Bytes,
+) -> Unit raise Errno {
+  let req = uv_fs_make()
+  let status = uv_fs_rename_sync(self, req, path, new_path)
+  uv_fs_req_cleanup(req)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
 struct CopyFileFlags(Int)
 
 ///|
