@@ -70,6 +70,8 @@ fn os_environ() -> Environ raise Errno
 
 fn os_get_passwd() -> Passwd raise Errno
 
+fn os_get_passwd2(Uid) -> Passwd raise Errno
+
 fn os_getenv(Bytes) -> Bytes? raise Errno
 
 fn os_gethostname() -> Bytes raise Errno
