@@ -129,3 +129,15 @@ uv_rusage_t *
 moonbit_uv_rusage_make(void) {
   return (uv_rusage_t *)moonbit_make_bytes(sizeof(uv_rusage_t), 0);
 }
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_getrusage(uv_rusage_t *rusage) {
+  return uv_getrusage(rusage);
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_getrusage_thread(uv_rusage_t *rusage) {
+  return uv_getrusage_thread(rusage);
+}

@@ -327,16 +327,16 @@ pub fn cpu_info() -> Array[CpuInfo] raise Errno {
 }
 
 ///|
-pub extern "c" fn get_free_memory() -> UInt64 = "uv_get_free_memory"
+pub extern "c" fn get_free_memory() -> UInt64 = "moonbit_uv_get_free_memory"
 
 ///|
-pub extern "c" fn get_total_memory() -> UInt64 = "uv_get_total_memory"
+pub extern "c" fn get_total_memory() -> UInt64 = "moonbit_uv_get_total_memory"
 
 ///|
-pub extern "c" fn get_constrained_memory() -> UInt64 = "uv_get_constrained_memory"
+pub extern "c" fn get_constrained_memory() -> UInt64 = "moonbit_uv_get_constrained_memory"
 
 ///|
-pub extern "c" fn get_available_memory() -> UInt64 = "uv_get_available_memory"
+pub extern "c" fn get_available_memory() -> UInt64 = "moonbit_uv_get_available_memory"
 
 ///|
 type Passwd
@@ -410,7 +410,7 @@ pub fn os_gethostname() -> Bytes raise Errno {
 
 ///|
 #borrow(uptime)
-extern "c" fn uv_uptime(uptime : Ref[Double]) -> Int = "uv_uptime"
+extern "c" fn uv_uptime(uptime : Ref[Double]) -> Int = "moonbit_uv_uptime"
 
 ///|
 pub fn uptime() -> Double raise Errno {
@@ -437,8 +437,8 @@ pub fn resident_set_memory() -> UInt64 raise Errno {
 }
 
 ///|
-#borrow(avg)
-extern "c" fn uv_loadavg(avg : FixedArray[Double]) = "uv_loadavg"
+#owned(avg)
+extern "c" fn uv_loadavg(avg : FixedArray[Double]) = "moonbit_uv_loadavg"
 
 ///|
 pub fn loadavg() -> (Double, Double, Double) {
@@ -448,4 +448,4 @@ pub fn loadavg() -> (Double, Double, Double) {
 }
 
 ///|
-pub extern "c" fn available_parallelism() -> Int = "uv_available_parallelism"
+pub extern "c" fn available_parallelism() -> Int = "moonbit_uv_available_parallelism"
