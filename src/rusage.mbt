@@ -106,7 +106,7 @@ extern "c" fn uv_rusage_make() -> Rusage = "moonbit_uv_rusage_make"
 
 ///|
 #borrow(rusage)
-extern "c" fn uv_getrusage(rusage : Rusage) -> Int = "uv_getrusage"
+extern "c" fn uv_getrusage(rusage : Rusage) -> Int = "moonbit_uv_getrusage"
 
 ///|
 pub fn getrusage() -> Rusage raise Errno {
@@ -120,7 +120,7 @@ pub fn getrusage() -> Rusage raise Errno {
 
 ///|
 #borrow(rusage)
-extern "c" fn uv_getrusage_thread(rusage : Rusage) -> Int = "uv_getrusage_thread"
+extern "c" fn uv_getrusage_thread(rusage : Rusage) -> Int = "moonbit_uv_getrusage_thread"
 
 ///|
 pub fn getrusage_thread() -> Rusage raise Errno {

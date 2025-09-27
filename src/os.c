@@ -102,6 +102,26 @@ moonbit_uv_chdir(moonbit_bytes_t path) {
   return status;
 }
 
+MOONBIT_FFI_EXPORT uint64_t
+moonbit_uv_get_free_memory(void) {
+  return uv_get_available_memory();
+}
+
+MOONBIT_FFI_EXPORT uint64_t
+moonbit_uv_get_total_memory(void) {
+  return uv_get_available_memory();
+}
+
+MOONBIT_FFI_EXPORT uint64_t
+moonbit_uv_get_constrained_memory(void) {
+  return uv_get_available_memory();
+}
+
+MOONBIT_FFI_EXPORT uint64_t
+moonbit_uv_get_available_memory(void) {
+  return uv_get_available_memory();
+}
+
 typedef struct moonbit_uv_passwd_s {
   uv_passwd_t passwd;
 } moonbit_uv_passwd_t;
@@ -194,10 +214,29 @@ moonbit_uv_os_gethostname(moonbit_bytes_t name, int32_t *size) {
 
 MOONBIT_FFI_EXPORT
 int32_t
+moonbit_uv_uptime(double *uptime) {
+  return uv_uptime(uptime);
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
 moonbit_uv_resident_set_memory(uint64_t *rss) {
   size_t rss_value = (size_t)*rss;
   int32_t status = uv_resident_set_memory(&rss_value);
   *rss = (uint64_t)rss_value;
   moonbit_decref(rss);
   return status;
+}
+
+MOONBIT_FFI_EXPORT
+void
+moonbit_uv_loadavg(double avg[3]) {
+  uv_loadavg(avg);
+  moonbit_decref(avg);
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_available_parallelism(void) {
+  return uv_available_parallelism();
 }
