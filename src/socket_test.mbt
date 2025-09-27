@@ -70,6 +70,7 @@ test "port" {
 test "InAddr" {
   let in_addr : @uv.InAddr = @uv.InAddr::new(1, 2, 3, 4)
   @json.inspect(in_addr.ntop(), content="1.2.3.4")
+  @json.inspect(in_addr.to_bytes().to_array(), content=[1, 2, 3, 4])
 }
 
 ///|
@@ -78,4 +79,8 @@ test "In6Addr" {
     0x2001, 0x0db8, 0x85a3, 0x0000, 0x0000, 0x8a2e, 0x0370, 0x7334,
   )
   @json.inspect(in6_addr.ntop(), content="2001:db8:85a3::8a2e:370:7334")
+  @json.inspect(in6_addr.to_bytes().to_array(), content=[
+    0x20, 0x01, 0x0d, 0xb8, 0x85, 0xa3, 0x00, 0x00, 0x00, 0x00, 0x8a, 0x2e, 0x03,
+    0x70, 0x73, 0x34,
+  ])
 }

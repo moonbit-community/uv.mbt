@@ -46,13 +46,15 @@ let _INET6_ADDRSTRLEN : Int = uv_INET6_ADDRSTRLEN()
 struct InAddr(UInt)
 
 ///|
-pub fn InAddr::new(b0 : Byte, b1 : Byte, b2 : Byte, b3 : Byte) -> InAddr {
-  let addr = (b0.to_uint() << 24) |
-    (b1.to_uint() << 16) |
-    (b2.to_uint() << 8) |
-    b3.to_uint()
-  InAddr(uv_ntohl(addr))
-}
+pub extern "c" fn InAddr::new(
+  b0 : Byte,
+  b1 : Byte,
+  b2 : Byte,
+  b3 : Byte,
+) -> InAddr = "moonbit_uv_in_addr_make"
+
+///|
+pub extern "c" fn InAddr::to_bytes(self : InAddr) -> Bytes = "moonbit_uv_in_addr_to_bytes"
 
 ///|
 #borrow(addr)
@@ -125,17 +127,13 @@ pub fn SockaddrIn6::scope_id(self : SockaddrIn6) -> IfIndex {
 #valtype
 struct In6Addr(UInt64, UInt64)
 
-///|
-extern "c" fn uv_htonll(value : UInt64) -> UInt64 = "moonbit_uv_htonll"
+fn init {
+  ignore(In6Addr(0, 0).0)
+  ignore(In6Addr(0, 0).1)
+}
 
 ///|
-extern "c" fn uv_ntohl(value : UInt) -> UInt = "moonbit_uv_ntohl"
-
-///|
-extern "c" fn uv_ntohll(value : UInt64) -> UInt64 = "moonbit_uv_ntohll"
-
-///|
-pub fn In6Addr::new(
+pub extern "c" fn In6Addr::new(
   h0 : UInt16,
   h1 : UInt16,
   h2 : UInt16,
@@ -144,41 +142,11 @@ pub fn In6Addr::new(
   h5 : UInt16,
   h6 : UInt16,
   h7 : UInt16,
-) -> In6Addr {
-  let high = (h0.to_uint64() << 48) |
-    (h1.to_uint64() << 32) |
-    (h2.to_uint64() << 16) |
-    h3.to_uint64()
-  let low = (h4.to_uint64() << 48) |
-    (h5.to_uint64() << 32) |
-    (h6.to_uint64() << 16) |
-    h7.to_uint64()
-  In6Addr(uv_ntohll(high), uv_ntohll(low))
-}
+) -> In6Addr = "moonbit_uv_in6_addr_make"
 
 ///|
-pub fn In6Addr::bytes(self : In6Addr) -> Bytes {
-  let buf : FixedArray[Byte] = FixedArray::make(16, 0)
-  let high = uv_htonll(self.0)
-  let low = uv_htonll(self.1)
-  buf[0] = (high >> 56).to_byte()
-  buf[1] = (high >> 48).to_byte()
-  buf[2] = (high >> 40).to_byte()
-  buf[3] = (high >> 32).to_byte()
-  buf[4] = (high >> 24).to_byte()
-  buf[5] = (high >> 16).to_byte()
-  buf[6] = (high >> 8).to_byte()
-  buf[7] = high.to_byte()
-  buf[8] = (low >> 56).to_byte()
-  buf[9] = (low >> 48).to_byte()
-  buf[10] = (low >> 40).to_byte()
-  buf[11] = (low >> 32).to_byte()
-  buf[12] = (low >> 24).to_byte()
-  buf[13] = (low >> 16).to_byte()
-  buf[14] = (low >> 8).to_byte()
-  buf[15] = low.to_byte()
-  buf.unsafe_reinterpret_as_bytes()
-}
+#borrow(self)
+pub extern "c" fn In6Addr::to_bytes(self : In6Addr) -> Bytes = "moonbit_uv_in6_addr_to_bytes"
 
 ///|
 #borrow(addr)

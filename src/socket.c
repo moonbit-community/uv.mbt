@@ -18,39 +18,65 @@
 #include "uv#include#uv.h"
 
 MOONBIT_FFI_EXPORT
-uint32_t
-moonbit_uv_htons(uint32_t hostshort) {
-  return htons((uint16_t)hostshort);
+struct in_addr
+moonbit_uv_in_addr_make(
+  uint32_t b0, // uint8_t
+  uint32_t b1, // uint8_t
+  uint32_t b2, // uint8_t
+  uint32_t b3  // uint8_t
+) {
+  union {
+    struct in_addr addr;
+    uint8_t s_addr[4];
+  } addr;
+  addr.s_addr[0] = (uint8_t)b0;
+  addr.s_addr[1] = (uint8_t)b1;
+  addr.s_addr[2] = (uint8_t)b2;
+  addr.s_addr[3] = (uint8_t)b3;
+  return addr.addr;
 }
 
 MOONBIT_FFI_EXPORT
-uint32_t
-moonbit_uv_htonl(uint32_t hostlong) {
-  return htonl(hostlong);
+moonbit_bytes_t
+moonbit_uv_in_addr_to_bytes(struct in_addr addr) {
+  moonbit_bytes_t bytes = moonbit_make_bytes(sizeof(addr), 0);
+  memcpy(bytes, &addr, sizeof(addr));
+  return bytes;
 }
 
 MOONBIT_FFI_EXPORT
-uint64_t
-moonbit_uv_htonll(uint64_t hostlonglong) {
-  return htonll(hostlonglong);
+struct in6_addr
+moonbit_uv_in6_addr_make(
+  uint32_t h0, // uint16_t
+  uint32_t h1, // uint16_t
+  uint32_t h2, // uint16_t
+  uint32_t h3, // uint16_t
+  uint32_t h4, // uint16_t
+  uint32_t h5, // uint16_t
+  uint32_t h6, // uint16_t
+  uint32_t h7  // uint16_t
+) {
+  union {
+    struct in6_addr addr;
+    uint16_t s6_addr16[8];
+  } addr;
+  addr.s6_addr16[0] = htons((uint16_t)h0);
+  addr.s6_addr16[1] = htons((uint16_t)h1);
+  addr.s6_addr16[2] = htons((uint16_t)h2);
+  addr.s6_addr16[3] = htons((uint16_t)h3);
+  addr.s6_addr16[4] = htons((uint16_t)h4);
+  addr.s6_addr16[5] = htons((uint16_t)h5);
+  addr.s6_addr16[6] = htons((uint16_t)h6);
+  addr.s6_addr16[7] = htons((uint16_t)h7);
+  return addr.addr;
 }
 
 MOONBIT_FFI_EXPORT
-uint32_t
-moonbit_uv_ntohs(uint32_t netshort) {
-  return ntohs((uint16_t)netshort);
-}
-
-MOONBIT_FFI_EXPORT
-uint32_t
-moonbit_uv_ntohl(uint32_t netlong) {
-  return ntohl(netlong);
-}
-
-MOONBIT_FFI_EXPORT
-uint64_t
-moonbit_uv_ntohll(uint64_t netlonglong) {
-  return ntohll(netlonglong);
+moonbit_bytes_t
+moonbit_uv_in6_addr_to_bytes(struct in6_addr addr) {
+  moonbit_bytes_t bytes = moonbit_make_bytes(sizeof(addr), 0);
+  memcpy(bytes, &addr, sizeof(addr));
+  return bytes;
 }
 
 MOONBIT_FFI_EXPORT
