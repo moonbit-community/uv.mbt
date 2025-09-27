@@ -70,7 +70,9 @@ MOONBIT_FFI_EXPORT
 int32_t
 moonbit_uv_thread_create(
   moonbit_uv_thread_t *thread,
-  moonbit_uv_thread_cb_t *cb
+  moonbit_uv_thread_cb_t *cb,
+  int32_t flags,
+  uint64_t stack_size
 ) {
   thread->block = malloc(sizeof(*thread->block));
   int status = uv_mutex_init(&thread->block->mutex);
@@ -79,7 +81,12 @@ moonbit_uv_thread_create(
     goto fail_to_init_mutex;
   }
   thread->block->arc = 1;
-  status = uv_thread_create(&thread->block->object, moonbit_uv_thread_cb, cb);
+  uv_thread_options_t options;
+  options.flags = flags;
+  options.stack_size = stack_size;
+  status = uv_thread_create_ex(
+    &thread->block->object, &options, moonbit_uv_thread_cb, cb
+  );
   if (status < 0) {
     moonbit_decref(cb);
     goto fail_to_init_object;
