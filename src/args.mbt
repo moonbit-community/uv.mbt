@@ -44,7 +44,7 @@ pub fn args() -> FixedArray[Bytes] {
 
 ///|
 #owned(buffer)
-pub extern "c" fn uv_get_process_title(buffer : FixedArray[Byte]) -> Int = "moonbit_uv_get_process_title"
+extern "c" fn uv_get_process_title(buffer : FixedArray[Byte]) -> Int = "moonbit_uv_get_process_title"
 
 ///|
 pub fn get_process_title() -> Bytes raise {
@@ -69,7 +69,7 @@ pub fn get_process_title() -> Bytes raise {
 
 ///|
 #owned(title)
-pub extern "c" fn uv_set_process_title(title : Bytes) -> Int = "moonbit_uv_set_process_title"
+extern "c" fn uv_set_process_title(title : Bytes) -> Int = "moonbit_uv_set_process_title"
 
 ///|
 pub fn set_process_title(title : Bytes) -> Unit raise Errno {
