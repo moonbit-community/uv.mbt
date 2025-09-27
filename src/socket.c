@@ -18,6 +18,68 @@
 #include "uv#include#uv.h"
 
 MOONBIT_FFI_EXPORT
+struct in_addr
+moonbit_uv_in_addr_make(
+  uint32_t b0, // uint8_t
+  uint32_t b1, // uint8_t
+  uint32_t b2, // uint8_t
+  uint32_t b3  // uint8_t
+) {
+  union {
+    struct in_addr addr;
+    uint8_t uint8[4];
+  } addr;
+  addr.uint8[0] = (uint8_t)b0;
+  addr.uint8[1] = (uint8_t)b1;
+  addr.uint8[2] = (uint8_t)b2;
+  addr.uint8[3] = (uint8_t)b3;
+  return addr.addr;
+}
+
+MOONBIT_FFI_EXPORT
+moonbit_bytes_t
+moonbit_uv_in_addr_to_bytes(struct in_addr addr) {
+  moonbit_bytes_t bytes = moonbit_make_bytes(sizeof(addr), 0);
+  memcpy(bytes, &addr, sizeof(addr));
+  return bytes;
+}
+
+MOONBIT_FFI_EXPORT
+struct in6_addr
+moonbit_uv_in6_addr_make(
+  uint32_t h0, // uint16_t
+  uint32_t h1, // uint16_t
+  uint32_t h2, // uint16_t
+  uint32_t h3, // uint16_t
+  uint32_t h4, // uint16_t
+  uint32_t h5, // uint16_t
+  uint32_t h6, // uint16_t
+  uint32_t h7  // uint16_t
+) {
+  union {
+    struct in6_addr in6_addr;
+    uint16_t uint16[8];
+  } addr;
+  addr.uint16[0] = htons((uint16_t)h0);
+  addr.uint16[1] = htons((uint16_t)h1);
+  addr.uint16[2] = htons((uint16_t)h2);
+  addr.uint16[3] = htons((uint16_t)h3);
+  addr.uint16[4] = htons((uint16_t)h4);
+  addr.uint16[5] = htons((uint16_t)h5);
+  addr.uint16[6] = htons((uint16_t)h6);
+  addr.uint16[7] = htons((uint16_t)h7);
+  return addr.in6_addr;
+}
+
+MOONBIT_FFI_EXPORT
+moonbit_bytes_t
+moonbit_uv_in6_addr_to_bytes(struct in6_addr addr) {
+  moonbit_bytes_t bytes = moonbit_make_bytes(sizeof(addr), 0);
+  memcpy(bytes, &addr, sizeof(addr));
+  return bytes;
+}
+
+MOONBIT_FFI_EXPORT
 struct sockaddr_in *
 moonbit_uv_sockaddr_in_make(void) {
   return (struct sockaddr_in *)moonbit_make_bytes(
@@ -26,11 +88,78 @@ moonbit_uv_sockaddr_in_make(void) {
 }
 
 MOONBIT_FFI_EXPORT
-struct sockaddr_in6 *
+uint32_t
+moonbit_uv_sockaddr_in_port(struct sockaddr_in *addr) {
+  return ntohs(addr->sin_port);
+}
+
+MOONBIT_FFI_EXPORT
+uint32_t
+moonbit_uv_sockaddr_in_addr(struct sockaddr_in *addr) {
+  return addr->sin_addr.s_addr;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_in_addr_ntop(uint32_t src, moonbit_bytes_t dst) {
+  struct in_addr addr;
+  addr.s_addr = src;
+  return uv_inet_ntop(AF_INET, &addr, (char *)dst, Moonbit_array_length(dst));
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_in_addr_pton(moonbit_bytes_t src, struct in_addr *dst) {
+  return uv_inet_pton(AF_INET, (const char *)src, dst);
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_INET_ADDRSTRLEN() {
+  return INET_ADDRSTRLEN;
+}
+
+MOONBIT_FFI_EXPORT struct sockaddr_in6 *
 moonbit_uv_sockaddr_in6_make(void) {
   return (struct sockaddr_in6 *)moonbit_make_bytes(
     sizeof(struct sockaddr_in6), 0
   );
+}
+
+MOONBIT_FFI_EXPORT
+uint32_t
+moonbit_uv_sockaddr_in6_port(struct sockaddr_in6 *addr) {
+  return ntohs(addr->sin6_port);
+}
+
+MOONBIT_FFI_EXPORT
+uint32_t
+moonbit_uv_sockaddr_in6_scope_id(struct sockaddr_in6 *addr) {
+  return addr->sin6_scope_id;
+}
+
+MOONBIT_FFI_EXPORT
+struct in6_addr
+moonbit_uv_sockaddr_in6_addr(struct sockaddr_in6 *addr) {
+  return addr->sin6_addr;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_in6_addr_ntop(struct in6_addr src, moonbit_bytes_t dst) {
+  return uv_inet_ntop(AF_INET6, &src, (char *)dst, Moonbit_array_length(dst));
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_in6_addr_pton(moonbit_bytes_t src, struct in6_addr *dst) {
+  return uv_inet_pton(AF_INET6, (const char *)src, dst);
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_INET6_ADDRSTRLEN() {
+  return INET6_ADDRSTRLEN;
 }
 
 MOONBIT_FFI_EXPORT
@@ -39,6 +168,12 @@ moonbit_uv_sockaddr_make(void) {
   return (struct sockaddr *)moonbit_make_bytes(
     sizeof(struct sockaddr_storage), 0
   );
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_sockaddr_family(struct sockaddr *addr) {
+  return addr->sa_family;
 }
 
 MOONBIT_FFI_EXPORT
@@ -59,12 +194,6 @@ moonbit_uv_ip6_addr(
   struct sockaddr_in6 *addr
 ) {
   return uv_ip6_addr((const char *)ip, port, addr);
-}
-
-MOONBIT_FFI_EXPORT
-int32_t
-moonbit_uv_IF_NAMESIZE(void) {
-  return UV_IF_NAMESIZE;
 }
 
 MOONBIT_FFI_EXPORT

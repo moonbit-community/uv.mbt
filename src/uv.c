@@ -44,6 +44,7 @@
 #include "fs_poll.c"
 #include "handle.c"
 #include "idle.c"
+#include "if.c"
 #include "loop.c"
 #include "metrics.c"
 #include "mutex.c"

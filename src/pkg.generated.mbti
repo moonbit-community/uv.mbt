@@ -203,6 +203,7 @@ pub(all) suberror Errno {
 fn Errno::to_bytes(Self) -> Bytes
 impl Eq for Errno
 impl Hash for Errno
+impl Show for Errno
 
 // Types and methods
 type AccessFlags
@@ -390,6 +391,24 @@ fn Idle::new(Loop) -> Self raise Errno
 fn Idle::start(Self, (Self) -> Unit) -> Unit raise Errno
 fn Idle::stop(Self) -> Unit raise Errno
 impl ToHandle for Idle
+
+type IfIndex
+fn IfIndex::to_iid(Self) -> Bytes raise
+fn IfIndex::to_name(Self) -> Bytes raise
+impl Show for IfIndex
+impl ToJson for IfIndex
+
+type In6Addr
+fn In6Addr::new(UInt16, UInt16, UInt16, UInt16, UInt16, UInt16, UInt16, UInt16) -> Self
+fn In6Addr::ntop(Self) -> Bytes raise Errno
+fn In6Addr::pton(Bytes) -> Self raise Errno
+fn In6Addr::to_bytes(Self) -> Bytes
+
+type InAddr
+fn InAddr::new(Byte, Byte, Byte, Byte) -> Self
+fn InAddr::ntop(Self) -> Bytes raise Errno
+fn InAddr::pton(Bytes) -> Self raise Errno
+fn InAddr::to_bytes(Self) -> Bytes
 
 type Key
 fn[T] Key::get(Self) -> T?
@@ -691,9 +710,14 @@ type Sockaddr
 impl ToSockaddr for Sockaddr
 
 type SockaddrIn
+fn SockaddrIn::addr(Self) -> InAddr
+fn SockaddrIn::port(Self) -> UInt16
 impl ToSockaddr for SockaddrIn
 
 type SockaddrIn6
+fn SockaddrIn6::addr(Self) -> In6Addr
+fn SockaddrIn6::port(Self) -> UInt16
+fn SockaddrIn6::scope_id(Self) -> IfIndex
 impl ToSockaddr for SockaddrIn6
 
 type Stat
@@ -936,6 +960,7 @@ pub trait ToReq {
 
 pub trait ToSockaddr {
   to_sockaddr(Self) -> Sockaddr
+  of_sockaddr(Sockaddr) -> Self?
   ip_name(Self) -> Bytes raise Errno
 }
 

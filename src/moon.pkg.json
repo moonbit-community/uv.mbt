@@ -104,6 +104,10 @@
       "native",
       "llvm"
     ],
+    "if.mbt": [
+      "native",
+      "llvm"
+    ],
     "ip_test.mbt": [
       "native",
       "llvm"

@@ -152,12 +152,6 @@ extern "c" fn uv_addrinfo_results_iterate(
 ) -> Bool = "moonbit_uv_addrinfo_results_iterate"
 
 ///|
-extern "c" fn uv_IF_NAMESIZE() -> Int = "moonbit_uv_IF_NAMESIZE"
-
-///|
-let _IF_NAMESIZE : Int = uv_IF_NAMESIZE()
-
-///|
 struct AddrInfo {
   family : Int
   socktype : Int
