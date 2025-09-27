@@ -45,6 +45,8 @@ fn guess_handle(File) -> HandleType
 
 fn hrtime() -> UInt64
 
+fn interface_addresses() -> FixedArray[InterfaceAddress] raise
+
 fn ip4_addr(Bytes, Int) -> SockaddrIn raise Errno
 
 fn ip6_addr(Bytes, Int) -> SockaddrIn6 raise Errno
@@ -419,12 +421,15 @@ fn In6Addr::new(UInt16, UInt16, UInt16, UInt16, UInt16, UInt16, UInt16, UInt16) 
 fn In6Addr::ntop(Self) -> Bytes raise Errno
 fn In6Addr::pton(Bytes) -> Self raise Errno
 fn In6Addr::to_bytes(Self) -> Bytes
+impl ToJson for In6Addr
 
 type InAddr
 fn InAddr::new(Byte, Byte, Byte, Byte) -> Self
 fn InAddr::ntop(Self) -> Bytes raise Errno
 fn InAddr::pton(Bytes) -> Self raise Errno
 fn InAddr::to_bytes(Self) -> Bytes
+
+type InterfaceAddress
 
 type Key
 fn[T] Key::get(Self) -> T?
@@ -640,6 +645,9 @@ fn Passwd::shell(Self) -> Bytes
 fn Passwd::uid(Self) -> Uid
 fn Passwd::username(Self) -> Bytes
 
+type PhysAddr
+impl Show for PhysAddr
+
 type Pid
 fn Pid::of_int(Int) -> Self
 fn Pid::to_int(Self) -> Int
@@ -808,6 +816,7 @@ type SockaddrIn6
 fn SockaddrIn6::addr(Self) -> In6Addr
 fn SockaddrIn6::port(Self) -> UInt16
 fn SockaddrIn6::scope_id(Self) -> IfIndex
+impl ToJson for SockaddrIn6
 impl ToSockaddr for SockaddrIn6
 
 type Stat
