@@ -23,7 +23,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test-stable-native:
+  test-asan:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -50,6 +50,34 @@ jobs:
       - name: Run tests
         run: |
           python3 scripts/test.py --target=native
+
+  test-tcc:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install MoonBit
+        uses: ./.github/actions/install-moonbit
+        with:
+          channel: stable
+
+      - name: Inspect MoonBit version
+        run: |
+          moon version --all
+
+      - name: Setup MSVC
+        if: ${{ matrix.os == 'windows-latest' }}
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Run tests
+        run: |
+          moon test --target native
 
   check-stable:
     runs-on: ubuntu-latest
