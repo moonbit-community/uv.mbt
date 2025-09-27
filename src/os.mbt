@@ -382,6 +382,19 @@ pub fn os_get_passwd() -> Passwd raise Errno {
 }
 
 ///|
+#owned(passwd)
+extern "c" fn uv_os_get_passwd2(passwd : Passwd, uid : UInt64) -> Int = "moonbit_uv_os_get_passwd"
+
+pub fn os_get_passwd2(uid : Uid) -> Passwd raise Errno {
+  let passwd = uv_passwd_make()
+  let status = uv_os_get_passwd2(passwd, uid.0)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  passwd
+}
+
+///|
 pub struct Timeval {
   sec : Int64
   usec : Int64
