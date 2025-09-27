@@ -57,7 +57,6 @@ This is a MoonBit binding to the [libuv](https://libuv.org) library.
 ### Miscellaneous Utilities
 
 - `uv_replace_allocator()` - Replace memory allocator
-- `uv_library_shutdown()` - Shutdown library
 - `uv_setup_args()` - Setup command line arguments
 - `uv_get_process_title()` - Get process title
 - `uv_set_process_title()` - Set process title
