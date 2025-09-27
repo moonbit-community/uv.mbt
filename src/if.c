@@ -15,8 +15,8 @@
 
 #include "moonbit.h"
 #include "uv#include#uv.h"
-#include "uv.h"
 #include <stdint.h>
+#include <string.h>
 
 MOONBIT_FFI_EXPORT
 int32_t
@@ -46,4 +46,90 @@ moonbit_uv_if_indextoiid(uint32_t ifindex, moonbit_bytes_t ifname) {
     return status;
   }
   return size;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_interface_addresses(
+  uv_interface_address_t **addresses,
+  int32_t *count
+) {
+  int status = uv_interface_addresses(addresses, count);
+  moonbit_decref(addresses);
+  moonbit_decref(count);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+void
+moonbit_uv_free_interface_addresses(
+  uv_interface_address_t *addresses,
+  int32_t count
+) {
+  uv_free_interface_addresses(addresses, count);
+}
+
+MOONBIT_FFI_EXPORT
+moonbit_bytes_t
+moonbit_uv_interface_addresses_name(
+  uv_interface_address_t *address,
+  int32_t index
+) {
+  size_t size = strlen(address[index].name);
+  moonbit_bytes_t name = moonbit_make_bytes(size, 0);
+  memcpy(name, address[index].name, size);
+  return name;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_interface_addresses_phys_addr(
+  uv_interface_address_t *address,
+  int32_t index
+) {
+  uint64_t phys_addr = 0;
+  phys_addr |= ((uint64_t)(unsigned char)address[index].phys_addr[0]) << 40;
+  phys_addr |= ((uint64_t)(unsigned char)address[index].phys_addr[1]) << 32;
+  phys_addr |= ((uint64_t)(unsigned char)address[index].phys_addr[2]) << 24;
+  phys_addr |= ((uint64_t)(unsigned char)address[index].phys_addr[3]) << 16;
+  phys_addr |= ((uint64_t)(unsigned char)address[index].phys_addr[4]) << 8;
+  phys_addr |= ((uint64_t)(unsigned char)address[index].phys_addr[5]) << 0;
+  return phys_addr;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_interface_addresses_is_internal(
+  uv_interface_address_t *address,
+  int32_t index
+) {
+  return address[index].is_internal;
+}
+
+MOONBIT_FFI_EXPORT
+moonbit_bytes_t
+moonbit_uv_interface_addresses_address(
+  uv_interface_address_t *address,
+  int32_t index
+) {
+  moonbit_bytes_t sockaddr_storage =
+    moonbit_make_bytes(sizeof(address[index].address), 0);
+  memcpy(
+    sockaddr_storage, &address[index].address, sizeof(address[index].address)
+  );
+  return sockaddr_storage;
+}
+
+MOONBIT_FFI_EXPORT
+moonbit_bytes_t
+moonbit_uv_interface_addresses_netmask(
+  uv_interface_address_t *address,
+  int32_t index
+) {
+  moonbit_bytes_t sockaddr_storage =
+    moonbit_make_bytes(sizeof(address[index].netmask), 0);
+  memcpy(
+    sockaddr_storage, &address[index].netmask, sizeof(address[index].netmask)
+  );
+  return sockaddr_storage;
 }
