@@ -146,6 +146,12 @@ moonbit_uv_sockaddr_make(void) {
 
 MOONBIT_FFI_EXPORT
 int32_t
+moonbit_uv_sockaddr_family(struct sockaddr *addr) {
+  return addr->sa_family;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
 moonbit_uv_ip4_addr(
   moonbit_bytes_t ip,
   int32_t port,
@@ -162,12 +168,6 @@ moonbit_uv_ip6_addr(
   struct sockaddr_in6 *addr
 ) {
   return uv_ip6_addr((const char *)ip, port, addr);
-}
-
-MOONBIT_FFI_EXPORT
-int32_t
-moonbit_uv_IF_NAMESIZE(void) {
-  return UV_IF_NAMESIZE;
 }
 
 MOONBIT_FFI_EXPORT

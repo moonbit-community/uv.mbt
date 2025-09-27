@@ -243,6 +243,11 @@ pub fn Errno::to_bytes(self : Errno) -> Bytes {
 }
 
 ///|
+pub impl Show for Errno with output(self : Errno, logger : &Logger) -> Unit {
+  logger.write_string(wtf8_to_string(self.to_bytes()))
+}
+
+///|
 extern "c" fn uv_E2BIG() -> Int = "moonbit_uv_E2BIG"
 
 ///|

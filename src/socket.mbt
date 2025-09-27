@@ -117,7 +117,7 @@ pub fn SockaddrIn6::port(self : SockaddrIn6) -> UInt16 {
 extern "c" fn uv_sockaddr_in6_scope_id(addr : SockaddrIn6) -> UInt = "moonbit_uv_sockaddr_in6_scope_id"
 
 ///|
-pub fn SockaddrIn6::scope_id(self : SockaddrIn6) -> UInt {
+pub fn SockaddrIn6::scope_id(self : SockaddrIn6) -> IfIndex {
   uv_sockaddr_in6_scope_id(self)
 }
 
@@ -248,8 +248,13 @@ struct Sockaddr(Bytes)
 extern "c" fn uv_sockaddr_make() -> Sockaddr = "moonbit_uv_sockaddr_make"
 
 ///|
+#borrow(addr)
+extern "c" fn uv_sockaddr_family(addr : Sockaddr) -> Int = "moonbit_uv_sockaddr_family"
+
+///|
 pub trait ToSockaddr {
   to_sockaddr(self : Self) -> Sockaddr
+  of_sockaddr(self : Sockaddr) -> Self?
   ip_name(self : Self) -> Bytes raise Errno
 }
 
@@ -257,10 +262,33 @@ pub trait ToSockaddr {
 pub impl ToSockaddr for Sockaddr with to_sockaddr(self : Sockaddr) -> Sockaddr = "%identity"
 
 ///|
+pub impl ToSockaddr for Sockaddr with of_sockaddr(self : Sockaddr) -> Sockaddr? {
+  Some(self)
+}
+
+///|
 pub impl ToSockaddr for SockaddrIn with to_sockaddr(addr : SockaddrIn) -> Sockaddr = "%identity"
 
 ///|
+pub impl ToSockaddr for SockaddrIn with of_sockaddr(addr : Sockaddr) -> SockaddrIn? {
+  if uv_sockaddr_family(addr) == _AF_INET {
+    Some(addr.0)
+  } else {
+    None
+  }
+}
+
+///|
 pub impl ToSockaddr for SockaddrIn6 with to_sockaddr(addr : SockaddrIn6) -> Sockaddr = "%identity"
+
+///|
+pub impl ToSockaddr for SockaddrIn6 with of_sockaddr(addr : Sockaddr) -> SockaddrIn6? {
+  if uv_sockaddr_family(addr) == _AF_INET6 {
+    Some(addr.0)
+  } else {
+    None
+  }
+}
 
 ///|
 enum SockType {
