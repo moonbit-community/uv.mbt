@@ -31,6 +31,7 @@
 #pragma comment(lib, "shell32.lib")
 #endif
 
+#include "args.c"
 #include "async.c"
 #include "bytes.c"
 #include "check.c"
@@ -45,6 +46,7 @@
 #include "handle.c"
 #include "idle.c"
 #include "if.c"
+#include "library.c"
 #include "loop.c"
 #include "metrics.c"
 #include "mutex.c"
@@ -72,9 +74,3 @@
 #include "version.c"
 #include "work.c"
 #include "write.c"
-
-MOONBIT_FFI_EXPORT
-void
-moonbit_uv_library_shutdown(void) {
-  uv_library_shutdown();
-}

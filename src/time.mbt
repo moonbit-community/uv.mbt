@@ -120,7 +120,7 @@ pub fn Timeval64::usec(self : Timeval64) -> Int {
 
 ///|
 #owned(tv)
-pub extern "c" fn uv_gettimeofday(tv : FixedArray[Int64]) -> Int = "moonbit_uv_gettimeofday"
+extern "c" fn uv_gettimeofday(tv : FixedArray[Int64]) -> Int = "moonbit_uv_gettimeofday"
 
 ///|
 pub fn gettimeofday() -> Timeval64 raise Errno {

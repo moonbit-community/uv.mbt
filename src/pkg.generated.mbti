@@ -4,7 +4,7 @@ package "tonyfettes/uv"
 // Values
 fn[Server : ToStream, Client : ToStream] accept(Server, Client) -> Unit raise Errno
 
-fn args() -> Array[Bytes]
+fn args() -> FixedArray[Bytes]
 
 fn available_parallelism() -> Int
 
@@ -28,6 +28,8 @@ fn get_available_memory() -> UInt64
 fn get_constrained_memory() -> UInt64
 
 fn get_free_memory() -> UInt64
+
+fn get_process_title() -> Bytes raise
 
 fn get_total_memory() -> UInt64
 
@@ -96,6 +98,8 @@ fn[Stream : ToStream] read_stop(Stream) -> Unit raise Errno
 
 fn resident_set_memory() -> UInt64 raise Errno
 
+fn set_process_title(Bytes) -> Unit raise Errno
+
 #deprecated
 fn[Stream : ToStream] shutdown(Stream, () -> Unit, (Errno) -> Unit) -> Shutdown raise Errno
 
@@ -112,8 +116,6 @@ fn stdout() -> File
 fn string_to_wtf8(String) -> Bytes
 
 fn uptime() -> Double raise Errno
-
-fn uv_gettimeofday(FixedArray[Int64]) -> Int
 
 fn version() -> Version
 

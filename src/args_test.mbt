@@ -13,8 +13,18 @@
 // limitations under the License.
 
 ///|
-test {
-  println(@uv.args())
+test "args" {
+  ignore(@uv.args())
+}
+
+///|
+test "get_process_title" {
+  ignore(@uv.get_process_title())
+}
+
+///|
+test "set_process_title" {
+  @uv.set_process_title("moonbit test")
 }
 
 ///|

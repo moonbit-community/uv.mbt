@@ -16,7 +16,16 @@
 fn moonbit_get_cli_args() -> FixedArray[Bytes] = "$moonbit.get_cli_args"
 
 ///|
-let priv_args : FixedArray[Bytes] = moonbit_get_cli_args()
+let argv : FixedArray[Bytes] = moonbit_get_cli_args()
+
+///|
+#owned(argv)
+extern "c" fn uv_setup_args(argv : FixedArray[Bytes]) = "moonbit_uv_setup_args"
+
+///|
+fn init {
+  uv_setup_args(argv)
+}
 
 ///|
 /// Returns a _copy_ of command-line arguments passed to the program.
@@ -29,6 +38,43 @@ let priv_args : FixedArray[Bytes] = moonbit_get_cli_args()
 /// ```moonbit
 /// println(@uv.args())
 /// ```
-pub fn args() -> Array[Bytes] {
-  Array::from_fixed_array(priv_args)
+pub fn args() -> FixedArray[Bytes] {
+  argv
+}
+
+///|
+#owned(buffer)
+extern "c" fn uv_get_process_title(buffer : FixedArray[Byte]) -> Int = "moonbit_uv_get_process_title"
+
+///|
+pub fn get_process_title() -> Bytes raise {
+  let mut buffer : FixedArray[Byte] = FixedArray::make(512, 0)
+  let mut status = uv_get_process_title(buffer)
+  while status == _ENOBUFS {
+    buffer = FixedArray::make(buffer.length() * 2, 0)
+    status = uv_get_process_title(buffer)
+  }
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  let len = for i in 0..<buffer.length() {
+    if buffer[i] == 0 {
+      break i
+    }
+  } else {
+    buffer.length()
+  }
+  Bytes::from_fixedarray(buffer, len~)
+}
+
+///|
+#owned(title)
+extern "c" fn uv_set_process_title(title : Bytes) -> Int = "moonbit_uv_set_process_title"
+
+///|
+pub fn set_process_title(title : Bytes) -> Unit raise Errno {
+  let status = uv_set_process_title(title)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
 }
