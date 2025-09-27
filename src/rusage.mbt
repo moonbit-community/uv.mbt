@@ -126,7 +126,7 @@ extern "c" fn uv_getrusage_thread(rusage : Rusage) -> Int = "moonbit_uv_getrusag
 pub fn getrusage_thread() -> Rusage raise Errno {
   let rusage = uv_rusage_make()
   let status = uv_getrusage_thread(rusage)
-if status < 0 {
+  if status < 0 {
     raise Errno::of_int(status)
   }
   rusage

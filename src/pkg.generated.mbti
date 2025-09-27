@@ -824,7 +824,7 @@ fn Thread::get_affinity(Self) -> CpuSet raise Errno
 fn Thread::get_name(Self) -> Bytes raise Errno
 fn Thread::get_priority(Self) -> ThreadPriority raise Errno
 fn Thread::join(Self) -> Unit raise Errno
-fn Thread::new(() -> Unit) -> Self raise Errno
+fn Thread::new(() -> Unit, stack_size? : UInt64) -> Self raise Errno
 fn Thread::self() -> Self raise Errno
 fn Thread::set_affinity(Self, CpuSet) -> Unit raise Errno
 fn Thread::set_name(Bytes) -> Unit raise Errno

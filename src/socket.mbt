@@ -127,6 +127,7 @@ pub fn SockaddrIn6::scope_id(self : SockaddrIn6) -> IfIndex {
 #valtype
 struct In6Addr(UInt64, UInt64)
 
+///|
 fn init {
   ignore(In6Addr(0, 0).0)
   ignore(In6Addr(0, 0).1)
