@@ -27,12 +27,12 @@ moonbit_uv_in_addr_make(
 ) {
   union {
     struct in_addr addr;
-    uint8_t s_addr[4];
+    uint8_t uint8[4];
   } addr;
-  addr.s_addr[0] = (uint8_t)b0;
-  addr.s_addr[1] = (uint8_t)b1;
-  addr.s_addr[2] = (uint8_t)b2;
-  addr.s_addr[3] = (uint8_t)b3;
+  addr.uint8[0] = (uint8_t)b0;
+  addr.uint8[1] = (uint8_t)b1;
+  addr.uint8[2] = (uint8_t)b2;
+  addr.uint8[3] = (uint8_t)b3;
   return addr.addr;
 }
 
@@ -57,18 +57,18 @@ moonbit_uv_in6_addr_make(
   uint32_t h7  // uint16_t
 ) {
   union {
-    struct in6_addr addr;
-    uint16_t s6_addr16[8];
+    struct in6_addr in6_addr;
+    uint16_t uint16[8];
   } addr;
-  addr.s6_addr16[0] = htons((uint16_t)h0);
-  addr.s6_addr16[1] = htons((uint16_t)h1);
-  addr.s6_addr16[2] = htons((uint16_t)h2);
-  addr.s6_addr16[3] = htons((uint16_t)h3);
-  addr.s6_addr16[4] = htons((uint16_t)h4);
-  addr.s6_addr16[5] = htons((uint16_t)h5);
-  addr.s6_addr16[6] = htons((uint16_t)h6);
-  addr.s6_addr16[7] = htons((uint16_t)h7);
-  return addr.addr;
+  addr.uint16[0] = htons((uint16_t)h0);
+  addr.uint16[1] = htons((uint16_t)h1);
+  addr.uint16[2] = htons((uint16_t)h2);
+  addr.uint16[3] = htons((uint16_t)h3);
+  addr.uint16[4] = htons((uint16_t)h4);
+  addr.uint16[5] = htons((uint16_t)h5);
+  addr.uint16[6] = htons((uint16_t)h6);
+  addr.uint16[7] = htons((uint16_t)h7);
+  return addr.in6_addr;
 }
 
 MOONBIT_FFI_EXPORT
