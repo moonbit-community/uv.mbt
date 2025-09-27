@@ -18,6 +18,42 @@
 #include "uv#include#uv.h"
 
 MOONBIT_FFI_EXPORT
+uint32_t
+moonbit_uv_htons(uint32_t hostshort) {
+  return htons((uint16_t)hostshort);
+}
+
+MOONBIT_FFI_EXPORT
+uint32_t
+moonbit_uv_htonl(uint32_t hostlong) {
+  return htonl(hostlong);
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_htonll(uint64_t hostlonglong) {
+  return htonll(hostlonglong);
+}
+
+MOONBIT_FFI_EXPORT
+uint32_t
+moonbit_uv_ntohs(uint32_t netshort) {
+  return ntohs((uint16_t)netshort);
+}
+
+MOONBIT_FFI_EXPORT
+uint32_t
+moonbit_uv_ntohl(uint32_t netlong) {
+  return ntohl(netlong);
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_ntohll(uint64_t netlonglong) {
+  return ntohll(netlonglong);
+}
+
+MOONBIT_FFI_EXPORT
 struct sockaddr_in *
 moonbit_uv_sockaddr_in_make(void) {
   return (struct sockaddr_in *)moonbit_make_bytes(
@@ -26,11 +62,78 @@ moonbit_uv_sockaddr_in_make(void) {
 }
 
 MOONBIT_FFI_EXPORT
-struct sockaddr_in6 *
+uint32_t
+moonbit_uv_sockaddr_in_port(struct sockaddr_in *addr) {
+  return ntohs(addr->sin_port);
+}
+
+MOONBIT_FFI_EXPORT
+uint32_t
+moonbit_uv_sockaddr_in_addr(struct sockaddr_in *addr) {
+  return addr->sin_addr.s_addr;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_in_addr_ntop(uint32_t src, moonbit_bytes_t dst) {
+  struct in_addr addr;
+  addr.s_addr = src;
+  return uv_inet_ntop(AF_INET, &addr, (char *)dst, Moonbit_array_length(dst));
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_in_addr_pton(moonbit_bytes_t src, struct in_addr *dst) {
+  return uv_inet_pton(AF_INET, (const char *)src, dst);
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_INET_ADDRSTRLEN() {
+  return INET_ADDRSTRLEN;
+}
+
+MOONBIT_FFI_EXPORT struct sockaddr_in6 *
 moonbit_uv_sockaddr_in6_make(void) {
   return (struct sockaddr_in6 *)moonbit_make_bytes(
     sizeof(struct sockaddr_in6), 0
   );
+}
+
+MOONBIT_FFI_EXPORT
+uint32_t
+moonbit_uv_sockaddr_in6_port(struct sockaddr_in6 *addr) {
+  return ntohs(addr->sin6_port);
+}
+
+MOONBIT_FFI_EXPORT
+uint32_t
+moonbit_uv_sockaddr_in6_scope_id(struct sockaddr_in6 *addr) {
+  return addr->sin6_scope_id;
+}
+
+MOONBIT_FFI_EXPORT
+struct in6_addr
+moonbit_uv_sockaddr_in6_addr(struct sockaddr_in6 *addr) {
+  return addr->sin6_addr;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_in6_addr_ntop(struct in6_addr src, moonbit_bytes_t dst) {
+  return uv_inet_ntop(AF_INET6, &src, (char *)dst, Moonbit_array_length(dst));
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_in6_addr_pton(moonbit_bytes_t src, struct in6_addr *dst) {
+  return uv_inet_pton(AF_INET6, (const char *)src, dst);
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_INET6_ADDRSTRLEN() {
+  return INET6_ADDRSTRLEN;
 }
 
 MOONBIT_FFI_EXPORT

@@ -39,6 +39,8 @@ fn guess_handle(File) -> HandleType
 
 fn hrtime() -> UInt64
 
+fn in6_addr(Byte, Byte, Byte, Byte, Byte, Byte, Byte, Byte, Byte, Byte, Byte, Byte, Byte, Byte, Byte, Byte) -> In6Addr
+
 fn ip4_addr(Bytes, Int) -> SockaddrIn raise Errno
 
 fn ip6_addr(Bytes, Int) -> SockaddrIn6 raise Errno
@@ -391,6 +393,14 @@ fn Idle::start(Self, (Self) -> Unit) -> Unit raise Errno
 fn Idle::stop(Self) -> Unit raise Errno
 impl ToHandle for Idle
 
+type In6Addr
+fn In6Addr::ntop(Self) -> Bytes raise Errno
+fn In6Addr::pton(Bytes) -> Self raise Errno
+
+type InAddr
+fn InAddr::ntop(Self) -> Bytes raise Errno
+fn InAddr::pton(Bytes) -> Self raise Errno
+
 type Key
 fn[T] Key::get(Self) -> T?
 fn Key::new() -> Self raise Errno
@@ -691,9 +701,13 @@ type Sockaddr
 impl ToSockaddr for Sockaddr
 
 type SockaddrIn
+fn SockaddrIn::addr(Self) -> InAddr
+fn SockaddrIn::port(Self) -> UInt16
 impl ToSockaddr for SockaddrIn
 
 type SockaddrIn6
+fn SockaddrIn6::addr(Self) -> In6Addr
+fn SockaddrIn6::port(Self) -> UInt16
 impl ToSockaddr for SockaddrIn6
 
 type Stat
