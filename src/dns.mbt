@@ -298,6 +298,7 @@ extern "c" fn uv_getaddrinfo(
 ) -> Int = "moonbit_uv_getaddrinfo"
 
 ///|
+#as_free_fn
 pub fn Loop::getaddrinfo(
   self : Loop,
   getaddrinfo_cb : (Iter[AddrInfo]) -> Unit,
@@ -346,6 +347,7 @@ extern "c" fn uv_getnameinfo(
 ) -> Int = "moonbit_uv_getnameinfo"
 
 ///|
+#as_free_fn
 pub fn Loop::getnameinfo(
   self : Loop,
   getnameinfo_cb : (Bytes?, Bytes?) -> Unit,

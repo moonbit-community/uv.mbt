@@ -470,6 +470,7 @@ extern "c" fn uv_fs_open(
 ///   raise error
 /// }
 /// ```
+#as_free_fn
 pub fn Loop::fs_open(
   self : Loop,
   path : Bytes,
@@ -544,6 +545,7 @@ extern "c" fn uv_fs_open_sync(
 /// uv.fs_close_sync(file)
 /// uv.close()
 /// ```
+#as_free_fn
 pub fn Loop::fs_open_sync(
   self : Loop,
   path : Bytes,
@@ -605,6 +607,7 @@ extern "c" fn uv_fs_close(
 ///   raise error
 /// }
 /// ```
+#as_free_fn
 pub fn Loop::fs_close(
   self : Loop,
   file : File,
@@ -634,6 +637,7 @@ pub fn Loop::fs_close(
 extern "c" fn uv_fs_close_sync(uv : Loop, req : Fs, file : File) -> Int = "moonbit_uv_fs_close_sync"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_close_sync(self : Loop, file : File) -> Unit raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_close_sync(self, req, file)
@@ -741,6 +745,7 @@ extern "c" fn uv_fs_sendfile(
 ///   raise error
 /// }
 /// ```
+#as_free_fn
 pub fn Loop::fs_sendfile(
   self : Loop,
   out_fd : File,
@@ -817,6 +822,7 @@ extern "c" fn uv_fs_sendfile_sync(
 /// uv.fs_unlink_sync(dst_path)
 /// uv.close()
 /// ```
+#as_free_fn
 pub fn Loop::fs_sendfile_sync(
   self : Loop,
   out_fd : File,
@@ -888,6 +894,7 @@ extern "c" fn uv_fs_chmod(
 ///   raise error
 /// }
 /// ```
+#as_free_fn
 pub fn Loop::fs_chmod(
   self : Loop,
   path : Bytes,
@@ -954,6 +961,7 @@ extern "c" fn uv_fs_chmod_sync(
 /// uv.fs_chmod_sync(path, 0o644)  // rw-r--r--
 /// uv.close()
 /// ```
+#as_free_fn
 pub fn Loop::fs_chmod_sync(
   self : Loop,
   path : Bytes,
@@ -1027,6 +1035,7 @@ extern "c" fn uv_fs_fchmod(
 ///   raise error
 /// }
 /// ```
+#as_free_fn
 pub fn Loop::fs_fchmod(
   self : Loop,
   file : File,
@@ -1094,6 +1103,7 @@ extern "c" fn uv_fs_fchmod_sync(
 /// uv.fs_close_sync(file)
 /// uv.close()
 /// ```
+#as_free_fn
 pub fn Loop::fs_fchmod_sync(
   self : Loop,
   file : File,
@@ -1165,6 +1175,7 @@ extern "c" fn uv_fs_read(
 ///   raise error
 /// }
 /// ```
+#as_free_fn
 pub fn Loop::fs_read(
   self : Loop,
   file : File,
@@ -1215,6 +1226,7 @@ extern "c" fn uv_fs_read_sync(
 ) -> Int = "moonbit_uv_fs_read_sync"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_read_sync(
   self : Loop,
   file : File,
@@ -1308,6 +1320,7 @@ extern "c" fn uv_fs_write(
 ///   raise error
 /// }
 /// ```
+#as_free_fn
 pub fn Loop::fs_write(
   self : Loop,
   file : File,
@@ -1396,6 +1409,7 @@ extern "c" fn uv_fs_write_sync(
 /// uv.fs_unlink_sync(path)
 /// uv.close()
 /// ```
+#as_free_fn
 pub fn Loop::fs_write_sync(
   self : Loop,
   file : File,
@@ -1431,6 +1445,7 @@ extern "c" fn uv_fs_ftruncate(
 ) -> Int = "moonbit_uv_fs_ftruncate"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_ftruncate(
   self : Loop,
   file : File,
@@ -1517,6 +1532,7 @@ extern "c" fn uv_fs_fsync(
 ///   raise error
 /// }
 /// ```
+#as_free_fn
 pub fn Loop::fs_fsync(
   self : Loop,
   file : File,
@@ -1582,6 +1598,7 @@ extern "c" fn uv_fs_fsync_sync(uv : Loop, req : Fs, file : File) -> Int = "moonb
 /// uv.fs_unlink_sync(path)
 /// uv.close()
 /// ```
+#as_free_fn
 pub fn Loop::fs_fsync_sync(self : Loop, file : File) -> Unit raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_fsync_sync(self, req, file)
@@ -1654,6 +1671,7 @@ extern "c" fn uv_fs_fdatasync(
 ///   raise error
 /// }
 /// ```
+#as_free_fn
 pub fn Loop::fs_fdatasync(
   self : Loop,
   file : File,
@@ -1721,6 +1739,7 @@ extern "c" fn uv_fs_fdatasync_sync(uv : Loop, req : Fs, file : File) -> Int = "m
 /// uv.fs_unlink_sync(path)
 /// uv.close()
 /// ```
+#as_free_fn
 pub fn Loop::fs_fdatasync_sync(self : Loop, file : File) -> Unit raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_fdatasync_sync(self, req, file)
@@ -1754,6 +1773,7 @@ extern "c" fn uv_fs_unlink(
 ) -> Int = "moonbit_uv_fs_unlink"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_unlink(
   self : Loop,
   path : Bytes,
@@ -1783,6 +1803,7 @@ pub fn Loop::fs_unlink(
 extern "c" fn uv_fs_unlink_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "moonbit_uv_fs_unlink_sync"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_unlink_sync(self : Loop, path : Bytes) -> Unit raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_unlink_sync(self, req, path)
@@ -1852,6 +1873,7 @@ extern "c" fn uv_fs_chown(
 ///   raise error
 /// }
 /// ```
+#as_free_fn
 pub fn Loop::fs_chown(
   self : Loop,
   path : Bytes,
@@ -1923,6 +1945,7 @@ extern "c" fn uv_fs_chown_sync(
 /// uv.fs_chown_sync(path, passwd.uid(), passwd.gid())
 /// uv.close()
 /// ```
+#as_free_fn
 pub fn Loop::fs_chown_sync(
   self : Loop,
   path : Bytes,
@@ -2002,6 +2025,7 @@ extern "c" fn uv_fs_fchown(
 ///   raise error
 /// }
 /// ```
+#as_free_fn
 pub fn Loop::fs_fchown(
   self : Loop,
   file : File,
@@ -2075,6 +2099,7 @@ extern "c" fn uv_fs_fchown_sync(
 /// uv.fs_close_sync(file)
 /// uv.close()
 /// ```
+#as_free_fn
 pub fn Loop::fs_fchown_sync(
   self : Loop,
   file : File,
@@ -2158,6 +2183,7 @@ extern "c" fn uv_fs_lchown(
 ///   raise error
 /// }
 /// ```
+#as_free_fn
 pub fn Loop::fs_lchown(
   self : Loop,
   path : Bytes,
@@ -2233,6 +2259,7 @@ extern "c" fn uv_fs_lchown_sync(
 /// uv.fs_unlink_sync(symlink_file)
 /// uv.close()
 /// ```
+#as_free_fn
 pub fn Loop::fs_lchown_sync(
   self : Loop,
   path : Bytes,
@@ -2300,6 +2327,7 @@ extern "c" fn uv_fs_mkdir(
 ///   raise e
 /// }
 /// ```
+#as_free_fn
 pub fn Loop::fs_mkdir(
   self : Loop,
   path : Bytes,
@@ -2368,6 +2396,7 @@ extern "c" fn uv_fs_mkdir_sync(
 /// }
 /// uv.close()
 /// ```
+#as_free_fn
 pub fn Loop::fs_mkdir_sync(
   self : Loop,
   path : Bytes,
@@ -2390,6 +2419,7 @@ extern "c" fn uv_fs_rmdir(
 ) -> Int = "moonbit_uv_fs_rmdir"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_rmdir(
   self : Loop,
   path : Bytes,
@@ -2419,6 +2449,7 @@ pub fn Loop::fs_rmdir(
 extern "c" fn uv_fs_rmdir_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "moonbit_uv_fs_rmdir_sync"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_rmdir_sync(self : Loop, path : Bytes) -> Unit raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_rmdir_sync(self, req, path)
@@ -2527,6 +2558,7 @@ pub fn Scandir::next(self : Scandir) -> Dirent raise Errno {
 }
 
 ///|
+#as_free_fn
 pub fn Loop::fs_scandir(
   self : Loop,
   path : Bytes,
@@ -2560,6 +2592,7 @@ extern "c" fn uv_fs_scandir_sync(
 ) -> Int = "moonbit_uv_fs_scandir_sync"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_scandir_sync(
   self : Loop,
   path : Bytes,
@@ -2585,6 +2618,7 @@ extern "c" fn uv_fs_rename(
 ) -> Int = "moonbit_uv_fs_rename"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_rename(
   self : Loop,
   path : Bytes,
@@ -2707,6 +2741,7 @@ extern "c" fn uv_fs_copyfile(
 ) -> Int = "moonbit_uv_fs_copyfile"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_copyfile(
   self : Loop,
   path : Bytes,
@@ -2744,6 +2779,7 @@ extern "c" fn uv_fs_copyfile_sync(
 ) -> Int = "moonbit_uv_fs_copyfile_sync"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_copyfile_sync(
   self : Loop,
   path : Bytes,
@@ -3112,6 +3148,7 @@ extern "c" fn uv_fs_stat(
 ) -> Int = "moonbit_uv_fs_stat"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_stat(
   self : Loop,
   path : Bytes,
@@ -3143,6 +3180,7 @@ pub fn Loop::fs_stat(
 extern "c" fn uv_fs_stat_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "moonbit_uv_fs_stat_sync"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_stat_sync(self : Loop, path : Bytes) -> Stat raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_stat_sync(self, req, path)
@@ -3165,6 +3203,7 @@ extern "c" fn uv_fs_lstat(
 ) -> Int = "moonbit_uv_fs_lstat"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_lstat(
   self : Loop,
   path : Bytes,
@@ -3201,6 +3240,7 @@ extern "c" fn uv_fs_fstat(
 ) -> Int = "moonbit_uv_fs_fstat"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_fstat(
   self : Loop,
   file : File,
@@ -3268,6 +3308,7 @@ pub fn Loop::fs_fstat(
 ///   raise error
 /// }
 /// ```
+#as_free_fn
 pub fn Loop::fs_realpath(
   self : Loop,
   path : Bytes,
@@ -3304,6 +3345,7 @@ pub fn Loop::fs_realpath(
 extern "c" fn uv_fs_realpath_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "moonbit_uv_fs_realpath_sync"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_realpath_sync(self : Loop, path : Bytes) -> Bytes raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_realpath_sync(self, req, path)
@@ -3379,6 +3421,7 @@ extern "c" fn uv_fs_access(
 ) -> Int = "moonbit_uv_fs_access"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_access(
   self : Loop,
   path : Bytes,
@@ -3414,6 +3457,7 @@ extern "c" fn uv_fs_access_sync(
 ) -> Int = "moonbit_uv_fs_access_sync"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_access_sync(
   self : Loop,
   path : Bytes,
@@ -3445,6 +3489,7 @@ extern "c" fn uv_fs_mkdtemp(
 ) -> Int = "moonbit_uv_fs_mkdtemp"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_mkdtemp(
   self : Loop,
   template : Bytes,
@@ -3476,6 +3521,7 @@ pub fn Loop::fs_mkdtemp(
 extern "c" fn uv_fs_mkdtemp_sync(uv : Loop, req : Fs, template : Bytes) -> Int = "moonbit_uv_fs_mkdtemp_sync"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_mkdtemp_sync(
   self : Loop,
   template : Bytes,
@@ -3500,6 +3546,7 @@ extern "c" fn uv_fs_mkstemp(
 ) -> Int = "moonbit_uv_fs_mkstemp"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_mkstemp(
   self : Loop,
   template : Bytes,
@@ -3530,6 +3577,7 @@ pub fn Loop::fs_mkstemp(
 extern "c" fn uv_fs_mkstemp_sync(uv : Loop, req : Fs, template : Bytes) -> Int = "moonbit_uv_fs_mkstemp_sync"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_mkstemp_sync(
   self : Loop,
   template : Bytes,
@@ -3562,6 +3610,7 @@ extern "c" fn uv_fs_opendir(
 ) -> Int = "moonbit_uv_fs_opendir"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_opendir(
   self : Loop,
   path : Bytes,
@@ -3598,6 +3647,7 @@ extern "c" fn uv_fs_readdir(
 ) -> Int = "moonbit_uv_fs_readdir"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_readdir(
   self : Loop,
   dir : Dir,
@@ -3644,6 +3694,7 @@ extern "c" fn uv_fs_closedir(
 ) -> Int = "moonbit_uv_fs_closedir"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_closedir(
   self : Loop,
   dir : Dir,
@@ -3730,6 +3781,7 @@ extern "c" fn uv_fs_link(
 ///   raise error
 /// }
 /// ```
+#as_free_fn
 pub fn Loop::fs_link(
   self : Loop,
   path : Bytes,
@@ -3803,6 +3855,7 @@ extern "c" fn uv_fs_link_sync(
 /// uv.fs_unlink_sync(link_file)
 /// uv.close()
 /// ```
+#as_free_fn
 pub fn Loop::fs_link_sync(
   self : Loop,
   path : Bytes,
@@ -3938,6 +3991,7 @@ extern "c" fn uv_fs_symlink(
 ///   raise error
 /// }
 /// ```
+#as_free_fn
 pub fn Loop::fs_symlink(
   self : Loop,
   path : Bytes,
@@ -4014,6 +4068,7 @@ extern "c" fn uv_fs_symlink_sync(
 /// uv.fs_unlink_sync(symlink_file)
 /// uv.close()
 /// ```
+#as_free_fn
 pub fn Loop::fs_symlink_sync(
   self : Loop,
   path : Bytes,
@@ -4086,6 +4141,7 @@ extern "c" fn uv_fs_readlink(
 ///   raise error
 /// }
 /// ```
+#as_free_fn
 pub fn Loop::fs_readlink(
   self : Loop,
   path : Bytes,
@@ -4157,6 +4213,7 @@ extern "c" fn uv_fs_readlink_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "m
 /// uv.fs_unlink_sync(symlink_file)
 /// uv.close()
 /// ```
+#as_free_fn
 pub fn Loop::fs_readlink_sync(self : Loop, path : Bytes) -> Bytes raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_readlink_sync(self, req, path)
@@ -4205,6 +4262,7 @@ extern "c" fn uv_fs_lstat_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "moon
 /// uv.fs_unlink_sync(symlink_file)
 /// uv.close()
 /// ```
+#as_free_fn
 pub fn Loop::fs_lstat_sync(self : Loop, path : Bytes) -> Stat raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_lstat_sync(self, req, path)
@@ -4297,6 +4355,7 @@ extern "c" fn uv_fs_statfs(
 ) -> Int = "moonbit_uv_fs_statfs"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_statfs(
   self : Loop,
   path : Bytes,
@@ -4328,6 +4387,7 @@ pub fn Loop::fs_statfs(
 extern "c" fn uv_fs_statfs_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "moonbit_uv_fs_statfs_sync"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_statfs_sync(self : Loop, path : Bytes) -> StatFs raise Errno {
   let req = uv_fs_make()
   let status = uv_fs_statfs_sync(self, req, path)
@@ -4352,6 +4412,7 @@ extern "c" fn uv_fs_utime(
 ) -> Int = "moonbit_uv_fs_utime"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_utime(
   self : Loop,
   path : Bytes,
@@ -4389,6 +4450,7 @@ extern "c" fn uv_fs_utime_sync(
 ) -> Int = "moonbit_uv_fs_utime_sync"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_utime_sync(
   self : Loop,
   path : Bytes,
@@ -4415,6 +4477,7 @@ extern "c" fn uv_fs_futime(
 ) -> Int = "moonbit_uv_fs_futime"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_futime(
   self : Loop,
   file : Int,
@@ -4452,6 +4515,7 @@ extern "c" fn uv_fs_futime_sync(
 ) -> Int = "moonbit_uv_fs_futime_sync"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_futime_sync(
   self : Loop,
   file : Int,
@@ -4478,6 +4542,7 @@ extern "c" fn uv_fs_lutime(
 ) -> Int = "moonbit_uv_fs_lutime"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_lutime(
   self : Loop,
   path : Bytes,
@@ -4515,6 +4580,7 @@ extern "c" fn uv_fs_lutime_sync(
 ) -> Int = "moonbit_uv_fs_lutime_sync"
 
 ///|
+#as_free_fn
 pub fn Loop::fs_lutime_sync(
   self : Loop,
   path : Bytes,

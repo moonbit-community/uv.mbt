@@ -39,6 +39,7 @@ extern "c" fn uv_metrics_info(uv : Loop, metrics : Metrics) -> Int = "moonbit_uv
 extern "c" fn uv_metrics_idle_time(uv : Loop) -> UInt64 = "moonbit_uv_metrics_idle_time"
 
 ///|
+#as_free_fn
 pub fn Loop::metrics_info(self : Loop) -> Metrics raise Errno {
   let metrics = uv_metrics_make()
   let status = uv_metrics_info(self, metrics)
@@ -64,6 +65,7 @@ pub fn Metrics::events_waiting(self : Metrics) -> UInt64 {
 }
 
 ///|
+#as_free_fn
 pub fn Loop::metrics_idle_time(self : Loop) -> UInt64 {
   uv_metrics_idle_time(self)
 }

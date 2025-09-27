@@ -34,6 +34,7 @@ extern "c" fn uv_random(
 ) -> Int = "moonbit_uv_random"
 
 ///|
+#as_free_fn
 pub fn Loop::random(
   self : Loop,
   buffer : @bytes.View,
@@ -100,6 +101,7 @@ extern "c" fn uv_random_sync(
 /// // buffer now contains random data
 /// uv.close()
 /// ```
+#as_free_fn
 pub fn Loop::random_sync(
   self : Loop,
   buffer : @bytes.View,
