@@ -51,34 +51,6 @@ jobs:
         run: |
           python3 scripts/test.py --target=native
 
-  test-nightly-llvm:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
-    continue-on-error: true
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - name: Install MoonBit
-        uses: ./.github/actions/install-moonbit
-        with:
-          channel: nightly
-
-      - name: Inspect MoonBit version
-        run: |
-          moon version --all
-
-      - name: Setup MSVC
-        if: ${{ matrix.os == 'windows-latest' }}
-        uses: ilammy/msvc-dev-cmd@v1
-
-      - name: Run tests
-        run: |
-          python3 scripts/test.py --target=llvm
-
   check-stable:
     runs-on: ubuntu-latest
     continue-on-error: true
