@@ -194,10 +194,10 @@ moonbit_uv_os_gethostname(moonbit_bytes_t name, int32_t *size) {
 
 MOONBIT_FFI_EXPORT
 int32_t
-moonbit_uv_resident_set_memory(int32_t *rss) {
+moonbit_uv_resident_set_memory(uint64_t *rss) {
   size_t rss_value = (size_t)*rss;
   int32_t status = uv_resident_set_memory(&rss_value);
-  *rss = (int32_t)rss_value;
+  *rss = (uint64_t)rss_value;
   moonbit_decref(rss);
   return status;
 }
