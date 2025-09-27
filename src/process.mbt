@@ -244,6 +244,7 @@ extern "c" fn uv_spawn(
 ) -> Int = "moonbit_uv_spawn"
 
 ///|
+#as_free_fn
 pub fn Loop::spawn(
   self : Loop,
   options : ProcessOptions,
