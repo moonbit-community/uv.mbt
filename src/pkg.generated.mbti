@@ -533,6 +533,7 @@ fn Loop::fs_realpath(Self, Bytes, (Bytes) -> Unit, (Errno) -> Unit) -> Fs raise 
 fn Loop::fs_realpath_sync(Self, Bytes) -> Bytes raise Errno
 #as_free_fn
 fn Loop::fs_rename(Self, Bytes, Bytes, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+fn Loop::fs_rename_sync(Self, Bytes, Bytes) -> Unit raise Errno
 #as_free_fn
 fn Loop::fs_rmdir(Self, Bytes, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 #as_free_fn
