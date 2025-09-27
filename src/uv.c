@@ -72,3 +72,9 @@
 #include "version.c"
 #include "work.c"
 #include "write.c"
+
+MOONBIT_FFI_EXPORT
+void
+moonbit_uv_library_shutdown(void) {
+  uv_library_shutdown();
+}
