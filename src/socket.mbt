@@ -16,6 +16,11 @@
 struct SockaddrIn(Bytes)
 
 ///|
+pub impl ToJson for SockaddrIn with to_json(self : SockaddrIn) -> Json {
+  { "addr": self.addr(), "port": self.port() }
+}
+
+///|
 extern "c" fn uv_sockaddr_in_make() -> SockaddrIn = "moonbit_uv_sockaddr_in_make"
 
 ///|
@@ -89,6 +94,13 @@ pub fn InAddr::ntop(self : InAddr) -> Bytes raise Errno {
 }
 
 ///|
+pub impl ToJson for InAddr with to_json(self : InAddr) -> Json {
+  wtf8_to_string(self.ntop()).to_json() catch {
+    _ => self.to_bytes().to_array().to_json()
+  }
+}
+
+///|
 #borrow(src, dst)
 extern "c" fn uv_in_addr_pton(src : Bytes, dst : Ref[InAddr]) -> Int = "moonbit_uv_in_addr_pton"
 
@@ -150,6 +162,13 @@ pub extern "c" fn In6Addr::new(
 pub extern "c" fn In6Addr::to_bytes(self : In6Addr) -> Bytes = "moonbit_uv_in6_addr_to_bytes"
 
 ///|
+pub impl ToJson for In6Addr with to_json(self : In6Addr) -> Json {
+  wtf8_to_string(self.ntop()).to_json() catch {
+    _ => self.to_bytes().to_array().to_json()
+  }
+}
+
+///|
 #borrow(addr)
 extern "c" fn uv_sockaddr_in6_addr(addr : SockaddrIn6) -> In6Addr = "moonbit_uv_sockaddr_in6_addr"
 
@@ -180,9 +199,7 @@ pub fn In6Addr::ntop(self : In6Addr) -> Bytes raise Errno {
   } else {
     dst.length()
   }
-  let buf : FixedArray[Byte] = FixedArray::make(len, 0)
-  buf.unsafe_blit(0, dst, 0, len)
-  buf.unsafe_reinterpret_as_bytes()
+  Bytes::from_fixedarray(dst, len~)
 }
 
 ///|
@@ -199,6 +216,11 @@ pub fn In6Addr::pton(src : Bytes) -> In6Addr raise Errno {
 struct SockaddrIn6(Bytes)
 
 ///|
+pub impl ToJson for SockaddrIn6 with to_json(self : SockaddrIn6) -> Json {
+  { "addr": self.addr(), "port": self.port(), "scope_id": self.scope_id() }
+}
+
+///|
 extern "c" fn uv_sockaddr_in6_make() -> SockaddrIn6 = "moonbit_uv_sockaddr_in6_make"
 
 ///|
@@ -212,7 +234,18 @@ extern "c" fn uv_sockaddr_make() -> Sockaddr = "moonbit_uv_sockaddr_make"
 extern "c" fn uv_sockaddr_family(addr : Sockaddr) -> Int = "moonbit_uv_sockaddr_family"
 
 ///|
-pub trait ToSockaddr {
+pub impl ToJson for Sockaddr with to_json(self : Sockaddr) -> Json {
+  if SockaddrIn::of_sockaddr(self) is Some(self) {
+    self.to_json()
+  } else if SockaddrIn6::of_sockaddr(self) is Some(self) {
+    self.to_json()
+  } else {
+    { "family": uv_sockaddr_family(self) }
+  }
+}
+
+///|
+pub trait ToSockaddr: ToJson {
   to_sockaddr(self : Self) -> Sockaddr
   of_sockaddr(self : Sockaddr) -> Self?
   ip_name(self : Self) -> Bytes raise Errno
