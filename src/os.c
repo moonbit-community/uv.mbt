@@ -43,28 +43,6 @@ moonbit_uv_os_homedir(moonbit_bytes_t buffer, int32_t *size) {
 }
 
 MOONBIT_FFI_EXPORT
-void
-moonbit_uv_setup_args(moonbit_bytes_t *argv) {
-  // `argv` is marked as borrowed on MoonBit side, so there is no need to decref
-  // it here.
-  int argc = Moonbit_array_length(argv);
-  char **args = malloc(sizeof(char *) * (size_t)argc);
-  for (int i = 0; i < argc; i++) {
-    // `argv` in MoonBit is not a null-terminated byte sequence, so we need to
-    // add a '\0' at the end of each argument.
-    moonbit_bytes_t arg = argv[i];
-    size_t arglen = Moonbit_array_length(arg);
-    args[i] = malloc(arglen + 1);
-    memcpy(args[i], arg, arglen);
-    args[i][arglen] = '\0';
-  }
-  // `libuv` may take ownership of `args` here.
-  uv_setup_args(argc, args);
-  // `libuv` may return a copy of `args` here, but we discard it anyway since we
-  // copied the arguments above.
-}
-
-MOONBIT_FFI_EXPORT
 int32_t
 moonbit_uv_os_uname(moonbit_bytes_t buffer) {
   int32_t status = uv_os_uname((uv_utsname_t *)buffer);
