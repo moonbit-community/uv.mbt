@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#include "uv#include#uv.h"
 #include "moonbit.h"
+#include "uv#include#uv.h"
 
 MOONBIT_FFI_EXPORT
 void
