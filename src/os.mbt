@@ -409,8 +409,8 @@ pub fn os_gethostname() -> Bytes raise Errno {
 }
 
 ///|
-#owned(uptime)
-extern "c" fn uv_uptime(uptime : Ref[Double]) -> Int = "moonbit_uv_uptime"
+#borrow(uptime)
+extern "c" fn uv_uptime(uptime : Ref[Double]) -> Int = "uv_uptime"
 
 ///|
 pub fn uptime() -> Double raise Errno {
@@ -437,8 +437,8 @@ pub fn resident_set_memory() -> UInt64 raise Errno {
 }
 
 ///|
-#owned(avg)
-extern "c" fn uv_loadavg(avg : FixedArray[Double]) = "moonbit_uv_loadavg"
+#borrow(avg)
+extern "c" fn uv_loadavg(avg : FixedArray[Double]) = "uv_loadavg"
 
 ///|
 pub fn loadavg() -> (Double, Double, Double) {
@@ -446,3 +446,6 @@ pub fn loadavg() -> (Double, Double, Double) {
   uv_loadavg(avg)
   (avg[0], avg[1], avg[2])
 }
+
+///|
+pub extern "c" fn available_parallelism() -> Int = "uv_available_parallelism"

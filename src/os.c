@@ -218,25 +218,10 @@ moonbit_uv_os_gethostname(moonbit_bytes_t name, int32_t *size) {
 
 MOONBIT_FFI_EXPORT
 int32_t
-moonbit_uv_uptime(double *uptime) {
-  int32_t status = uv_uptime(uptime);
-  moonbit_decref(uptime);
-  return status;
-}
-
-MOONBIT_FFI_EXPORT
-int32_t
 moonbit_uv_resident_set_memory(int32_t *rss) {
   size_t rss_value = (size_t)*rss;
   int32_t status = uv_resident_set_memory(&rss_value);
   *rss = (int32_t)rss_value;
   moonbit_decref(rss);
   return status;
-}
-
-MOONBIT_FFI_EXPORT
-void
-moonbit_uv_loadavg(double *avg) {
-  uv_loadavg(avg);
-  moonbit_decref(avg);
 }

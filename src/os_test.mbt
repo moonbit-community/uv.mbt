@@ -79,3 +79,8 @@ test "loadavg" {
   ignore(avg5)
   ignore(avg15)
 }
+
+///|
+test "available_parallelism" {
+  ignore(@uv.available_parallelism())
+}
