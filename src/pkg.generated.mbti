@@ -437,83 +437,156 @@ type Loop
 fn Loop::alive(Self) -> Bool
 fn Loop::close(Self) -> Unit raise Errno
 fn Loop::configure(Self, LoopOption) -> Unit raise Errno
+#as_free_fn
 fn Loop::fs_access(Self, Bytes, AccessFlags, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_access_sync(Self, Bytes, AccessFlags) -> Unit raise Errno
+#as_free_fn
 fn Loop::fs_chmod(Self, Bytes, Int, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_chmod_sync(Self, Bytes, Int) -> Unit raise Errno
+#as_free_fn
 fn Loop::fs_chown(Self, Bytes, Uid, Gid, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_chown_sync(Self, Bytes, Uid, Gid) -> Unit raise Errno
+#as_free_fn
 fn Loop::fs_close(Self, File, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_close_sync(Self, File) -> Unit raise Errno
+#as_free_fn
 fn Loop::fs_closedir(Self, Dir, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_copyfile(Self, Bytes, Bytes, CopyFileFlags, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_copyfile_sync(Self, Bytes, Bytes, CopyFileFlags) -> Unit raise Errno
+#as_free_fn
 fn Loop::fs_fchmod(Self, File, Int, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_fchmod_sync(Self, File, Int) -> Unit raise Errno
+#as_free_fn
 fn Loop::fs_fchown(Self, File, Uid, Gid, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_fchown_sync(Self, File, Uid, Gid) -> Unit raise Errno
+#as_free_fn
 fn Loop::fs_fdatasync(Self, File, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_fdatasync_sync(Self, File) -> Unit raise Errno
+#as_free_fn
 fn Loop::fs_fstat(Self, File, (Stat) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_fsync(Self, File, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_fsync_sync(Self, File) -> Unit raise Errno
+#as_free_fn
 fn Loop::fs_ftruncate(Self, File, Int64, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_futime(Self, Int, Double, Double, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_futime_sync(Self, Int, Double, Double) -> Unit raise Errno
+#as_free_fn
 fn Loop::fs_lchown(Self, Bytes, Uid, Gid, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_lchown_sync(Self, Bytes, Uid, Gid) -> Unit raise Errno
+#as_free_fn
 fn Loop::fs_link(Self, Bytes, Bytes, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_link_sync(Self, Bytes, Bytes) -> Unit raise Errno
+#as_free_fn
 fn Loop::fs_lstat(Self, Bytes, (Stat) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_lstat_sync(Self, Bytes) -> Stat raise Errno
+#as_free_fn
 fn Loop::fs_lutime(Self, Bytes, Double, Double, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_lutime_sync(Self, Bytes, Double, Double) -> Unit raise Errno
+#as_free_fn
 fn Loop::fs_mkdir(Self, Bytes, Int, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_mkdir_sync(Self, Bytes, Int) -> Unit raise Errno
+#as_free_fn
 fn Loop::fs_mkdtemp(Self, Bytes, (Bytes) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_mkdtemp_sync(Self, Bytes) -> Bytes raise Errno
+#as_free_fn
 fn Loop::fs_mkstemp(Self, Bytes, (Bytes) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_mkstemp_sync(Self, Bytes) -> Bytes raise Errno
+#as_free_fn
 fn Loop::fs_open(Self, Bytes, OpenFlags, Int, (File) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_open_sync(Self, Bytes, OpenFlags, Int) -> File raise Errno
+#as_free_fn
 fn Loop::fs_opendir(Self, Bytes, (Dir) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_read(Self, File, Array[BytesView], offset? : Int64, (Int) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_read_sync(Self, File, Array[BytesView], offset? : Int64) -> Int raise Errno
+#as_free_fn
 fn Loop::fs_readdir(Self, Dir, Int, (Array[Dirent]) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_readlink(Self, Bytes, (Bytes) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_readlink_sync(Self, Bytes) -> Bytes raise Errno
+#as_free_fn
 fn Loop::fs_realpath(Self, Bytes, (Bytes) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_realpath_sync(Self, Bytes) -> Bytes raise Errno
+#as_free_fn
 fn Loop::fs_rename(Self, Bytes, Bytes, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_rmdir(Self, Bytes, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_rmdir_sync(Self, Bytes) -> Unit raise Errno
+#as_free_fn
 fn Loop::fs_scandir(Self, Bytes, Int, (Scandir) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_scandir_sync(Self, Bytes, Int) -> Scandir raise Errno
+#as_free_fn
 fn Loop::fs_sendfile(Self, File, File, Int64, UInt64, (Int64) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_sendfile_sync(Self, File, File, Int64, UInt64) -> Int64 raise Errno
+#as_free_fn
 fn Loop::fs_stat(Self, Bytes, (Stat) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_stat_sync(Self, Bytes) -> Stat raise Errno
+#as_free_fn
 fn Loop::fs_statfs(Self, Bytes, (StatFs) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_statfs_sync(Self, Bytes) -> StatFs raise Errno
+#as_free_fn
 fn Loop::fs_symlink(Self, Bytes, Bytes, SymlinkFlags, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_symlink_sync(Self, Bytes, Bytes, SymlinkFlags) -> Unit raise Errno
+#as_free_fn
 fn Loop::fs_unlink(Self, Bytes, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_unlink_sync(Self, Bytes) -> Unit raise Errno
+#as_free_fn
 fn Loop::fs_utime(Self, Bytes, Double, Double, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_utime_sync(Self, Bytes, Double, Double) -> Unit raise Errno
+#as_free_fn
 fn Loop::fs_write(Self, File, Array[BytesView], offset? : Int64, (Int) -> Unit, (Errno) -> Unit) -> Fs raise Errno
+#as_free_fn
 fn Loop::fs_write_sync(Self, File, Array[BytesView], offset? : Int64) -> Unit raise Errno
+#as_free_fn
 fn Loop::getaddrinfo(Self, (Iter[AddrInfo]) -> Unit, (Errno) -> Unit, Bytes, Bytes, hints? : AddrInfoHints) -> GetAddrInfo raise Errno
+#as_free_fn
 fn Loop::getnameinfo(Self, (Bytes?, Bytes?) -> Unit, (Errno) -> Unit, Sockaddr, flags? : Int) -> GetNameInfo raise Errno
+#as_free_fn
 fn Loop::metrics_idle_time(Self) -> UInt64
+#as_free_fn
 fn Loop::metrics_info(Self) -> Metrics raise Errno
 fn Loop::new() -> Self raise Errno
 fn Loop::now(Self) -> UInt64
 fn Loop::print_all_handles(Self, File) -> Unit
 fn Loop::queue_work(Self, () -> Unit, () -> Unit, (Errno) -> Unit) -> Work raise Errno
+#as_free_fn
 fn Loop::random(Self, BytesView, Int, (BytesView) -> Unit, (Errno) -> Unit) -> Random raise Errno
+#as_free_fn
 fn Loop::random_sync(Self, BytesView, Int) -> Unit raise Errno
 fn Loop::run(Self, RunMode) -> Unit raise Errno
+#as_free_fn
 fn Loop::spawn(Self, ProcessOptions) -> Process raise Errno
 fn Loop::stop(Self) -> Unit
 fn Loop::update_time(Self) -> Unit
