@@ -20,12 +20,30 @@ extern "c" fn uv_thread_make() -> Thread = "moonbit_uv_thread_make"
 
 ///|
 #owned(thread)
-extern "c" fn uv_thread_create(thread : Thread, cb : () -> Unit) -> Int = "moonbit_uv_thread_create"
+extern "c" fn uv_thread_create(
+  thread : Thread,
+  cb : () -> Unit,
+  flags : Int,
+  stack_size : UInt64,
+) -> Int = "moonbit_uv_thread_create"
 
 ///|
-pub fn Thread::new(cb : () -> Unit) -> Thread raise Errno {
+const UV_THREAD_NO_FLAGS : Int = 0
+
+///|
+const UV_THREAD_HAS_STACK_SIZE : Int = 1
+
+///|
+pub fn Thread::new(cb : () -> Unit, stack_size? : UInt64) -> Thread raise Errno {
   let thread = uv_thread_make()
-  let status = uv_thread_create(thread, cb)
+  let mut flags = UV_THREAD_NO_FLAGS
+  let stack_size = if stack_size is Some(stack_size) {
+    flags = flags | UV_THREAD_HAS_STACK_SIZE
+    stack_size
+  } else {
+    0
+  }
+  let status = uv_thread_create(thread, cb, flags, stack_size)
   if status != 0 {
     raise Errno::of_int(status)
   }

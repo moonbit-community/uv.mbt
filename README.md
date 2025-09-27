@@ -50,10 +50,6 @@ This is a MoonBit binding to the [libuv](https://libuv.org) library.
 
 ## Roadmap
 
-### Thread
-
-- `uv_thread_create_ex()` - Extended thread creation with options
-
 ### Miscellaneous Utilities
 
 - `uv_replace_allocator()` - Replace memory allocator
