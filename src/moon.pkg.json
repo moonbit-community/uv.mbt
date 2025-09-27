@@ -292,6 +292,10 @@
       "native",
       "llvm"
     ],
+    "uv.mbt": [
+      "native",
+      "llvm"
+    ],
     "version_test.mbt": [
       "native",
       "llvm"
