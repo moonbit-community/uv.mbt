@@ -435,3 +435,14 @@ pub fn resident_set_memory() -> UInt64 raise Errno {
   }
   rss.val
 }
+
+///|
+#owned(avg)
+extern "c" fn uv_loadavg(avg : FixedArray[Double]) = "moonbit_uv_loadavg"
+
+///|
+pub fn loadavg() -> (Double, Double, Double) {
+  let avg = FixedArray::make(3, 0.0)
+  uv_loadavg(avg)
+  (avg[0], avg[1], avg[2])
+}

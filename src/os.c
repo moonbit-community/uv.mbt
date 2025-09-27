@@ -233,3 +233,10 @@ moonbit_uv_resident_set_memory(int32_t *rss) {
   moonbit_decref(rss);
   return status;
 }
+
+MOONBIT_FFI_EXPORT
+void
+moonbit_uv_loadavg(double *avg) {
+  uv_loadavg(avg);
+  moonbit_decref(avg);
+}

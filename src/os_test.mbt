@@ -71,3 +71,11 @@ test "uptime" {
 test "resident_set_memory" {
   ignore(@uv.resident_set_memory())
 }
+
+///|
+test "loadavg" {
+  let (avg1, avg5, avg15) = @uv.loadavg()
+  ignore(avg1)
+  ignore(avg5)
+  ignore(avg15)
+}
