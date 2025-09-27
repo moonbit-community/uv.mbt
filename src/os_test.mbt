@@ -84,3 +84,11 @@ test "loadavg" {
 test "available_parallelism" {
   ignore(@uv.available_parallelism())
 }
+
+///|
+test "memory" {
+  ignore(@uv.get_free_memory())
+  ignore(@uv.get_total_memory())
+  ignore(@uv.get_constrained_memory())
+  ignore(@uv.get_available_memory())
+}

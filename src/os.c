@@ -182,30 +182,6 @@ moonbit_uv_passwd_get_shell(moonbit_uv_passwd_t *passwd) {
 }
 
 MOONBIT_FFI_EXPORT
-uint64_t
-moonbit_uv_get_free_memory(void) {
-  return uv_get_free_memory();
-}
-
-MOONBIT_FFI_EXPORT
-uint64_t
-moonbit_uv_get_total_memory(void) {
-  return uv_get_total_memory();
-}
-
-MOONBIT_FFI_EXPORT
-uint64_t
-moonbit_uv_get_constrained_memory(void) {
-  return uv_get_constrained_memory();
-}
-
-MOONBIT_FFI_EXPORT
-uint64_t
-moonbit_uv_get_available_memory(void) {
-  return uv_get_available_memory();
-}
-
-MOONBIT_FFI_EXPORT
 int32_t
 moonbit_uv_os_gethostname(moonbit_bytes_t name, int32_t *size) {
   size_t size_value = *size;
