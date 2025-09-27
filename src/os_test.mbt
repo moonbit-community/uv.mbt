@@ -61,3 +61,13 @@ test "getppid" {
 test "gethostname" {
   ignore(@uv.os_gethostname())
 }
+
+///|
+test "uptime" {
+  ignore(@uv.uptime())
+}
+
+///|
+test "resident_set_memory" {
+  ignore(@uv.resident_set_memory())
+}
