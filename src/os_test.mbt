@@ -61,3 +61,34 @@ test "getppid" {
 test "gethostname" {
   ignore(@uv.os_gethostname())
 }
+
+///|
+test "uptime" {
+  ignore(@uv.uptime())
+}
+
+///|
+test "resident_set_memory" {
+  ignore(@uv.resident_set_memory())
+}
+
+///|
+test "loadavg" {
+  let (avg1, avg5, avg15) = @uv.loadavg()
+  ignore(avg1)
+  ignore(avg5)
+  ignore(avg15)
+}
+
+///|
+test "available_parallelism" {
+  ignore(@uv.available_parallelism())
+}
+
+///|
+test "memory" {
+  ignore(@uv.get_free_memory())
+  ignore(@uv.get_total_memory())
+  ignore(@uv.get_constrained_memory())
+  ignore(@uv.get_available_memory())
+}

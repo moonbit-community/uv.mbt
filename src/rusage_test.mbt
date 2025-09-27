@@ -20,3 +20,12 @@ test "rusage" {
   ignore(rusage.stime().sec)
   ignore(rusage.stime().usec)
 }
+
+///|
+test "rusage_thread" {
+  let rusage = @uv.getrusage_thread()
+  ignore(rusage.utime().sec)
+  ignore(rusage.utime().usec)
+  ignore(rusage.stime().sec)
+  ignore(rusage.stime().usec)
+}

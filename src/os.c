@@ -182,30 +182,6 @@ moonbit_uv_passwd_get_shell(moonbit_uv_passwd_t *passwd) {
 }
 
 MOONBIT_FFI_EXPORT
-uint64_t
-moonbit_uv_get_free_memory(void) {
-  return uv_get_free_memory();
-}
-
-MOONBIT_FFI_EXPORT
-uint64_t
-moonbit_uv_get_total_memory(void) {
-  return uv_get_total_memory();
-}
-
-MOONBIT_FFI_EXPORT
-uint64_t
-moonbit_uv_get_constrained_memory(void) {
-  return uv_get_constrained_memory();
-}
-
-MOONBIT_FFI_EXPORT
-uint64_t
-moonbit_uv_get_available_memory(void) {
-  return uv_get_available_memory();
-}
-
-MOONBIT_FFI_EXPORT
 int32_t
 moonbit_uv_os_gethostname(moonbit_bytes_t name, int32_t *size) {
   size_t size_value = *size;
@@ -213,5 +189,15 @@ moonbit_uv_os_gethostname(moonbit_bytes_t name, int32_t *size) {
   *size = size_value;
   moonbit_decref(name);
   moonbit_decref(size);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_resident_set_memory(uint64_t *rss) {
+  size_t rss_value = (size_t)*rss;
+  int32_t status = uv_resident_set_memory(&rss_value);
+  *rss = (uint64_t)rss_value;
+  moonbit_decref(rss);
   return status;
 }

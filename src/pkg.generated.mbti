@@ -6,6 +6,8 @@ fn[Server : ToStream, Client : ToStream] accept(Server, Client) -> Unit raise Er
 
 fn args() -> Array[Bytes]
 
+fn available_parallelism() -> Int
+
 fn chdir(Bytes) -> Unit raise Errno
 
 fn clock_gettime(ClockId) -> Timespec64 raise Errno
@@ -33,6 +35,8 @@ fn getcpu() -> Int raise Errno
 
 fn getrusage() -> Rusage raise Errno
 
+fn getrusage_thread() -> Rusage raise Errno
+
 fn gettimeofday() -> Timeval64 raise Errno
 
 fn guess_handle(File) -> HandleType
@@ -55,6 +59,8 @@ fn[Stream : ToStream] is_writable(Stream) -> Bool
 fn kill(Pid, Signum) -> Unit raise Errno
 
 fn[Stream : ToStream] listen(Stream, Int, (Stream) -> Unit, (Stream, Errno) -> Unit) -> Unit raise Errno
+
+fn loadavg() -> (Double, Double, Double)
 
 fn os_environ() -> Environ raise Errno
 
@@ -86,6 +92,8 @@ fn[Stream : ToStream] read_start(Stream, (Stream, Int) -> BytesView, (Stream, In
 #deprecated
 fn[Stream : ToStream] read_stop(Stream) -> Unit raise Errno
 
+fn resident_set_memory() -> UInt64 raise Errno
+
 #deprecated
 fn[Stream : ToStream] shutdown(Stream, () -> Unit, (Errno) -> Unit) -> Shutdown raise Errno
 
@@ -100,6 +108,8 @@ fn stdin() -> File
 fn stdout() -> File
 
 fn string_to_wtf8(String) -> Bytes
+
+fn uptime() -> Double raise Errno
 
 fn uv_gettimeofday(FixedArray[Int64]) -> Int
 

@@ -117,3 +117,17 @@ pub fn getrusage() -> Rusage raise Errno {
   }
   rusage
 }
+
+///|
+#borrow(rusage)
+extern "c" fn uv_getrusage_thread(rusage : Rusage) -> Int = "uv_getrusage_thread"
+
+///|
+pub fn getrusage_thread() -> Rusage raise Errno {
+  let rusage = uv_rusage_make()
+  let status = uv_getrusage_thread(rusage)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  rusage
+}
