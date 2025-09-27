@@ -33,7 +33,6 @@ moonbit_uv_setup_args(moonbit_bytes_t *argv) {
   }
   memset(c_argv, 0, size);
   char *s = (char *)&c_argv[argc + 1];
-  size = strlen((const char *)argv[0]) + 1;
   for (size_t i = 0; i < argc; i++) {
     size = strlen((const char *)argv[i]) + 1;
     memcpy(s, (const char *)argv[i], size);
