@@ -58,6 +58,8 @@ fn[Stream : ToStream] is_writable(Stream) -> Bool
 
 fn kill(Pid, Signum) -> Unit raise Errno
 
+fn library_shutdown() -> Unit
+
 fn[Stream : ToStream] listen(Stream, Int, (Stream) -> Unit, (Stream, Errno) -> Unit) -> Unit raise Errno
 
 fn loadavg() -> (Double, Double, Double)
