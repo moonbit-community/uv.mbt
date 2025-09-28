@@ -127,3 +127,11 @@ moonbit_uv_pipe_connect2(
   moonbit_decref(name);
   return result;
 }
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_pipe_chmod(moonbit_uv_pipe_t *handle, int flags) {
+  int result = uv_pipe_chmod(&handle->pipe, flags);
+  moonbit_decref(handle);
+  return result;
+}

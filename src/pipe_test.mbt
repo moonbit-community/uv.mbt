@@ -94,3 +94,39 @@ test "Pipe::connect" {
     raise error
   }
 }
+
+///|
+test "Pipe::chmod" {
+  if @uv.os_uname().sysname() is "Windows_NT" {
+    return
+  }
+  let path : Bytes = "/tmp/uv-mbt-test-pipe-chmod.sock"
+  let uv = @uv.Loop::new()
+  defer (uv.fs_unlink_sync(path) catch { _ => () })
+  let server = @uv.Pipe::new(uv, ipc=false) catch {
+    error => {
+      uv.close()
+      raise error
+    }
+  }
+  server.bind(path, @uv.PipeBindFlags::new(truncate=true)) catch {
+    error => {
+      server.close(() => ())
+      uv.close()
+      raise error
+    }
+  }
+  let stat = uv.fs_stat_sync(path)
+  @json.inspect(stat.mode().to_string(radix=8), content="140755")
+  server.chmod(Writable)
+  let stat = uv.fs_stat_sync(path)
+  @json.inspect(stat.mode().to_string(radix=8), content="140222")
+  server.chmod(Readable)
+  let stat = uv.fs_stat_sync(path)
+  @json.inspect(stat.mode().to_string(radix=8), content="140444")
+  server.chmod(ReadWrite)
+  let stat = uv.fs_stat_sync(path)
+  @json.inspect(stat.mode().to_string(radix=8), content="140666")
+  server.close(() => ())
+  uv.run(Default)
+}

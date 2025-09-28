@@ -87,8 +87,6 @@ The following libuv APIs are not yet implemented in this library:
 
 ### Pipe Functions
 
-- `uv_pipe_connect2()` - Extended pipe connection
-- `uv_pipe_chmod()` - Change pipe permissions
 - `uv_pipe_pending_instances()` - Set pending instances count
 
 ### Process Functions

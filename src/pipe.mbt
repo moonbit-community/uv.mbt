@@ -191,3 +191,35 @@ pub fn Pipe::connect(
   }
   return req
 }
+
+///|
+#owned(pipe)
+extern "c" fn uv_pipe_chmod(pipe : Pipe, mode : Int) -> Int = "moonbit_uv_pipe_chmod"
+
+///|
+const UV_READABLE = 1
+
+///|
+const UV_WRITABLE = 2
+
+///|
+pub(all) enum PipeMode {
+  Readable
+  Writable
+  ReadWrite
+}
+
+///|
+/// Alters pipe permissions, allowing it to be accessed from processes run by
+/// different users. Makes the pipe writable or readable by all users.
+pub fn Pipe::chmod(self : Pipe, mode : PipeMode) -> Unit raise Errno {
+  let mode = match mode {
+    Readable => UV_READABLE
+    Writable => UV_WRITABLE
+    ReadWrite => UV_READABLE | UV_WRITABLE
+  }
+  let status = uv_pipe_chmod(self, mode)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
