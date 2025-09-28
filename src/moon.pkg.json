@@ -328,9 +328,6 @@
   "import": [
     "tonyfettes/c"
   ],
-  "test-import": [
-    "tonyfettes/uv/internal/assert"
-  ],
   "native-stub": [
     "uv#src#fs-poll.c",
     "uv#src#idna.c",
@@ -402,6 +399,7 @@
   ],
   "pre-build": [
     {
+      "command": "python3 scripts/prepare.py",
       "input": [],
       "output": [
         "uv#src#fs-poll.c",
@@ -470,8 +468,10 @@
         "uv#src#win#util.c",
         "uv#src#win#winapi.c",
         "uv#src#win#winsock.c"
-      ],
-      "command": "python3 scripts/prepare.py"
+      ]
     }
+  ],
+  "test-import": [
+    "tonyfettes/uv/internal/assert"
   ]
 }
