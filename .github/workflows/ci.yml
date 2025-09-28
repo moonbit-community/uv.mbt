@@ -154,10 +154,9 @@ jobs:
           submodules: true
       - run: python3 scripts/license.py
 
-  check-clang-format:
+  check-format:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - run: |
-          shopt -s nullglob
-          clang-format --dry-run --Werror src/*.c src/*.h
+          python3 scripts/format.py --check
