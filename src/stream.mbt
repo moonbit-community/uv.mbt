@@ -243,6 +243,7 @@ pub trait ToStream: ToHandle {
   is_writable(Self) -> Bool = _
   shutdown(Self, () -> Unit, (Errno) -> Unit) -> Shutdown raise Errno = _
   set_blocking(Self, Bool) -> Unit raise Errno = _
+  write_queue_size(Self) -> UInt64 = _
 }
 
 ///|
@@ -454,3 +455,12 @@ extern "c" fn uv_connect_make() -> Connect = "moonbit_uv_connect_make"
 ///|
 #owned(stream)
 extern "c" fn uv_stream_set_blocking(stream : Stream, blocking : Bool) -> Int = "moonbit_uv_stream_set_blocking"
+
+///|
+#owned(stream)
+extern "c" fn uv_stream_get_write_queue_size(stream : Stream) -> UInt64 = "moonbit_uv_stream_get_write_queue_size"
+
+///|
+impl ToStream with write_queue_size(self) {
+  uv_stream_get_write_queue_size(self.to_stream())
+}

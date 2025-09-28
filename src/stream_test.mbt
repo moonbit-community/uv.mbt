@@ -23,3 +23,14 @@ test "is_readable" {
   uv.stop()
   uv.close()
 }
+
+///|
+test "write_queue_size" {
+  let uv = @uv.Loop::new()
+  let stream = @uv.Pipe::new(uv, ipc=false)
+  ignore(stream.write_queue_size())
+  stream.close(() => ())
+  uv.run(Default)
+  uv.stop()
+  uv.close()
+}
