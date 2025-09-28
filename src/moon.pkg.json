@@ -156,6 +156,14 @@
       "native",
       "llvm"
     ],
+    "passwd.mbt": [
+      "native",
+      "llvm"
+    ],
+    "passwd_test.mbt": [
+      "native",
+      "llvm"
+    ],
     "poll.mbt": [
       "native",
       "llvm"
