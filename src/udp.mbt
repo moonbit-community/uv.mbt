@@ -63,7 +63,7 @@ pub fn[Sockaddr : ToSockaddr] Udp::bind(
   addr : Sockaddr,
   flags : UdpFlags,
 ) -> Unit raise Errno {
-  let result = uv_udp_bind(self, addr.to_sockaddr(), flags.inner())
+  let result = uv_udp_bind(self, addr.to_sockaddr(), flags.0)
   if result < 0 {
     raise Errno::of_int(result)
   }
@@ -290,7 +290,7 @@ pub fn Udp::new_ex(
   flags : UdpFlags,
 ) -> Udp raise Errno {
   let udp = uv_udp_make()
-  let flags = domain.to_int().reinterpret_as_uint() | (flags.inner() >> 8 << 8)
+  let flags = domain.to_int().reinterpret_as_uint() | (flags.0 >> 8 << 8)
   let result = uv_udp_init_ex(uv, udp, flags)
   if result < 0 {
     raise Errno::of_int(result)

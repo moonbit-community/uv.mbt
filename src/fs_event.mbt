@@ -111,7 +111,7 @@ pub fn FsEvent::start(
     }
   }
 
-  let status = uv_fs_event_start(self, uv_cb, path, flags.inner())
+  let status = uv_fs_event_start(self, uv_cb, path, flags.0)
   if status < 0 {
     raise Errno::of_int(status)
   }

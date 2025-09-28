@@ -41,16 +41,29 @@ extern "c" fn uv_signal_start(
 ) -> Int = "moonbit_uv_signal_start"
 
 ///|
+#owned(signal)
+extern "c" fn uv_signal_start_oneshot(
+  signal : Signal,
+  cb : (Signal, Int) -> Unit,
+  signum : Int,
+) -> Int = "moonbit_uv_signal_start_oneshot"
+
+///|
 pub fn Signal::start(
   self : Signal,
   cb : (Signal, Signum) -> Unit,
   signum : Signum,
+  oneshot? : Bool = false,
 ) -> Unit raise Errno {
   fn uv_cb(signal : Signal, signum : Int) {
     cb(signal, signum)
   }
 
-  let status = uv_signal_start(self, uv_cb, signum.inner())
+  let status = if oneshot {
+    uv_signal_start(self, uv_cb, signum.0)
+  } else {
+    uv_signal_start_oneshot(self, uv_cb, signum.0)
+  }
   if status < 0 {
     raise Errno::of_int(status)
   }

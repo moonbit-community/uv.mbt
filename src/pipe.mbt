@@ -87,7 +87,7 @@ pub fn Pipe::bind(
   name : Bytes,
   flags : PipeBindFlags,
 ) -> Unit raise Errno {
-  let status = uv_pipe_bind(self, name, flags.inner())
+  let status = uv_pipe_bind(self, name, flags.0)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -114,7 +114,7 @@ pub fn pipe(
   write_flags? : PipeFlags = UV_NONBLOCK_PIPE,
 ) -> (File, File) raise Errno {
   let fds : FixedArray[Int] = [0, 0]
-  let status = uv_pipe(fds, read_flags.inner(), write_flags.inner())
+  let status = uv_pipe(fds, read_flags.0, write_flags.0)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -127,7 +127,7 @@ extern "c" fn uv_pipe_open(pipe : Pipe, file : Int) -> Int = "moonbit_uv_pipe_op
 
 ///|
 pub fn Pipe::open(self : Pipe, file : File) -> Unit raise Errno {
-  let status = uv_pipe_open(self, file.inner())
+  let status = uv_pipe_open(self, file.0)
   if status < 0 {
     raise Errno::of_int(status)
   }

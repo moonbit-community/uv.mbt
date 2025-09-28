@@ -14,6 +14,7 @@
  */
 
 #include "handle.h"
+#include "moonbit.h"
 
 typedef struct moonbit_uv_signal_s {
   uv_signal_t signal;
@@ -75,6 +76,19 @@ moonbit_uv_signal_start(
   moonbit_uv_handle_set_data((uv_handle_t *)&signal->signal, cb);
   int32_t status =
     uv_signal_start(&signal->signal, moonbit_uv_signal_cb, signum);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_signal_start_oneshot(
+  moonbit_uv_signal_t *signal,
+  moonbit_uv_signal_cb_t *cb,
+  int32_t signum
+) {
+  moonbit_uv_handle_set_data((uv_handle_t *)&signal->signal, cb);
+  int32_t status =
+    uv_signal_start_oneshot(&signal->signal, moonbit_uv_signal_cb, signum);
   return status;
 }
 

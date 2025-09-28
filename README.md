@@ -115,10 +115,6 @@ The following libuv APIs are not yet implemented in this library:
 
 - `uv_replace_allocator()` - Replace memory allocator
 
-### Signal Functions
-
-- `uv_signal_start_oneshot()` - One-shot signal handling
-
 ### Debug Functions
 
 - `uv_print_all_handles()` - **Partially implemented**: Available through `Loop::print_all_handles()`, but only supports printing to file descriptors (takes a `File` parameter). Missing the more general `FILE*` stream support.

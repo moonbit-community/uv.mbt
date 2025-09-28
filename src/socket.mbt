@@ -393,9 +393,9 @@ pub fn socketpair(
     type_.to_int(),
     protocol,
     socks.0,
-    flags.0.inner(),
+    flags.0.0,
     socks.1,
-    flags.1.inner(),
+    flags.1.0,
   )
   if status < 0 {
     raise Errno::of_int(status)

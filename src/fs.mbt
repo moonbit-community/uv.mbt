@@ -490,7 +490,7 @@ pub fn Loop::fs_open(
   }
 
   let req = uv_fs_make()
-  let status = uv_fs_open(self, req, path, flags.inner(), mode, cb)
+  let status = uv_fs_open(self, req, path, flags.0, mode, cb)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -553,7 +553,7 @@ pub fn Loop::fs_open_sync(
   mode : Int,
 ) -> File raise Errno {
   let req = uv_fs_make()
-  let status = uv_fs_open_sync(self, req, path, flags.inner(), mode)
+  let status = uv_fs_open_sync(self, req, path, flags.0, mode)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -665,7 +665,7 @@ pub fn File::of_int(fd : Int) -> File {
 
 ///|
 pub fn File::to_int(self : File) -> Int {
-  self.inner()
+  self.0
 }
 
 ///|
@@ -2544,7 +2544,7 @@ struct Scandir(Fs)
 
 ///|
 pub fn Scandir::next(self : Scandir) -> Dirent raise Errno {
-  let req = self.inner()
+  let req = self.0
   let uv_dirent = uv_dirent_make(1)
   let status = uv_fs_scandir_next(req, uv_dirent)
   if status < 0 {
@@ -2761,7 +2761,7 @@ pub fn Loop::fs_copyfile(
   }
 
   let req = uv_fs_make()
-  let status = uv_fs_copyfile(self, req, path, new_path, flags.inner(), cb)
+  let status = uv_fs_copyfile(self, req, path, new_path, flags.0, cb)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -2787,7 +2787,7 @@ pub fn Loop::fs_copyfile_sync(
   flags : CopyFileFlags,
 ) -> Unit raise Errno {
   let req = uv_fs_make()
-  let status = uv_fs_copyfile_sync(self, req, path, new_path, flags.inner())
+  let status = uv_fs_copyfile_sync(self, req, path, new_path, flags.0)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -3440,7 +3440,7 @@ pub fn Loop::fs_access(
   }
 
   let req = uv_fs_make()
-  let status = uv_fs_access(self, req, path, mode.inner(), cb)
+  let status = uv_fs_access(self, req, path, mode.0, cb)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -3464,7 +3464,7 @@ pub fn Loop::fs_access_sync(
   mode : AccessFlags,
 ) -> Unit raise Errno {
   let req = uv_fs_make()
-  let status = uv_fs_access_sync(self, req, path, mode.inner())
+  let status = uv_fs_access_sync(self, req, path, mode.0)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -4011,7 +4011,7 @@ pub fn Loop::fs_symlink(
   }
 
   let req = uv_fs_make()
-  let status = uv_fs_symlink(self, req, path, new_path, flags.inner(), cb)
+  let status = uv_fs_symlink(self, req, path, new_path, flags.0, cb)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -4076,7 +4076,7 @@ pub fn Loop::fs_symlink_sync(
   flags : SymlinkFlags,
 ) -> Unit raise Errno {
   let req = uv_fs_make()
-  let status = uv_fs_symlink_sync(self, req, path, new_path, flags.inner())
+  let status = uv_fs_symlink_sync(self, req, path, new_path, flags.0)
   if status < 0 {
     raise Errno::of_int(status)
   }
