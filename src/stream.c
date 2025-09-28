@@ -17,7 +17,9 @@
 
 #include "handle.h"
 #include "moonbit.h"
+#include "uv#include#uv.h"
 #include "uv.h"
+#include <stdint.h>
 
 typedef struct moonbit_uv_read_cb {
   int32_t (*code)(
@@ -216,4 +218,12 @@ moonbit_uv_stream_set_blocking(uv_stream_t *stream, int32_t blocking) {
   int status = uv_stream_set_blocking(stream, blocking);
   moonbit_decref(stream);
   return status;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_stream_get_write_queue_size(uv_stream_t *stream) {
+  uint64_t size = uv_stream_get_write_queue_size(stream);
+  moonbit_decref(stream);
+  return size;
 }
