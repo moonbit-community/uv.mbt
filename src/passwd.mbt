@@ -68,3 +68,35 @@ pub fn os_get_passwd2(uid : Uid) -> Passwd raise Errno {
   }
   passwd
 }
+
+///|
+type Group
+
+///|
+extern "c" fn uv_group_make() -> Group = "moonbit_uv_group_make"
+
+///|
+#owned(group)
+pub extern "c" fn Group::name(group : Group) -> Bytes = "moonbit_uv_group_get_groupname"
+
+///|
+#owned(group)
+pub extern "c" fn Group::gid(group : Group) -> Gid = "moonbit_uv_group_get_gid"
+
+///|
+#owned(group)
+pub extern "c" fn Group::members(group : Group) -> FixedArray[Bytes] = "moonbit_uv_group_get_members"
+
+///|
+#owned(group)
+extern "c" fn uv_os_get_group(group : Group, gid : Gid) -> Int = "moonbit_uv_os_get_group"
+
+///|
+pub fn os_get_group(gid : Gid) -> Group raise Errno {
+  let group = uv_group_make()
+  let status = uv_os_get_group(group, gid)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  group
+}

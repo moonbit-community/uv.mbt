@@ -70,6 +70,8 @@ fn loadavg() -> (Double, Double, Double)
 
 fn os_environ() -> Environ raise Errno
 
+fn os_get_group(Gid) -> Group raise Errno
+
 fn os_get_passwd() -> Passwd raise Errno
 
 fn os_get_passwd2(Uid) -> Passwd raise Errno
@@ -378,6 +380,11 @@ impl ToReq for GetNameInfo
 pub(all) struct Gid(UInt64)
 #deprecated
 fn Gid::inner(Self) -> UInt64
+
+type Group
+fn Group::gid(Self) -> Gid
+fn Group::members(Self) -> FixedArray[Bytes]
+fn Group::name(Self) -> Bytes
 
 type Handle
 fn Handle::close(Self, () -> Unit) -> Unit
