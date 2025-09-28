@@ -104,6 +104,10 @@
       "native",
       "llvm"
     ],
+    "if_test.mbt": [
+      "native",
+      "llvm"
+    ],
     "if.mbt": [
       "native",
       "llvm"
