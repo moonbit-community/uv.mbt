@@ -211,6 +211,7 @@ def configure(project: Project):
         )
 
     for source in [
+        "src/unix/bsd-ifaddrs.c",
         "src/unix/kqueue.c",
         "src/unix/random-getentropy.c",
         "src/unix/darwin-proctitle.c",

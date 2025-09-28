@@ -104,6 +104,10 @@
       "native",
       "llvm"
     ],
+    "if_test.mbt": [
+      "native",
+      "llvm"
+    ],
     "if.mbt": [
       "native",
       "llvm"
@@ -330,6 +334,7 @@
     "uv#src#threadpool.c",
     "uv#src#timer.c",
     "uv#src#unix#async.c",
+    "uv#src#unix#bsd-ifaddrs.c",
     "uv#src#unix#core.c",
     "uv#src#unix#darwin-proctitle.c",
     "uv#src#unix#darwin.c",
@@ -401,6 +406,7 @@
         "uv#src#threadpool.c",
         "uv#src#timer.c",
         "uv#src#unix#async.c",
+        "uv#src#unix#bsd-ifaddrs.c",
         "uv#src#unix#core.c",
         "uv#src#unix#darwin-proctitle.c",
         "uv#src#unix#darwin.c",
