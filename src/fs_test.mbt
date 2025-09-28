@@ -745,7 +745,7 @@ test "fs_rename_sync" {
   let uv = @uv.Loop::new()
   let original_file : Bytes = "test-rename-sync-original.txt"
   let renamed_file : Bytes = "test-rename-sync-renamed.txt"
-  
+
   // Create a test file first
   let file = uv.fs_open_sync(
     original_file,
@@ -755,28 +755,26 @@ test "fs_rename_sync" {
   let data : Bytes = "Hello, rename sync!"
   uv.fs_write_sync(file, [data])
   uv.fs_close_sync(file)
-  
+
   // Verify the original file exists
   let original_stat = uv.fs_stat_sync(original_file)
   @assert.t(original_stat.is_file())
-  
+
   // Rename the file
   uv.fs_rename_sync(original_file, renamed_file)
-  
+
   // Verify the renamed file exists and has the same content
   let renamed_stat = uv.fs_stat_sync(renamed_file)
   @assert.t(renamed_stat.is_file())
   @assert.eq(renamed_stat.size(), original_stat.size())
-  
+
   // Verify the original file no longer exists
   let mut original_file_exists = true
-  try {
-    uv.fs_stat_sync(original_file) |> ignore()
-  } catch {
+  try uv.fs_stat_sync(original_file) |> ignore() catch {
     _ => original_file_exists = false // Expected: file should not exist
   }
   @assert.n(original_file_exists)
-  
+
   // Verify the renamed file has the correct content
   let read_file = uv.fs_open_sync(renamed_file, @uv.OpenFlags::read_only(), 0)
   let buffer = Bytes::make(data.length(), 0)
@@ -784,7 +782,7 @@ test "fs_rename_sync" {
   uv.fs_close_sync(read_file)
   @assert.eq(count, data.length())
   @assert.eq(buffer[:count], data)
-  
+
   // Clean up
   uv.fs_unlink_sync(renamed_file)
   uv.close()

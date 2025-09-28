@@ -140,11 +140,7 @@ pub fn Poll::start(
   poll_cb : (Poll, PollEvent) -> Unit,
   error_cb : (Poll, Errno) -> Unit,
 ) -> Unit raise Errno {
-  let status = uv_poll_start(self, events.0, fn(
-    poll,
-    status,
-    events_int,
-  ) {
+  let status = uv_poll_start(self, events.0, fn(poll, status, events_int) {
     if status < 0 {
       error_cb(poll, Errno::of_int(status))
     } else {
