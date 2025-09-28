@@ -158,5 +158,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install MoonBit
+        uses: ./.github/actions/install-moonbit
+        with:
+          channel: stable
+
       - run: |
           python3 scripts/format.py
