@@ -153,13 +153,13 @@ pub fn CpuSet::new() -> CpuSet raise Errno {
 
 ///|
 pub fn CpuSet::set(self : CpuSet, cpu : Int) -> Unit {
-  let self = self.inner()
+  let self = self.0
   self[cpu / 8] = self[cpu / 8] | (1 << (cpu % 8))
 }
 
 ///|
 pub fn CpuSet::zero(self : CpuSet) -> Unit {
-  let self = self.inner()
+  let self = self.0
   let length = self.length()
   for i in 0..<length {
     self[i] = 0
@@ -168,19 +168,19 @@ pub fn CpuSet::zero(self : CpuSet) -> Unit {
 
 ///|
 pub fn CpuSet::clear(self : CpuSet, cpu : Int) -> Unit {
-  let self = self.inner()
+  let self = self.0
   self[cpu / 8] = self[cpu / 8] & Byte::lnot(1 << (cpu % 8))
 }
 
 ///|
 pub fn CpuSet::is_set(self : CpuSet, cpu : Int) -> Bool {
-  let self = self.inner()
+  let self = self.0
   (self[cpu / 8] & (1 << (cpu % 8))) != 0
 }
 
 ///|
 pub fn CpuSet::count(self : CpuSet) -> Int {
-  let self = self.inner()
+  let self = self.0
   let mut count = 0
   for byte in self {
     loop byte {
@@ -198,8 +198,8 @@ pub fn CpuSet::count(self : CpuSet) -> Int {
 
 ///|
 pub fn CpuSet::intersect(self : CpuSet, other : CpuSet) -> CpuSet {
-  let self = self.inner()
-  let other = other.inner()
+  let self = self.0
+  let other = other.0
   let length = @cmp.minimum(self.length(), other.length())
   let result : FixedArray[Byte] = FixedArray::make(length, 0)
   for i in 0..<length {
@@ -210,8 +210,8 @@ pub fn CpuSet::intersect(self : CpuSet, other : CpuSet) -> CpuSet {
 
 ///|
 pub fn CpuSet::union(self : CpuSet, other : CpuSet) -> CpuSet {
-  let self = self.inner()
-  let other = other.inner()
+  let self = self.0
+  let other = other.0
   let length = @cmp.minimum(self.length(), other.length())
   let result : FixedArray[Byte] = FixedArray::make(length, 0)
   for i in 0..<length {
@@ -228,8 +228,8 @@ pub fn CpuSet::union(self : CpuSet, other : CpuSet) -> CpuSet {
 
 ///|
 pub fn CpuSet::xor(self : CpuSet, other : CpuSet) -> CpuSet {
-  let self = self.inner()
-  let other = other.inner()
+  let self = self.0
+  let other = other.0
   let length = @cmp.minimum(self.length(), other.length())
   let result : FixedArray[Byte] = FixedArray::make(length, 0)
   for i in 0..<length {

@@ -43,7 +43,7 @@ pub fn PollEvent::readable() -> PollEvent {
 
 ///|
 pub fn PollEvent::is_readable(self : PollEvent) -> Bool {
-  (self.inner() & POLL_EVENT_READABLE) != 0
+  (self.0 & POLL_EVENT_READABLE) != 0
 }
 
 ///|
@@ -53,7 +53,7 @@ pub fn PollEvent::writable() -> PollEvent {
 
 ///|
 pub fn PollEvent::is_writable(self : PollEvent) -> Bool {
-  (self.inner() & POLL_EVENT_WRITABLE) != 0
+  (self.0 & POLL_EVENT_WRITABLE) != 0
 }
 
 ///|
@@ -63,7 +63,7 @@ pub fn PollEvent::disconnect() -> PollEvent {
 
 ///|
 pub fn PollEvent::is_disconnect(self : PollEvent) -> Bool {
-  (self.inner() & POLL_EVENT_DISCONNECT) != 0
+  (self.0 & POLL_EVENT_DISCONNECT) != 0
 }
 
 ///|
@@ -73,17 +73,17 @@ pub fn PollEvent::prioritized() -> PollEvent {
 
 ///|
 pub fn PollEvent::is_prioritized(self : PollEvent) -> Bool {
-  (self.inner() & POLL_EVENT_PRIORITIZED) != 0
+  (self.0 & POLL_EVENT_PRIORITIZED) != 0
 }
 
 ///|
 pub impl BitOr for PollEvent with lor(self : PollEvent, other : PollEvent) -> PollEvent {
-  self.inner() | other.inner()
+  self.0 | other.0
 }
 
 ///|
 pub impl BitAnd for PollEvent with land(self : PollEvent, other : PollEvent) -> PollEvent {
-  self.inner() & other.inner()
+  self.0 & other.0
 }
 
 ///|
@@ -96,7 +96,7 @@ extern "c" fn uv_poll_init(uv : Loop, poll : Poll, fd : Int) -> Int = "moonbit_u
 ///|
 pub fn Poll::file(self : Loop, fd : File) -> Poll raise Errno {
   let poll = uv_poll_make()
-  let status = uv_poll_init(self, poll, fd.inner())
+  let status = uv_poll_init(self, poll, fd.0)
   if status < 0 {
     raise Errno::of_int(status)
   }
@@ -140,7 +140,7 @@ pub fn Poll::start(
   poll_cb : (Poll, PollEvent) -> Unit,
   error_cb : (Poll, Errno) -> Unit,
 ) -> Unit raise Errno {
-  let status = uv_poll_start(self, events.inner(), fn(
+  let status = uv_poll_start(self, events.0, fn(
     poll,
     status,
     events_int,

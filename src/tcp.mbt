@@ -116,7 +116,7 @@ pub fn[Sockaddr : ToSockaddr] Tcp::bind(
   addr : Sockaddr,
   flags : TcpBindFlags,
 ) -> Unit raise Errno {
-  let status = uv_tcp_bind(self, addr.to_sockaddr(), flags.inner())
+  let status = uv_tcp_bind(self, addr.to_sockaddr(), flags.0)
   if status < 0 {
     raise Errno::of_int(status)
   }

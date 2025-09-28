@@ -37,7 +37,7 @@ extern "c" fn uv_tty_init(uv : Loop, tty : Tty, fd : Int) -> Int = "moonbit_uv_t
 ///|
 pub fn Tty::new(self : Loop, file : File) -> Tty raise Errno {
   let tty = uv_tty_make()
-  let result = uv_tty_init(self, tty, file.inner())
+  let result = uv_tty_init(self, tty, file.0)
   if result < 0 {
     raise Errno::of_int(result)
   }

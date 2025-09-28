@@ -792,7 +792,7 @@ impl ToReq for Shutdown
 
 type Signal
 fn Signal::new(Loop) -> Self raise Errno
-fn Signal::start(Self, (Self, Signum) -> Unit, Signum) -> Unit raise Errno
+fn Signal::start(Self, (Self, Signum) -> Unit, Signum, oneshot? : Bool) -> Unit raise Errno
 fn Signal::stop(Self) -> Unit raise Errno
 
 type Signum

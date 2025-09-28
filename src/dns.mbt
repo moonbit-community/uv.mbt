@@ -120,7 +120,7 @@ pub fn AddrInfoHints::new(
   protocol? : Protocol,
 ) -> AddrInfoHints {
   let flags = match flags {
-    Some(flags) => flags.inner()
+    Some(flags) => flags.0
     None => 0
   }
   let family = match family {
