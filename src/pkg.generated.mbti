@@ -428,8 +428,16 @@ fn InAddr::new(Byte, Byte, Byte, Byte) -> Self
 fn InAddr::ntop(Self) -> Bytes raise Errno
 fn InAddr::pton(Bytes) -> Self raise Errno
 fn InAddr::to_bytes(Self) -> Bytes
+impl ToJson for InAddr
 
-type InterfaceAddress
+pub struct InterfaceAddress {
+  name : Bytes
+  phys_addr : PhysAddr
+  is_internal : Bool
+  address : Sockaddr
+  netmask : Sockaddr
+}
+impl ToJson for InterfaceAddress
 
 type Key
 fn[T] Key::get(Self) -> T?
@@ -647,6 +655,7 @@ fn Passwd::username(Self) -> Bytes
 
 type PhysAddr
 impl Show for PhysAddr
+impl ToJson for PhysAddr
 
 type Pid
 fn Pid::of_int(Int) -> Self
@@ -805,11 +814,13 @@ fn SockType::raw() -> Self
 fn SockType::stream() -> Self
 
 type Sockaddr
+impl ToJson for Sockaddr
 impl ToSockaddr for Sockaddr
 
 type SockaddrIn
 fn SockaddrIn::addr(Self) -> InAddr
 fn SockaddrIn::port(Self) -> UInt16
+impl ToJson for SockaddrIn
 impl ToSockaddr for SockaddrIn
 
 type SockaddrIn6
@@ -1057,7 +1068,7 @@ pub trait ToReq {
   type_(Self) -> ReqType
 }
 
-pub trait ToSockaddr {
+pub trait ToSockaddr : ToJson {
   to_sockaddr(Self) -> Sockaddr
   of_sockaddr(Sockaddr) -> Self?
   ip_name(Self) -> Bytes raise Errno
