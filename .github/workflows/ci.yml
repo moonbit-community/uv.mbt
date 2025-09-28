@@ -164,5 +164,10 @@ jobs:
         with:
           channel: stable
 
-      - run: |
+      - name: Install MoonBit dependencies
+        run: |
+          moon install
+
+      - name: Check formatting
+        run: |
           python3 scripts/format.py
