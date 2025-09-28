@@ -406,3 +406,62 @@ pub fn loadavg() -> (Double, Double, Double) {
 
 ///|
 pub extern "c" fn available_parallelism() -> Int = "moonbit_uv_available_parallelism"
+
+///|
+#owned(priority)
+extern "c" fn uv_os_getpriority(pid : Pid, priority : Ref[Int]) -> Int = "moonbit_uv_os_getpriority"
+
+///|
+/// Retrieves the scheduling priority of the process specified by pid. The
+/// returned value of priority is between -20 (high priority) and 19
+/// (low priority).
+///
+/// **Note**: On Windows, the returned priority will equal one of the
+/// `Priority` constants.
+pub fn os_getpriority(pid : Pid) -> Int raise Errno {
+  let priority : Ref[Int] = Ref::new(0)
+  let status = uv_os_getpriority(pid, priority)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  priority.val
+}
+
+///|
+pub const PriorityLow = 19
+
+///|
+pub const PriorityBelowNormal = 10
+
+///|
+pub const PriorityNormal = 0
+
+///|
+pub const PriorityAboveNormal = -7
+
+///|
+pub const PriorityHigh = -14
+
+///|
+pub const PriorityHighest = -20
+
+///|
+extern "c" fn uv_os_setpriority(pid : Pid, priority : Int) -> Int = "moonbit_uv_os_setpriority"
+
+///|
+/// Sets the scheduling priority of the process specified by `pid`. The
+/// `priority` value range is between -20 (high priority) and 19 (low priority).
+///
+/// **Note**: On Windows, this function utilizes `SetPriorityClass()`. The
+/// `priority` argument is mapped to a Windows priority class. When retrieving
+/// the process priority, the result will equal one of the `@uv.Priority
+/// constants, and not necessarily the exact value of `priority`.
+///
+/// **Note**: On Windows, setting `@uv.PriorityHighest` will only work for
+/// elevated user, for others it will be silently reduced to `@uv.PriorityHigh`.
+pub fn os_setpriority(pid : Pid, priority : Int) -> Unit raise Errno {
+  let status = uv_os_setpriority(pid, priority)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}

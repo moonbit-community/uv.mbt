@@ -139,3 +139,19 @@ int32_t
 moonbit_uv_available_parallelism(void) {
   return uv_available_parallelism();
 }
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_os_getpriority(int32_t pid, int32_t *priority) {
+  int32_t priority_value = *priority;
+  int32_t status = uv_os_getpriority(pid, &priority_value);
+  *priority = priority_value;
+  moonbit_decref(priority);
+  return status;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_os_setpriority(int32_t pid, int32_t priority) {
+  return uv_os_setpriority(pid, priority);
+}

@@ -2,6 +2,18 @@
 package "tonyfettes/uv"
 
 // Values
+const PriorityAboveNormal : Int = -7
+
+const PriorityBelowNormal : Int = 10
+
+const PriorityHigh : Int = -14
+
+const PriorityHighest : Int = -20
+
+const PriorityLow : Int = 19
+
+const PriorityNormal : Int = 0
+
 fn[Server : ToStream, Client : ToStream] accept(Server, Client) -> Unit raise Errno
 
 fn args() -> FixedArray[Bytes]
@@ -84,9 +96,13 @@ fn os_getpid() -> Pid
 
 fn os_getppid() -> Pid
 
+fn os_getpriority(Pid) -> Int raise Errno
+
 fn os_homedir() -> Bytes raise Errno
 
 fn os_setenv(Bytes, Bytes) -> Unit raise Errno
+
+fn os_setpriority(Pid, Int) -> Unit raise Errno
 
 fn os_tmpdir() -> Bytes raise Errno
 
