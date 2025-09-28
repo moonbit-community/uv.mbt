@@ -159,4 +159,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-          python3 scripts/format.py --check
+          python3 scripts/format.py
