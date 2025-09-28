@@ -92,3 +92,9 @@ test "memory" {
   ignore(@uv.get_constrained_memory())
   ignore(@uv.get_available_memory())
 }
+
+///|
+test "priority" {
+  let priority = @uv.os_getpriority(@uv.os_getpid())
+  @uv.os_setpriority(@uv.os_getpid(), priority)
+}
