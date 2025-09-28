@@ -84,3 +84,21 @@ int32_t
 moonbit_uv_guess_handle(int32_t file) {
   return uv_guess_handle(file);
 }
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_send_buffer_size(uv_handle_t *handle, int32_t *size) {
+  int32_t result = uv_send_buffer_size(handle, size);
+  moonbit_decref(handle);
+  moonbit_decref(size);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_recv_buffer_size(uv_handle_t *handle, int32_t *size) {
+  int32_t result = uv_recv_buffer_size(handle, size);
+  moonbit_decref(handle);
+  moonbit_decref(size);
+  return result;
+}

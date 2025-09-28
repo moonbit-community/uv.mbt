@@ -1094,6 +1094,10 @@ pub trait ToHandle {
   loop_(Self) -> Loop
   fileno(Self) -> OsFd raise Errno
   os_sock(Self) -> OsSock raise Errno
+  get_send_buffer_size(Self) -> Int raise Errno
+  set_send_buffer_size(Self, Int) -> Unit raise Errno
+  get_recv_buffer_size(Self) -> Int raise Errno
+  set_recv_buffer_size(Self, Int) -> Unit raise Errno
 }
 
 pub trait ToReq {

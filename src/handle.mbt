@@ -54,6 +54,10 @@ pub trait ToHandle {
   loop_(Self) -> Loop = _
   fileno(Self) -> OsFd raise Errno = _
   os_sock(Self) -> OsSock raise Errno = _
+  get_send_buffer_size(Self) -> Int raise Errno = _
+  set_send_buffer_size(Self, Int) -> Unit raise Errno = _
+  get_recv_buffer_size(Self) -> Int raise Errno = _
+  set_recv_buffer_size(Self, Int) -> Unit raise Errno = _
 }
 
 ///|
@@ -168,3 +172,47 @@ impl ToHandle with os_sock(self : Self) -> OsSock raise Errno {
 
 ///|
 pub extern "c" fn guess_handle(file : File) -> HandleType = "moonbit_uv_guess_handle"
+
+///|
+#owned(handle, size)
+extern "c" fn uv_send_buffer_size(handle : Handle, size : Ref[Int]) -> Int = "moonbit_uv_send_buffer_size"
+
+///|
+#owned(handle, size)
+extern "c" fn uv_recv_buffer_size(handle : Handle, size : Ref[Int]) -> Int = "moonbit_uv_recv_buffer_size"
+
+///|
+impl ToHandle with get_send_buffer_size(self) {
+  let size = Ref::new(0)
+  let status = uv_send_buffer_size(self.to_handle(), size)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  size.val
+}
+
+///|
+impl ToHandle with set_send_buffer_size(self, size) {
+  let status = uv_send_buffer_size(self.to_handle(), Ref::new(size))
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
+impl ToHandle with get_recv_buffer_size(self) {
+  let size = Ref::new(0)
+  let status = uv_recv_buffer_size(self.to_handle(), size)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  size.val
+}
+
+///|
+impl ToHandle with set_recv_buffer_size(self, size) {
+  let status = uv_recv_buffer_size(self.to_handle(), Ref::new(size))
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
