@@ -35,9 +35,9 @@ test "metrics" {
   |> ignore()
   uv.run(Default)
   let metrics = uv.metrics_info()
-  println(metrics.loop_count())
-  println(metrics.events())
-  println(metrics.events_waiting())
-  println(uv.metrics_idle_time())
+  ignore(metrics.loop_count())
+  ignore(metrics.events())
+  ignore(metrics.events_waiting())
+  ignore(uv.metrics_idle_time())
   uv.close()
 }

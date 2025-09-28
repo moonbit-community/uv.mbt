@@ -163,3 +163,15 @@ extern "c" fn uv_loop_alive(uv : Loop) -> Int = "moonbit_uv_loop_alive"
 pub fn Loop::alive(uv : Loop) -> Bool {
   return uv_loop_alive(uv) != 0
 }
+
+///|
+#owned(uv)
+extern "c" fn uv_loop_fork(uv : Loop) -> Int = "moonbit_uv_loop_fork"
+
+///|
+pub fn Loop::fork(uv : Loop) -> Unit raise Errno {
+  let status = uv_loop_fork(uv)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}

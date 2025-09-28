@@ -150,3 +150,44 @@ extern "c" fn uv_pipe_pending_type(pipe : Pipe) -> HandleType = "moonbit_uv_pipe
 pub fn Pipe::pending_type(self : Pipe) -> HandleType {
   return uv_pipe_pending_type(self)
 }
+
+///|
+#owned(req, handle, name)
+extern "c" fn uv_pipe_connect2(
+  req : Connect,
+  handle : Pipe,
+  name : Bytes,
+  flags : UInt,
+  cb : (Connect, Int) -> Unit,
+) -> Int = "moonbit_uv_pipe_connect2"
+
+///|
+const UV_PIPE_NO_TRUNCATE : UInt = 1U << 0
+
+///|
+pub fn Pipe::connect(
+  self : Pipe,
+  name : Bytes,
+  connect_cb : () -> Unit,
+  error_cb : (Errno) -> Unit,
+  no_truncate? : Bool = false,
+) -> Connect raise Errno {
+  fn cb(_ : Connect, status : Int) {
+    if status < 0 {
+      error_cb(Errno::of_int(status))
+    } else {
+      connect_cb()
+    }
+  }
+
+  let req = uv_connect_make()
+  let mut flags = 0U
+  if no_truncate {
+    flags = flags | UV_PIPE_NO_TRUNCATE
+  }
+  let status = uv_pipe_connect2(req, self, name, flags, cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  return req
+}

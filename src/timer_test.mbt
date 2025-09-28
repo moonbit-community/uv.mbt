@@ -39,13 +39,13 @@ test "timer" {
 ///|
 test "clock_gettime" {
   let ts = @uv.clock_gettime(Realtime)
-  println(ts.sec())
-  println(ts.nsec())
+  ignore(ts.sec())
+  ignore(ts.nsec())
 }
 
 ///|
 test "gettimeofday" {
   let tv = @uv.gettimeofday()
-  println(tv.sec())
-  println(tv.usec())
+  ignore(tv.sec())
+  ignore(tv.usec())
 }
