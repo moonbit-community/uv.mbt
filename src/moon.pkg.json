@@ -1,330 +1,4 @@
 {
-  "targets": {
-    "args_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "args.mbt": [
-      "native",
-      "llvm"
-    ],
-    "async.mbt": [
-      "native",
-      "llvm"
-    ],
-    "async_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "barrier.mbt": [
-      "native",
-      "llvm"
-    ],
-    "bytes.mbt": [
-      "native",
-      "llvm"
-    ],
-    "cond.mbt": [
-      "native",
-      "llvm"
-    ],
-    "cond_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "dl.mbt": [
-      "native",
-      "llvm"
-    ],
-    "debug.mbt": [
-      "native",
-      "llvm"
-    ],
-    "dns_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "dns.mbt": [
-      "native",
-      "llvm"
-    ],
-    "env_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "env.mbt": [
-      "native",
-      "llvm"
-    ],
-    "error.mbt": [
-      "native",
-      "llvm"
-    ],
-    "fs_event_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "fs_event.mbt": [
-      "native",
-      "llvm"
-    ],
-    "fs_poll_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "fs_poll.mbt": [
-      "native",
-      "llvm"
-    ],
-    "fs_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "fs.mbt": [
-      "native",
-      "llvm"
-    ],
-    "handle.mbt": [
-      "native",
-      "llvm"
-    ],
-    "check.mbt": [
-      "native",
-      "llvm"
-    ],
-    "check_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "idle.mbt": [
-      "native",
-      "llvm"
-    ],
-    "idle_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "if_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "if.mbt": [
-      "native",
-      "llvm"
-    ],
-    "ip_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "ip.mbt": [
-      "native",
-      "llvm"
-    ],
-    "key.mbt": [
-      "native",
-      "llvm"
-    ],
-    "loop_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "loop.mbt": [
-      "native",
-      "llvm"
-    ],
-    "metrics_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "metrics.mbt": [
-      "native",
-      "llvm"
-    ],
-    "mutex.mbt": [
-      "native",
-      "llvm"
-    ],
-    "once.mbt": [
-      "native",
-      "llvm"
-    ],
-    "sem.mbt": [
-      "native",
-      "llvm"
-    ],
-    "sem_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "passwd.mbt": [
-      "native",
-      "llvm"
-    ],
-    "passwd_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "poll.mbt": [
-      "native",
-      "llvm"
-    ],
-    "poll_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "process.mbt": [
-      "native",
-      "llvm"
-    ],
-    "process_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "os_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "os.mbt": [
-      "native",
-      "llvm"
-    ],
-    "pipe.mbt": [
-      "native",
-      "llvm"
-    ],
-    "prepare_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "prepare.mbt": [
-      "native",
-      "llvm"
-    ],
-    "random_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "random.mbt": [
-      "native",
-      "llvm"
-    ],
-    "req_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "req.mbt": [
-      "native",
-      "llvm"
-    ],
-    "rusage_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "rusage.mbt": [
-      "native",
-      "llvm"
-    ],
-    "rwlock_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "rwlock.mbt": [
-      "native",
-      "llvm"
-    ],
-    "signal.mbt": [
-      "native",
-      "llvm"
-    ],
-    "socket_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "socket.mbt": [
-      "native",
-      "llvm"
-    ],
-    "stream_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "stream.mbt": [
-      "native",
-      "llvm"
-    ],
-    "string.mbt": [
-      "native",
-      "llvm"
-    ],
-    "tcp_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "tcp.mbt": [
-      "native",
-      "llvm"
-    ],
-    "thread.mbt": [
-      "native",
-      "llvm"
-    ],
-    "thread_alt.mbt": [
-      "native",
-      "llvm"
-    ],
-    "thread_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "time.mbt": [
-      "native",
-      "llvm"
-    ],
-    "time_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "timer.mbt": [
-      "native",
-      "llvm"
-    ],
-    "timer_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "tty.mbt": [
-      "native",
-      "llvm"
-    ],
-    "udp_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "udp.mbt": [
-      "native",
-      "llvm"
-    ],
-    "uv.mbt": [
-      "native",
-      "llvm"
-    ],
-    "version_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "version.mbt": [
-      "native",
-      "llvm"
-    ],
-    "work_test.mbt": [
-      "native",
-      "llvm"
-    ],
-    "work.mbt": [
-      "native",
-      "llvm"
-    ]
-  },
   "import": [
     "tonyfettes/c"
   ],
@@ -471,6 +145,332 @@
       ]
     }
   ],
+  "targets": {
+    "args.mbt": [
+      "native",
+      "llvm"
+    ],
+    "args_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "async.mbt": [
+      "native",
+      "llvm"
+    ],
+    "async_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "barrier.mbt": [
+      "native",
+      "llvm"
+    ],
+    "bytes.mbt": [
+      "native",
+      "llvm"
+    ],
+    "check.mbt": [
+      "native",
+      "llvm"
+    ],
+    "check_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "cond.mbt": [
+      "native",
+      "llvm"
+    ],
+    "cond_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "debug.mbt": [
+      "native",
+      "llvm"
+    ],
+    "dl.mbt": [
+      "native",
+      "llvm"
+    ],
+    "dns.mbt": [
+      "native",
+      "llvm"
+    ],
+    "dns_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "env.mbt": [
+      "native",
+      "llvm"
+    ],
+    "env_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "error.mbt": [
+      "native",
+      "llvm"
+    ],
+    "fs.mbt": [
+      "native",
+      "llvm"
+    ],
+    "fs_event.mbt": [
+      "native",
+      "llvm"
+    ],
+    "fs_event_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "fs_poll.mbt": [
+      "native",
+      "llvm"
+    ],
+    "fs_poll_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "fs_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "handle.mbt": [
+      "native",
+      "llvm"
+    ],
+    "idle.mbt": [
+      "native",
+      "llvm"
+    ],
+    "idle_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "if.mbt": [
+      "native",
+      "llvm"
+    ],
+    "if_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "ip.mbt": [
+      "native",
+      "llvm"
+    ],
+    "ip_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "key.mbt": [
+      "native",
+      "llvm"
+    ],
+    "loop.mbt": [
+      "native",
+      "llvm"
+    ],
+    "loop_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "metrics.mbt": [
+      "native",
+      "llvm"
+    ],
+    "metrics_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "mutex.mbt": [
+      "native",
+      "llvm"
+    ],
+    "once.mbt": [
+      "native",
+      "llvm"
+    ],
+    "os.mbt": [
+      "native",
+      "llvm"
+    ],
+    "os_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "passwd.mbt": [
+      "native",
+      "llvm"
+    ],
+    "passwd_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "pipe.mbt": [
+      "native",
+      "llvm"
+    ],
+    "poll.mbt": [
+      "native",
+      "llvm"
+    ],
+    "poll_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "prepare.mbt": [
+      "native",
+      "llvm"
+    ],
+    "prepare_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "process.mbt": [
+      "native",
+      "llvm"
+    ],
+    "process_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "random.mbt": [
+      "native",
+      "llvm"
+    ],
+    "random_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "req.mbt": [
+      "native",
+      "llvm"
+    ],
+    "req_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "rusage.mbt": [
+      "native",
+      "llvm"
+    ],
+    "rusage_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "rwlock.mbt": [
+      "native",
+      "llvm"
+    ],
+    "rwlock_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "sem.mbt": [
+      "native",
+      "llvm"
+    ],
+    "sem_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "signal.mbt": [
+      "native",
+      "llvm"
+    ],
+    "socket.mbt": [
+      "native",
+      "llvm"
+    ],
+    "socket_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "stream.mbt": [
+      "native",
+      "llvm"
+    ],
+    "stream_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "string.mbt": [
+      "native",
+      "llvm"
+    ],
+    "tcp.mbt": [
+      "native",
+      "llvm"
+    ],
+    "tcp_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "thread.mbt": [
+      "native",
+      "llvm"
+    ],
+    "thread_alt.mbt": [
+      "native",
+      "llvm"
+    ],
+    "thread_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "time.mbt": [
+      "native",
+      "llvm"
+    ],
+    "time_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "timer.mbt": [
+      "native",
+      "llvm"
+    ],
+    "timer_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "tty.mbt": [
+      "native",
+      "llvm"
+    ],
+    "udp.mbt": [
+      "native",
+      "llvm"
+    ],
+    "udp_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "uv.mbt": [
+      "native",
+      "llvm"
+    ],
+    "version.mbt": [
+      "native",
+      "llvm"
+    ],
+    "version_test.mbt": [
+      "native",
+      "llvm"
+    ],
+    "work.mbt": [
+      "native",
+      "llvm"
+    ],
+    "work_test.mbt": [
+      "native",
+      "llvm"
+    ]
+  },
   "test-import": [
     "tonyfettes/uv/internal/assert"
   ]
