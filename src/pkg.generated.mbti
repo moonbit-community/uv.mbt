@@ -452,6 +452,7 @@ type Loop
 fn Loop::alive(Self) -> Bool
 fn Loop::close(Self) -> Unit raise Errno
 fn Loop::configure(Self, LoopOption) -> Unit raise Errno
+fn Loop::fork(Self) -> Unit raise Errno
 #as_free_fn
 fn Loop::fs_access(Self, Bytes, AccessFlags, () -> Unit, (Errno) -> Unit) -> Fs raise Errno
 #as_free_fn
@@ -667,9 +668,12 @@ impl Show for Pid
 
 type Pipe
 fn Pipe::bind(Self, Bytes, PipeBindFlags) -> Unit raise Errno
+fn Pipe::chmod(Self, PipeMode) -> Unit raise Errno
+fn Pipe::connect(Self, Bytes, () -> Unit, (Errno) -> Unit, no_truncate? : Bool) -> Connect raise Errno
 fn Pipe::new(Loop, ipc? : Bool) -> Self raise Errno
 fn Pipe::open(Self, File) -> Unit raise Errno
 fn Pipe::pending_count(Self) -> UInt
+fn Pipe::pending_instances(Self, Int) -> Unit
 fn Pipe::pending_type(Self) -> HandleType
 fn Pipe::to_handle(Self) -> Handle
 fn Pipe::to_stream(Self) -> Stream
@@ -681,6 +685,12 @@ fn PipeBindFlags::new(truncate? : Bool) -> Self
 
 type PipeFlags
 fn PipeFlags::new(non_block? : Bool) -> Self
+
+pub(all) enum PipeMode {
+  Readable
+  Writable
+  ReadWrite
+}
 
 type Poll
 fn Poll::file(Loop, File) -> Self raise Errno

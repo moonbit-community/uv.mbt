@@ -85,10 +85,6 @@ The following libuv APIs are not yet implemented in this library:
 - `uv_udp_init_ex()` - Extended UDP initialization
 - `uv_udp_try_send2()` - Batch UDP send operations
 
-### Pipe Functions
-
-- `uv_pipe_pending_instances()` - Set pending instances count
-
 ### Process Functions
 
 - `uv_setup_args()` - Setup process arguments

@@ -135,3 +135,10 @@ moonbit_uv_pipe_chmod(moonbit_uv_pipe_t *handle, int flags) {
   moonbit_decref(handle);
   return result;
 }
+
+MOONBIT_FFI_EXPORT
+void
+moonbit_uv_pipe_pending_instances(moonbit_uv_pipe_t *handle, int32_t count) {
+  uv_pipe_pending_instances(&handle->pipe, count);
+  moonbit_decref(handle);
+}

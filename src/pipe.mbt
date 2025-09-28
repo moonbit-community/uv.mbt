@@ -223,3 +223,10 @@ pub fn Pipe::chmod(self : Pipe, mode : PipeMode) -> Unit raise Errno {
     raise Errno::of_int(status)
   }
 }
+
+///|
+/// Set the number of pending pipe instance handles when the pipe server is waiting for connections.
+///
+/// **NOTE**: This setting applies to Windows only.
+#owned(self)
+pub extern "c" fn Pipe::pending_instances(self : Pipe, count : Int) = "moonbit_uv_pipe_pending_instances"
