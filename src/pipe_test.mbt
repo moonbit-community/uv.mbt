@@ -116,6 +116,7 @@ test "Pipe::chmod" {
   }
   let path : Bytes = "/tmp/uv-mbt-test-pipe-chmod.sock"
   let uv = @uv.Loop::new()
+  defer (uv.close() catch { _ => () })
   defer (uv.fs_unlink_sync(path) catch { _ => () })
   let server = @uv.Pipe::new(uv, ipc=false) catch {
     error => {
