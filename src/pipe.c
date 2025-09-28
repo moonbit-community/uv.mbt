@@ -16,6 +16,7 @@
 #include "moonbit.h"
 #include "uv#include#uv.h"
 
+#include "stream.h"
 #include "uv.h"
 #include <string.h>
 
@@ -102,4 +103,42 @@ moonbit_uv_pipe_pending_type(uv_pipe_t *handle) {
   uv_handle_type type = uv_pipe_pending_type(handle);
   moonbit_decref(handle);
   return (int32_t)type;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_pipe_connect2(
+  uv_connect_t *req,
+  moonbit_uv_pipe_t *handle,
+  moonbit_bytes_t name,
+  uint32_t flags,
+  moonbit_uv_connection_cb_t *cb
+) {
+  if (req->data) {
+    moonbit_decref(req->data);
+  }
+  req->data = cb;
+  size_t name_length = Moonbit_array_length(name);
+  int result = uv_pipe_connect2(
+    req, &handle->pipe, (const char *)name, name_length, flags,
+    moonbit_uv_connect_cb
+  );
+  moonbit_decref(handle);
+  moonbit_decref(name);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_pipe_chmod(moonbit_uv_pipe_t *handle, int flags) {
+  int result = uv_pipe_chmod(&handle->pipe, flags);
+  moonbit_decref(handle);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+void
+moonbit_uv_pipe_pending_instances(moonbit_uv_pipe_t *handle, int32_t count) {
+  uv_pipe_pending_instances(&handle->pipe, count);
+  moonbit_decref(handle);
 }

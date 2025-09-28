@@ -23,7 +23,7 @@ test "tmpdir" {
 
 ///|
 test "exepath" {
-  println(@uv.exepath())
+  ignore(@uv.exepath())
 }
 
 ///|

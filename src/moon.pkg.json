@@ -314,6 +314,10 @@
       "native",
       "llvm"
     ],
+    "pipe_test.mbt": [
+      "native",
+      "llvm"
+    ],
     "poll.mbt": [
       "native",
       "llvm"

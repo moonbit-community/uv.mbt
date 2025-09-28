@@ -150,3 +150,83 @@ extern "c" fn uv_pipe_pending_type(pipe : Pipe) -> HandleType = "moonbit_uv_pipe
 pub fn Pipe::pending_type(self : Pipe) -> HandleType {
   return uv_pipe_pending_type(self)
 }
+
+///|
+#owned(req, handle, name)
+extern "c" fn uv_pipe_connect2(
+  req : Connect,
+  handle : Pipe,
+  name : Bytes,
+  flags : UInt,
+  cb : (Connect, Int) -> Unit,
+) -> Int = "moonbit_uv_pipe_connect2"
+
+///|
+const UV_PIPE_NO_TRUNCATE : UInt = 1U << 0
+
+///|
+pub fn Pipe::connect(
+  self : Pipe,
+  name : Bytes,
+  connect_cb : () -> Unit,
+  error_cb : (Errno) -> Unit,
+  no_truncate? : Bool = false,
+) -> Connect raise Errno {
+  fn cb(_ : Connect, status : Int) {
+    if status < 0 {
+      error_cb(Errno::of_int(status))
+    } else {
+      connect_cb()
+    }
+  }
+
+  let req = uv_connect_make()
+  let mut flags = 0U
+  if no_truncate {
+    flags = flags | UV_PIPE_NO_TRUNCATE
+  }
+  let status = uv_pipe_connect2(req, self, name, flags, cb)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  return req
+}
+
+///|
+#owned(pipe)
+extern "c" fn uv_pipe_chmod(pipe : Pipe, mode : Int) -> Int = "moonbit_uv_pipe_chmod"
+
+///|
+const UV_READABLE = 1
+
+///|
+const UV_WRITABLE = 2
+
+///|
+pub(all) enum PipeMode {
+  Readable
+  Writable
+  ReadWrite
+}
+
+///|
+/// Alters pipe permissions, allowing it to be accessed from processes run by
+/// different users. Makes the pipe writable or readable by all users.
+pub fn Pipe::chmod(self : Pipe, mode : PipeMode) -> Unit raise Errno {
+  let mode = match mode {
+    Readable => UV_READABLE
+    Writable => UV_WRITABLE
+    ReadWrite => UV_READABLE | UV_WRITABLE
+  }
+  let status = uv_pipe_chmod(self, mode)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
+/// Set the number of pending pipe instance handles when the pipe server is waiting for connections.
+///
+/// **NOTE**: This setting applies to Windows only.
+#owned(self)
+pub extern "c" fn Pipe::pending_instances(self : Pipe, count : Int) = "moonbit_uv_pipe_pending_instances"
