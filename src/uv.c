@@ -51,6 +51,7 @@
 #include "metrics.c"
 #include "mutex.c"
 #include "os.c"
+#include "passwd.c"
 #include "pipe.c"
 #include "poll.c"
 #include "prepare.c"
