@@ -242,6 +242,10 @@
       "native",
       "llvm"
     ],
+    "handle_test.mbt": [
+      "native",
+      "llvm"
+    ],
     "idle.mbt": [
       "native",
       "llvm"
