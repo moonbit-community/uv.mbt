@@ -456,6 +456,7 @@ moonbit_uv_udp_set_ttl(moonbit_uv_udp_t *udp, int32_t ttl) {
   moonbit_decref(udp);
   return result;
 }
+
 MOONBIT_FFI_EXPORT
 int32_t
 moonbit_uv_udp_try_send(
@@ -479,6 +480,42 @@ moonbit_uv_udp_try_send(
   if (addr) {
     moonbit_decref(addr);
   }
+  moonbit_decref(udp);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_udp_try_send2(
+  moonbit_uv_udp_t *udp,
+  moonbit_bytes_t **bufs,
+  int32_t **bufs_offset,
+  int32_t **bufs_length,
+  struct sockaddr **addrs,
+  int flags
+) {
+  int bufs_size = Moonbit_array_length(bufs);
+  uv_buf_t **bufs_data = malloc(sizeof(uv_buf_t *) * bufs_size);
+  unsigned int *nbufs_data = malloc(sizeof(unsigned int) * bufs_size);
+  for (int i = 0; i < bufs_size; i++) {
+    nbufs_data[i] = Moonbit_array_length(bufs[i]);
+    bufs_data[i] = malloc(sizeof(uv_buf_t) * nbufs_data[i]);
+    for (int j = 0; j < nbufs_data[i]; j++) {
+      bufs_data[i][j] =
+        uv_buf_init((char *)bufs[i][j] + bufs_offset[i][j], bufs_length[i][j]);
+    }
+  }
+  int result =
+    uv_udp_try_send2(&udp->udp, bufs_size, bufs_data, nbufs_data, addrs, flags);
+  for (int i = 0; i < bufs_size; i++) {
+    free(bufs_data[i]);
+  }
+  free(bufs_data);
+  free(nbufs_data);
+  moonbit_decref(bufs);
+  moonbit_decref(bufs_offset);
+  moonbit_decref(bufs_length);
+  moonbit_decref(addrs);
   moonbit_decref(udp);
   return result;
 }

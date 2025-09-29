@@ -86,7 +86,7 @@ extern "c" fn uv_udp_send(
   bufs_base : FixedArray[Bytes],
   bufs_offset : FixedArray[Int],
   bufs_length : FixedArray[Int],
-  addr : Sockaddr,
+  addr : Sockaddr?,
   cb : (UdpSend, Int) -> Unit,
 ) -> Int = "moonbit_uv_udp_send"
 
@@ -122,10 +122,7 @@ pub fn[Sockaddr : ToSockaddr] Udp::send(
     bufs_base,
     bufs_offset,
     bufs_length,
-    match addr {
-      Some(addr) => addr.to_sockaddr()
-      None => uv_sockaddr_null()
-    },
+    addr.map(_.to_sockaddr()),
     cb,
   )
   if result < 0 {
@@ -481,7 +478,7 @@ extern "c" fn uv_udp_try_send(
   bufs_base : FixedArray[Bytes],
   bufs_offset : FixedArray[Int],
   bufs_length : FixedArray[Int],
-  addr : Sockaddr,
+  addr : Sockaddr?,
 ) -> Int = "moonbit_uv_udp_try_send"
 
 ///|
@@ -506,10 +503,59 @@ pub fn[Sockaddr : ToSockaddr] Udp::try_send(
     bufs_base,
     bufs_offset,
     bufs_length,
-    match addr {
-      Some(addr) => addr.to_sockaddr()
-      None => uv_sockaddr_null()
-    },
+    addr.map(_.to_sockaddr()),
+  )
+  if result < 0 {
+    raise Errno::of_int(result)
+  }
+  result
+}
+
+///|
+#owned(udp, bufs_base, bufs_offset, bufs_length, addrs)
+extern "c" fn uv_udp_try_send2(
+  udp : Udp,
+  bufs_base : FixedArray[FixedArray[Bytes]],
+  bufs_offset : FixedArray[FixedArray[Int]],
+  bufs_length : FixedArray[FixedArray[Int]],
+  addrs : FixedArray[Sockaddr?],
+  flags : UInt,
+) -> Int = "moonbit_uv_udp_try_send2"
+
+///|
+pub fn[T : ToSockaddr] Udp::try_send2(
+  self : Udp,
+  data : Array[(Array[@bytes.View], T?)],
+  flags : UdpFlags,
+) -> Int raise Errno {
+  let bufs_base : FixedArray[FixedArray[Bytes]] = FixedArray::makei(
+    data.length(),
+    i => FixedArray::make(data[i].0.length(), ""),
+  )
+  let bufs_offset = FixedArray::makei(data.length(), i => FixedArray::make(
+    data[i].0.length(),
+    0,
+  ))
+  let bufs_length = FixedArray::makei(data.length(), i => FixedArray::make(
+    data[i].0.length(),
+    0,
+  ))
+  let addrs : FixedArray[Sockaddr?] = FixedArray::make(data.length(), None)
+  for i in 0..<data.length() {
+    for j in 0..<data[i].0.length() {
+      bufs_base[i][j] = data[i].0[j].data()
+      bufs_offset[i][j] = data[i].0[j].start_offset()
+      bufs_length[i][j] = data[i].0[j].length()
+    }
+    addrs[i] = data[i].1.map(_.to_sockaddr())
+  }
+  let result = uv_udp_try_send2(
+    self,
+    bufs_base,
+    bufs_offset,
+    bufs_length,
+    addrs,
+    flags.0,
   )
   if result < 0 {
     raise Errno::of_int(result)

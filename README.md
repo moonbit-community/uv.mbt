@@ -80,11 +80,6 @@ The following libuv APIs are not yet implemented in this library:
 - `uv_tcp_init_ex()` - Extended TCP initialization
 - `uv_tcp_keepalive_ex()` - Extended TCP keepalive configuration
 
-### UDP Functions
-
-- `uv_udp_init_ex()` - Extended UDP initialization
-- `uv_udp_try_send2()` - Batch UDP send operations
-
 ### Process Functions
 
 - `uv_setup_args()` - Setup process arguments
