@@ -38,6 +38,28 @@ pub impl ToStream for Pipe with to_stream(self) {
 pub impl ToStream for Pipe with of_stream(self) = "%identity"
 
 ///|
+pub fn[Stream : ToStream] Pipe::write2(
+  self : Pipe,
+  bufs : Array[BytesView],
+  send_handle : Stream,
+  write_cb : () -> Unit,
+  error_cb : (Errno) -> Unit,
+) -> Write raise Errno {
+  self.to_stream().write2(bufs, send_handle.to_stream(), write_cb, error_cb)
+}
+
+///|
+pub fn[Stream : ToStream] Pipe::try_write2(
+  self : Pipe,
+  bufs : Array[BytesView],
+  send_handle : Stream,
+  write_cb : () -> Unit,
+  error_cb : (Errno) -> Unit,
+) -> Write raise Errno {
+  self.to_stream().try_write2(bufs, send_handle.to_stream(), write_cb, error_cb)
+}
+
+///|
 extern "c" fn uv_pipe_make() -> Pipe = "moonbit_uv_pipe_make"
 
 ///|
