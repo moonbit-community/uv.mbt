@@ -62,7 +62,7 @@ test "Udp::getsockname" {
 
   // Test getsockname
   let sockname = socket.getsockname()
-  inspect(sockname.ip_name() is "127.0.0.1", content="true")
+  inspect(@uv.ip_name(sockname) is "127.0.0.1", content="true")
   socket.close(() => ())
   uv.run(Default)
   uv.close()
@@ -73,7 +73,7 @@ test "Udp::set_broadcast" {
   let uv = @uv.Loop::new()
   let socket = @uv.Udp::new_ex(
     uv,
-    @uv.AddressFamily::inet(),
+    @inet.family,
     @uv.UdpFlags::new(),
   )
   socket.set_broadcast(true)
@@ -88,7 +88,7 @@ test "Udp::set_ttl" {
   let uv = @uv.Loop::new()
   let socket = @uv.Udp::new_ex(
     uv,
-    @uv.AddressFamily::inet(),
+    @inet.family,
     @uv.UdpFlags::new(),
   )
   socket.set_ttl(64)
@@ -102,7 +102,7 @@ test "Udp::set_multicast_ttl" {
   let uv = @uv.Loop::new()
   let socket = @uv.Udp::new_ex(
     uv,
-    @uv.AddressFamily::inet(),
+    @inet.family,
     @uv.UdpFlags::new(),
   )
   socket.set_multicast_ttl(32)
@@ -116,7 +116,7 @@ test "Udp::set_multicast_loop" {
   let uv = @uv.Loop::new()
   let socket = @uv.Udp::new_ex(
     uv,
-    @uv.AddressFamily::inet(),
+    @inet.family,
     @uv.UdpFlags::new(),
   )
   socket.set_multicast_loop(false)
@@ -163,7 +163,7 @@ test "Udp::new_ex" {
   let uv = @uv.Loop::new()
   let socket = @uv.Udp::new_ex(
     uv,
-    @uv.AddressFamily::inet(),
+    @inet.family,
     @uv.UdpFlags::new(),
   )
   socket.close(() => ())
@@ -176,7 +176,7 @@ test "Udp::set_membership" {
   let uv = @uv.Loop::new()
   let socket = @uv.Udp::new_ex(
     uv,
-    @uv.AddressFamily::inet(),
+    @inet.family,
     @uv.UdpFlags::new(),
   )
   try {

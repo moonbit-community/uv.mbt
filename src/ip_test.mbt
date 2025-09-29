@@ -25,11 +25,11 @@ test "ip6_addr" {
 ///|
 test "ip4_name" {
   let addr = @uv.ip4_addr("127.0.0.1", 8080)
-  @assert.eq(addr.ip_name(), "127.0.0.1")
+  @assert.eq(@uv.ip_name(addr), "127.0.0.1")
 }
 
 ///|
 test "ip6_name" {
   let addr = @uv.ip6_addr("::1", 8080)
-  @assert.eq(addr.ip_name(), "::1")
+  @assert.eq(@uv.ip_name(addr), "::1")
 }

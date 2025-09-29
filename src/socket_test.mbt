@@ -17,7 +17,7 @@ test "socketpair" {
   let uv = @uv.Loop::new()
   let errors = []
   let socks = @uv.socketpair(
-    @uv.SockType::stream(),
+    @socket.Stream,
     (PipeFlags::new(), PipeFlags::new()),
   )
   let reader = @uv.Tcp::new(uv)
@@ -46,16 +46,16 @@ test "socketpair" {
 
 ///|
 test "ntop-pton" {
-  let in_addr : @uv.InAddr = @uv.InAddr::pton("127.0.0.1")
-  @json.inspect(in_addr.ntop(), content="127.0.0.1")
-  let in6_addr : @uv.In6Addr = @uv.In6Addr::pton("::1")
-  @json.inspect(in6_addr.ntop(), content="::1")
+  let in_addr : @inet.Addr = @uv.inet_pton("127.0.0.1")
+  @json.inspect(@uv.inet_ntop(in_addr), content="127.0.0.1")
+  let in6_addr : @uv.In6Addr = @uv.inet6_pton("::1")
+  @json.inspect(@uv.inet6_ntop(in6_addr), content="::1")
 }
 
 ///|
 test "addr" {
   let sockaddr_in : @uv.SockaddrIn = @uv.ip4_addr("127.0.0.1", 8080)
-  @json.inspect(sockaddr_in.addr().ntop(), content="127.0.0.1")
+  @json.inspect(@uv.inet_ntop(sockaddr_in.addr()), content="127.0.0.1")
 }
 
 ///|
@@ -68,9 +68,8 @@ test "port" {
 
 ///|
 test "InAddr" {
-  let in_addr : @uv.InAddr = @uv.InAddr::new(1, 2, 3, 4)
-  @json.inspect(in_addr.ntop(), content="1.2.3.4")
-  @json.inspect(in_addr.to_bytes().to_array(), content=[1, 2, 3, 4])
+  let in_addr : @uv.InAddr = @inet.Addr::new(1, 2, 3, 4)
+  @json.inspect(@uv.inet_ntop(in_addr), content="1.2.3.4")
 }
 
 ///|
@@ -78,9 +77,8 @@ test "In6Addr" {
   let in6_addr : @uv.In6Addr = @uv.In6Addr::new(
     0x2001, 0x0db8, 0x85a3, 0x0000, 0x0000, 0x8a2e, 0x0370, 0x7334,
   )
-  @json.inspect(in6_addr.ntop(), content="2001:db8:85a3::8a2e:370:7334")
-  @json.inspect(in6_addr.to_bytes().to_array(), content=[
-    0x20, 0x01, 0x0d, 0xb8, 0x85, 0xa3, 0x00, 0x00, 0x00, 0x00, 0x8a, 0x2e, 0x03,
-    0x70, 0x73, 0x34,
-  ])
+  @json.inspect(
+    @uv.inet6_ntop(in6_addr),
+    content="2001:db8:85a3::8a2e:370:7334",
+  )
 }

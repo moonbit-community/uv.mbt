@@ -1,6 +1,10 @@
 {
   "import": [
-    "tonyfettes/c"
+    "tonyfettes/c",
+    "tonyfettes/socket",
+    "tonyfettes/socket/inet",
+    "tonyfettes/socket/inet6",
+    "tonyfettes/socket/ip"
   ],
   "native-stub": [
     "uv#src#fs-poll.c",
