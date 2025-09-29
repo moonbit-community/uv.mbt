@@ -64,11 +64,6 @@ The following libuv APIs are not yet implemented in this library:
 - `uv_unref()` - Unreference handles
 - `uv_has_ref()` - Check handle reference status
 
-### Stream Functions
-
-- `uv_try_write()` - Non-blocking write attempt
-- `uv_try_write2()` - Non-blocking write with handle passing
-
 ### TCP Functions
 
 - `uv_tcp_init_ex()` - Extended TCP initialization

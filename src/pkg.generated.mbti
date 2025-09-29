@@ -700,6 +700,8 @@ fn Pipe::pending_instances(Self, Int) -> Unit
 fn Pipe::pending_type(Self) -> HandleType
 fn Pipe::to_handle(Self) -> Handle
 fn Pipe::to_stream(Self) -> Stream
+fn[Stream : ToStream] Pipe::try_write2(Self, Array[BytesView], Stream, () -> Unit, (Errno) -> Unit) -> Write raise Errno
+fn[Stream : ToStream] Pipe::write2(Self, Array[BytesView], Stream, () -> Unit, (Errno) -> Unit) -> Write raise Errno
 impl ToHandle for Pipe
 impl ToStream for Pipe
 
@@ -918,6 +920,8 @@ fn Stream::read_start(Self, (Handle, Int) -> BytesView, (Self, Int, BytesView) -
 fn Stream::read_stop(Self) -> Unit raise Errno
 fn Stream::shutdown(Self, () -> Unit, (Errno) -> Unit) -> Shutdown raise Errno
 fn Stream::to_handle(Self) -> Handle
+fn Stream::try_write(Self, Array[BytesView], () -> Unit, (Errno) -> Unit) -> Write raise Errno
+fn Stream::try_write2(Self, Array[BytesView], Self, () -> Unit, (Errno) -> Unit) -> Write raise Errno
 fn Stream::write(Self, Array[BytesView], () -> Unit, (Errno) -> Unit) -> Write raise Errno
 fn Stream::write2(Self, Array[BytesView], Self, () -> Unit, (Errno) -> Unit) -> Write raise Errno
 impl ToHandle for Stream
@@ -943,6 +947,8 @@ fn Tcp::new(Loop) -> Self raise Errno
 fn Tcp::nodelay(Self, Bool) -> Unit raise Errno
 fn Tcp::open(Self, OsSock) -> Unit raise Errno
 fn Tcp::simultaneous_accepts(Self, Bool) -> Unit raise Errno
+fn[Stream : ToStream] Tcp::try_write2(Self, Array[BytesView], Stream, () -> Unit, (Errno) -> Unit) -> Write raise Errno
+fn[Stream : ToStream] Tcp::write2(Self, Array[BytesView], Stream, () -> Unit, (Errno) -> Unit) -> Write raise Errno
 impl ToHandle for Tcp
 impl ToStream for Tcp
 
@@ -1119,6 +1125,7 @@ pub trait ToStream : ToHandle {
   read_start(Self, (Self, Int) -> BytesView, (Self, Int, BytesView) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
   read_stop(Self) -> Unit raise Errno
   write(Self, Array[BytesView], () -> Unit, (Errno) -> Unit) -> Write raise Errno
+  try_write(Self, Array[BytesView], () -> Unit, (Errno) -> Unit) -> Write raise Errno
   listen(Self, Int, (Self) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
   is_readable(Self) -> Bool
   is_writable(Self) -> Bool

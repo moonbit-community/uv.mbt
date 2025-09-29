@@ -137,6 +137,17 @@ extern "c" fn uv_write(
 ) -> Int = "moonbit_uv_write"
 
 ///|
+#owned(write, handle, bufs_base, bufs_offset, bufs_length)
+extern "c" fn uv_try_write(
+  write : Write,
+  handle : Stream,
+  bufs_base : FixedArray[Bytes],
+  bufs_offset : FixedArray[Int],
+  bufs_length : FixedArray[Int],
+  cb : (Write, Int) -> Unit,
+) -> Int = "moonbit_uv_try_write"
+
+///|
 pub fn Stream::write(
   self : Stream,
   bufs : Array[@bytes.View],
@@ -169,6 +180,38 @@ pub fn Stream::write(
 }
 
 ///|
+pub fn Stream::try_write(
+  self : Stream,
+  bufs : Array[@bytes.View],
+  write_cb : () -> Unit,
+  error_cb : (Errno) -> Unit,
+) -> Write raise Errno {
+  fn cb(_ : Write, status : Int) {
+    if status < 0 {
+      error_cb(Errno::of_int(status))
+    } else {
+      write_cb()
+    }
+  }
+
+  let req = uv_write_make()
+  let bufs_size = bufs.length()
+  let bufs_base : FixedArray[Bytes] = FixedArray::make(bufs_size, [])
+  let bufs_offset = FixedArray::make(bufs_size, 0)
+  let bufs_length = FixedArray::make(bufs_size, 0)
+  for i in 0..<bufs.length() {
+    bufs_base[i] = bufs[i].data()
+    bufs_offset[i] = bufs[i].start_offset()
+    bufs_length[i] = bufs[i].length()
+  }
+  let result = uv_try_write(req, self, bufs_base, bufs_offset, bufs_length, cb)
+  if result < 0 {
+    raise Errno::of_int(result)
+  }
+  return req
+}
+
+///|
 #deprecated("Use Stream::write() instead")
 pub fn[Stream : ToStream] write(
   stream : Stream,
@@ -190,6 +233,18 @@ extern "c" fn uv_write2(
   send_handle : Stream,
   cb : (Write, Int) -> Unit,
 ) -> Int = "moonbit_uv_write2"
+
+///|
+#owned(write, handle, bufs_base, bufs_offset, bufs_length, send_handle)
+extern "c" fn uv_try_write2(
+  write : Write,
+  handle : Stream,
+  bufs_base : FixedArray[Bytes],
+  bufs_offset : FixedArray[Int],
+  bufs_length : FixedArray[Int],
+  send_handle : Stream,
+  cb : (Write, Int) -> Unit,
+) -> Int = "moonbit_uv_try_write2"
 
 ///|
 pub fn Stream::write2(
@@ -227,6 +282,41 @@ pub fn Stream::write2(
 }
 
 ///|
+pub fn Stream::try_write2(
+  self : Stream,
+  bufs : Array[@bytes.View],
+  send_handle : Stream,
+  write_cb : () -> Unit,
+  error_cb : (Errno) -> Unit,
+) -> Write raise Errno {
+  fn cb(_ : Write, status : Int) {
+    if status < 0 {
+      error_cb(Errno::of_int(status))
+    } else {
+      write_cb()
+    }
+  }
+
+  let req = uv_write_make()
+  let bufs_size = bufs.length()
+  let bufs_base : FixedArray[Bytes] = FixedArray::make(bufs_size, [])
+  let bufs_offset = FixedArray::make(bufs_size, 0)
+  let bufs_length = FixedArray::make(bufs_size, 0)
+  for i in 0..<bufs.length() {
+    bufs_base[i] = bufs[i].data()
+    bufs_offset[i] = bufs[i].start_offset()
+    bufs_length[i] = bufs[i].length()
+  }
+  let result = uv_try_write2(
+    req, self, bufs_base, bufs_offset, bufs_length, send_handle, cb,
+  )
+  if result < 0 {
+    raise Errno::of_int(result)
+  }
+  return req
+}
+
+///|
 pub trait ToStream: ToHandle {
   to_stream(Self) -> Stream
   of_stream(Stream) -> Self
@@ -238,6 +328,7 @@ pub trait ToStream: ToHandle {
   ) -> Unit raise Errno = _
   read_stop(Self) -> Unit raise Errno = _
   write(Self, Array[@bytes.View], () -> Unit, (Errno) -> Unit) -> Write raise Errno = _
+  try_write(Self, Array[@bytes.View], () -> Unit, (Errno) -> Unit) -> Write raise Errno = _
   listen(Self, Int, (Self) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno = _
   is_readable(Self) -> Bool = _
   is_writable(Self) -> Bool = _
@@ -285,6 +376,11 @@ impl ToStream with read_stop(self) {
 ///|
 impl ToStream with write(self, bufs, write_cb, error_cb) {
   self.to_stream().write(bufs, write_cb, error_cb)
+}
+
+///|
+impl ToStream with try_write(self, bufs, write_cb, error_cb) {
+  self.to_stream().try_write(bufs, write_cb, error_cb)
 }
 
 ///|

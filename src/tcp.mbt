@@ -28,6 +28,28 @@ pub impl ToStream for Tcp with to_stream(self : Tcp) -> Stream = "%identity"
 pub impl ToStream for Tcp with of_stream(self : Stream) -> Tcp = "%identity"
 
 ///|
+pub fn[Stream : ToStream] Tcp::write2(
+  self : Tcp,
+  bufs : Array[BytesView],
+  send_handle : Stream,
+  write_cb : () -> Unit,
+  error_cb : (Errno) -> Unit,
+) -> Write raise Errno {
+  self.to_stream().write2(bufs, send_handle.to_stream(), write_cb, error_cb)
+}
+
+///|
+pub fn[Stream : ToStream] Tcp::try_write2(
+  self : Tcp,
+  bufs : Array[BytesView],
+  send_handle : Stream,
+  write_cb : () -> Unit,
+  error_cb : (Errno) -> Unit,
+) -> Write raise Errno {
+  self.to_stream().try_write2(bufs, send_handle.to_stream(), write_cb, error_cb)
+}
+
+///|
 extern "c" fn uv_tcp_make() -> Tcp = "moonbit_uv_tcp_make"
 
 ///|
