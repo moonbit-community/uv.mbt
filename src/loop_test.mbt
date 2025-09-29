@@ -48,8 +48,12 @@ test "walk" {
 }
 
 ///|
-test "backend_fd" {
+test "backend" {
+  if @uv.os_uname().sysname() is "Windows_NT" {
+    return
+  }
   let uv = @uv.Loop::new()
   ignore(uv.backend_fd())
+  ignore(uv.backend_timeout())
   uv.close()
 }
