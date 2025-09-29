@@ -175,3 +175,29 @@ pub fn Loop::fork(uv : Loop) -> Unit raise Errno {
     raise Errno::of_int(status)
   }
 }
+
+///|
+#owned(uv)
+extern "c" fn uv_backend_fd(uv : Loop) -> Int = "moonbit_uv_backend_fd"
+
+///|
+pub fn Loop::backend_fd(uv : Loop) -> Int raise Errno {
+  let status = uv_backend_fd(uv)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  return status
+}
+
+///|
+#owned(uv)
+extern "c" fn uv_backend_timeout(uv : Loop) -> Int = "moonbit_uv_backend_timeout"
+
+///|
+pub fn Loop::backend_timeout(uv : Loop) -> Int raise Errno {
+  let status = uv_backend_timeout(uv)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+  return status
+}

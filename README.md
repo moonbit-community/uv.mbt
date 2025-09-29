@@ -52,12 +52,6 @@ This is a MoonBit binding to the [libuv](https://libuv.org) library.
 
 The following libuv APIs are not yet implemented in this library:
 
-### Loop Functions
-
-- `uv_loop_fork()` - Fork support for event loops
-- `uv_backend_fd()` - Backend file descriptor access
-- `uv_backend_timeout()` - Backend timeout information
-
 ### Handle Functions
 
 - `uv_ref()` - Reference counting for handles
