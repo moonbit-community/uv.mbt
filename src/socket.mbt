@@ -227,6 +227,9 @@ extern "c" fn uv_sockaddr_in6_make() -> SockaddrIn6 = "moonbit_uv_sockaddr_in6_m
 struct Sockaddr(Bytes)
 
 ///|
+extern "c" fn uv_sockaddr_null() -> Sockaddr = "moonbit_c_null"
+
+///|
 extern "c" fn uv_sockaddr_make() -> Sockaddr = "moonbit_uv_sockaddr_make"
 
 ///|
