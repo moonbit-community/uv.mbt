@@ -79,14 +79,14 @@ pub impl ToReq for UdpSend with to_req(self : UdpSend) -> Req = "%identity"
 extern "c" fn uv_udp_send_make() -> UdpSend = "moonbit_uv_udp_send_make"
 
 ///|
-#owned(send, udp, bufs_base, bufs_offset, bufs_length)
+#owned(send, udp, bufs_base, bufs_offset, addr, bufs_length)
 extern "c" fn uv_udp_send(
   send : UdpSend,
   udp : Udp,
   bufs_base : FixedArray[Bytes],
   bufs_offset : FixedArray[Int],
   bufs_length : FixedArray[Int],
-  addr : @c.Nullable[Sockaddr],
+  addr : Sockaddr,
   cb : (UdpSend, Int) -> Unit,
 ) -> Int = "moonbit_uv_udp_send"
 
@@ -122,7 +122,10 @@ pub fn[Sockaddr : ToSockaddr] Udp::send(
     bufs_base,
     bufs_offset,
     bufs_length,
-    @c.Nullable::of(addr.map(Sockaddr::to_sockaddr)),
+    match addr {
+      Some(addr) => addr.to_sockaddr()
+      None => uv_sockaddr_null()
+    },
     cb,
   )
   if result < 0 {
@@ -472,13 +475,13 @@ pub fn Udp::set_ttl(self : Udp, ttl : Int) -> Unit raise Errno {
 }
 
 ///|
-#owned(udp, bufs_base, bufs_offset, bufs_length)
+#owned(udp, bufs_base, bufs_offset, bufs_length, addr)
 extern "c" fn uv_udp_try_send(
   udp : Udp,
   bufs_base : FixedArray[Bytes],
   bufs_offset : FixedArray[Int],
   bufs_length : FixedArray[Int],
-  addr : @c.Nullable[Sockaddr],
+  addr : Sockaddr,
 ) -> Int = "moonbit_uv_udp_try_send"
 
 ///|
@@ -503,7 +506,10 @@ pub fn[Sockaddr : ToSockaddr] Udp::try_send(
     bufs_base,
     bufs_offset,
     bufs_length,
-    @c.Nullable::of(addr.map(Sockaddr::to_sockaddr)),
+    match addr {
+      Some(addr) => addr.to_sockaddr()
+      None => uv_sockaddr_null()
+    },
   )
   if result < 0 {
     raise Errno::of_int(result)

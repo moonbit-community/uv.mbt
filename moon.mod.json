@@ -1,6 +1,6 @@
 {
   "deps": {
-    "tonyfettes/c": "0.5.3"
+    "tonyfettes/c": "0.5.4"
   },
   "description": "MoonBit binding to libuv",
   "keywords": [],
