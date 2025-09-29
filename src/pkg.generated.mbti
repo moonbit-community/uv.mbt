@@ -473,6 +473,8 @@ fn[T] Lib::symbol(Self, Bytes) -> T?
 
 type Loop
 fn Loop::alive(Self) -> Bool
+fn Loop::backend_fd(Self) -> Int raise Errno
+fn Loop::backend_timeout(Self) -> Int raise Errno
 fn Loop::close(Self) -> Unit raise Errno
 fn Loop::configure(Self, LoopOption) -> Unit raise Errno
 fn Loop::fork(Self) -> Unit raise Errno

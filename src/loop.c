@@ -137,3 +137,19 @@ moonbit_uv_print_all_handles(uv_loop_t *loop, int fd) {
   moonbit_decref(loop);
   return 0;
 }
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_uv_backend_fd(uv_loop_t *loop) {
+  int fd = uv_backend_fd(loop);
+  moonbit_decref(loop);
+  return fd;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_backend_timeout(uv_loop_t *loop) {
+  uint64_t timeout = uv_backend_timeout(loop);
+  moonbit_decref(loop);
+  return timeout;
+}

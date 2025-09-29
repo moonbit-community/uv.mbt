@@ -46,3 +46,10 @@ test "walk" {
     raise error
   }
 }
+
+///|
+test "backend_fd" {
+  let uv = @uv.Loop::new()
+  ignore(uv.backend_fd())
+  uv.close()
+}
