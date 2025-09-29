@@ -337,4 +337,5 @@ test "Tcp::new_ex" {
   let ipv6_tcp = @uv.Tcp::new_ex(uv, AddressFamily::Inet6)
   ipv6_tcp.close(() => ())
   uv.run(Default)
+  uv.close()
 }
