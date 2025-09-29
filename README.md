@@ -64,10 +64,6 @@ The following libuv APIs are not yet implemented in this library:
 - `uv_unref()` - Unreference handles
 - `uv_has_ref()` - Check handle reference status
 
-### TCP Functions
-
-- `uv_tcp_init_ex()` - Extended TCP initialization
-
 ### Process Functions
 
 - `uv_get_osfhandle()` - Get OS handle from file descriptor

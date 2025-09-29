@@ -2683,6 +2683,7 @@ extern "c" fn uv_fs_rename_sync(
 /// }
 /// uv.close()
 /// ```
+#as_free_fn
 pub fn Loop::fs_rename_sync(
   self : Loop,
   path : Bytes,

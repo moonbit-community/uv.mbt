@@ -61,6 +61,14 @@ moonbit_uv_tcp_init(uv_loop_t *loop, moonbit_uv_tcp_t *tcp) {
 
 MOONBIT_FFI_EXPORT
 int32_t
+moonbit_uv_tcp_init_ex(uv_loop_t *loop, moonbit_uv_tcp_t *tcp, int32_t flags) {
+  moonbit_uv_tracef("tcp = %p\n", (void *)tcp);
+  moonbit_uv_tracef("tcp->rc = %d\n", Moonbit_object_header(tcp)->rc);
+  return uv_tcp_init_ex(loop, &tcp->tcp, flags);
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
 moonbit_uv_tcp_open(moonbit_uv_tcp_t *tcp, moonbit_uv_os_sock_t *sock) {
   moonbit_uv_tracef("tcp = %p\n", (void *)tcp);
   moonbit_uv_tracef("sock = %p\n", (void *)sock);
