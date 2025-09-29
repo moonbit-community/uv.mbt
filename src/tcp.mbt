@@ -195,6 +195,40 @@ pub fn Tcp::keepalive(
 }
 
 ///|
+#owned(tcp)
+extern "c" fn uv_tcp_keepalive_ex(
+  tcp : Tcp,
+  on : Bool,
+  idle : UInt,
+  interval : UInt,
+  count : UInt,
+) -> Int = "moonbit_uv_tcp_keepalive_ex"
+
+///|
+/// Enable / disable TCP keep-alive with all socket options: `TCP_KEEPIDLE`,
+/// `TCP_KEEPINTVL` and `TCP_KEEPCNT`. `idle` is the value for `TCP_KEEPIDLE`,
+/// `intvl` is the value for `TCP_KEEPINTVL`, `cnt` is the value for `TCP_KEEPCNT`, ignored when `on` is zero.
+///
+/// With TCP keep-alive enabled, idle is the time (in seconds) the connection needs to remain idle before TCP starts sending keep-alive probes. intvl is the time (in seconds) between individual keep-alive probes. TCP will drop the connection after sending cnt probes without getting any replies from the peer, then the handle is destroyed with a UV_ETIMEDOUT error passed to the corresponding callback.
+///
+/// If one of idle, intvl, or cnt is less than 1, UV_EINVAL is returned.
+pub fn Tcp::keepalive_ex(
+  self : Tcp,
+  on : Bool,
+  idle~ : UInt,
+  interval~ : UInt,
+  count~ : UInt,
+) -> Unit raise Errno {
+  if idle < 1U || interval < 1U || count < 1U {
+    raise Errno::EINVAL
+  }
+  let status = uv_tcp_keepalive_ex(self, on, idle, interval, count)
+  if status < 0 {
+    raise Errno::of_int(status)
+  }
+}
+
+///|
 #owned(tcp, addr)
 extern "c" fn uv_tcp_getsockname(tcp : Tcp, addr : Sockaddr) -> Int = "moonbit_uv_tcp_getsockname"
 

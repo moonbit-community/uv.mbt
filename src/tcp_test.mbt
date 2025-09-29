@@ -165,6 +165,18 @@ test "Tcp::keepalive" {
 }
 
 ///|
+test "Tcp::keepalive_ex" {
+  let uv = Loop::new()
+  let server = Tcp::new(uv)
+  let addr = ip4_addr("127.0.0.1", 0)
+  server.bind(addr, TcpBindFlags::new())
+  server.keepalive_ex(true, idle=60U, interval=10U, count=5U)
+  server.close(() => ())
+  uv.run(Default)
+  uv.close()
+}
+
+///|
 test "Tcp::close_reset" {
   let uv = Loop::new()
   let server = Tcp::new(uv)

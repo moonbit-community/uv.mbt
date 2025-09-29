@@ -120,6 +120,21 @@ moonbit_uv_tcp_keepalive(moonbit_uv_tcp_t *tcp, bool enable, uint32_t delay) {
 
 MOONBIT_FFI_EXPORT
 int32_t
+moonbit_uv_tcp_keepalive_ex(
+  moonbit_uv_tcp_t *tcp,
+  bool on,
+  uint32_t idle,
+  uint32_t interval,
+  uint32_t count
+) {
+  int result =
+    uv_tcp_keepalive_ex(&tcp->tcp, on ? 1 : 0, idle, interval, count);
+  moonbit_decref(tcp);
+  return result;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
 moonbit_uv_tcp_getsockname(moonbit_uv_tcp_t *tcp, struct sockaddr *addr) {
   int namelen = sizeof(struct sockaddr_storage);
   int result = uv_tcp_getsockname(&tcp->tcp, addr, &namelen);
