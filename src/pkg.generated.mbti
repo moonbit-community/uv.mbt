@@ -1041,6 +1041,7 @@ fn Udp::set_multicast_ttl(Self, Int) -> Unit raise Errno
 fn Udp::set_source_membership(Self, Bytes, Bytes, Bytes, Membership) -> Unit raise Errno
 fn Udp::set_ttl(Self, Int) -> Unit raise Errno
 fn[Sockaddr : ToSockaddr] Udp::try_send(Self, Array[BytesView], addr? : Sockaddr) -> Int raise Errno
+fn[T : ToSockaddr] Udp::try_send2(Self, Array[(Array[BytesView], T?)], UdpFlags) -> Int raise Errno
 fn Udp::using_recvmmsg(Self) -> Bool
 impl ToHandle for Udp
 
