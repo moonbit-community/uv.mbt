@@ -938,6 +938,7 @@ fn[Sockaddr : ToSockaddr] Tcp::connect(Self, Sockaddr, () -> Unit, (Errno) -> Un
 fn Tcp::getpeername(Self) -> Sockaddr raise Errno
 fn Tcp::getsockname(Self) -> Sockaddr raise Errno
 fn Tcp::keepalive(Self, Bool, delay? : UInt) -> Unit raise Errno
+fn Tcp::keepalive_ex(Self, Bool, idle~ : UInt, interval~ : UInt, count~ : UInt) -> Unit raise Errno
 fn Tcp::new(Loop) -> Self raise Errno
 fn Tcp::nodelay(Self, Bool) -> Unit raise Errno
 fn Tcp::open(Self, OsSock) -> Unit raise Errno
