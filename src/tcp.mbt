@@ -67,6 +67,20 @@ pub fn Tcp::new(uv : Loop) -> Tcp raise Errno {
 }
 
 ///|
+#owned(uv, tcp)
+extern "c" fn uv_tcp_init_ex(uv : Loop, tcp : Tcp, flags : UInt) -> Int = "moonbit_uv_tcp_init_ex"
+
+///|
+pub fn Tcp::new_ex(uv : Loop, domain : AddressFamily) -> Tcp raise Errno {
+  let tcp = uv_tcp_make()
+  let result = uv_tcp_init_ex(uv, tcp, domain.to_int().reinterpret_as_uint())
+  if result < 0 {
+    raise Errno::of_int(result)
+  }
+  tcp
+}
+
+///|
 #owned(tcp, os_sock)
 extern "c" fn uv_tcp_open(tcp : Tcp, os_sock : OsSock) -> Int = "moonbit_uv_tcp_open"
 

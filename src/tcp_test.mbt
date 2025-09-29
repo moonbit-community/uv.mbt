@@ -328,3 +328,13 @@ test "Tcp::simultaneous_accepts" {
   uv.run(Default)
   uv.close()
 }
+
+///|
+test "Tcp::new_ex" {
+  let uv = @uv.Loop::new()
+  let ipv4_tcp = @uv.Tcp::new_ex(uv, AddressFamily::Inet)
+  ipv4_tcp.close(() => ())
+  let ipv6_tcp = @uv.Tcp::new_ex(uv, AddressFamily::Inet6)
+  ipv6_tcp.close(() => ())
+  uv.run(Default)
+}

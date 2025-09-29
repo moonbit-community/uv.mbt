@@ -944,6 +944,7 @@ fn Tcp::getsockname(Self) -> Sockaddr raise Errno
 fn Tcp::keepalive(Self, Bool, delay? : UInt) -> Unit raise Errno
 fn Tcp::keepalive_ex(Self, Bool, idle~ : UInt, interval~ : UInt, count~ : UInt) -> Unit raise Errno
 fn Tcp::new(Loop) -> Self raise Errno
+fn Tcp::new_ex(Loop, AddressFamily) -> Self raise Errno
 fn Tcp::nodelay(Self, Bool) -> Unit raise Errno
 fn Tcp::open(Self, OsSock) -> Unit raise Errno
 fn Tcp::simultaneous_accepts(Self, Bool) -> Unit raise Errno
