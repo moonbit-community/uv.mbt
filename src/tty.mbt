@@ -45,7 +45,7 @@ pub fn Tty::new(self : Loop, file : File) -> Tty raise Errno {
 }
 
 ///|
-enum TtyMode {
+pub(all) enum TtyMode {
   Normal
   Raw
   Io
@@ -53,21 +53,25 @@ enum TtyMode {
 }
 
 ///|
+#deprecated("Use TtyMoe::Normal instead")
 pub fn TtyMode::normal() -> TtyMode {
   TtyMode::Normal
 }
 
 ///|
+#deprecated("Use TtyMode::Raw instead")
 pub fn TtyMode::raw() -> TtyMode {
   TtyMode::Raw
 }
 
 ///|
+#deprecated("Use TtyMode::Io instead")
 pub fn TtyMode::io() -> TtyMode {
   TtyMode::Io
 }
 
 ///|
+#deprecated("Use TtyMode::RawVT instead")
 pub fn TtyMode::raw_vt() -> TtyMode {
   TtyMode::RawVT
 }
@@ -115,17 +119,19 @@ pub fn Tty::get_winsize(self : Tty) -> (Int, Int) raise Errno {
 }
 
 ///|
-pub enum TtyVtermState {
+pub(all) enum TtyVtermState {
   Supported = 0
   Unsupported = 1
 }
 
 ///|
+#deprecated("Use TtyVtermState::Supported instead")
 pub fn TtyVtermState::supported() -> TtyVtermState {
   TtyVtermState::Supported
 }
 
 ///|
+#deprecated("Use TtyVtermState::Unsupported instead")
 pub fn TtyVtermState::unsupported() -> TtyVtermState {
   TtyVtermState::Unsupported
 }

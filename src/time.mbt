@@ -83,7 +83,7 @@ extern "c" fn uv_clock_gettime(
 ) -> Int = "moonbit_uv_clock_gettime"
 
 ///|
-pub struct Timespec64(FixedArray[Int64])
+struct Timespec64(FixedArray[Int64])
 
 ///|
 pub fn Timespec64::sec(self : Timespec64) -> Int64 {
@@ -106,7 +106,7 @@ pub fn clock_gettime(clock_id : ClockId) -> Timespec64 raise Errno {
 }
 
 ///|
-pub struct Timeval64(FixedArray[Int64])
+struct Timeval64(FixedArray[Int64])
 
 ///|
 pub fn Timeval64::sec(self : Timeval64) -> Int64 {

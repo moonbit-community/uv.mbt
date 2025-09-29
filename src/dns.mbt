@@ -116,7 +116,7 @@ pub fn AddrInfoFlags::new(
 pub fn AddrInfoHints::new(
   flags? : AddrInfoFlags,
   family? : AddressFamily,
-  socktype? : SockType,
+  socktype? : @socket.Type,
   protocol? : Protocol,
 ) -> AddrInfoHints {
   let flags = match flags {
@@ -125,7 +125,7 @@ pub fn AddrInfoHints::new(
   }
   let family = match family {
     Some(family) => family.to_int()
-    None => _AF_UNSPEC
+    None => 0
   }
   let socktype = match socktype {
     Some(socktype) => socktype.to_int()
@@ -161,77 +161,18 @@ struct AddrInfo {
 }
 
 ///|
-extern "c" fn uv_AF_INET() -> Int = "moonbit_uv_AF_INET"
-
-///|
-let _AF_INET : Int = uv_AF_INET()
-
-///|
-extern "c" fn uv_AF_INET6() -> Int = "moonbit_uv_AF_INET6"
-
-///|
-let _AF_INET6 : Int = uv_AF_INET6()
-
-///|
-extern "c" fn uv_AF_UNSPEC() -> Int = "moonbit_uv_AF_UNSPEC"
-
-///|
-let _AF_UNSPEC : Int = uv_AF_UNSPEC()
-
-///|
-/// Represents the address family for network communication, specifying the
-/// format of network addresses.
-///
-/// Constructors:
-///
-/// * `Inet` : IPv4 address family
-/// * `Inet6` : IPv6 address family
-///
-/// Example:
-///
-/// ```moonbit
-/// let ipv4 = AddressFamily::inet()
-/// let ipv6 = AddressFamily::inet6()
-/// @assert.t(ipv4 is Inet)
-/// @assert.t(ipv6 is Inet6)
-/// ```
-pub(all) enum AddressFamily {
-  Inet
-  Inet6
-}
-
-///|
-pub fn AddressFamily::inet() -> AddressFamily {
-  return Inet
-}
-
-///|
-pub fn AddressFamily::inet6() -> AddressFamily {
-  return Inet6
-}
-
-///|
-fn AddressFamily::of_int(self : Int) -> AddressFamily raise Errno {
-  if self == _AF_INET {
-    return Inet
+pub fn AddrInfo::family(
+  self : AddrInfo,
+) -> AddressFamily? raise InvalidAddressFamily {
+  if self.family == @inet.family {
+    Some(AddressFamily::Inet)
+  } else if self.family == @inet6.family {
+    Some(AddressFamily::Inet6)
+  } else if self.family == 0 {
+    None
+  } else {
+    raise InvalidAddressFamily(self.family)
   }
-  if self == _AF_INET6 {
-    return Inet6
-  }
-  raise EINVAL
-}
-
-///|
-fn AddressFamily::to_int(self : AddressFamily) -> Int {
-  match self {
-    Inet => _AF_INET
-    Inet6 => _AF_INET6
-  }
-}
-
-///|
-pub fn AddrInfo::family(self : AddrInfo) -> AddressFamily raise Errno {
-  AddressFamily::of_int(self.family)
 }
 
 ///|
@@ -240,13 +181,32 @@ pub fn AddrInfo::addr(self : AddrInfo) -> Sockaddr {
 }
 
 ///|
-pub fn AddrInfo::socktype(self : AddrInfo) -> SockType raise Errno {
-  return SockType::of_int(self.socktype)
+pub suberror InvalidSocketType Int derive(Show, ToJson)
+
+///|
+pub fn AddrInfo::socktype(
+  self : AddrInfo,
+) -> @socket.Type? raise InvalidSocketType {
+  if self.socktype == 0 {
+    return None
+  }
+  match @socket.Type::of_int(self.socktype) {
+    Some(type_) => Some(type_)
+    None => raise InvalidSocketType(self.socktype)
+  }
 }
 
 ///|
-pub fn AddrInfo::protocol(self : AddrInfo) -> Protocol raise Errno {
-  Protocol::of_int(self.protocol)
+pub fn AddrInfo::protocol(
+  self : AddrInfo,
+) -> @ip.Protocol? raise InvalidProtocol {
+  if self.protocol == 0 {
+    return None
+  }
+  match @ip.Protocol::of_int(self.protocol) {
+    Some(protocol) => Some(protocol)
+    None => raise InvalidProtocol(self.protocol)
+  }
 }
 
 ///|

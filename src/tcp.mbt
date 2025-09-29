@@ -272,7 +272,7 @@ extern "c" fn uv_tcp_getsockname(tcp : Tcp, addr : Sockaddr) -> Int = "moonbit_u
 /// Get the current address to which the handle is bound.
 /// `struct sockaddr_storage` is used for IPv4 and IPv6 support.
 pub fn Tcp::getsockname(self : Tcp) -> Sockaddr raise Errno {
-  let addr = uv_sockaddr_make()
+  let addr = Sockaddr::new()
   let status = uv_tcp_getsockname(self, addr)
   if status < 0 {
     raise Errno::of_int(status)
@@ -288,7 +288,7 @@ extern "c" fn uv_tcp_getpeername(tcp : Tcp, addr : Sockaddr) -> Int = "moonbit_u
 /// Get the address of the peer connected to the handle.
 /// `struct sockaddr_storage` is used for IPv4 and IPv6 support.
 pub fn Tcp::getpeername(self : Tcp) -> Sockaddr raise Errno {
-  let addr = uv_sockaddr_make()
+  let addr = Sockaddr::new()
   let status = uv_tcp_getpeername(self, addr)
   if status < 0 {
     raise Errno::of_int(status)

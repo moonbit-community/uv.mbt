@@ -17,7 +17,7 @@ test "Poll::socket" {
   let uv = @uv.Loop::new()
   let errors = []
   let socks = @uv.socketpair(
-    @uv.SockType::stream(),
+    @socket.Stream,
     (PipeFlags::new(), PipeFlags::new()),
   )
   let reader = @uv.Tcp::new(uv)

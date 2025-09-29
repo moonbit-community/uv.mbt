@@ -1,6 +1,13 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "tonyfettes/uv"
 
+import(
+  "tonyfettes/socket"
+  "tonyfettes/socket/inet"
+  "tonyfettes/socket/inet6"
+  "tonyfettes/socket/ip"
+)
+
 // Values
 const PriorityAboveNormal : Int = -7
 
@@ -57,11 +64,21 @@ fn guess_handle(File) -> HandleType
 
 fn hrtime() -> UInt64
 
+fn inet6_ntop(@inet6.Addr) -> Bytes
+
+fn inet6_pton(Bytes) -> @inet6.Addr raise Errno
+
+fn inet_ntop(@inet.Addr) -> Bytes raise Errno
+
+fn inet_pton(Bytes) -> @inet.Addr raise Errno
+
 fn interface_addresses() -> FixedArray[InterfaceAddress] raise
 
-fn ip4_addr(Bytes, Int) -> SockaddrIn raise Errno
+fn ip4_addr(Bytes, Int) -> @inet.Sockaddr raise Errno
 
-fn ip6_addr(Bytes, Int) -> SockaddrIn6 raise Errno
+fn ip6_addr(Bytes, Int) -> @inet6.Sockaddr raise Errno
+
+fn[T : ToSockaddr] ip_name(T) -> Bytes raise Errno
 
 #deprecated
 fn[Handle : ToHandle] is_closing(Handle) -> Bool
@@ -127,7 +144,7 @@ fn[Stream : ToStream] shutdown(Stream, () -> Unit, (Errno) -> Unit) -> Shutdown 
 
 fn sleep(UInt) -> Unit
 
-fn socketpair(SockType, protocol? : Protocol, (PipeFlags, PipeFlags)) -> (OsSock, OsSock) raise Errno
+fn socketpair(@socket.Type, protocol? : @ip.Protocol, (PipeFlags, PipeFlags)) -> (OsSock, OsSock) raise Errno
 
 fn stderr() -> File
 
@@ -251,24 +268,22 @@ pub(all) enum AccessHint {
 }
 
 type AddrInfo
-fn AddrInfo::addr(Self) -> Sockaddr
+fn AddrInfo::addr(Self) -> @socket.Sockaddr
 fn AddrInfo::canonname(Self) -> Bytes?
-fn AddrInfo::family(Self) -> AddressFamily raise Errno
-fn AddrInfo::protocol(Self) -> Protocol raise Errno
-fn AddrInfo::socktype(Self) -> SockType raise Errno
+fn AddrInfo::family(Self) -> Int
+fn AddrInfo::protocol(Self) -> @ip.Protocol raise Errno
+fn AddrInfo::socktype(Self) -> @socket.Type raise Errno
 
 type AddrInfoFlags
 fn AddrInfoFlags::new(passive? : Bool, canonname? : Bool, numeric_host? : Bool, numeric_serv? : Bool, all? : Bool, addrconfig? : Bool, v4mapped? : Bool) -> Self
 
 type AddrInfoHints
-fn AddrInfoHints::new(flags? : AddrInfoFlags, family? : AddressFamily, socktype? : SockType, protocol? : Protocol) -> Self
+fn AddrInfoHints::new(flags? : AddrInfoFlags, family? : AddressFamily, socktype? : @socket.Type, protocol? : @ip.Protocol) -> Self
 
 pub(all) enum AddressFamily {
   Inet
   Inet6
 }
-fn AddressFamily::inet() -> Self
-fn AddressFamily::inet6() -> Self
 
 type Async
 fn Async::new(Loop, (Self) -> Unit) -> Self raise Errno
@@ -439,26 +454,12 @@ fn IfIndex::to_name(Self) -> Bytes raise
 impl Show for IfIndex
 impl ToJson for IfIndex
 
-type In6Addr
-fn In6Addr::new(UInt16, UInt16, UInt16, UInt16, UInt16, UInt16, UInt16, UInt16) -> Self
-fn In6Addr::ntop(Self) -> Bytes raise Errno
-fn In6Addr::pton(Bytes) -> Self raise Errno
-fn In6Addr::to_bytes(Self) -> Bytes
-impl ToJson for In6Addr
-
-type InAddr
-fn InAddr::new(Byte, Byte, Byte, Byte) -> Self
-fn InAddr::ntop(Self) -> Bytes raise Errno
-fn InAddr::pton(Bytes) -> Self raise Errno
-fn InAddr::to_bytes(Self) -> Bytes
-impl ToJson for InAddr
-
 pub struct InterfaceAddress {
   name : Bytes
   phys_addr : PhysAddr
   is_internal : Bool
-  address : Sockaddr
-  netmask : Sockaddr
+  address : @socket.Sockaddr
+  netmask : @socket.Sockaddr
 }
 impl ToJson for InterfaceAddress
 
@@ -615,7 +616,7 @@ fn Loop::fs_write_sync(Self, File, Array[BytesView], offset? : Int64) -> Unit ra
 #as_free_fn
 fn Loop::getaddrinfo(Self, (Iter[AddrInfo]) -> Unit, (Errno) -> Unit, Bytes, Bytes, hints? : AddrInfoHints) -> GetAddrInfo raise Errno
 #as_free_fn
-fn Loop::getnameinfo(Self, (Bytes?, Bytes?) -> Unit, (Errno) -> Unit, Sockaddr, flags? : Int) -> GetNameInfo raise Errno
+fn Loop::getnameinfo(Self, (Bytes?, Bytes?) -> Unit, (Errno) -> Unit, @socket.Sockaddr, flags? : Int) -> GetNameInfo raise Errno
 #as_free_fn
 fn Loop::metrics_idle_time(Self) -> UInt64
 #as_free_fn
@@ -753,13 +754,6 @@ impl ToHandle for Process
 type ProcessOptions
 fn ProcessOptions::new(Bytes, Array[Bytes], env? : Array[Bytes], cwd? : Bytes, stdio? : Array[StdioContainer], uid? : Uid, gid? : Gid, (Process, Int64, Int) -> Unit) -> Self
 
-pub(all) enum Protocol {
-  Tcp
-  Udp
-}
-fn Protocol::tcp() -> Self
-fn Protocol::udp() -> Self
-
 type Random
 impl ToReq for Random
 
@@ -844,30 +838,6 @@ fn Signum::sigterm() -> Self
 fn Signum::sigtstp() -> Self raise Errno
 fn Signum::sigwinch() -> Self
 
-type SockType
-fn SockType::datagram() -> Self
-#deprecated
-fn SockType::dgram() -> Self
-fn SockType::raw() -> Self
-fn SockType::stream() -> Self
-
-type Sockaddr
-impl ToJson for Sockaddr
-impl ToSockaddr for Sockaddr
-
-type SockaddrIn
-fn SockaddrIn::addr(Self) -> InAddr
-fn SockaddrIn::port(Self) -> UInt16
-impl ToJson for SockaddrIn
-impl ToSockaddr for SockaddrIn
-
-type SockaddrIn6
-fn SockaddrIn6::addr(Self) -> In6Addr
-fn SockaddrIn6::port(Self) -> UInt16
-fn SockaddrIn6::scope_id(Self) -> IfIndex
-impl ToJson for SockaddrIn6
-impl ToSockaddr for SockaddrIn6
-
 type Stat
 fn Stat::atim_nsec(Self) -> Int64
 fn Stat::atim_sec(Self) -> Int64
@@ -942,8 +912,8 @@ type Tcp
 fn[Sockaddr : ToSockaddr] Tcp::bind(Self, Sockaddr, TcpBindFlags) -> Unit raise Errno
 fn Tcp::close_reset(Self, () -> Unit) -> Unit raise Errno
 fn[Sockaddr : ToSockaddr] Tcp::connect(Self, Sockaddr, () -> Unit, (Errno) -> Unit) -> Connect raise Errno
-fn Tcp::getpeername(Self) -> Sockaddr raise Errno
-fn Tcp::getsockname(Self) -> Sockaddr raise Errno
+fn Tcp::getpeername(Self) -> @socket.Sockaddr raise Errno
+fn Tcp::getsockname(Self) -> @socket.Sockaddr raise Errno
 fn Tcp::keepalive(Self, Bool, delay? : UInt) -> Unit raise Errno
 fn Tcp::keepalive_ex(Self, Bool, idle~ : UInt, interval~ : UInt, count~ : UInt) -> Unit raise Errno
 fn Tcp::new(Loop) -> Self raise Errno
@@ -991,9 +961,7 @@ fn Timer::start(Self, timeout~ : UInt64, repeat~ : UInt64, (Self) -> Unit) -> Un
 fn Timer::stop(Self) -> Unit raise Errno
 impl ToHandle for Timer
 
-pub struct Timespec64(FixedArray[Int64])
-#deprecated
-fn Timespec64::inner(Self) -> FixedArray[Int64]
+type Timespec64
 fn Timespec64::nsec(Self) -> Int
 fn Timespec64::sec(Self) -> Int64
 
@@ -1002,9 +970,7 @@ pub struct Timeval {
   usec : Int64
 }
 
-pub struct Timeval64(FixedArray[Int64])
-#deprecated
-fn Timeval64::inner(Self) -> FixedArray[Int64]
+type Timeval64
 fn Timeval64::sec(Self) -> Int64
 fn Timeval64::usec(Self) -> Int
 
@@ -1018,17 +984,28 @@ fn Tty::set_vterm_state(TtyVtermState) -> Unit
 impl ToHandle for Tty
 impl ToStream for Tty
 
-type TtyMode
+pub(all) enum TtyMode {
+  Normal
+  Raw
+  Io
+  RawVT
+}
+#deprecated
 fn TtyMode::io() -> Self
+#deprecated
 fn TtyMode::normal() -> Self
+#deprecated
 fn TtyMode::raw() -> Self
+#deprecated
 fn TtyMode::raw_vt() -> Self
 
-pub enum TtyVtermState {
+pub(all) enum TtyVtermState {
   Supported
   Unsupported
 }
+#deprecated
 fn TtyVtermState::supported() -> Self
+#deprecated
 fn TtyVtermState::unsupported() -> Self
 
 type Udp
@@ -1036,14 +1013,14 @@ fn[Sockaddr : ToSockaddr] Udp::bind(Self, Sockaddr, UdpFlags) -> Unit raise Errn
 fn[Sockaddr : ToSockaddr] Udp::connect(Self, Sockaddr) -> Unit raise Errno
 fn Udp::get_send_queue_count(Self) -> UInt64
 fn Udp::get_send_queue_size(Self) -> UInt64
-fn Udp::getpeername(Self) -> Sockaddr raise Errno
-fn Udp::getsockname(Self) -> Sockaddr raise Errno
+fn Udp::getpeername(Self) -> @socket.Sockaddr raise Errno
+fn Udp::getsockname(Self) -> @socket.Sockaddr raise Errno
 fn Udp::new(Loop) -> Self raise Errno
 fn Udp::new_ex(Loop, AddressFamily, UdpFlags) -> Self raise Errno
 fn Udp::open(Self, OsSock) -> Unit raise Errno
-fn Udp::recv_start(Self, (Handle, Int) -> BytesView, (Self, Int, BytesView, Sockaddr, UdpFlags) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
+fn Udp::recv_start(Self, (Handle, Int) -> BytesView, (Self, Int, BytesView, @socket.Sockaddr, UdpFlags) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
 fn Udp::recv_stop(Self) -> Unit raise Errno
-fn[Sockaddr : ToSockaddr] Udp::send(Self, Array[BytesView], () -> Unit, (Errno) -> Unit, addr? : Sockaddr) -> UdpSend raise Errno
+fn[Sockaddr : @socket.ToSockaddr] Udp::send(Self, Array[BytesView], () -> Unit, (Errno) -> Unit, addr? : Sockaddr) -> UdpSend raise Errno
 fn Udp::set_broadcast(Self, Bool) -> Unit raise Errno
 fn Udp::set_membership(Self, Bytes, Bytes, Membership) -> Unit raise Errno
 fn Udp::set_multicast_interface(Self, Bytes) -> Unit raise Errno
@@ -1051,7 +1028,7 @@ fn Udp::set_multicast_loop(Self, Bool) -> Unit raise Errno
 fn Udp::set_multicast_ttl(Self, Int) -> Unit raise Errno
 fn Udp::set_source_membership(Self, Bytes, Bytes, Bytes, Membership) -> Unit raise Errno
 fn Udp::set_ttl(Self, Int) -> Unit raise Errno
-fn[Sockaddr : ToSockaddr] Udp::try_send(Self, Array[BytesView], addr? : Sockaddr) -> Int raise Errno
+fn[Sockaddr : @socket.ToSockaddr] Udp::try_send(Self, Array[BytesView], addr? : Sockaddr) -> Int raise Errno
 fn[T : ToSockaddr] Udp::try_send2(Self, Array[(Array[BytesView], T?)], UdpFlags) -> Int raise Errno
 fn Udp::using_recvmmsg(Self) -> Bool
 impl ToHandle for Udp
@@ -1087,7 +1064,17 @@ type Write
 impl ToReq for Write
 
 // Type aliases
+pub typealias @inet6.Addr as In6Addr
+
+pub typealias @inet.Addr as InAddr
+
 pub typealias RwLock as RWLock
+
+pub typealias @socket.Sockaddr as Sockaddr
+
+pub typealias @inet.Sockaddr as SockaddrIn
+
+pub typealias @inet6.Sockaddr as SockaddrIn6
 
 // Traits
 pub trait Cancelable : ToReq {
@@ -1117,11 +1104,12 @@ pub trait ToReq {
   type_(Self) -> ReqType
 }
 
-pub trait ToSockaddr : ToJson {
-  to_sockaddr(Self) -> Sockaddr
-  of_sockaddr(Sockaddr) -> Self?
+pub trait ToSockaddr : @socket.ToSockaddr {
   ip_name(Self) -> Bytes raise Errno
 }
+impl ToSockaddr for @socket.Sockaddr
+impl ToSockaddr for @inet.Sockaddr
+impl ToSockaddr for @inet6.Sockaddr
 
 pub trait ToStream : ToHandle {
   to_stream(Self) -> Stream

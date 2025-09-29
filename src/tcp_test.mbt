@@ -134,7 +134,7 @@ test "Tcp::getsockname" {
   let server = Tcp::new(uv)
   let addr = ip4_addr("127.0.0.1", 0)
   server.bind(addr, TcpBindFlags::new())
-  @assert.eq(server.getsockname().ip_name(), "127.0.0.1")
+  @assert.eq(@uv.ip_name(server.getsockname()), "127.0.0.1")
   server.close(() => ())
   uv.run(Default)
   uv.close()
@@ -332,9 +332,9 @@ test "Tcp::simultaneous_accepts" {
 ///|
 test "Tcp::new_ex" {
   let uv = @uv.Loop::new()
-  let ipv4_tcp = @uv.Tcp::new_ex(uv, AddressFamily::Inet)
+  let ipv4_tcp = @uv.Tcp::new_ex(uv, Inet)
   ipv4_tcp.close(() => ())
-  let ipv6_tcp = @uv.Tcp::new_ex(uv, AddressFamily::Inet6)
+  let ipv6_tcp = @uv.Tcp::new_ex(uv, Inet6)
   ipv6_tcp.close(() => ())
   uv.run(Default)
   uv.close()

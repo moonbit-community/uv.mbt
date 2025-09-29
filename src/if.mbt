@@ -110,9 +110,20 @@ pub struct InterfaceAddress {
   name : Bytes
   phys_addr : PhysAddr
   is_internal : Bool
-  address : Sockaddr
-  netmask : Sockaddr
-} derive(ToJson)
+  address : @socket.Sockaddr
+  netmask : @socket.Sockaddr
+}
+
+///|
+pub impl ToJson for InterfaceAddress with to_json(self : InterfaceAddress) -> Json {
+  {
+    "name": self.name.to_json(),
+    "phys_addr": self.phys_addr.to_json(),
+    "is_internal": self.is_internal.to_json(),
+    "address": self.address.to_json(),
+    "netmask": self.netmask.to_json(),
+  }
+}
 
 ///|
 extern "c" fn uv_interface_addresses_name(

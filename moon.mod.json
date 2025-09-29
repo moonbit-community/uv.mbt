@@ -1,6 +1,9 @@
 {
   "deps": {
-    "tonyfettes/c": "0.5.4"
+    "tonyfettes/c": "0.5.4",
+    "tonyfettes/socket": {
+      "path": "../socket.mbt"
+    }
   },
   "description": "MoonBit binding to libuv",
   "keywords": [],

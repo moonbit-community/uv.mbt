@@ -91,7 +91,7 @@ extern "c" fn uv_udp_send(
 ) -> Int = "moonbit_uv_udp_send"
 
 ///|
-pub fn[Sockaddr : ToSockaddr] Udp::send(
+pub fn[Sockaddr : @socket.ToSockaddr] Udp::send(
   self : Udp,
   data : Array[@bytes.View],
   send_cb : () -> Unit,
@@ -136,14 +136,14 @@ pub fn[Sockaddr : ToSockaddr] Udp::send(
 extern "c" fn uv_udp_recv_start(
   udp : Udp,
   alloc_cb : (Handle, UInt64, @c.Pointer[Int], @c.Pointer[Int]) -> Bytes,
-  recv_cb : (Udp, Int64, Bytes?, Int, Int, Sockaddr, UInt) -> Unit,
+  recv_cb : (Udp, Int64, Bytes?, Int, Int, @socket.Sockaddr, UInt) -> Unit,
 ) -> Int = "moonbit_uv_udp_recv_start"
 
 ///|
 pub fn Udp::recv_start(
   self : Udp,
   alloc_cb : (Handle, Int) -> @bytes.View,
-  read_cb : (Udp, Int, @bytes.View, Sockaddr, UdpFlags) -> Unit,
+  read_cb : (Udp, Int, @bytes.View, @socket.Sockaddr, UdpFlags) -> Unit,
   error_cb : (Udp, Errno) -> Unit,
 ) -> Unit raise Errno {
   fn uv_alloc_cb(
@@ -164,7 +164,7 @@ pub fn Udp::recv_start(
     buf_data : Bytes?,
     buf_offset : Int,
     buf_length : Int,
-    sockaddr : Sockaddr,
+    sockaddr : @socket.Sockaddr,
     flags : UInt,
   ) -> Unit {
     if count < 0 {
@@ -313,12 +313,12 @@ pub fn Udp::open(self : Udp, os_sock : OsSock) -> Unit raise Errno {
 
 ///|
 #owned(udp, addr)
-extern "c" fn uv_udp_getpeername(udp : Udp, addr : Sockaddr) -> Int = "moonbit_uv_udp_getpeername"
+extern "c" fn uv_udp_getpeername(udp : Udp, addr : @socket.Sockaddr) -> Int = "moonbit_uv_udp_getpeername"
 
 ///|
 /// Get the address of the peer connected to the UDP handle
-pub fn Udp::getpeername(self : Udp) -> Sockaddr raise Errno {
-  let addr = uv_sockaddr_make()
+pub fn Udp::getpeername(self : Udp) -> @socket.Sockaddr raise Errno {
+  let addr = @socket.Sockaddr::new()
   let result = uv_udp_getpeername(self, addr)
   if result < 0 {
     raise Errno::of_int(result)
@@ -328,12 +328,12 @@ pub fn Udp::getpeername(self : Udp) -> Sockaddr raise Errno {
 
 ///|
 #owned(udp, addr)
-extern "c" fn uv_udp_getsockname(udp : Udp, addr : Sockaddr) -> Int = "moonbit_uv_udp_getsockname"
+extern "c" fn uv_udp_getsockname(udp : Udp, addr : @socket.Sockaddr) -> Int = "moonbit_uv_udp_getsockname"
 
 ///|
 /// Get the current address to which the UDP handle is bound
-pub fn Udp::getsockname(self : Udp) -> Sockaddr raise Errno {
-  let addr = uv_sockaddr_make()
+pub fn Udp::getsockname(self : Udp) -> @socket.Sockaddr raise Errno {
+  let addr = @socket.Sockaddr::new()
   let result = uv_udp_getsockname(self, addr)
   if result < 0 {
     raise Errno::of_int(result)
@@ -478,13 +478,13 @@ extern "c" fn uv_udp_try_send(
   bufs_base : FixedArray[Bytes],
   bufs_offset : FixedArray[Int],
   bufs_length : FixedArray[Int],
-  addr : Sockaddr?,
+  addr : @socket.Sockaddr?,
 ) -> Int = "moonbit_uv_udp_try_send"
 
 ///|
 /// Try to send data synchronously (non-blocking)
 /// Returns the number of bytes written or a negative error code
-pub fn[Sockaddr : ToSockaddr] Udp::try_send(
+pub fn[Sockaddr : @socket.ToSockaddr] Udp::try_send(
   self : Udp,
   data : Array[@bytes.View],
   addr? : Sockaddr,
