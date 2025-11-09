@@ -35,7 +35,7 @@ fn echo_write_error(errno : @uv.Errno) -> Unit {
 }
 
 ///|
-fn echo_read(client : @uv.Tcp, nread : Int, buf : @bytes.View) -> Unit {
+fn echo_read(client : @uv.Tcp, nread : Int, buf : BytesView) -> Unit {
   if nread > 0 {
     try client.write([buf], echo_write, echo_write_error) |> ignore() catch {
       error => println("Error echoing data: \{(error : Error)}")
@@ -52,7 +52,7 @@ fn echo_read_error(client : @uv.Tcp, errno : @uv.Errno) -> Unit {
 }
 
 ///|
-fn alloc_buffer(_ : @uv.Tcp, suggested_size : Int) -> @bytes.View {
+fn alloc_buffer(_ : @uv.Tcp, suggested_size : Int) -> BytesView {
   Bytes::make(suggested_size, 0)
 }
 

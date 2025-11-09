@@ -37,9 +37,9 @@ extern "c" fn uv_random(
 #as_free_fn
 pub fn Loop::random(
   self : Loop,
-  buffer : @bytes.View,
+  buffer : BytesView,
   flags : Int,
-  random_cb : (@bytes.View) -> Unit,
+  random_cb : (BytesView) -> Unit,
   error_cb : (Errno) -> Unit,
 ) -> Random raise Errno {
   fn uv_random_cb(_, status, buffer : Bytes, offset, length) {
@@ -104,7 +104,7 @@ extern "c" fn uv_random_sync(
 #as_free_fn
 pub fn Loop::random_sync(
   self : Loop,
-  buffer : @bytes.View,
+  buffer : BytesView,
   flags : Int,
 ) -> Unit raise Errno {
   let req = uv_random_make()

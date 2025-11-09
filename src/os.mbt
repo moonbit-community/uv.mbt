@@ -18,29 +18,29 @@ extern "c" fn uv_os_uname(buffer : Bytes) -> Int = "moonbit_uv_os_uname"
 
 ///|
 struct Utsname {
-  sysname : @bytes.View
-  release : @bytes.View
-  version : @bytes.View
-  machine : @bytes.View
+  sysname : BytesView
+  release : BytesView
+  version : BytesView
+  machine : BytesView
 }
 
 ///|
-pub fn Utsname::sysname(self : Utsname) -> @bytes.View {
+pub fn Utsname::sysname(self : Utsname) -> BytesView {
   self.sysname
 }
 
 ///|
-pub fn Utsname::release(self : Utsname) -> @bytes.View {
+pub fn Utsname::release(self : Utsname) -> BytesView {
   self.release
 }
 
 ///|
-pub fn Utsname::version(self : Utsname) -> @bytes.View {
+pub fn Utsname::version(self : Utsname) -> BytesView {
   self.version
 }
 
 ///|
-pub fn Utsname::machine(self : Utsname) -> @bytes.View {
+pub fn Utsname::machine(self : Utsname) -> BytesView {
   self.machine
 }
 
@@ -66,7 +66,7 @@ pub fn os_uname() -> Utsname raise Errno {
   if status < 0 {
     raise Errno::of_int(status)
   }
-  fn shrink(s : @bytes.View) -> @bytes.View {
+  fn shrink(s : BytesView) -> BytesView {
     let mut len = 0
     for b in s {
       if b == 0 {

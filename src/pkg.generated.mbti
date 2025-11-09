@@ -805,6 +805,7 @@ fn Rusage::oublock(Self) -> Int
 fn Rusage::stime(Self) -> Timeval
 fn Rusage::utime(Self) -> Timeval
 
+#alias(RWLock, deprecated)
 type RwLock
 fn RwLock::new() -> Self raise Errno
 fn RwLock::rdlock(Self) -> Unit
@@ -1087,7 +1088,6 @@ type Write
 impl ToReq for Write
 
 // Type aliases
-pub typealias RwLock as RWLock
 
 // Traits
 pub trait Cancelable : ToReq {
