@@ -16,10 +16,10 @@
 # limitations under the License.
 
 from typing import Literal, Optional
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 import re
 import json
-import subprocess
+import shutil
 
 
 System = Literal["macos", "linux", "win32"]
@@ -94,7 +94,7 @@ class Project:
         def replace(match: re.Match) -> str:
             indent = match.group("indent")
             header: str = match.group("header")
-            relocated = relocate(PurePosixPath(header))
+            relocated = relocate(Path(header))
             return f'#{indent}include "{relocated.as_posix()}"'
 
         content = re.sub(r'#(?P<indent>\s*)include "(?P<header>.*?)"', replace, content)
@@ -145,7 +145,7 @@ def configure(project: Project):
         "src/uv-data-getter-setters.c",
         "src/version.c",
     ]:
-        project.copy(PurePosixPath(source))
+        project.copy(Path(source))
 
     for source in [
         "src/win/async.c",
@@ -175,7 +175,7 @@ def configure(project: Project):
         "src/win/winsock.c",
     ]:
         project.copy(
-            source=PurePosixPath(source),
+            source=Path(source),
             condition="defined(_WIN32)",
         )
 
@@ -200,13 +200,13 @@ def configure(project: Project):
         "src/unix/udp.c",
     ]:
         project.copy(
-            source=PurePosixPath(source),
+            source=Path(source),
             condition="!defined(_WIN32)",
         )
 
     for source in ["src/unix/proctitle.c"]:
         project.copy(
-            source=PurePosixPath(source),
+            source=Path(source),
             condition="defined(__APPLE__) || defined(__linux__)",
         )
 
@@ -219,7 +219,7 @@ def configure(project: Project):
         "src/unix/fsevents.c",
     ]:
         project.copy(
-            source=PurePosixPath(source),
+            source=Path(source),
             condition="defined(__APPLE__)",
         )
 
@@ -230,7 +230,7 @@ def configure(project: Project):
         "src/unix/random-sysctl-linux.c",
     ]:
         project.copy(
-            source=PurePosixPath(source),
+            source=Path(source),
             condition="defined(__linux__)",
         )
 
@@ -243,29 +243,35 @@ def update_moon_pkg_json(project: Project, path: Path):
             native_stubs.append(copied.as_posix())
     native_stubs.sort()
     moon_pkg_json["native-stub"] = [*native_stubs, "uv.c"]
-    has_pre_build = False
-    if "pre-build" not in moon_pkg_json:
-        moon_pkg_json["pre-build"] = []
-    for task in moon_pkg_json["pre-build"]:
-        if "command" in task and task["command"] == "python3 scripts/prepare.py":
-            task["output"] = native_stubs
-            has_pre_build = True
-    if not has_pre_build:
-        moon_pkg_json["pre-build"].append(
-            {
-                "input": [],
-                "output": native_stubs,
-                "command": "python3 scripts/prepare.py",
-            }
-        )
     path.write_text(json.dumps(moon_pkg_json, indent=2) + "\n", encoding="utf8")
 
 
+def download(url: str, target: Path):
+    """Download file from URL to target path."""
+    import urllib.request
+
+    with urllib.request.urlopen(url) as response, open(target, "wb") as dest_file:
+        shutil.copyfileobj(response, dest_file)
+    print(f"DOWNLOAD {url} -> {target}")
+
+
+def extract(zip_path: Path, target: Path):
+    """Extract tar.gz file to target path."""
+    import tarfile
+
+    with tarfile.open(zip_path, "r:gz") as tar:
+        tar.extractall(path=target)
+    print(f"EXTRACT {zip_path} -> {target}")
+
+
 def main():
-    subprocess.run(
-        ["git", "submodule", "update", "--init", "--recursive"],
-    )
-    source = Path("src") / "uv"
+    prepare = Path("prepare")
+    prepare.mkdir(parents=True, exist_ok=True)
+    tarball_url = "https://dist.libuv.org/dist/v1.51.0/libuv-v1.51.0.tar.gz"
+    tarball_path = prepare / "libuv-v1.51.0.tar.gz"
+    download(tarball_url, tarball_path)
+    extract(tarball_path, prepare)
+    source = prepare / "libuv-v1.51.0"
     target = Path("src")
     target.mkdir(parents=True, exist_ok=True)
     include = [source / "include", source / "src"]

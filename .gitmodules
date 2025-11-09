@@ -1,3 +1,0 @@
-[submodule "lib/uv"]
-	path = src/uv
-	url = https://github.com/libuv/libuv
