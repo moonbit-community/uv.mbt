@@ -434,7 +434,7 @@ extern "c" fn uv_fs_open(
 ///
 /// * `self` : The event loop instance to schedule the operation on.
 /// * `path` : The file path to open as a `Bytes` object. If you have a
-///   `String`, `@string.View`, or `@bytes.View`, convert it to `Bytes` first
+///   `String`, `StringView`, or `BytesView`, convert it to `Bytes` first
 ///   using `@encoding.encode(encoding=UTF8, string_value)`.
 /// * `flags` : The file access mode and behavior flags. Use
 ///   `OpenFlags::read_only()`, `OpenFlags::write_only()`, or
@@ -520,7 +520,7 @@ extern "c" fn uv_fs_open_sync(
 ///
 /// * `self` : The event loop instance to perform the operation on.
 /// * `path` : The file path to open as a `Bytes` object. If you have a
-///   `String`, `@string.View`, or `@bytes.View`, convert it to `Bytes` first
+///   `String`, `StringView`, or `BytesView`, convert it to `Bytes` first
 ///   using `@encoding.encode(encoding=UTF8, string_value)`.
 /// * `flags` : The file access mode and behavior flags. Use
 ///   `OpenFlags::read_only()`, `OpenFlags::write_only()`, or
@@ -860,7 +860,7 @@ extern "c" fn uv_fs_chmod(
 ///
 /// * `self` : The event loop instance to schedule the operation on.
 /// * `path` : The file path whose permissions to change as a `Bytes` object.
-///   If you have a `String`, `@string.View`, or `@bytes.View`, convert it to
+///   If you have a `String`, `StringView`, or `BytesView`, convert it to
 ///   `Bytes` first using `@encoding.encode(encoding=UTF8, string_value)`.
 /// * `mode` : The new file permissions (octal notation, e.g., `0o644` for
 ///   read/write for owner, read-only for group and others).
@@ -941,7 +941,7 @@ extern "c" fn uv_fs_chmod_sync(
 ///
 /// * `self` : The event loop instance to perform the operation on.
 /// * `path` : The file path whose permissions to change as a `Bytes` object.
-///   If you have a `String`, `@string.View`, or `@bytes.View`, convert it to
+///   If you have a `String`, `StringView`, or `BytesView`, convert it to
 ///   `Bytes` first using `@encoding.encode(encoding=UTF8, string_value)`.
 /// * `mode` : The new file permissions (octal notation, e.g., `0o644` for
 ///   read/write for owner, read-only for group and others).
@@ -1179,7 +1179,7 @@ extern "c" fn uv_fs_read(
 pub fn Loop::fs_read(
   self : Loop,
   file : File,
-  bufs : Array[@bytes.View],
+  bufs : Array[BytesView],
   offset? : Int64 = -1,
   read_cb : (Int) -> Unit,
   error_cb : (Errno) -> Unit,
@@ -1230,7 +1230,7 @@ extern "c" fn uv_fs_read_sync(
 pub fn Loop::fs_read_sync(
   self : Loop,
   file : File,
-  bufs : Array[@bytes.View],
+  bufs : Array[BytesView],
   offset? : Int64 = -1,
 ) -> Int raise Errno {
   let req = uv_fs_make()
@@ -1324,7 +1324,7 @@ extern "c" fn uv_fs_write(
 pub fn Loop::fs_write(
   self : Loop,
   file : File,
-  bufs : Array[@bytes.View],
+  bufs : Array[BytesView],
   offset? : Int64 = -1,
   write_cb : (Int) -> Unit,
   error_cb : (Errno) -> Unit,
@@ -1413,7 +1413,7 @@ extern "c" fn uv_fs_write_sync(
 pub fn Loop::fs_write_sync(
   self : Loop,
   file : File,
-  bufs : Array[@bytes.View],
+  bufs : Array[BytesView],
   offset? : Int64 = -1,
 ) -> Unit raise Errno {
   let req = uv_fs_make()
@@ -1835,7 +1835,7 @@ extern "c" fn uv_fs_chown(
 ///
 /// * `self` : The event loop instance to schedule the operation on.
 /// * `path` : The file path whose ownership to change as a `Bytes` object. If
-///   you have a `String`, `@string.View`, or `@bytes.View`, convert it to
+///   you have a `String`, `StringView`, or `BytesView`, convert it to
 ///   `Bytes` first using `@encoding.encode(encoding=UTF8, string_value)`.
 /// * `uid` : The new user ID (UID) for the file. Use `-1` (or `UInt::max_value`)
 ///   to leave the current owner unchanged.
@@ -1922,7 +1922,7 @@ extern "c" fn uv_fs_chown_sync(
 ///
 /// * `self` : The event loop instance to perform the operation on.
 /// * `path` : The file path whose ownership to change as a `Bytes` object. If
-///   you have a `String`, `@string.View`, or `@bytes.View`, convert it to
+///   you have a `String`, `StringView`, or `BytesView`, convert it to
 ///   `Bytes` first using `@encoding.encode(encoding=UTF8, string_value)`.
 /// * `uid` : The new user ID (UID) for the file. Use `-1` (or `UInt::max_value`)
 ///   to leave the current owner unchanged.
@@ -2137,7 +2137,7 @@ extern "c" fn uv_fs_lchown(
 ///
 /// * `self` : The event loop instance to schedule the operation on.
 /// * `path` : The symbolic link path whose ownership to change as a `Bytes`
-///   object. If you have a `String`, `@string.View`, or `@bytes.View`, convert
+///   object. If you have a `String`, `StringView`, or `BytesView`, convert
 ///   it to `Bytes` first using `@encoding.encode(encoding=UTF8, string_value)`.
 /// * `uid` : The new user ID (UID) for the symbolic link. Use `-1` (or 
 ///   `UInt::max_value`) to leave the current owner unchanged.
@@ -2233,7 +2233,7 @@ extern "c" fn uv_fs_lchown_sync(
 ///
 /// * `self` : The event loop instance to perform the operation on.
 /// * `path` : The symbolic link path whose ownership to change as a `Bytes`
-///   object. If you have a `String`, `@string.View`, or `@bytes.View`, convert
+///   object. If you have a `String`, `StringView`, or `BytesView`, convert
 ///   it to `Bytes` first using `@encoding.encode(encoding=UTF8, string_value)`.
 /// * `uid` : The new user ID (UID) for the symbolic link. Use `-1` (or
 ///   `UInt::max_value`) to leave the current owner unchanged.
@@ -2295,7 +2295,7 @@ extern "c" fn uv_fs_mkdir(
 ///
 /// * `self` : The event loop instance to schedule the operation on.
 /// * `path` : The directory path to create as a `Bytes` object. If you have a
-///   `String`, `@string.View`, or `@bytes.View`, convert it to `Bytes` first
+///   `String`, `StringView`, or `BytesView`, convert it to `Bytes` first
 ///   using `@encoding.encode(encoding=UTF8, string_value)`.
 /// * `mode` : The directory permissions to use when creating the directory
 ///   (octal notation, e.g., `0o755`).
@@ -2375,7 +2375,7 @@ extern "c" fn uv_fs_mkdir_sync(
 ///
 /// * `self` : The event loop instance to perform the operation on.
 /// * `path` : The directory path to create as a `Bytes` object. If you have a
-/// `String`, `@string.View`, or `@bytes.View`, convert it to `Bytes` first
+/// `String`, `StringView`, or `BytesView`, convert it to `Bytes` first
 /// using `@encoding.encode(encoding=UTF8, string_value)`.
 /// * `mode` : The directory permissions to use when creating the directory
 /// (octal notation, e.g., `0o755`).
@@ -3282,7 +3282,7 @@ pub fn Loop::fs_fstat(
 ///
 /// * `self` : The event loop instance to schedule the operation on.
 /// * `path` : The file path to resolve as a `Bytes` object. If you have a
-///   `String`, `@string.View`, or `@bytes.View`, convert it to `Bytes` first
+///   `String`, `StringView`, or `BytesView`, convert it to `Bytes` first
 ///   using `@encoding.encode(encoding=UTF8, string_value)`.
 /// * `path_cb` : Success callback function that receives the filesystem request
 ///   handle and the resolved absolute path when the operation succeeds.
@@ -3748,7 +3748,7 @@ extern "c" fn uv_fs_link(
 ///
 /// * `self` : The event loop instance to schedule the operation on.
 /// * `path` : The existing file path to link to as a `Bytes` object. If you have
-///   a `String`, `@string.View`, or `@bytes.View`, convert it to `Bytes` first
+///   a `String`, `StringView`, or `BytesView`, convert it to `Bytes` first
 ///   using `@encoding.encode(encoding=UTF8, string_value)`.
 /// * `new_path` : The new path for the hard link as a `Bytes` object.
 /// * `link_cb` : Success callback function that receives the filesystem request
@@ -3834,7 +3834,7 @@ extern "c" fn uv_fs_link_sync(
 ///
 /// * `self` : The event loop instance to perform the operation on.
 /// * `path` : The existing file path to link to as a `Bytes` object. If you have
-///   a `String`, `@string.View`, or `@bytes.View`, convert it to `Bytes` first
+///   a `String`, `StringView`, or `BytesView`, convert it to `Bytes` first
 ///   using `@encoding.encode(encoding=UTF8, string_value)`.
 /// * `new_path` : The new path for the hard link as a `Bytes` object.
 ///
@@ -3954,7 +3954,7 @@ extern "c" fn uv_fs_symlink(
 ///
 /// * `self` : The event loop instance to schedule the operation on.
 /// * `path` : The target path that the symlink will point to as a `Bytes`
-///   object. If you have a `String`, `@string.View`, or `@bytes.View`, convert
+///   object. If you have a `String`, `StringView`, or `BytesView`, convert
 ///   it to `Bytes` first using `@encoding.encode(encoding=UTF8, string_value)`.
 /// * `new_path` : The path where the symbolic link will be created as a `Bytes`
 ///   object.
@@ -4045,7 +4045,7 @@ extern "c" fn uv_fs_symlink_sync(
 ///
 /// * `self` : The event loop instance to perform the operation on.
 /// * `path` : The target path that the symlink will point to as a `Bytes`
-///   object. If you have a `String`, `@string.View`, or `@bytes.View`, convert
+///   object. If you have a `String`, `StringView`, or `BytesView`, convert
 ///   it to `Bytes` first using `@encoding.encode(encoding=UTF8, string_value)`.
 /// * `new_path` : The path where the symbolic link will be created as a `Bytes`
 ///   object.
@@ -4104,7 +4104,7 @@ extern "c" fn uv_fs_readlink(
 ///
 /// * `self` : The event loop instance to schedule the operation on.
 /// * `path` : The symbolic link path to read as a `Bytes` object. If you have a
-///   `String`, `@string.View`, or `@bytes.View`, convert it to `Bytes` first
+///   `String`, `StringView`, or `BytesView`, convert it to `Bytes` first
 ///   using `@encoding.encode(encoding=UTF8, string_value)`.
 /// * `readlink_cb` : Success callback function that receives the filesystem
 ///   request handle and the target path when the operation succeeds.
@@ -4190,7 +4190,7 @@ extern "c" fn uv_fs_readlink_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "m
 ///
 /// * `self` : The event loop instance to perform the operation on.
 /// * `path` : The symbolic link path to read as a `Bytes` object. If you have a
-///   `String`, `@string.View`, or `@bytes.View`, convert it to `Bytes` first
+///   `String`, `StringView`, or `BytesView`, convert it to `Bytes` first
 ///   using `@encoding.encode(encoding=UTF8, string_value)`.
 ///
 /// Returns the target path that the symbolic link points to as a `Bytes` object.

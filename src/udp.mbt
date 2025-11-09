@@ -93,7 +93,7 @@ extern "c" fn uv_udp_send(
 ///|
 pub fn[Sockaddr : ToSockaddr] Udp::send(
   self : Udp,
-  data : Array[@bytes.View],
+  data : Array[BytesView],
   send_cb : () -> Unit,
   error_cb : (Errno) -> Unit,
   addr? : Sockaddr,
@@ -142,8 +142,8 @@ extern "c" fn uv_udp_recv_start(
 ///|
 pub fn Udp::recv_start(
   self : Udp,
-  alloc_cb : (Handle, Int) -> @bytes.View,
-  read_cb : (Udp, Int, @bytes.View, Sockaddr, UdpFlags) -> Unit,
+  alloc_cb : (Handle, Int) -> BytesView,
+  read_cb : (Udp, Int, BytesView, Sockaddr, UdpFlags) -> Unit,
   error_cb : (Udp, Errno) -> Unit,
 ) -> Unit raise Errno {
   fn uv_alloc_cb(
@@ -486,7 +486,7 @@ extern "c" fn uv_udp_try_send(
 /// Returns the number of bytes written or a negative error code
 pub fn[Sockaddr : ToSockaddr] Udp::try_send(
   self : Udp,
-  data : Array[@bytes.View],
+  data : Array[BytesView],
   addr? : Sockaddr,
 ) -> Int raise Errno {
   let bufs_size = data.length()
@@ -525,7 +525,7 @@ extern "c" fn uv_udp_try_send2(
 ///|
 pub fn[T : ToSockaddr] Udp::try_send2(
   self : Udp,
-  data : Array[(Array[@bytes.View], T?)],
+  data : Array[(Array[BytesView], T?)],
   flags : UdpFlags,
 ) -> Int raise Errno {
   let bufs_base : FixedArray[FixedArray[Bytes]] = FixedArray::makei(

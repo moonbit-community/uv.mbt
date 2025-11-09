@@ -37,8 +37,8 @@ extern "c" fn uv_read_start(
 ///|
 pub fn Stream::read_start(
   self : Stream,
-  alloc_cb : (Handle, Int) -> @bytes.View,
-  read_cb : (Stream, Int, @bytes.View) -> Unit,
+  alloc_cb : (Handle, Int) -> BytesView,
+  read_cb : (Stream, Int, BytesView) -> Unit,
   error_cb : (Stream, Errno) -> Unit,
 ) -> Unit raise Errno {
   fn uv_alloc_cb(
@@ -91,8 +91,8 @@ pub fn Stream::read_start(
 #deprecated("Use Stream::read_start() instead")
 pub fn[Stream : ToStream] read_start(
   stream : Stream,
-  alloc_cb : (Stream, Int) -> @bytes.View,
-  read_cb : (Stream, Int, @bytes.View) -> Unit,
+  alloc_cb : (Stream, Int) -> BytesView,
+  read_cb : (Stream, Int, BytesView) -> Unit,
   error_cb : (Stream, Errno) -> Unit,
 ) -> Unit raise Errno {
   stream.read_start(alloc_cb, read_cb, error_cb)
@@ -150,7 +150,7 @@ extern "c" fn uv_try_write(
 ///|
 pub fn Stream::write(
   self : Stream,
-  bufs : Array[@bytes.View],
+  bufs : Array[BytesView],
   write_cb : () -> Unit,
   error_cb : (Errno) -> Unit,
 ) -> Write raise Errno {
@@ -182,7 +182,7 @@ pub fn Stream::write(
 ///|
 pub fn Stream::try_write(
   self : Stream,
-  bufs : Array[@bytes.View],
+  bufs : Array[BytesView],
   write_cb : () -> Unit,
   error_cb : (Errno) -> Unit,
 ) -> Write raise Errno {
@@ -215,7 +215,7 @@ pub fn Stream::try_write(
 #deprecated("Use Stream::write() instead")
 pub fn[Stream : ToStream] write(
   stream : Stream,
-  bufs : Array[@bytes.View],
+  bufs : Array[BytesView],
   write_cb : () -> Unit,
   error_cb : (Errno) -> Unit,
 ) -> Write raise Errno {
@@ -249,7 +249,7 @@ extern "c" fn uv_try_write2(
 ///|
 pub fn Stream::write2(
   self : Stream,
-  bufs : Array[@bytes.View],
+  bufs : Array[BytesView],
   send_handle : Stream,
   write_cb : () -> Unit,
   error_cb : (Errno) -> Unit,
@@ -284,7 +284,7 @@ pub fn Stream::write2(
 ///|
 pub fn Stream::try_write2(
   self : Stream,
-  bufs : Array[@bytes.View],
+  bufs : Array[BytesView],
   send_handle : Stream,
   write_cb : () -> Unit,
   error_cb : (Errno) -> Unit,
@@ -322,13 +322,13 @@ pub trait ToStream: ToHandle {
   of_stream(Stream) -> Self
   read_start(
     Self,
-    (Self, Int) -> @bytes.View,
-    (Self, Int, @bytes.View) -> Unit,
+    (Self, Int) -> BytesView,
+    (Self, Int, BytesView) -> Unit,
     (Self, Errno) -> Unit,
   ) -> Unit raise Errno = _
   read_stop(Self) -> Unit raise Errno = _
-  write(Self, Array[@bytes.View], () -> Unit, (Errno) -> Unit) -> Write raise Errno = _
-  try_write(Self, Array[@bytes.View], () -> Unit, (Errno) -> Unit) -> Write raise Errno = _
+  write(Self, Array[BytesView], () -> Unit, (Errno) -> Unit) -> Write raise Errno = _
+  try_write(Self, Array[BytesView], () -> Unit, (Errno) -> Unit) -> Write raise Errno = _
   listen(Self, Int, (Self) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno = _
   is_readable(Self) -> Bool = _
   is_writable(Self) -> Bool = _
@@ -357,7 +357,7 @@ impl ToStream with read_start(self, alloc_cb, read_cb, error_cb) {
     alloc_cb(ToHandle::of_handle(handle), suggested_size)
   }
 
-  fn stream_read_cb(stream : Stream, count : Int, bytes : @bytes.View) {
+  fn stream_read_cb(stream : Stream, count : Int, bytes : BytesView) {
     read_cb(ToStream::of_stream(stream), count, bytes)
   }
 
