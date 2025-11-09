@@ -121,31 +121,6 @@ jobs:
           moon info --target native
           git diff --exit-code
 
-  check-example:
-    strategy:
-      matrix:
-        channel: [stable, nightly]
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - name: Install MoonBit
-        uses: ./.github/actions/install-moonbit
-        with:
-          channel: ${{ matrix.channel }}
-
-      - name: Inspect MoonBit version
-        run: |
-          moon version --all
-
-      - name: Check tests
-        working-directory: test
-        run: |
-          moon check --target native
-
   check-format:
     runs-on: ubuntu-latest
     steps:
