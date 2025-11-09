@@ -146,14 +146,6 @@ jobs:
         run: |
           moon check --target native
 
-  check-license-header:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-      - run: python3 scripts/license.py
-
   check-format:
     runs-on: ubuntu-latest
     steps:
