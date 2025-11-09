@@ -166,6 +166,8 @@ test "Tcp::keepalive" {
 
 ///|
 test "Tcp::keepalive_ex" {
+  let version = @uv.version()
+  guard version.major() >= 1 && version.minor() >= 52 else { return }
   let uv = Loop::new()
   let server = Tcp::new(uv)
   let addr = ip4_addr("127.0.0.1", 0)

@@ -136,10 +136,15 @@ moonbit_uv_tcp_keepalive_ex(
   uint32_t interval,
   uint32_t count
 ) {
+#if UV_VERSION_MAJOR == 1 && UV_VERSION_MINOR >= 52
   int result =
     uv_tcp_keepalive_ex(&tcp->tcp, on ? 1 : 0, idle, interval, count);
   moonbit_decref(tcp);
   return result;
+#else
+  moonbit_decref(tcp);
+  return UV_ENOSYS;
+#endif
 }
 
 MOONBIT_FFI_EXPORT
