@@ -13,11 +13,8 @@
 // limitations under the License.
 
 ///|
+#alias(RWLock, deprecated)
 type RwLock
-
-///|
-#deprecated
-pub typealias RwLock as RWLock
 
 ///|
 extern "c" fn uv_rwlock_make() -> RwLock = "moonbit_uv_rwlock_make"

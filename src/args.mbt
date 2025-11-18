@@ -64,7 +64,7 @@ pub fn get_process_title() -> Bytes raise {
   } else {
     buffer.length()
   }
-  Bytes::from_fixedarray(buffer, len~)
+  Bytes::from_array(buffer[:len])
 }
 
 ///|

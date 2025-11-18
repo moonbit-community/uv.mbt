@@ -650,7 +650,7 @@ test "fs_symlink_async" {
   }
   uv.run(Default)
   @assert.t(symlinked)
-  @assert.t(error.is_empty())
+  @assert.t(error is None)
   uv.close()
 }
 
@@ -699,7 +699,7 @@ test "fs_readlink_async" {
   }
   uv.run(Default)
   @assert.t(target_read is Some(_))
-  @assert.t(error.is_empty())
+  @assert.t(error is None)
   uv.close()
 }
 
