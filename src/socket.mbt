@@ -199,7 +199,7 @@ pub fn In6Addr::ntop(self : In6Addr) -> Bytes raise Errno {
   } else {
     dst.length()
   }
-  Bytes::from_fixedarray(dst, len~)
+  Bytes::from_array(dst[:len])
 }
 
 ///|
