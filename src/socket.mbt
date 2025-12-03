@@ -29,10 +29,7 @@ extern "c" fn uv_sockaddr_in_port(addr : SockaddrIn) -> UInt = "moonbit_uv_socka
 
 ///|
 pub fn SockaddrIn::port(self : SockaddrIn) -> UInt16 {
-  uv_sockaddr_in_port(self)
-  .reinterpret_as_int()
-  .to_int16()
-  .reinterpret_as_uint16()
+  Int16::from_int(uv_sockaddr_in_port(self).reinterpret_as_int()).reinterpret_as_uint16()
 }
 
 ///|
@@ -120,10 +117,7 @@ extern "c" fn uv_sockaddr_in6_port(addr : SockaddrIn6) -> UInt = "moonbit_uv_soc
 
 ///|
 pub fn SockaddrIn6::port(self : SockaddrIn6) -> UInt16 {
-  uv_sockaddr_in6_port(self)
-  .reinterpret_as_int()
-  .to_int16()
-  .reinterpret_as_uint16()
+  Int16::from_int(uv_sockaddr_in6_port(self).reinterpret_as_int()).reinterpret_as_uint16()
 }
 
 ///|
