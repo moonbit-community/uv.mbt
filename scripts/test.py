@@ -130,7 +130,11 @@ def main():
     print("----------------------------------------------")
     env = os.environ.copy()
     if platform.system() != "Windows":
-        env["MOON_CC"] = flags["cc"] + " -g -fsanitize=address"
+        cc = flags["cc"] + " -g -fsanitize=address"
+        cc_sh = Path("scripts/cc.sh")
+        cc_sh.write_text(f'{cc} "$@"', encoding="utf-8")
+        cc_sh.chmod(0o755)
+        env["MOON_CC"] = str(cc_sh.resolve())
         env["MOON_AR"] = "/usr/bin/ar"
     if platform.system() != "Windows":
         env["ASAN_OPTIONS"] = "detect_leaks=1"
@@ -157,6 +161,7 @@ def main():
         )
     finally:
         uv_pkg_path.write_text(uv_pkg_text)
+        Path("scripts/cc.sh").unlink(missing_ok=True)
 
 
 if __name__ == "__main__":
