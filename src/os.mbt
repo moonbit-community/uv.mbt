@@ -233,64 +233,63 @@ extern "c" fn uv_cpu_info(
 ) -> Int = "moonbit_uv_cpu_info"
 
 ///|
+extern "c" fn uv_cpu_info_sizeof() -> UInt64 = "moonbit_uv_cpu_info_sizeof"
+
+///|
+impl @sizeof.Sized for CpuInfo with size() -> @c.Size {
+  uv_cpu_info_sizeof()
+}
+
+///|
 extern "c" fn uv_cpu_info_get_model(
   cpu_info : @c.Pointer[CpuInfo],
-  index : Int,
 ) -> @c.Pointer[Byte] = "moonbit_uv_cpu_info_get_model"
 
 ///|
-extern "c" fn uv_cpu_info_get_speed(
-  cpu_info : @c.Pointer[CpuInfo],
-  index : Int,
-) -> Int = "moonbit_uv_cpu_info_get_speed"
+extern "c" fn uv_cpu_info_get_speed(cpu_info : @c.Pointer[CpuInfo]) -> Int = "moonbit_uv_cpu_info_get_speed"
 
 ///|
 extern "c" fn uv_cpu_info_get_cpu_times_user(
   cpu_info : @c.Pointer[CpuInfo],
-  index : Int,
 ) -> UInt64 = "moonbit_uv_cpu_info_get_cpu_times_user"
 
 ///|
 extern "c" fn uv_cpu_info_get_cpu_times_nice(
   cpu_info : @c.Pointer[CpuInfo],
-  index : Int,
 ) -> UInt64 = "moonbit_uv_cpu_info_get_cpu_times_nice"
 
 ///|
 extern "c" fn uv_cpu_info_get_cpu_times_sys(
   cpu_info : @c.Pointer[CpuInfo],
-  index : Int,
 ) -> UInt64 = "moonbit_uv_cpu_info_get_cpu_times_sys"
 
 ///|
 extern "c" fn uv_cpu_info_get_cpu_times_idle(
   cpu_info : @c.Pointer[CpuInfo],
-  index : Int,
 ) -> UInt64 = "moonbit_uv_cpu_info_get_cpu_times_idle"
 
 ///|
 extern "c" fn uv_cpu_info_get_cpu_times_irq(
   cpu_info : @c.Pointer[CpuInfo],
-  index : Int,
 ) -> UInt64 = "moonbit_uv_cpu_info_get_cpu_times_irq"
 
 ///|
-impl @c.Load for CpuInfo with load(self : @c.Pointer[CpuInfo], index : Int) -> CpuInfo {
+impl @pointer.Load for CpuInfo with load(self : @c.Pointer[CpuInfo]) -> CpuInfo {
   let model = {
     let buffer = @buffer.new()
-    let pointer = uv_cpu_info_get_model(self, index)
+    let pointer = uv_cpu_info_get_model(self)
     for i = 0; pointer[i] != 0; i = i + 1 {
       buffer.write_byte(pointer[i])
     }
     buffer.contents()
   }
-  let speed = uv_cpu_info_get_speed(self, index)
+  let speed = uv_cpu_info_get_speed(self)
   let cpu_times = {
-    user: uv_cpu_info_get_cpu_times_user(self, index),
-    nice: uv_cpu_info_get_cpu_times_nice(self, index),
-    sys: uv_cpu_info_get_cpu_times_sys(self, index),
-    idle: uv_cpu_info_get_cpu_times_idle(self, index),
-    irq: uv_cpu_info_get_cpu_times_irq(self, index),
+    user: uv_cpu_info_get_cpu_times_user(self),
+    nice: uv_cpu_info_get_cpu_times_nice(self),
+    sys: uv_cpu_info_get_cpu_times_sys(self),
+    idle: uv_cpu_info_get_cpu_times_idle(self),
+    irq: uv_cpu_info_get_cpu_times_irq(self),
   }
   { model, speed, cpu_times }
 }

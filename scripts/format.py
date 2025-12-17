@@ -47,7 +47,7 @@ def json_format(write: bool = False):
         logger.info(f"file {path} will be checked")
         text = path.read_text(encoding="utf-8")
         parsed = json.loads(text)
-        formatted = json.dumps(parsed, indent=2, sort_keys=True) + "\n"
+        formatted = json.dumps(parsed, indent=2) + "\n"
         if text != formatted:
             if write:
                 path.write_text(formatted, encoding="utf-8")

@@ -115,46 +115,48 @@ pub struct InterfaceAddress {
 } derive(ToJson)
 
 ///|
-extern "c" fn uv_interface_addresses_name(
-  address : @c.Pointer[InterfaceAddress],
-  index : Int,
-) -> Bytes = "moonbit_uv_interface_addresses_name"
+extern "c" fn uv_interface_address_sizeof() -> UInt64 = "moonbit_uv_interface_address_sizeof"
 
 ///|
-extern "c" fn uv_interface_addresses_phys_addr(
-  address : @c.Pointer[InterfaceAddress],
-  index : Int,
-) -> UInt64 = "moonbit_uv_interface_addresses_phys_addr"
+impl @sizeof.Sized for InterfaceAddress with size() -> @c.Size {
+  uv_interface_address_sizeof()
+}
 
 ///|
-extern "c" fn uv_interface_addresses_is_internal(
+extern "c" fn uv_interface_address_name(
   address : @c.Pointer[InterfaceAddress],
-  index : Int,
-) -> Int = "moonbit_uv_interface_addresses_is_internal"
+) -> Bytes = "moonbit_uv_interface_address_name"
 
 ///|
-extern "c" fn uv_interface_addresses_address(
+extern "c" fn uv_interface_address_phys_addr(
   address : @c.Pointer[InterfaceAddress],
-  index : Int,
-) -> Sockaddr = "moonbit_uv_interface_addresses_address"
+) -> UInt64 = "moonbit_uv_interface_address_phys_addr"
 
 ///|
-extern "c" fn uv_interface_addresses_netmask(
+extern "c" fn uv_interface_address_is_internal(
   address : @c.Pointer[InterfaceAddress],
-  index : Int,
-) -> Sockaddr = "moonbit_uv_interface_addresses_netmask"
+) -> Int = "moonbit_uv_interface_address_is_internal"
 
 ///|
-impl @c.Load for InterfaceAddress with load(
+extern "c" fn uv_interface_address_address(
+  address : @c.Pointer[InterfaceAddress],
+) -> Sockaddr = "moonbit_uv_interface_address_address"
+
+///|
+extern "c" fn uv_interface_address_netmask(
+  address : @c.Pointer[InterfaceAddress],
+) -> Sockaddr = "moonbit_uv_interface_address_netmask"
+
+///|
+impl @pointer.Load for InterfaceAddress with load(
   self : @c.Pointer[InterfaceAddress],
-  index : Int,
 ) -> InterfaceAddress {
   return InterfaceAddress::{
-    name: uv_interface_addresses_name(self, index),
-    phys_addr: uv_interface_addresses_phys_addr(self, index),
-    is_internal: uv_interface_addresses_is_internal(self, index) != 0,
-    address: uv_interface_addresses_address(self, index),
-    netmask: uv_interface_addresses_netmask(self, index),
+    name: uv_interface_address_name(self),
+    phys_addr: uv_interface_address_phys_addr(self),
+    is_internal: uv_interface_address_is_internal(self) != 0,
+    address: uv_interface_address_address(self),
+    netmask: uv_interface_address_netmask(self),
   }
 }
 

@@ -2509,28 +2509,32 @@ pub enum DirentType {
 extern "c" fn uv_dirent_make(n : Int) -> @c.Pointer[Dirent] = "moonbit_uv_dirent_make"
 
 ///|
-impl @c.Load for Dirent with load(pointer : @c.Pointer[Dirent], index : Int) -> Dirent {
-  let name = uv_dirent_get_name(pointer, index)
+extern "c" fn uv_dirent_sizeof() -> UInt64 = "moonbit_uv_dirent_sizeof"
+
+///|
+impl @sizeof.Sized for Dirent with size() -> @c.Size {
+  uv_dirent_sizeof()
+}
+
+///|
+impl @pointer.Load for Dirent with load(pointer : @c.Pointer[Dirent]) -> Dirent {
+  let name = uv_dirent_get_name(pointer)
   let buffer = @buffer.new()
   for i = 0; name[i] != 0; i = i + 1 {
     buffer.write_byte(name[i])
   }
   let name = buffer.contents()
-  let type_ = uv_dirent_get_type(pointer, index)
+  let type_ = uv_dirent_get_type(pointer)
   { name, type_ }
 }
 
 ///|
 extern "c" fn uv_dirent_get_name(
   dirent : @c.Pointer[Dirent],
-  offset : Int,
 ) -> @c.Pointer[Byte] = "moonbit_uv_dirent_get_name"
 
 ///|
-extern "c" fn uv_dirent_get_type(
-  dirent : @c.Pointer[Dirent],
-  offset : Int,
-) -> DirentType = "moonbit_uv_dirent_get_type"
+extern "c" fn uv_dirent_get_type(dirent : @c.Pointer[Dirent]) -> DirentType = "moonbit_uv_dirent_get_type"
 
 ///|
 extern "c" fn uv_dirent_delete(dirent : @c.Pointer[Dirent]) = "moonbit_uv_dirent_delete"
@@ -2552,7 +2556,7 @@ pub fn Scandir::next(self : Scandir) -> Dirent raise Errno {
     uv_fs_req_cleanup(req)
     raise Errno::of_int(status)
   }
-  let dirent = uv_dirent[0]
+  let dirent = uv_dirent.load()
   uv_dirent_delete(uv_dirent)
   dirent
 }

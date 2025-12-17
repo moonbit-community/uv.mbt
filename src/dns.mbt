@@ -139,9 +139,6 @@ pub fn AddrInfoHints::new(
 }
 
 ///|
-extern "c" fn AddrInfoHints::nil() -> AddrInfoHints = "moonbit_c_null"
-
-///|
 priv type AddrInfoResults
 
 ///|
@@ -298,6 +295,17 @@ extern "c" fn uv_getaddrinfo(
 ) -> Int = "moonbit_uv_getaddrinfo"
 
 ///|
+#owned(uv, req, node, service)
+extern "c" fn uv_getaddrinfo_no_hints(
+  uv : Loop,
+  req : GetAddrInfo,
+  getaddrinfo_cb : (GetAddrInfo, Int, AddrInfoResults) -> Unit,
+  node : Bytes,
+  service : Bytes,
+  hints : @c.Pointer[Unit],
+) -> Int = "moonbit_uv_getaddrinfo"
+
+///|
 #as_free_fn
 pub fn Loop::getaddrinfo(
   self : Loop,
@@ -316,11 +324,18 @@ pub fn Loop::getaddrinfo(
   }
 
   let req = uv_getaddrinfo_make()
-  let hints = match hints {
-    Some(hints) => hints
-    None => AddrInfoHints::nil()
+  let status = match hints {
+    Some(hints) => uv_getaddrinfo(self, req, uv_cb, node, service, hints)
+    None =>
+      uv_getaddrinfo_no_hints(
+        self,
+        req,
+        uv_cb,
+        node,
+        service,
+        @c.Pointer::null(),
+      )
   }
-  let status = uv_getaddrinfo(self, req, uv_cb, node, service, hints)
   if status < 0 {
     raise Errno::of_int(status)
   }

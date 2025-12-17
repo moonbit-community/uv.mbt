@@ -18,6 +18,7 @@
 #include "uv#include#uv.h"
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #ifdef _WIN32
 #else
 #include <unistd.h>
@@ -652,15 +653,21 @@ moonbit_uv_dirent_make(int32_t length) {
 }
 
 MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_dirent_sizeof(void) {
+  return sizeof(uv_dirent_t);
+}
+
+MOONBIT_FFI_EXPORT
 const char *
-moonbit_uv_dirent_get_name(uv_dirent_t *dirent, int32_t offset) {
-  return dirent[offset].name;
+moonbit_uv_dirent_get_name(uv_dirent_t *dirent) {
+  return dirent->name;
 }
 
 MOONBIT_FFI_EXPORT
 int32_t
-moonbit_uv_dirent_get_type(uv_dirent_t *dirent, int32_t offset) {
-  return dirent[offset].type;
+moonbit_uv_dirent_get_type(uv_dirent_t *dirent) {
+  return dirent->type;
 }
 
 MOONBIT_FFI_EXPORT

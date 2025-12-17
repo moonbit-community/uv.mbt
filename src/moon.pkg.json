@@ -1,6 +1,8 @@
 {
   "import": [
-    "tonyfettes/c"
+    "tonyfettes/c",
+    "tonyfettes/c/pointer",
+    "tonyfettes/c/sizeof"
   ],
   "native-stub": [
     "uv#src#fs-poll.c",
