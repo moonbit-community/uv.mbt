@@ -1,14 +1,14 @@
 {
-  "deps": {
-    "tonyfettes/c": "0.5.4"
-  },
-  "description": "MoonBit binding to libuv",
-  "keywords": [],
-  "license": "Apache-2.0",
   "name": "tonyfettes/uv",
-  "preferred-target": "native",
+  "version": "0.12.8",
+  "deps": {
+    "tonyfettes/c": "0.7.1"
+  },
   "readme": "README.md",
   "repository": "https://github.com/moonbit-community/uv.mbt",
+  "license": "Apache-2.0",
+  "keywords": [],
+  "description": "MoonBit binding to libuv",
   "source": "src",
-  "version": "0.12.8"
+  "preferred-target": "native"
 }

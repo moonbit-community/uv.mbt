@@ -71,66 +71,53 @@ moonbit_uv_free_interface_addresses(
 }
 
 MOONBIT_FFI_EXPORT
+uint64_t
+moonbit_uv_interface_address_sizeof(void) {
+  return sizeof(uv_interface_address_t);
+}
+
+MOONBIT_FFI_EXPORT
 moonbit_bytes_t
-moonbit_uv_interface_addresses_name(
-  uv_interface_address_t *address,
-  int32_t index
-) {
-  size_t size = strlen(address[index].name);
+moonbit_uv_interface_address_name(uv_interface_address_t *address) {
+  size_t size = strlen(address->name);
   moonbit_bytes_t name = moonbit_make_bytes(size, 0);
-  memcpy(name, address[index].name, size);
+  memcpy(name, address->name, size);
   return name;
 }
 
 MOONBIT_FFI_EXPORT
 uint64_t
-moonbit_uv_interface_addresses_phys_addr(
-  uv_interface_address_t *address,
-  int32_t index
-) {
+moonbit_uv_interface_address_phys_addr(uv_interface_address_t *address) {
   uint64_t phys_addr = 0;
-  phys_addr |= ((uint64_t)(unsigned char)address[index].phys_addr[0]) << 40;
-  phys_addr |= ((uint64_t)(unsigned char)address[index].phys_addr[1]) << 32;
-  phys_addr |= ((uint64_t)(unsigned char)address[index].phys_addr[2]) << 24;
-  phys_addr |= ((uint64_t)(unsigned char)address[index].phys_addr[3]) << 16;
-  phys_addr |= ((uint64_t)(unsigned char)address[index].phys_addr[4]) << 8;
-  phys_addr |= ((uint64_t)(unsigned char)address[index].phys_addr[5]) << 0;
+  phys_addr |= ((uint64_t)(unsigned char)address->phys_addr[0]) << 40;
+  phys_addr |= ((uint64_t)(unsigned char)address->phys_addr[1]) << 32;
+  phys_addr |= ((uint64_t)(unsigned char)address->phys_addr[2]) << 24;
+  phys_addr |= ((uint64_t)(unsigned char)address->phys_addr[3]) << 16;
+  phys_addr |= ((uint64_t)(unsigned char)address->phys_addr[4]) << 8;
+  phys_addr |= ((uint64_t)(unsigned char)address->phys_addr[5]) << 0;
   return phys_addr;
 }
 
 MOONBIT_FFI_EXPORT
 int32_t
-moonbit_uv_interface_addresses_is_internal(
-  uv_interface_address_t *address,
-  int32_t index
-) {
-  return address[index].is_internal;
+moonbit_uv_interface_address_is_internal(uv_interface_address_t *address) {
+  return address->is_internal;
 }
 
 MOONBIT_FFI_EXPORT
 moonbit_bytes_t
-moonbit_uv_interface_addresses_address(
-  uv_interface_address_t *address,
-  int32_t index
-) {
+moonbit_uv_interface_address_address(uv_interface_address_t *address) {
   moonbit_bytes_t sockaddr_storage =
-    moonbit_make_bytes(sizeof(address[index].address), 0);
-  memcpy(
-    sockaddr_storage, &address[index].address, sizeof(address[index].address)
-  );
+    moonbit_make_bytes(sizeof(address->address), 0);
+  memcpy(sockaddr_storage, &address->address, sizeof(address->address));
   return sockaddr_storage;
 }
 
 MOONBIT_FFI_EXPORT
 moonbit_bytes_t
-moonbit_uv_interface_addresses_netmask(
-  uv_interface_address_t *address,
-  int32_t index
-) {
+moonbit_uv_interface_address_netmask(uv_interface_address_t *address) {
   moonbit_bytes_t sockaddr_storage =
-    moonbit_make_bytes(sizeof(address[index].netmask), 0);
-  memcpy(
-    sockaddr_storage, &address[index].netmask, sizeof(address[index].netmask)
-  );
+    moonbit_make_bytes(sizeof(address->netmask), 0);
+  memcpy(sockaddr_storage, &address->netmask, sizeof(address->netmask));
   return sockaddr_storage;
 }

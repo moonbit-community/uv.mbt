@@ -29,44 +29,44 @@ moonbit_uv_cpu_info(uv_cpu_info_t **cpu_infos, int32_t *count) {
 
 MOONBIT_FFI_EXPORT
 const char *
-moonbit_uv_cpu_info_get_model(uv_cpu_info_t *cpu_info, int32_t i) {
-  return cpu_info[i].model;
+moonbit_uv_cpu_info_get_model(uv_cpu_info_t *cpu_info) {
+  return cpu_info->model;
 }
 
 MOONBIT_FFI_EXPORT
 int32_t
-moonbit_uv_cpu_info_get_speed(uv_cpu_info_t *cpu_info, int32_t i) {
-  return cpu_info[i].speed;
+moonbit_uv_cpu_info_get_speed(uv_cpu_info_t *cpu_info) {
+  return cpu_info->speed;
 }
 
 MOONBIT_FFI_EXPORT
 uint64_t
-moonbit_uv_cpu_info_get_cpu_times_user(uv_cpu_info_t *cpu_info, int32_t i) {
-  return cpu_info[i].cpu_times.user;
+moonbit_uv_cpu_info_get_cpu_times_user(uv_cpu_info_t *cpu_info) {
+  return cpu_info->cpu_times.user;
 }
 
 MOONBIT_FFI_EXPORT
 uint64_t
-moonbit_uv_cpu_info_get_cpu_times_nice(uv_cpu_info_t *cpu_info, int32_t i) {
-  return cpu_info[i].cpu_times.nice;
+moonbit_uv_cpu_info_get_cpu_times_nice(uv_cpu_info_t *cpu_info) {
+  return cpu_info->cpu_times.nice;
 }
 
 MOONBIT_FFI_EXPORT
 uint64_t
-moonbit_uv_cpu_info_get_cpu_times_sys(uv_cpu_info_t *cpu_info, int32_t i) {
-  return cpu_info[i].cpu_times.sys;
+moonbit_uv_cpu_info_get_cpu_times_sys(uv_cpu_info_t *cpu_info) {
+  return cpu_info->cpu_times.sys;
 }
 
 MOONBIT_FFI_EXPORT
 uint64_t
-moonbit_uv_cpu_info_get_cpu_times_idle(uv_cpu_info_t *cpu_info, int32_t i) {
-  return cpu_info[i].cpu_times.idle;
+moonbit_uv_cpu_info_get_cpu_times_idle(uv_cpu_info_t *cpu_info) {
+  return cpu_info->cpu_times.idle;
 }
 
 MOONBIT_FFI_EXPORT
 uint64_t
-moonbit_uv_cpu_info_get_cpu_times_irq(uv_cpu_info_t *cpu_info, int32_t i) {
-  return cpu_info[i].cpu_times.irq;
+moonbit_uv_cpu_info_get_cpu_times_irq(uv_cpu_info_t *cpu_info) {
+  return cpu_info->cpu_times.irq;
 }
 
 MOONBIT_FFI_EXPORT

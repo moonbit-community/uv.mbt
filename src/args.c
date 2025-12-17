@@ -17,6 +17,7 @@
 #include "moonbit.h"
 #include "uv#include#uv.h"
 #include <stdlib.h>
+#include <string.h>
 
 MOONBIT_FFI_EXPORT
 int32_t
