@@ -35,7 +35,6 @@ def publish_to(directory: Path, test: bool = True, publish: bool = False):
     directory.mkdir()
     shutil.copytree("src", directory / "src")
     remove_pre_build(directory / "src" / "moon.pkg.json")
-    shutil.rmtree(directory / "src" / "uv")
 
     (directory / "src" / ".gitignore").unlink()
 
@@ -47,11 +46,13 @@ def publish_to(directory: Path, test: bool = True, publish: bool = False):
         shutil.copy(file, directory / file)
 
     if test:
+        shutil.copytree("test", directory / "test")
         subprocess.run(
             ["moon", "test", "--target", "native"], check=True, cwd=directory
         )
         subprocess.run(["moon", "clean"], check=True, cwd=directory)
         shutil.rmtree(directory / ".mooncakes")
+        shutil.rmtree(directory / "test")
 
     if publish:
         subprocess.run(
