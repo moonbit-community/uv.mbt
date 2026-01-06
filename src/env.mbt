@@ -1,4 +1,4 @@
-// Copyright 2025 International Digital Economy Academy
+// Copyright 2026 International Digital Economy Academy
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -112,16 +112,15 @@ pub fn Environ::iter2(self : Environ) -> Iter2[Bytes, Bytes] {
   }
 
   let count = uv_environ_count(self)
-  Iter2::new(fn(yield_) {
-    for i in 0..<count {
+  let mut i = 0
+  Iterator2::new(fn() {
+    if i < count {
       let name = read_c_string(uv_environ_get_name(self, i))
       let value = read_c_string(uv_environ_get_value(self, i))
-      match yield_(name, value) {
-        IterEnd => break IterEnd
-        IterContinue => ()
-      }
+      i = i + 1
+      Some((name, value))
     } else {
-      IterContinue
+      None
     }
-  })
+  }).iter2()
 }
