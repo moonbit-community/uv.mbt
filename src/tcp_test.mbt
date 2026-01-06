@@ -264,7 +264,8 @@ test "Tcp::close_reset" {
           () => client.read_start(
             (_, _) => Bytes::make(32, 0)[:],
             (_, _, _) => {
-              errors.push(Failure("Expect ECONNRESET"))
+              let failure : Failure = Failure("Expect ECONNRESET")
+              errors.push(failure)
               client.read_stop() catch {
                 e => errors.push(e)
               }

@@ -252,35 +252,45 @@ pub fn AddrInfo::canonname(self : AddrInfo) -> Bytes? {
 }
 
 ///|
-fn AddrInfoResults::iter(self : AddrInfoResults) -> Iter[AddrInfo] {
-  Iter::new(fn(yield_) {
-    if uv_addrinfo_results_iterate(self, fn(
-        _,
-        family,
-        socktype,
-        protocol,
-        addr,
-        canonname,
-      ) {
-        let canonname = if canonname.is_null() {
-          None
-        } else {
-          let buffer = @buffer.new()
-          for i = 0; canonname[i] != 0; i = i + 1 {
-            buffer.write_byte(canonname[i])
-          }
-          Some(buffer.contents())
+fn AddrInfoResults::iterator(self : AddrInfoResults) -> Iterator[AddrInfo] {
+  let items : Array[AddrInfo] = []
+  ignore(
+    uv_addrinfo_results_iterate(self, fn(
+      _,
+      family,
+      socktype,
+      protocol,
+      addr,
+      canonname,
+    ) {
+      let canonname = if canonname.is_null() {
+        None
+      } else {
+        let buffer = @buffer.new()
+        for i = 0; canonname[i] != 0; i = i + 1 {
+          buffer.write_byte(canonname[i])
         }
-        match yield_({ family, socktype, protocol, addr, canonname }) {
-          IterEnd => true
-          IterContinue => false
-        }
-      }) {
-      return IterEnd
+        Some(buffer.contents())
+      }
+      items.push({ family, socktype, protocol, addr, canonname })
+      false
+    }),
+  )
+  let mut i = 0
+  Iterator::new(fn() {
+    if i < items.length() {
+      let item = items[i]
+      i = i + 1
+      Some(item)
     } else {
-      return IterContinue
+      None
     }
   })
+}
+
+///|
+fn AddrInfoResults::iter(self : AddrInfoResults) -> Iter[AddrInfo] {
+  self.iterator().iter()
 }
 
 ///|

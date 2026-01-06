@@ -356,6 +356,7 @@ pub enum DirentType {
 
 type Environ
 pub fn Environ::iter2(Self) -> Iter2[Bytes, Bytes]
+pub fn Environ::iterator2(Self) -> Iterator2[Bytes, Bytes]
 
 type File
 pub fn File::of_int(Int) -> Self
