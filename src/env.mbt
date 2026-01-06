@@ -102,7 +102,7 @@ extern "c" fn uv_environ_get_value(
 ) -> @c.Pointer[Byte] = "moonbit_uv_environ_get_value"
 
 ///|
-pub fn Environ::iterator2(self : Environ) -> Iterator2[Bytes, Bytes] {
+pub fn Environ::iter2(self : Environ) -> Iter2[Bytes, Bytes] {
   fn read_c_string(ptr : @c.Pointer[Byte]) -> Bytes {
     let buf = @buffer.new()
     for i = 0; ptr[i] != 0; i = i + 1 {
@@ -122,10 +122,5 @@ pub fn Environ::iterator2(self : Environ) -> Iterator2[Bytes, Bytes] {
     } else {
       None
     }
-  })
-}
-
-///|
-pub fn Environ::iter2(self : Environ) -> Iter2[Bytes, Bytes] {
-  self.iterator2().iter2()
+  }).iter2()
 }
