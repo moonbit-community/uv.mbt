@@ -252,7 +252,7 @@ pub fn AddrInfo::canonname(self : AddrInfo) -> Bytes? {
 }
 
 ///|
-fn AddrInfoResults::iterator(self : AddrInfoResults) -> Iterator[AddrInfo] {
+fn AddrInfoResults::iterator(self : AddrInfoResults) -> Iter[AddrInfo] {
   let items : Array[AddrInfo] = []
   ignore(
     uv_addrinfo_results_iterate(self, fn(
@@ -277,7 +277,7 @@ fn AddrInfoResults::iterator(self : AddrInfoResults) -> Iterator[AddrInfo] {
     }),
   )
   let mut i = 0
-  Iterator::new(fn() {
+  Iter::new(fn() {
     if i < items.length() {
       let item = items[i]
       i = i + 1

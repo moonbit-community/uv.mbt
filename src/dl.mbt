@@ -35,7 +35,9 @@ extern "c" fn uv_dlsym(
 extern "c" fn uv_dlerror(lib : Lib) -> @c.Pointer[Byte] = "moonbit_uv_dlerror"
 
 ///|
-suberror DlError Bytes
+suberror DlError {
+  DlError(Bytes)
+}
 
 ///|
 pub fn Lib::open(filename : Bytes) -> Lib raise DlError {
