@@ -113,7 +113,7 @@ pub fn Environ::iter2(self : Environ) -> Iter2[Bytes, Bytes] {
 
   let count = uv_environ_count(self)
   let mut i = 0
-  Iterator2::new(fn() {
+  Iter2::new(fn() {
     if i < count {
       let name = read_c_string(uv_environ_get_name(self, i))
       let value = read_c_string(uv_environ_get_value(self, i))
