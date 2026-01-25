@@ -41,22 +41,16 @@ extern "c" fn uv_key_get(key : Key) -> @c.Pointer[Unit] = "moonbit_uv_key_get"
 extern "c" fn uv_key_set(key : Key, value : @c.Pointer[Unit]) = "moonbit_uv_key_set"
 
 ///|
-fn[T] @c.Pointer::unwrap(self : @c.Pointer[Unit]) -> T = "%identity"
-
-///|
-fn[T] @c.Pointer::wrap(self : T) -> @c.Pointer[Unit] = "%identity"
-
-///|
 pub fn[T] Key::get(self : Key) -> T? {
   let ptr = uv_key_get(self)
   if ptr.is_null() {
     None
   } else {
-    Some(ptr.cast().unwrap())
+    Some(ptr.cast().unsafe_into())
   }
 }
 
 ///|
 pub fn[T] Key::set(self : Key, value : T) -> Unit {
-  uv_key_set(self, @c.Pointer::wrap(value))
+  uv_key_set(self, @c.Pointer::unsafe_from(value))
 }

@@ -2,7 +2,11 @@
   "import": [
     "tonyfettes/c",
     "tonyfettes/c/pointer",
-    "tonyfettes/c/sizeof"
+    "tonyfettes/c/sizeof",
+    "moonbitlang/core/buffer",
+    "moonbitlang/core/cmp",
+    "moonbitlang/core/json",
+    "moonbitlang/core/uint64"
   ],
   "native-stub": [
     "uv#src#fs-poll.c",

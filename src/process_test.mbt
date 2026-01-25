@@ -145,5 +145,5 @@ test "spawn/stdin" {
   if error is Some(e) {
     raise e
   }
-  @json.inspect(buffer.to_string(), content="hello, world\n")
+  json_inspect(buffer.to_string(), content="hello, world\n")
 }

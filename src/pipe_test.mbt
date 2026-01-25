@@ -81,7 +81,7 @@ test "Pipe::connect" {
           (_, _) => Bytes::make(1024, 0),
           (_, nread, bytes) => {
             let received = bytes[:nread]
-            @json.inspect(received.to_bytes(), content="Hello, world!") catch {
+            json_inspect(received.to_bytes(), content="Hello, world!") catch {
               error => errors.push(error)
             }
             client.read_stop() catch {
@@ -132,16 +132,16 @@ test "Pipe::chmod" {
     }
   }
   let stat = uv.fs_stat_sync(path)
-  @json.inspect(stat.mode().to_string(radix=8), content="140755")
+  json_inspect(stat.mode().to_string(radix=8), content="140755")
   server.chmod(Writable)
   let stat = uv.fs_stat_sync(path)
-  @json.inspect(stat.mode().to_string(radix=8), content="140222")
+  json_inspect(stat.mode().to_string(radix=8), content="140222")
   server.chmod(Readable)
   let stat = uv.fs_stat_sync(path)
-  @json.inspect(stat.mode().to_string(radix=8), content="140444")
+  json_inspect(stat.mode().to_string(radix=8), content="140444")
   server.chmod(ReadWrite)
   let stat = uv.fs_stat_sync(path)
-  @json.inspect(stat.mode().to_string(radix=8), content="140666")
+  json_inspect(stat.mode().to_string(radix=8), content="140666")
   server.close(() => ())
   uv.run(Default)
 }

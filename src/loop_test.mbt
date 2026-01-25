@@ -39,7 +39,7 @@ test "walk" {
     count += 1
     handle.close(() => ())
   })
-  @json.inspect(count, content=1)
+  json_inspect(count, content=1)
   uv.run(Default)
   uv.close()
   if error is Some(error) {
