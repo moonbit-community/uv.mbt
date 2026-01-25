@@ -38,5 +38,5 @@ test "Check" {
   for error in errors {
     raise error
   }
-  @json.inspect(check_called, content=true)
+  json_inspect(check_called, content=true)
 }

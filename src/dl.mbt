@@ -59,5 +59,5 @@ pub fn[T] Lib::symbol(lib : Lib, name : Bytes) -> T? {
   if uv_dlsym(lib, name, ptr) != 0 {
     return None
   }
-  ptr.val.unwrap()
+  ptr.val.unsafe_into()
 }

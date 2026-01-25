@@ -21,7 +21,7 @@ test "send_buffer_size" {
   let old_send_buffer_size = server.get_send_buffer_size()
   let new_send_buffer_size = old_send_buffer_size + 1024
   server.set_send_buffer_size(new_send_buffer_size)
-  @json.inspect(
+  json_inspect(
     server.get_send_buffer_size() >= new_send_buffer_size,
     content=true,
   )
@@ -39,7 +39,7 @@ test "recv_buffer_size" {
   let old_recv_buffer_size = server.get_recv_buffer_size()
   let new_recv_buffer_size = old_recv_buffer_size + 1024
   server.set_recv_buffer_size(new_recv_buffer_size)
-  @json.inspect(
+  json_inspect(
     server.get_recv_buffer_size() >= new_recv_buffer_size,
     content=true,
   )
