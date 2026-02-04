@@ -44,7 +44,7 @@ test "Poll::socket" {
   let timer = @uv.Timer::new(uv)
   timer.start(timeout=100, repeat=0, _ => {
     try
-      writer.write([data], () => writer.close(() => ()), errors.push(_))
+      writer.write([data], () => writer.close(() => ()), e => errors.push(e))
       |> ignore()
     catch {
       e => errors.push(e)

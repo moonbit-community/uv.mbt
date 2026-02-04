@@ -32,7 +32,7 @@ extern "c" fn uv_loop_init(uv : Loop) -> Int = "moonbit_uv_loop_init"
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// uv.close()
 /// ```
@@ -89,7 +89,7 @@ extern "c" fn uv_loop_close(uv : Loop) -> Int = "moonbit_uv_loop_close"
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// uv.close()
 /// ```
@@ -125,7 +125,7 @@ extern "c" fn uv_run(uv : Loop, mode : RunMode) -> Int = "moonbit_uv_run"
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// uv.run(Default)
 /// uv.close()

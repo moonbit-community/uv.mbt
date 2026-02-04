@@ -21,7 +21,7 @@ test "Req/Fs" {
     @uv.OpenFlags::read_only(),
     0o644,
     _ => (),
-    errors.push(_),
+    e => errors.push(e),
   )
   @assert.t(fs.type_() is Fs)
   @assert.t(fs.type_().name() is "fs")

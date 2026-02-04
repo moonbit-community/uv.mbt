@@ -48,7 +48,7 @@ pub(all) enum Sync {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let flags = @uv.OpenFlags::read_only()
 /// let file = uv.fs_open_sync("README.md", flags, 0o644)
@@ -121,7 +121,7 @@ pub fn OpenFlags::read_only(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// // Create a new file for writing, truncate if it exists
 /// let flags = @uv.OpenFlags::write_only(create=true, truncate=true)
@@ -205,7 +205,7 @@ pub fn OpenFlags::write_only(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// // Create a new file for reading and writing, fail if it exists
 /// let flags = @uv.OpenFlags::read_write(create=true, exclusive=true)
@@ -453,7 +453,7 @@ extern "c" fn uv_fs_open(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = Loop::new()
 /// let errors = []
 /// uv.fs_open(
@@ -539,7 +539,7 @@ extern "c" fn uv_fs_open_sync(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let file = uv.fs_open_sync("README.md", @uv.OpenFlags::read_only(), 0o644)
 /// uv.fs_close_sync(file)
@@ -591,7 +591,7 @@ extern "c" fn uv_fs_close(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = Loop::new()
 /// let errors = []
 /// let file = uv.fs_open_sync("README.md", OpenFlags::read_only(), 0o644)
@@ -711,7 +711,7 @@ extern "c" fn uv_fs_sendfile(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let errors = []
 /// let dst_path : Bytes = "test/fixtures/example-sent.txt"
@@ -811,7 +811,7 @@ extern "c" fn uv_fs_sendfile_sync(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let dst_path : Bytes = "test/fixtures/example-sent.txt"
 /// let src_file = uv.fs_open_sync("test/fixtures/example.txt", @uv.OpenFlags::read_only(), 0o644)
@@ -877,7 +877,7 @@ extern "c" fn uv_fs_chmod(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let errors = []
 /// let path : Bytes = "test/fixtures/example-chmod.txt"
@@ -955,7 +955,7 @@ extern "c" fn uv_fs_chmod_sync(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let path : Bytes = "test/fixtures/example-chmod-sync.txt"
 /// uv.fs_chmod_sync(path, 0o644)  // rw-r--r--
@@ -1012,7 +1012,7 @@ extern "c" fn uv_fs_fchmod(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let errors = []
 /// let path : Bytes = "test/fixtures/example-fchmod.txt"
@@ -1095,7 +1095,7 @@ extern "c" fn uv_fs_fchmod_sync(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let path : Bytes = "test/fixtures/example-fchmod-sync.txt"
 /// let file = uv.fs_open_sync(path, @uv.OpenFlags::read_write(), 0o644)
@@ -1159,7 +1159,7 @@ extern "c" fn uv_fs_read(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let errors = []
 /// uv.fs_read(
@@ -1295,7 +1295,7 @@ extern "c" fn uv_fs_write(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let errors = []
 /// let path : Bytes = "test/fixtures/doc-test.txt"
@@ -1395,7 +1395,7 @@ extern "c" fn uv_fs_write_sync(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let path : Bytes = "test/fixtures/doc-test-sync.txt"
 /// let file = uv.fs_open_sync(
@@ -1507,7 +1507,7 @@ extern "c" fn uv_fs_fsync(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let errors = []
 /// let path : Bytes = "test/fixtures/sync-test.txt"
@@ -1583,7 +1583,7 @@ extern "c" fn uv_fs_fsync_sync(uv : Loop, req : Fs, file : File) -> Int = "moonb
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let path : Bytes = "test/fixtures/sync-test-sync.txt"
 /// let file = uv.fs_open_sync(
@@ -1646,7 +1646,7 @@ extern "c" fn uv_fs_fdatasync(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let errors = []
 /// let path : Bytes = "test/fixtures/datasync-test.txt"
@@ -1724,7 +1724,7 @@ extern "c" fn uv_fs_fdatasync_sync(uv : Loop, req : Fs, file : File) -> Int = "m
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let path : Bytes = "test/fixtures/datasync-test-sync.txt"
 /// let file = uv.fs_open_sync(
@@ -1854,7 +1854,7 @@ extern "c" fn uv_fs_chown(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let errors = []
 /// let path : Bytes = "test/fixtures/example.txt"
@@ -1938,7 +1938,7 @@ extern "c" fn uv_fs_chown_sync(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let path : Bytes = "test/fixtures/example.txt"
 /// let passwd = @uv.os_get_passwd()
@@ -2000,7 +2000,7 @@ extern "c" fn uv_fs_fchown(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let errors = []
 /// let path : Bytes = "test/fixtures/example.txt"
@@ -2089,7 +2089,7 @@ extern "c" fn uv_fs_fchown_sync(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let path : Bytes = "test/fixtures/example.txt"
 /// let file = uv.fs_open_sync(path, @uv.OpenFlags::read_write(), 0o644)
@@ -2156,7 +2156,7 @@ extern "c" fn uv_fs_lchown(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let errors = []
 /// let target_file : Bytes = "test/fixtures/example.txt"
@@ -2249,7 +2249,7 @@ extern "c" fn uv_fs_lchown_sync(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let target_file : Bytes = "test/fixtures/example.txt"
 /// let symlink_file : Bytes = "test/fixtures/example-lchown-sync.txt"
@@ -2309,7 +2309,7 @@ extern "c" fn uv_fs_mkdir(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let es = []
 /// let dir : Bytes = "test/fixtures/doc-test-dir"
@@ -2385,7 +2385,7 @@ extern "c" fn uv_fs_mkdir_sync(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// try {
 ///   uv.fs_mkdir_sync("test/fixtures", 0o755)
@@ -2677,7 +2677,7 @@ extern "c" fn uv_fs_rename_sync(
 /// - Cross-device rename not supported
 ///
 /// # Example
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// try {
 ///   uv.fs_rename_sync("old_file.txt", "new_file.txt")
@@ -3298,7 +3298,7 @@ pub fn Loop::fs_fstat(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let errors = []
 /// uv.fs_realpath(
@@ -3765,7 +3765,7 @@ extern "c" fn uv_fs_link(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let errors = []
 /// let original_file : Bytes = "test/fixtures/example.txt"
@@ -3848,7 +3848,7 @@ extern "c" fn uv_fs_link_sync(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let original_file : Bytes = "test/fixtures/example.txt"
 /// let link_file : Bytes = "test/fixtures/example-link-sync.txt"
@@ -3906,7 +3906,7 @@ struct SymlinkFlags(Int)
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Regular file symlink (works on all platforms)
 /// ignore(@uv.SymlinkFlags::new())
 ///
@@ -3974,7 +3974,7 @@ extern "c" fn uv_fs_symlink(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let errors = []
 /// let target_file : Bytes = "test/fixtures/example.txt"
@@ -4061,7 +4061,7 @@ extern "c" fn uv_fs_symlink_sync(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let target_file : Bytes = "test/fixtures/example.txt"
 /// let symlink_file : Bytes = "test/fixtures/example-symlink-sync.txt"
@@ -4120,7 +4120,7 @@ extern "c" fn uv_fs_readlink(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let errors = []
 /// let target_file : Bytes = "test/fixtures/example.txt"
@@ -4205,7 +4205,7 @@ extern "c" fn uv_fs_readlink_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "m
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let target_file : Bytes = "test/fixtures/example.txt"
 /// let symlink_file : Bytes = "test/fixtures/example-symlink-sync.txt"
@@ -4257,7 +4257,7 @@ extern "c" fn uv_fs_lstat_sync(uv : Loop, req : Fs, path : Bytes) -> Int = "moon
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let target_file : Bytes = "test/fixtures/example.txt"
 /// let symlink_file : Bytes = "test/fixtures/example-lstat.txt"

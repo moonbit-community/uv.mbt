@@ -122,7 +122,7 @@ pub fn[Sockaddr : ToSockaddr] Udp::send(
     bufs_base,
     bufs_offset,
     bufs_length,
-    addr.map(_.to_sockaddr()),
+    addr.map(fn(a) { a.to_sockaddr() }),
     cb,
   )
   if result < 0 {
@@ -503,7 +503,7 @@ pub fn[Sockaddr : ToSockaddr] Udp::try_send(
     bufs_base,
     bufs_offset,
     bufs_length,
-    addr.map(_.to_sockaddr()),
+    addr.map(fn(a) { a.to_sockaddr() }),
   )
   if result < 0 {
     raise Errno::of_int(result)
@@ -547,7 +547,7 @@ pub fn[T : ToSockaddr] Udp::try_send2(
       bufs_offset[i][j] = data[i].0[j].start_offset()
       bufs_length[i][j] = data[i].0[j].length()
     }
-    addrs[i] = data[i].1.map(_.to_sockaddr())
+    addrs[i] = data[i].1.map(fn(a) { a.to_sockaddr() })
   }
   let result = uv_udp_try_send2(
     self,

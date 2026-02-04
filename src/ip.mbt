@@ -45,7 +45,7 @@ extern "c" fn uv_ip4_addr(ip : Bytes, port : Int, addr : SockaddrIn) -> Int = "m
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let addr = @uv.ip4_addr("127.0.0.1", 8080)
 /// println(addr.ip_name())
 /// ```

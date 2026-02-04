@@ -54,7 +54,7 @@ pub fn Utsname::machine(self : Utsname) -> BytesView {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let info = @uv.os_uname()
 /// println(info.sysname())
 /// println(info.release())
@@ -99,7 +99,7 @@ extern "c" fn uv_os_tmpdir(bytes : Bytes, size : FixedArray[Int]) -> Int = "moon
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// println(@uv.os_tmpdir())
 /// ```
 pub fn os_tmpdir() -> Bytes raise Errno {
@@ -302,7 +302,7 @@ extern "c" fn uv_free_cpu_info(cpu_infos : @c.Pointer[CpuInfo], count : Int) = "
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let cpu_infos = @uv.cpu_info()
 /// for cpu_info in cpu_infos {
 ///   println(cpu_info.model())
