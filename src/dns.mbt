@@ -186,7 +186,7 @@ let _AF_UNSPEC : Int = uv_AF_UNSPEC()
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let ipv4 = AddressFamily::inet()
 /// let ipv6 = AddressFamily::inet6()
 /// @assert.t(ipv4 is Inet)

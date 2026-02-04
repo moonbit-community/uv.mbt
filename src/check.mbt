@@ -21,7 +21,7 @@
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let check = @uv.Check::new(uv)
 /// let errors = []

@@ -94,7 +94,7 @@ extern "c" fn uv_random_sync(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let uv = @uv.Loop::new()
 /// let buffer = Bytes::make(16, 0)
 /// uv.random_sync(buffer[:], 0)

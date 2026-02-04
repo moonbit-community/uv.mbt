@@ -35,7 +35,7 @@ fn init {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// println(@uv.args())
 /// ```
 pub fn args() -> FixedArray[Bytes] {

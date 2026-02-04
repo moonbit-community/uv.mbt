@@ -73,7 +73,7 @@ test "open" {
     @uv.OpenFlags::read_only(),
     0,
     _ => (),
-    errors.push(_),
+    e => errors.push(e),
   )
   |> ignore()
   uv.run(Default)
@@ -97,7 +97,7 @@ test "open/directory" {
     @uv.OpenFlags::read_only(directory=true),
     0,
     _ => (),
-    errors.push(_),
+    e => errors.push(e),
   )
   |> ignore()
   uv.run(Default)
@@ -197,7 +197,7 @@ test "scandir" {
   uv.run(Default)
   uv.stop()
   uv.close()
-  entries.sort_by_key(_.name())
+  entries.sort_by_key(fn(entry) { entry.name() })
   @assert.eq(entries[0].name(), "example.txt")
   @assert.t(entries[0].type_() is File)
   @assert.eq(entries[1].name(), ".gitattributes")
@@ -449,13 +449,19 @@ test "opendir-readdir-closedir" {
       let name = dirent.name()
       sources.push(name)
     }
-    try uv.fs_readdir(dir, 1, read_cb(dir, _), error_cb) |> ignore() catch {
+    try
+      uv.fs_readdir(dir, 1, dirents => read_cb(dir, dirents), error_cb)
+      |> ignore()
+    catch {
       e => error = Some(e)
     }
   }
 
   fn open_cb(dir) {
-    try uv.fs_readdir(dir, 1, read_cb(dir, _), error_cb) |> ignore() catch {
+    try
+      uv.fs_readdir(dir, 1, dirents => read_cb(dir, dirents), error_cb)
+      |> ignore()
+    catch {
       e => error = Some(e)
     }
   }
