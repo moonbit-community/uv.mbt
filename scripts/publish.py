@@ -26,7 +26,9 @@ def remove_pre_build(path: Path):
     moon_pkg_json = json.loads(path.read_text())
     if "pre-build" in moon_pkg_json:
         moon_pkg_json.pop("pre-build")
-        path.write_text(json.dumps(moon_pkg_json, indent=2))
+    if "test-import" in moon_pkg_json:
+        moon_pkg_json.pop("test-import")
+    path.write_text(json.dumps(moon_pkg_json, indent=2))
 
 
 def publish_to(directory: Path, test: bool = True, publish: bool = False):
