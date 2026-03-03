@@ -532,14 +532,12 @@ pub fn[T : ToSockaddr] Udp::try_send2(
     data.length(),
     i => FixedArray::make(data[i].0.length(), ""),
   )
-  let bufs_offset = FixedArray::makei(data.length(), i => FixedArray::make(
-    data[i].0.length(),
-    0,
-  ))
-  let bufs_length = FixedArray::makei(data.length(), i => FixedArray::make(
-    data[i].0.length(),
-    0,
-  ))
+  let bufs_offset = FixedArray::makei(data.length(), i => {
+    FixedArray::make(data[i].0.length(), 0)
+  })
+  let bufs_length = FixedArray::makei(data.length(), i => {
+    FixedArray::make(data[i].0.length(), 0)
+  })
   let addrs : FixedArray[Sockaddr?] = FixedArray::make(data.length(), None)
   for i in 0..<data.length() {
     for j in 0..<data[i].0.length() {

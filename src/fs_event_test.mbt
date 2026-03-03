@@ -37,49 +37,57 @@ test "fs_event" {
     "test/fixtures/test.txt",
     @uv.OpenFlags::write_only(create=true),
     0o644,
-    file => try
-      uv.fs_write(
-        file,
-        [b"Hello, world!"],
-        _ => try
-          uv.fs_close(
-            file,
-            () => try
-              uv.fs_unlink(
-                "test/fixtures/test.txt",
-                () => try {
-                  let timer = @uv.Timer::new(uv)
-                  timer.start(timeout=100, repeat=0, _ => {
-                    timer.stop() catch {
-                      e => errors.push(e)
-                    }
-                    timer.close(() => {
-                      fs_event.stop() catch {
-                        e => errors.push(e)
-                      }
-                      fs_event.close(() => ())
-                    })
-                  })
-                } catch {
-                  e => errors.push(e)
+    file => {
+      try
+        uv.fs_write(
+          file,
+          [b"Hello, world!"],
+          _ => {
+            try
+              uv.fs_close(
+                file,
+                () => {
+                  try
+                    uv.fs_unlink(
+                      "test/fixtures/test.txt",
+                      () => {
+                        try {
+                          let timer = @uv.Timer::new(uv)
+                          timer.start(timeout=100, repeat=0, _ => {
+                            timer.stop() catch {
+                              e => errors.push(e)
+                            }
+                            timer.close(() => {
+                              fs_event.stop() catch {
+                                e => errors.push(e)
+                              }
+                              fs_event.close(() => ())
+                            })
+                          })
+                        } catch {
+                          e => errors.push(e)
+                        }
+                      },
+                      e => errors.push(e),
+                    )
+                    |> ignore()
+                  catch {
+                    e => errors.push(e)
+                  }
                 },
                 e => errors.push(e),
               )
               |> ignore()
             catch {
               e => errors.push(e)
-            },
-            e => errors.push(e),
-          )
-          |> ignore()
-        catch {
-          e => errors.push(e)
-        },
-        e => errors.push(e),
-      )
-      |> ignore()
-    catch {
-      e => errors.push(e)
+            }
+          },
+          e => errors.push(e),
+        )
+        |> ignore()
+      catch {
+        e => errors.push(e)
+      }
     },
     e => errors.push(e),
   )

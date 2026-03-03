@@ -45,10 +45,12 @@ fn test_read(
     uv.fs_read(
       file,
       [bytes[:]],
-      count => if count == 0 {
-        test_close(uv, file, error)
-      } else {
-        test_write(uv, file, buffer, bytes, 0, count, error)
+      count => {
+        if count == 0 {
+          test_close(uv, file, error)
+        } else {
+          test_write(uv, file, buffer, bytes, 0, count, error)
+        }
       },
       errno => {
         error.val = Some(errno)
@@ -180,16 +182,18 @@ test "scandir" {
   uv.fs_scandir(
     "test/fixtures",
     0,
-    scandir => while true {
-      let dirent = scandir.next() catch {
-        e => {
-          if not(e is EOF) {
-            error = Some(e)
+    scandir => {
+      while true {
+        let dirent = scandir.next() catch {
+          e => {
+            if not(e is EOF) {
+              error = Some(e)
+            }
+            break
           }
-          break
         }
+        entries.push(dirent)
       }
-      entries.push(dirent)
     },
     e => if not(e is EOF) { error = Some(e) },
   )
@@ -261,12 +265,14 @@ test "stat" {
   let errors : Array[Error] = []
   uv.fs_stat(
     "test/fixtures/example.txt",
-    stat => try {
-      @assert.t(stat.is_file())
-      @assert.t(not(stat.is_directory()))
-      @assert.eq(stat.size(), 14)
-    } catch {
-      e => errors.push(e)
+    stat => {
+      try {
+        @assert.t(stat.is_file())
+        @assert.t(not(stat.is_directory()))
+        @assert.eq(stat.size(), 14)
+      } catch {
+        e => errors.push(e)
+      }
     },
     e => errors.push(e),
   )
@@ -294,13 +300,15 @@ test "lstat" {
   let errors : Array[Error] = []
   uv.fs_lstat(
     "test/fixtures",
-    stat => try {
-      // It should be a directory
-      @assert.t(stat.is_directory())
-      // It shouldn't be a regular file
-      @assert.t(not(stat.is_file()))
-    } catch {
-      e => errors.push(e)
+    stat => {
+      try {
+        // It should be a directory
+        @assert.t(stat.is_directory())
+        // It shouldn't be a regular file
+        @assert.t(not(stat.is_file()))
+      } catch {
+        e => errors.push(e)
+      }
     },
     e => errors.push(e),
   )
@@ -330,15 +338,17 @@ test "fstat" {
   if file_handle is Some(fh) {
     uv.fs_fstat(
       fh,
-      stat => try {
-        // It should be a regular file
-        @assert.t(stat.is_file())
-        // It shouldn't be a directory
-        @assert.t(not(stat.is_directory()))
-        // Size should be greater than 0
-        @assert.t(stat.size() > 0)
-      } catch {
-        e => errors.push(e)
+      stat => {
+        try {
+          // It should be a regular file
+          @assert.t(stat.is_file())
+          // It shouldn't be a directory
+          @assert.t(not(stat.is_directory()))
+          // Size should be greater than 0
+          @assert.t(stat.size() > 0)
+        } catch {
+          e => errors.push(e)
+        }
       },
       e => errors.push(e),
     )
@@ -361,13 +371,15 @@ test "fs_mkdtemp" {
   let template : Bytes = "test-dir-XXXXXX"
   uv.fs_mkdtemp(
     template,
-    path => try {
-      @assert.t(path is [.. "test-dir-", ..])
-      let stat = uv.fs_stat_sync(path)
-      @assert.t(stat.is_directory())
-      uv.fs_rmdir_sync(path)
-    } catch {
-      e => error = Some(e)
+    path => {
+      try {
+        @assert.t(path is [.. "test-dir-", ..])
+        let stat = uv.fs_stat_sync(path)
+        @assert.t(stat.is_directory())
+        uv.fs_rmdir_sync(path)
+      } catch {
+        e => error = Some(e)
+      }
     },
     e => error = Some(e),
   )
@@ -398,13 +410,15 @@ test "fs_mkstemp" {
   let template : Bytes = "test-file-XXXXXX"
   uv.fs_mkstemp(
     template,
-    path => try {
-      @assert.t(path is [.. "test-file-", ..])
-      let stat = uv.fs_stat_sync(path)
-      @assert.t(stat.is_file())
-      uv.fs_unlink_sync(path)
-    } catch {
-      e => error = Some(e)
+    path => {
+      try {
+        @assert.t(path is [.. "test-file-", ..])
+        let stat = uv.fs_stat_sync(path)
+        @assert.t(stat.is_file())
+        uv.fs_unlink_sync(path)
+      } catch {
+        e => error = Some(e)
+      }
     },
     e => error = Some(e),
   )
