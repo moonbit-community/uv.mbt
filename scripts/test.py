@@ -16,6 +16,7 @@
 # limitations under the License.
 
 import json
+import re
 from pathlib import Path
 import platform
 import subprocess
@@ -63,13 +64,16 @@ def windows_flags():
     }
 
 
-def modify_moon_pkg_json(moon_pkg_path: Path, flags: dict[str, str]) -> str:
+def modify_moon_pkg(moon_pkg_path: Path, flags: dict[str, str]) -> str:
     moon_pkg_text = moon_pkg_path.read_text()
-    moon_pkg_json = json.loads(moon_pkg_text)
-    if "link" not in moon_pkg_json:
-        moon_pkg_json["link"] = {}
-    moon_pkg_json["link"]["native"] = flags
-    moon_pkg_path.write_text(json.dumps(moon_pkg_json, indent=2))
+    native_flags = json.dumps(flags)
+    link_option = f'  link: {{ "native": {native_flags} }},\n'
+    content = re.sub(
+        r'(options\()\n',
+        r'\1\n' + link_option,
+        moon_pkg_text,
+    )
+    moon_pkg_path.write_text(content)
     return moon_pkg_text
 
 
@@ -121,8 +125,8 @@ def main():
         flags = windows_flags()
     if flags is None:
         raise Exception("Unsupported platform")
-    uv_pkg_path = test_path / "moon.pkg.json"
-    uv_pkg_text = modify_moon_pkg_json(uv_pkg_path, flags)
+    uv_pkg_path = test_path / "moon.pkg"
+    uv_pkg_text = modify_moon_pkg(uv_pkg_path, flags)
     print("==============================================")
     print("Running test with the following configuration:")
     print("----------------------------------------------")
