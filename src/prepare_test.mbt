@@ -26,7 +26,7 @@ test {
     }
   }
 
-  prepare.start(wait_for_a_while(_))
+  prepare.start(handle => wait_for_a_while(handle))
   uv.run(Default)
   uv.close()
   if error is Some(error) {

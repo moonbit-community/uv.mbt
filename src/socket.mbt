@@ -82,7 +82,7 @@ pub fn InAddr::ntop(self : InAddr) -> Bytes raise Errno {
     if dst[i] == 0 {
       break i
     }
-  } else {
+  } nobreak {
     _INET_ADDRSTRLEN
   }
   let buf : FixedArray[Byte] = FixedArray::make(len, 0)
@@ -190,7 +190,7 @@ pub fn In6Addr::ntop(self : In6Addr) -> Bytes raise Errno {
     if dst[i] == 0 {
       break i
     }
-  } else {
+  } nobreak {
     dst.length()
   }
   Bytes::from_array(dst[:len])
