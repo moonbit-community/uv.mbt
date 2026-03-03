@@ -18,7 +18,6 @@
 from typing import Literal, Optional
 from pathlib import Path
 import re
-import json
 import shutil
 
 
@@ -235,15 +234,23 @@ def configure(project: Project):
         )
 
 
-def update_moon_pkg_json(project: Project, path: Path):
-    moon_pkg_json = json.loads(path.read_text(encoding="utf-8"))
+def update_moon_pkg(project: Project, path: Path):
+    content = path.read_text(encoding="utf-8")
     native_stubs = []
     for copied in project.copied:
         if copied.suffix == ".c":
             native_stubs.append(copied.as_posix())
     native_stubs.sort()
-    moon_pkg_json["native-stub"] = [*native_stubs, "uv.c"]
-    path.write_text(json.dumps(moon_pkg_json, indent=2) + "\n", encoding="utf8")
+    native_stubs.append("uv.c")
+    stub_lines = ",\n".join(f'    "{stub}"' for stub in native_stubs)
+    new_stub_list = f'"native-stub": [\n{stub_lines},\n  ]'
+    content = re.sub(
+        r'"native-stub":\s*\[.*?\]',
+        new_stub_list,
+        content,
+        flags=re.DOTALL,
+    )
+    path.write_text(content, encoding="utf-8")
 
 
 def download(url: str, target: Path):
@@ -277,7 +284,7 @@ def main():
     include = [source / "include", source / "src"]
     project = Project(source, target, include=include, prefix="uv")
     configure(project)
-    update_moon_pkg_json(project, Path("src") / "moon.pkg.json")
+    update_moon_pkg(project, Path("src") / "moon.pkg")
 
 
 if __name__ == "__main__":
