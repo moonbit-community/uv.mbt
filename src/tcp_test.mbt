@@ -199,40 +199,44 @@ test "Tcp::close_reset" {
         @uv.accept(server, client)
         client.read_start(
           (_, _) => Bytes::make(32, 0)[:],
-          (_, nread, buf) => try {
-            @assert.eq(buf[:nread], "Hello")
-            client.close_reset(() => server.close(() => ())) catch {
+          (_, nread, buf) => {
+            try {
+              @assert.eq(buf[:nread], "Hello")
+              client.close_reset(() => server.close(() => ())) catch {
+                e => {
+                  errors.push(e)
+                  client.close(() => ())
+                  server.close(() => ())
+                }
+              }
+            } catch {
               e => {
                 errors.push(e)
                 client.close(() => ())
                 server.close(() => ())
               }
             }
-          } catch {
-            e => {
+          },
+          (_, e) => {
+            if not(e is EOF) {
               errors.push(e)
+              client.read_stop() catch {
+                e => errors.push(e)
+              }
               client.close(() => ())
               server.close(() => ())
-            }
-          },
-          (_, e) => if not(e is EOF) {
-            errors.push(e)
-            client.read_stop() catch {
-              e => errors.push(e)
-            }
-            client.close(() => ())
-            server.close(() => ())
-          } else {
-            client.read_stop() catch {
-              e => errors.push(e)
-            }
-            client.close_reset(() => ()) catch {
-              e => {
-                errors.push(e)
-                client.close(() => ())
+            } else {
+              client.read_stop() catch {
+                e => errors.push(e)
               }
+              client.close_reset(() => ()) catch {
+                e => {
+                  errors.push(e)
+                  client.close(() => ())
+                }
+              }
+              server.close(() => ())
             }
-            server.close(() => ())
           },
         )
       } catch {
@@ -258,44 +262,48 @@ test "Tcp::close_reset" {
   try
     client.connect(
       addr,
-      () => try
-        client.write(
-          [b"Hello"],
-          () => client.read_start(
-            (_, _) => Bytes::make(32, 0)[:],
-            (_, _, _) => {
-              let failure : Failure = Failure("Expect ECONNRESET")
-              errors.push(failure)
-              client.read_stop() catch {
-                e => errors.push(e)
+      () => {
+        try
+          client.write(
+            [b"Hello"],
+            () => {
+              client.read_start(
+                (_, _) => Bytes::make(32, 0)[:],
+                (_, _, _) => {
+                  let failure : Failure = Failure("Expect ECONNRESET")
+                  errors.push(failure)
+                  client.read_stop() catch {
+                    e => errors.push(e)
+                  }
+                  client.close(() => ())
+                },
+                (_, e) => {
+                  if not(e is ECONNRESET) {
+                    errors.push(e)
+                  }
+                  client.read_stop() catch {
+                    e => errors.push(e)
+                  }
+                  client.close(() => ())
+                },
+              ) catch {
+                e => {
+                  errors.push(e)
+                  client.close(() => ())
+                }
               }
-              client.close(() => ())
             },
-            (_, e) => {
-              if not(e is ECONNRESET) {
-                errors.push(e)
-              }
-              client.read_stop() catch {
-                e => errors.push(e)
-              }
-              client.close(() => ())
-            },
-          ) catch {
             e => {
               errors.push(e)
               client.close(() => ())
-            }
-          },
+            },
+          )
+          |> ignore()
+        catch {
           e => {
             errors.push(e)
             client.close(() => ())
-          },
-        )
-        |> ignore()
-      catch {
-        e => {
-          errors.push(e)
-          client.close(() => ())
+          }
         }
       },
       e => {

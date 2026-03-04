@@ -36,32 +36,36 @@ test "Pipe::connect" {
   let errors : Array[Error] = []
   server.listen(
     128,
-    server => try {
-      let client = @uv.Pipe::new(server.loop_(), ipc=false)
-      @uv.accept(server, client) catch {
-        error => {
-          client.close(() => ())
-          raise error
+    server => {
+      try {
+        let client = @uv.Pipe::new(server.loop_(), ipc=false)
+        @uv.accept(server, client) catch {
+          error => {
+            client.close(() => ())
+            raise error
+          }
         }
+        client.read_start(
+          (_, _) => Bytes::make(1024, 0),
+          (_, nread, bytes) => {
+            try
+              client.write([bytes[:nread]], () => (), error => {
+                errors.push(error)
+              })
+              |> ignore()
+            catch {
+              error => errors.push(error)
+            }
+            client.read_stop() catch {
+              error => errors.push(error)
+            }
+            client.close(() => ())
+          },
+          (_, error) => errors.push(error),
+        )
+      } catch {
+        error => errors.push(error)
       }
-      client.read_start(
-        (_, _) => Bytes::make(1024, 0),
-        (_, nread, bytes) => {
-          try
-            client.write([bytes[:nread]], () => (), error => errors.push(error))
-            |> ignore()
-          catch {
-            error => errors.push(error)
-          }
-          client.read_stop() catch {
-            error => errors.push(error)
-          }
-          client.close(() => ())
-        },
-        (_, error) => errors.push(error),
-      )
-    } catch {
-      error => errors.push(error)
     },
     (_, error) => errors.push(error),
   )
@@ -74,30 +78,34 @@ test "Pipe::connect" {
   }
   client.connect(
     path,
-    () => try
-      client.write(
-        ["Hello, world!"],
-        () => client.read_start(
-          (_, _) => Bytes::make(1024, 0),
-          (_, nread, bytes) => {
-            let received = bytes[:nread]
-            json_inspect(received.to_bytes(), content="Hello, world!") catch {
+    () => {
+      try
+        client.write(
+          ["Hello, world!"],
+          () => {
+            client.read_start(
+              (_, _) => Bytes::make(1024, 0),
+              (_, nread, bytes) => {
+                let received = bytes[:nread]
+                json_inspect(received.to_bytes(), content="Hello, world!") catch {
+                  error => errors.push(error)
+                }
+                client.read_stop() catch {
+                  error => errors.push(error)
+                }
+                client.close(() => server.close(() => ()))
+              },
+              (_, error) => errors.push(error),
+            ) catch {
               error => errors.push(error)
             }
-            client.read_stop() catch {
-              error => errors.push(error)
-            }
-            client.close(() => server.close(() => ()))
           },
-          (_, error) => errors.push(error),
-        ) catch {
-          error => errors.push(error)
-        },
-        error => errors.push(error),
-      )
-      |> ignore()
-    catch {
-      error => errors.push(error)
+          error => errors.push(error),
+        )
+        |> ignore()
+      catch {
+        error => errors.push(error)
+      }
     },
     error => errors.push(error),
   )

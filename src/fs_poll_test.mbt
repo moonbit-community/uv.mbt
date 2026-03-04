@@ -38,32 +38,38 @@ test "FsPoll" {
     "test/fixtures/test_poll.txt",
     @uv.OpenFlags::write_only(create=true),
     0o644,
-    file => try
-      uv.fs_write(
-        file,
-        [b"Hello, fs_poll!"],
-        _ => try
-          uv.fs_close(
-            file,
-            () => try
-              uv.fs_unlink("test/fixtures/test_poll.txt", () => (), e => errors.push(
-                e,
-              ))
+    file => {
+      try
+        uv.fs_write(
+          file,
+          [b"Hello, fs_poll!"],
+          _ => {
+            try
+              uv.fs_close(
+                file,
+                () => {
+                  try
+                    uv.fs_unlink("test/fixtures/test_poll.txt", () => (), e => {
+                      errors.push(e)
+                    })
+                    |> ignore()
+                  catch {
+                    e => errors.push(e)
+                  }
+                },
+                e => errors.push(e),
+              )
               |> ignore()
             catch {
               e => errors.push(e)
-            },
-            e => errors.push(e),
-          )
-          |> ignore()
-        catch {
-          e => errors.push(e)
-        },
-        e => errors.push(e),
-      )
-      |> ignore()
-    catch {
-      e => errors.push(e)
+            }
+          },
+          e => errors.push(e),
+        )
+        |> ignore()
+      catch {
+        e => errors.push(e)
+      }
     },
     e => errors.push(e),
   )

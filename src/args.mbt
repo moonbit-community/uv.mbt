@@ -61,7 +61,7 @@ pub fn get_process_title() -> Bytes raise {
     if buffer[i] == 0 {
       break i
     }
-  } else {
+  } nobreak {
     buffer.length()
   }
   Bytes::from_array(buffer[:len])

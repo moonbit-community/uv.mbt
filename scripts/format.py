@@ -42,7 +42,7 @@ def clang_format(write: bool = False):
 
 def json_format(write: bool = False):
     logger.info(f"formatting JSON files: write = {write}")
-    files: list[Path] = [Path("src/moon.pkg.json"), Path("moon.mod.json")]
+    files: list[Path] = [Path("moon.mod.json")]
     for path in files:
         logger.info(f"file {path} will be checked")
         text = path.read_text(encoding="utf-8")
