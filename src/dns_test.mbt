@@ -28,8 +28,8 @@ test "dns/ipv4" {
       }
     },
     fn(e) { error = Some(e) },
-    "localhost",
-    "http",
+    b"localhost",
+    b"http",
     hints=@uv.AddrInfoHints::new(
       protocol=@uv.Protocol::tcp(),
       flags=@uv.AddrInfoFlags::new(canonname=true),
@@ -43,7 +43,7 @@ test "dns/ipv4" {
     raise error
   }
   resolved.dedup()
-  @assert.eq(resolved, ["127.0.0.1"])
+  @assert.eq(resolved, [b"127.0.0.1"])
 }
 
 ///|
@@ -62,8 +62,8 @@ test "dns/ipv6" {
       }
     },
     fn(e) { error = Some(e) },
-    "localhost",
-    "http",
+    b"localhost",
+    b"http",
     hints=@uv.AddrInfoHints::new(
       protocol=@uv.Protocol::tcp(),
       flags=@uv.AddrInfoFlags::new(canonname=true),
@@ -77,5 +77,5 @@ test "dns/ipv6" {
     raise error
   }
   resolved.dedup()
-  @assert.eq(resolved, ["::1"])
+  @assert.eq(resolved, [b"::1"])
 }

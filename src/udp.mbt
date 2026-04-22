@@ -530,7 +530,7 @@ pub fn[T : ToSockaddr] Udp::try_send2(
 ) -> Int raise Errno {
   let bufs_base : FixedArray[FixedArray[Bytes]] = FixedArray::makei(
     data.length(),
-    i => FixedArray::make(data[i].0.length(), ""),
+    i => FixedArray::make(data[i].0.length(), b""),
   )
   let bufs_offset = FixedArray::makei(data.length(), i => {
     FixedArray::make(data[i].0.length(), 0)

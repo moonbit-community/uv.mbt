@@ -16,7 +16,7 @@
 test "send_buffer_size" {
   let uv = @uv.Loop::new()
   let server = @uv.Tcp::new(uv)
-  let addr = @uv.ip4_addr("127.0.0.1", 8544)
+  let addr = @uv.ip4_addr(b"127.0.0.1", 8544)
   server.bind(addr, @uv.TcpBindFlags::new())
   let old_send_buffer_size = server.get_send_buffer_size()
   let new_send_buffer_size = old_send_buffer_size + 1024
@@ -34,7 +34,7 @@ test "send_buffer_size" {
 test "recv_buffer_size" {
   let uv = @uv.Loop::new()
   let server = @uv.Tcp::new(uv)
-  let addr = @uv.ip4_addr("127.0.0.1", 8544)
+  let addr = @uv.ip4_addr(b"127.0.0.1", 8544)
   server.bind(addr, @uv.TcpBindFlags::new())
   let old_recv_buffer_size = server.get_recv_buffer_size()
   let new_recv_buffer_size = old_recv_buffer_size + 1024

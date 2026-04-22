@@ -23,7 +23,7 @@ test "passwd" {
 
 ///|
 test "passwd2" {
-  if @uv.os_uname().sysname() is "Windows_NT" {
+  if @uv.os_uname().sysname() is b"Windows_NT" {
     return
   }
   let passwd = @uv.os_get_passwd2(@uv.os_get_passwd().uid())
@@ -35,7 +35,7 @@ test "passwd2" {
 
 ///|
 test "group" {
-  if @uv.os_uname().sysname() is "Windows_NT" {
+  if @uv.os_uname().sysname() is b"Windows_NT" {
     return
   }
   let passwd = @uv.os_get_passwd()

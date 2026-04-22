@@ -25,7 +25,7 @@ test "Poll::socket" {
   let poll = @uv.Poll::socket(uv, reader.os_sock())
   let writer = @uv.Tcp::new(uv)
   writer.open(socks.1)
-  let data : Bytes = "hello"
+  let data : Bytes = b"hello"
   let mut readable = false
   poll.start(
     PollEvent::readable(),

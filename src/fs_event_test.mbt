@@ -14,7 +14,7 @@
 
 ///|
 test "fs_event" {
-  if @uv.os_getenv("CI") is Some("true") {
+  if @uv.os_getenv(b"CI") is Some(b"true") {
     return
   }
   let uv = @uv.Loop::new()
@@ -22,7 +22,7 @@ test "fs_event" {
   let errors : Array[Error] = []
   let events : Array[(Bytes?, Array[FsEventType])] = []
   fs_event.start(
-    "test/fixtures/",
+    b"test/fixtures/",
     FsEventFlags::new(),
     fn(_, name, types) { events.push((name, types)) },
     fn(_, _, errno) {
@@ -34,7 +34,7 @@ test "fs_event" {
     },
   )
   uv.fs_open(
-    "test/fixtures/test.txt",
+    b"test/fixtures/test.txt",
     @uv.OpenFlags::write_only(create=true),
     0o644,
     file => {
@@ -49,7 +49,7 @@ test "fs_event" {
                 () => {
                   try
                     uv.fs_unlink(
-                      "test/fixtures/test.txt",
+                      b"test/fixtures/test.txt",
                       () => {
                         try {
                           let timer = @uv.Timer::new(uv)
@@ -101,7 +101,7 @@ test "fs_event" {
   assert_true(
     events.search_by(fn(event) {
       let (file, _) = event
-      file is Some("test.txt")
+      file is Some(b"test.txt")
     })
     is Some(_),
   )

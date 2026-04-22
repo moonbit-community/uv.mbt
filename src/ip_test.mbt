@@ -14,22 +14,22 @@
 
 ///|
 test "ip4_addr" {
-  ignore(@uv.ip4_addr("127.0.0.1", 8080))
+  ignore(@uv.ip4_addr(b"127.0.0.1", 8080))
 }
 
 ///|
 test "ip6_addr" {
-  ignore(@uv.ip6_addr("::1", 8080))
+  ignore(@uv.ip6_addr(b"::1", 8080))
 }
 
 ///|
 test "ip4_name" {
-  let addr = @uv.ip4_addr("127.0.0.1", 8080)
-  @assert.eq(addr.ip_name(), "127.0.0.1")
+  let addr = @uv.ip4_addr(b"127.0.0.1", 8080)
+  @assert.eq(addr.ip_name(), b"127.0.0.1")
 }
 
 ///|
 test "ip6_name" {
-  let addr = @uv.ip6_addr("::1", 8080)
-  @assert.eq(addr.ip_name(), "::1")
+  let addr = @uv.ip6_addr(b"::1", 8080)
+  @assert.eq(addr.ip_name(), b"::1")
 }

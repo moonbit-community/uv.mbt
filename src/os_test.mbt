@@ -39,8 +39,8 @@ test "homedir" {
 test "chdir" {
   let uv = @uv.Loop::new()
   let old_cwd = @uv.cwd()
-  let dir = uv.fs_realpath_sync(old_cwd + "/test/fixtures")
-  @uv.chdir("test/fixtures")
+  let dir = uv.fs_realpath_sync(old_cwd + b"/test/fixtures")
+  @uv.chdir(b"test/fixtures")
   let new_cwd = @uv.cwd()
   @assert.eq(new_cwd, dir)
   @uv.chdir(old_cwd)

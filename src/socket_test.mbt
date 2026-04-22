@@ -24,7 +24,7 @@ test "socketpair" {
   reader.open(socks.0)
   let writer = @uv.Tcp::new(uv)
   writer.open(socks.1)
-  let data : Bytes = "hello"
+  let data : Bytes = b"hello"
   reader.read_start(
     (_, _) => Bytes::make(32, 0)[:],
     (_, count, bytes) => {
@@ -46,23 +46,23 @@ test "socketpair" {
 
 ///|
 test "ntop-pton" {
-  let in_addr : @uv.InAddr = @uv.InAddr::pton("127.0.0.1")
+  let in_addr : @uv.InAddr = @uv.InAddr::pton(b"127.0.0.1")
   json_inspect(in_addr.ntop(), content="127.0.0.1")
-  let in6_addr : @uv.In6Addr = @uv.In6Addr::pton("::1")
+  let in6_addr : @uv.In6Addr = @uv.In6Addr::pton(b"::1")
   json_inspect(in6_addr.ntop(), content="::1")
 }
 
 ///|
 test "addr" {
-  let sockaddr_in : @uv.SockaddrIn = @uv.ip4_addr("127.0.0.1", 8080)
+  let sockaddr_in : @uv.SockaddrIn = @uv.ip4_addr(b"127.0.0.1", 8080)
   json_inspect(sockaddr_in.addr().ntop(), content="127.0.0.1")
 }
 
 ///|
 test "port" {
-  let sockaddr_in : @uv.SockaddrIn = @uv.ip4_addr("127.0.0.1", 8080)
+  let sockaddr_in : @uv.SockaddrIn = @uv.ip4_addr(b"127.0.0.1", 8080)
   json_inspect(sockaddr_in.port(), content=8080)
-  let sockaddr_in6 : @uv.SockaddrIn6 = @uv.ip6_addr("::1", 8080)
+  let sockaddr_in6 : @uv.SockaddrIn6 = @uv.ip6_addr(b"::1", 8080)
   json_inspect(sockaddr_in6.port(), content=8080)
 }
 
