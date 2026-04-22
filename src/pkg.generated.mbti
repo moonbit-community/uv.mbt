@@ -235,10 +235,8 @@ pub(all) suberror Errno {
   ENODATA
   EUNATCH
   ENOEXEC
-}
+} derive(Eq, Hash)
 pub fn Errno::to_bytes(Self) -> Bytes
-pub impl Eq for Errno
-pub impl Hash for Errno
 pub impl Show for Errno
 
 // Types and methods
@@ -315,7 +313,7 @@ pub fn CpuInfo::cpu_times(Self) -> CpuTimes
 pub fn CpuInfo::model(Self) -> Bytes
 pub fn CpuInfo::speed(Self) -> Int
 
-type CpuSet
+type CpuSet derive(Eq)
 pub fn CpuSet::clear(Self, Int) -> Unit
 pub fn CpuSet::count(Self) -> Int
 pub fn CpuSet::intersect(Self, Self) -> Self
@@ -328,7 +326,6 @@ pub fn CpuSet::zero(Self) -> Unit
 pub impl BitAnd for CpuSet
 pub impl BitOr for CpuSet
 pub impl BitXOr for CpuSet
-pub impl Eq for CpuSet
 
 type CpuTimes
 pub fn CpuTimes::idle(Self) -> UInt64
@@ -394,8 +391,6 @@ type GetNameInfo
 pub impl ToReq for GetNameInfo
 
 pub(all) struct Gid(UInt64)
-#deprecated
-pub fn Gid::inner(Self) -> UInt64
 
 type Group
 pub fn Group::gid(Self) -> Gid
@@ -459,8 +454,7 @@ pub struct InterfaceAddress {
   is_internal : Bool
   address : Sockaddr
   netmask : Sockaddr
-}
-pub impl ToJson for InterfaceAddress
+} derive(ToJson)
 
 type Key
 pub fn[T] Key::get(Self) -> T?
@@ -684,12 +678,9 @@ type PhysAddr
 pub impl Show for PhysAddr
 pub impl ToJson for PhysAddr
 
-type Pid
+type Pid derive(Compare, Eq, Hash)
 pub fn Pid::of_int(Int) -> Self
 pub fn Pid::to_int(Self) -> Int
-pub impl Compare for Pid
-pub impl Eq for Pid
-pub impl Hash for Pid
 pub impl Show for Pid
 
 type Pipe
@@ -993,8 +984,6 @@ pub fn Timer::stop(Self) -> Unit raise Errno
 pub impl ToHandle for Timer
 
 pub struct Timespec64(FixedArray[Int64])
-#deprecated
-pub fn Timespec64::inner(Self) -> FixedArray[Int64]
 pub fn Timespec64::nsec(Self) -> Int
 pub fn Timespec64::sec(Self) -> Int64
 
@@ -1004,8 +993,6 @@ pub struct Timeval {
 }
 
 pub struct Timeval64(FixedArray[Int64])
-#deprecated
-pub fn Timeval64::inner(Self) -> FixedArray[Int64]
 pub fn Timeval64::sec(Self) -> Int64
 pub fn Timeval64::usec(Self) -> Int
 
@@ -1064,8 +1051,6 @@ type UdpSend
 pub impl ToReq for UdpSend
 
 pub(all) struct Uid(UInt64)
-#deprecated
-pub fn Uid::inner(Self) -> UInt64
 
 type Utsname
 pub fn Utsname::machine(Self) -> BytesView
