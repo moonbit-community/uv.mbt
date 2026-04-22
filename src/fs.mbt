@@ -3039,7 +3039,7 @@ pub fn Stat::is_symlink(self : Stat) -> Bool {
 
 ///|
 pub fn Stat::is_socket(self : Stat) -> Bool raise Errno {
-  if _S_IFSOCK == @uint64.max_value {
+  if _S_IFSOCK == @uint64.MAX_VALUE {
     raise ENOSYS
   }
   (self.mode() & _S_IFMT) == _S_IFSOCK
@@ -3058,7 +3058,7 @@ pub fn Stat::is_fifo(self : Stat) -> Bool {
 
 ///|
 pub fn Stat::is_block_device(self : Stat) -> Bool raise Errno {
-  if _S_IFBLK == @uint64.max_value {
+  if _S_IFBLK == @uint64.MAX_VALUE {
     raise ENOSYS
   }
   (self.mode() & _S_IFMT) == _S_IFBLK
