@@ -25,7 +25,12 @@ pub impl ToHandle for Process with to_handle(self : Process) -> Handle = "%ident
 pub impl ToHandle for Process with of_handle(handle) = "%identity"
 
 ///|
-struct Pid(Int) derive(Show, Eq, Compare, Hash)
+struct Pid(Int) derive(Eq, Compare, Hash)
+
+///|
+pub impl Show for Pid with output(self : Pid, logger : &Logger) -> Unit {
+  logger.write_string(self.0.to_string())
+}
 
 ///|
 pub fn Pid::to_int(self : Pid) -> Int {
