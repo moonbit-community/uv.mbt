@@ -17,7 +17,7 @@ test "work" {
   let uv = @uv.Loop::new()
   let mutex = @uv.Mutex::new()
   let mut error = None
-  for i in 0..<2 {
+  for _ in 0..<2 {
     let mutex = mutex.share()
     uv.queue_work(() => @uv.sleep(50), () => (), fn(e) {
       mutex.lock()
