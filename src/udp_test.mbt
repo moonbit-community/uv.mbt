@@ -18,7 +18,7 @@ test "udp" {
   let mut error : Error? = None
   let in_socket = @uv.Udp::new(uv)
   let out_socket = @uv.Udp::new(uv)
-  let addr : @uv.SockaddrIn = @uv.ip4_addr("127.0.0.1", 8543)
+  let addr : @uv.SockaddrIn = @uv.ip4_addr(b"127.0.0.1", 8543)
   in_socket.bind(addr, @uv.UdpFlags::new())
   in_socket.recv_start(
     fn(_, _) { Bytes::make(100, 0)[:] },
@@ -57,12 +57,12 @@ test "udp" {
 test "Udp::getsockname" {
   let uv = @uv.Loop::new()
   let socket = @uv.Udp::new(uv)
-  let addr : @uv.SockaddrIn = @uv.ip4_addr("127.0.0.1", 0)
+  let addr : @uv.SockaddrIn = @uv.ip4_addr(b"127.0.0.1", 0)
   socket.bind(addr, @uv.UdpFlags::new())
 
   // Test getsockname
   let sockname = socket.getsockname()
-  inspect(sockname.ip_name() is "127.0.0.1", content="true")
+  inspect(sockname.ip_name() is b"127.0.0.1", content="true")
   socket.close(() => ())
   uv.run(Default)
   uv.close()
@@ -180,8 +180,8 @@ test "Udp::set_membership" {
     @uv.UdpFlags::new(),
   )
   try {
-    socket.set_membership("224.0.0.1", "0.0.0.0", @uv.Membership::JoinGroup)
-    socket.set_membership("224.0.0.1", "0.0.0.0", @uv.Membership::LeaveGroup)
+    socket.set_membership(b"224.0.0.1", b"0.0.0.0", @uv.Membership::JoinGroup)
+    socket.set_membership(b"224.0.0.1", b"0.0.0.0", @uv.Membership::LeaveGroup)
   } catch {
     ENOTSUP => ()
     error => raise error

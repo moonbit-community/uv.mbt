@@ -18,7 +18,7 @@ test "metrics" {
   uv.configure(MeasureIdleTime)
   let errors = []
   uv.fs_open(
-    "test/fixtures/example.txt",
+    b"test/fixtures/example.txt",
     @uv.OpenFlags::read_only(),
     0o644,
     file => {

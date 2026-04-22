@@ -127,7 +127,7 @@ test "read" {
   if error.val is Some(error) {
     raise error
   }
-  @assert.eq(buffer.contents(), "Hello, world!\n")
+  @assert.eq(buffer.contents(), b"Hello, world!\n")
 }
 
 ///|
@@ -145,7 +145,7 @@ test "read/sync" {
       count = uv.fs_read_sync(file, [bytes]) {
     buffer.write_bytesview(bytes[:count])
   }
-  @assert.eq(buffer.contents(), "Hello, world!\n")
+  @assert.eq(buffer.contents(), b"Hello, world!\n")
   uv.close()
 }
 
@@ -154,11 +154,11 @@ test "mkdir" {
   let uv = @uv.Loop::new()
   let errors : Array[Error] = []
   uv.fs_mkdir(
-    "test-dir",
+    b"test-dir",
     0,
     fn() {
       try
-        uv.fs_rmdir("test-dir", () => (), e => errors.push(e)) |> ignore()
+        uv.fs_rmdir(b"test-dir", () => (), e => errors.push(e)) |> ignore()
       catch {
         e => errors.push(e)
       }
@@ -180,7 +180,7 @@ test "scandir" {
   let mut error = None
   let entries = []
   uv.fs_scandir(
-    "test/fixtures",
+    b"test/fixtures",
     0,
     scandir => {
       while true {
@@ -202,9 +202,9 @@ test "scandir" {
   uv.stop()
   uv.close()
   entries.sort_by_key(fn(entry) { entry.name() })
-  @assert.eq(entries[0].name(), "example.txt")
+  @assert.eq(entries[0].name(), b"example.txt")
   @assert.t(entries[0].type_() is File)
-  @assert.eq(entries[1].name(), ".gitattributes")
+  @assert.eq(entries[1].name(), b".gitattributes")
   @assert.t(entries[1].type_() is File)
   if error is Some(e) {
     raise e
@@ -216,12 +216,12 @@ test "copyfile_unlink" {
   let uv = @uv.Loop::new()
   let mut error = None
   uv.fs_copyfile(
-    "test/fixtures/example.txt",
-    "test/fixtures/example-copy.txt",
+    b"test/fixtures/example.txt",
+    b"test/fixtures/example-copy.txt",
     @uv.CopyFileFlags::new(),
     fn() {
       try
-        uv.fs_unlink("test/fixtures/example-copy.txt", fn() {  }, fn(e) {
+        uv.fs_unlink(b"test/fixtures/example-copy.txt", fn() {  }, fn(e) {
           error = Some(e)
         })
         |> ignore()
@@ -245,7 +245,7 @@ test "realpath" {
   let uv = @uv.Loop::new()
   let cwd = @uv.cwd()
   let errors : Array[Error] = []
-  let file : Bytes = "test/fixtures/example.txt"
+  let file : Bytes = b"test/fixtures/example.txt"
   uv.fs_realpath(
     file,
     p => @assert.eq(p[:cwd.length()], cwd) catch { e => errors.push(e) },
@@ -264,7 +264,7 @@ test "stat" {
   let uv = @uv.Loop::new()
   let errors : Array[Error] = []
   uv.fs_stat(
-    "test/fixtures/example.txt",
+    b"test/fixtures/example.txt",
     stat => {
       try {
         @assert.t(stat.is_file())
@@ -288,7 +288,7 @@ test "stat" {
 ///|
 test "stat/sync" {
   let uv = @uv.Loop::new()
-  let stat = uv.fs_stat_sync("test/fixtures/example.txt")
+  let stat = uv.fs_stat_sync(b"test/fixtures/example.txt")
   uv.close()
   @assert.t(stat.is_file())
   @assert.n(stat.is_directory())
@@ -299,7 +299,7 @@ test "lstat" {
   let uv = @uv.Loop::new()
   let errors : Array[Error] = []
   uv.fs_lstat(
-    "test/fixtures",
+    b"test/fixtures",
     stat => {
       try {
         // It should be a directory
@@ -327,7 +327,7 @@ test "fstat" {
   let errors : Array[Error] = []
   let mut file_handle : @uv.File? = None
   uv.fs_open(
-    "test/fixtures/example.txt",
+    b"test/fixtures/example.txt",
     @uv.OpenFlags::read_only(),
     0,
     file => file_handle = Some(file),
@@ -368,12 +368,12 @@ test "fstat" {
 test "fs_mkdtemp" {
   let uv = @uv.Loop::new()
   let mut error : Error? = None
-  let template : Bytes = "test-dir-XXXXXX"
+  let template : Bytes = b"test-dir-XXXXXX"
   uv.fs_mkdtemp(
     template,
     path => {
       try {
-        @assert.t(path is [.. "test-dir-", ..])
+        @assert.t(path is [.. b"test-dir-", ..])
         let stat = uv.fs_stat_sync(path)
         @assert.t(stat.is_directory())
         uv.fs_rmdir_sync(path)
@@ -394,9 +394,9 @@ test "fs_mkdtemp" {
 ///|
 test "fs_mkdtemp_sync" {
   let uv = @uv.Loop::new()
-  let template : Bytes = "test-dir-XXXXXX"
+  let template : Bytes = b"test-dir-XXXXXX"
   let path = uv.fs_mkdtemp_sync(template)
-  @assert.t(path is [.. "test-dir-", ..])
+  @assert.t(path is [.. b"test-dir-", ..])
   let stat = uv.fs_stat_sync(path)
   @assert.t(stat.is_directory())
   uv.fs_rmdir_sync(path)
@@ -407,12 +407,12 @@ test "fs_mkdtemp_sync" {
 test "fs_mkstemp" {
   let uv = @uv.Loop::new()
   let mut error : Error? = None
-  let template : Bytes = "test-file-XXXXXX"
+  let template : Bytes = b"test-file-XXXXXX"
   uv.fs_mkstemp(
     template,
     path => {
       try {
-        @assert.t(path is [.. "test-file-", ..])
+        @assert.t(path is [.. b"test-file-", ..])
         let stat = uv.fs_stat_sync(path)
         @assert.t(stat.is_file())
         uv.fs_unlink_sync(path)
@@ -433,9 +433,9 @@ test "fs_mkstemp" {
 ///|
 test "fs_mkstemp_sync" {
   let uv = @uv.Loop::new()
-  let template : Bytes = "test-file-XXXXXX"
+  let template : Bytes = b"test-file-XXXXXX"
   let path = uv.fs_mkstemp_sync(template)
-  @assert.t(path is [.. "test-file-", ..])
+  @assert.t(path is [.. b"test-file-", ..])
   let stat = uv.fs_stat_sync(path)
   @assert.t(stat.is_file())
   uv.fs_unlink_sync(path)
@@ -480,7 +480,7 @@ test "opendir-readdir-closedir" {
     }
   }
 
-  try uv.fs_opendir("test/fixtures", open_cb, error_cb) |> ignore() catch {
+  try uv.fs_opendir(b"test/fixtures", open_cb, error_cb) |> ignore() catch {
     e => error = Some(e)
   }
   uv.run(Default)
@@ -489,19 +489,19 @@ test "opendir-readdir-closedir" {
     raise error
   }
   sources.sort()
-  @assert.t(sources is ["example.txt", ".gitattributes", ..])
+  @assert.t(sources is [b"example.txt", b".gitattributes", ..])
 }
 
 ///|
 test "fs_fsync_sync" {
   let uv = @uv.Loop::new()
-  let path : Bytes = "test-fsync-sync.txt"
+  let path : Bytes = b"test-fsync-sync.txt"
   let file = uv.fs_open_sync(
     path,
     @uv.OpenFlags::write_only(create=true),
     0o644,
   )
-  let data : Bytes = "Hello, fsync!"
+  let data : Bytes = b"Hello, fsync!"
   uv.fs_write_sync(file, [data])
   uv.fs_fsync_sync(file)
   uv.fs_close_sync(file)
@@ -512,13 +512,13 @@ test "fs_fsync_sync" {
 ///|
 test "fs_fdatasync_sync" {
   let uv = @uv.Loop::new()
-  let path : Bytes = "test-fdatasync-sync.txt"
+  let path : Bytes = b"test-fdatasync-sync.txt"
   let file = uv.fs_open_sync(
     path,
     @uv.OpenFlags::write_only(create=true),
     0o644,
   )
-  let data : Bytes = "Hello, fdatasync!"
+  let data : Bytes = b"Hello, fdatasync!"
   uv.fs_write_sync(file, [data])
   uv.fs_fdatasync_sync(file)
   uv.fs_close_sync(file)
@@ -531,13 +531,13 @@ test "fs_fsync_async" {
   let uv = @uv.Loop::new()
   let errors : Array[Error] = []
   let mut synced = false
-  let path : Bytes = "test-fsync-async.txt"
+  let path : Bytes = b"test-fsync-async.txt"
   let file = uv.fs_open_sync(
     path,
     @uv.OpenFlags::write_only(create=true),
     0o644,
   )
-  let data : Bytes = "Hello, async fsync!"
+  let data : Bytes = b"Hello, async fsync!"
   uv.fs_write_sync(file, [data])
   try
     uv.fs_fsync(file, () => synced = true, e => errors.push(e)) |> ignore()
@@ -559,13 +559,13 @@ test "fs_fdatasync_async" {
   let uv = @uv.Loop::new()
   let errors : Array[Error] = []
   let mut synced = false
-  let path : Bytes = "test-fdatasync-async.txt"
+  let path : Bytes = b"test-fdatasync-async.txt"
   let file = uv.fs_open_sync(
     path,
     @uv.OpenFlags::write_only(create=true),
     0o644,
   )
-  let data : Bytes = "Hello, async fdatasync!"
+  let data : Bytes = b"Hello, async fdatasync!"
   uv.fs_write_sync(file, [data])
   try
     uv.fs_fdatasync(file, () => synced = true, e => errors.push(e)) |> ignore()
@@ -586,8 +586,8 @@ test "fs_fdatasync_async" {
 ///|
 test "fs_link_sync" {
   let uv = @uv.Loop::new()
-  let original_file : Bytes = "test/fixtures/example.txt"
-  let link_file : Bytes = "test-link-sync.txt"
+  let original_file : Bytes = b"test/fixtures/example.txt"
+  let link_file : Bytes = b"test-link-sync.txt"
   uv.fs_link_sync(original_file, link_file)
   // Verify the link exists and points to the same file
   let original_stat = uv.fs_stat_sync(original_file)
@@ -604,8 +604,8 @@ test "fs_link_async" {
   let uv = @uv.Loop::new()
   let errors : Array[Error] = []
   let mut linked = false
-  let original_file : Bytes = "test/fixtures/example.txt"
-  let link_file : Bytes = "test-link-async.txt"
+  let original_file : Bytes = b"test/fixtures/example.txt"
+  let link_file : Bytes = b"test-link-async.txt"
   try
     uv.fs_link(
       original_file,
@@ -633,8 +633,8 @@ test "fs_link_async" {
 ///|
 test "fs_symlink_sync" {
   let uv = @uv.Loop::new()
-  let target_file : Bytes = "test/fixtures/example.txt"
-  let symlink_file : Bytes = "test-symlink-sync.txt"
+  let target_file : Bytes = b"test/fixtures/example.txt"
+  let symlink_file : Bytes = b"test-symlink-sync.txt"
   uv.fs_symlink_sync(target_file, symlink_file, @uv.SymlinkFlags::new())
   // Verify the symlink exists
   let stat = uv.fs_lstat_sync(symlink_file)
@@ -649,8 +649,8 @@ test "fs_symlink_async" {
   let uv = @uv.Loop::new()
   let mut error : @uv.Errno? = None
   let mut symlinked = false
-  let target_file : Bytes = "test/fixtures/example.txt"
-  let symlink_file : Bytes = "test-symlink-async.txt"
+  let target_file : Bytes = b"test/fixtures/example.txt"
+  let symlink_file : Bytes = b"test-symlink-async.txt"
   try
     uv.fs_symlink(
       target_file,
@@ -677,8 +677,8 @@ test "fs_symlink_async" {
 ///|
 test "fs_readlink_sync" {
   let uv = @uv.Loop::new()
-  let target_file : Bytes = "test/fixtures/example.txt"
-  let symlink_file : Bytes = "test-readlink-sync.txt"
+  let target_file : Bytes = b"test/fixtures/example.txt"
+  let symlink_file : Bytes = b"test-readlink-sync.txt"
   // Create a symlink first
   uv.fs_symlink_sync(target_file, symlink_file, @uv.SymlinkFlags::new())
   // Read the symlink target
@@ -694,8 +694,8 @@ test "fs_readlink_async" {
   let uv = @uv.Loop::new()
   let mut error : Error? = None
   let mut target_read : Bytes? = None
-  let target_file : Bytes = "test/fixtures/example.txt"
-  let symlink_file : Bytes = "test-readlink-async.txt"
+  let target_file : Bytes = b"test/fixtures/example.txt"
+  let symlink_file : Bytes = b"test-readlink-async.txt"
   // Create a symlink first
   uv.fs_symlink_sync(target_file, symlink_file, @uv.SymlinkFlags::new())
   // Read the symlink target asynchronously
@@ -725,13 +725,13 @@ test "fs_readlink_async" {
 
 ///|
 test "fs_lstat_sync" {
-  guard @uv.os_uname().sysname() != "Windows_NT" else {
+  guard @uv.os_uname().sysname() != b"Windows_NT" else {
     // Windows doesn't support symlink creation without elevated privileges
     return
   }
   let uv = @uv.Loop::new()
-  let target_file : Bytes = "test/fixtures/example.txt"
-  let symlink_file : Bytes = "test-lstat-sync.txt"
+  let target_file : Bytes = b"test/fixtures/example.txt"
+  let symlink_file : Bytes = b"test-lstat-sync.txt"
   // Create a symlink first
   uv.fs_symlink_sync(target_file, symlink_file, @uv.SymlinkFlags::new())
   // Use lstat to get info about the symlink itself
@@ -751,7 +751,7 @@ test "fs_lstat_sync" {
 test "fs_statfs" {
   let uv = @uv.Loop::new()
   let errors : Array[Error] = []
-  uv.fs_statfs("/", stat => ignore(stat.get_type()), error => errors.push(error))
+  uv.fs_statfs(b"/", stat => ignore(stat.get_type()), error => errors.push(error))
   |> ignore()
   uv.run(Default)
   for error in errors {
@@ -763,8 +763,8 @@ test "fs_statfs" {
 ///|
 test "fs_rename_sync" {
   let uv = @uv.Loop::new()
-  let original_file : Bytes = "test-rename-sync-original.txt"
-  let renamed_file : Bytes = "test-rename-sync-renamed.txt"
+  let original_file : Bytes = b"test-rename-sync-original.txt"
+  let renamed_file : Bytes = b"test-rename-sync-renamed.txt"
 
   // Create a test file first
   let file = uv.fs_open_sync(
@@ -772,7 +772,7 @@ test "fs_rename_sync" {
     @uv.OpenFlags::write_only(create=true),
     0o644,
   )
-  let data : Bytes = "Hello, rename sync!"
+  let data : Bytes = b"Hello, rename sync!"
   uv.fs_write_sync(file, [data])
   uv.fs_close_sync(file)
 

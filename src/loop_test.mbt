@@ -14,7 +14,7 @@
 
 ///|
 test "configure" {
-  if @uv.os_uname().sysname() == "Windows_NT" {
+  if @uv.os_uname().sysname() == b"Windows_NT" {
     return
   }
   let uv = @uv.Loop::new()
@@ -49,7 +49,7 @@ test "walk" {
 
 ///|
 test "backend" {
-  if @uv.os_uname().sysname() is "Windows_NT" {
+  if @uv.os_uname().sysname() is b"Windows_NT" {
     return
   }
   let uv = @uv.Loop::new()

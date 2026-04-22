@@ -14,10 +14,10 @@
 
 ///|
 test "Pipe::connect" {
-  let path : Bytes = if @uv.os_uname().sysname() is "Windows_NT" {
-    "\\\\?\\pipe\\uv-mbt-test-pipe-connect.sock"
+  let path : Bytes = if @uv.os_uname().sysname() is b"Windows_NT" {
+    b"\\\\?\\pipe\\uv-mbt-test-pipe-connect.sock"
   } else {
-    "/tmp/uv-mbt-test-pipe-connect.sock"
+    b"/tmp/uv-mbt-test-pipe-connect.sock"
   }
   let uv = @uv.Loop::new()
   let server = @uv.Pipe::new(uv, ipc=false) catch {
@@ -81,7 +81,7 @@ test "Pipe::connect" {
     () => {
       try
         client.write(
-          ["Hello, world!"],
+          [b"Hello, world!"],
           () => {
             client.read_start(
               (_, _) => Bytes::make(1024, 0),
@@ -119,10 +119,10 @@ test "Pipe::connect" {
 
 ///|
 test "Pipe::chmod" {
-  if @uv.os_uname().sysname() is "Windows_NT" {
+  if @uv.os_uname().sysname() is b"Windows_NT" {
     return
   }
-  let path : Bytes = "/tmp/uv-mbt-test-pipe-chmod.sock"
+  let path : Bytes = b"/tmp/uv-mbt-test-pipe-chmod.sock"
   let uv = @uv.Loop::new()
   defer (uv.close() catch { _ => () })
   defer (uv.fs_unlink_sync(path) catch { _ => () })

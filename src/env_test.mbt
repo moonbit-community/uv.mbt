@@ -22,8 +22,8 @@ test "os_environ" {
 
 ///|
 test "env" {
-  let name : Bytes = "UV_MBT_TEST"
-  let value : Bytes = "uv.mbt"
+  let name : Bytes = b"UV_MBT_TEST"
+  let value : Bytes = b"uv.mbt"
   @uv.os_setenv(name, value)
   @assert.eq(@uv.os_getenv(name), Some(value))
   @uv.os_unsetenv(name)

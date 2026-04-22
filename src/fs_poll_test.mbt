@@ -14,7 +14,7 @@
 
 ///|
 test "FsPoll" {
-  if @uv.os_getenv("CI") is Some("true") {
+  if @uv.os_getenv(b"CI") is Some(b"true") {
     return
   }
   let uv = @uv.Loop::new()
@@ -22,7 +22,7 @@ test "FsPoll" {
   let errors : Array[Error] = []
   let events : Array[(Stat, Stat)] = []
   fs_poll.start(
-    "test/fixtures/",
+    b"test/fixtures/",
     1000,
     fn(_, prev, curr) { events.push((prev, curr)) },
     fn(_, errno) {
@@ -33,9 +33,9 @@ test "FsPoll" {
       fs_poll.close(() => ())
     },
   )
-  @assert.eq(fs_poll.get_path(), "test/fixtures/")
+  @assert.eq(fs_poll.get_path(), b"test/fixtures/")
   uv.fs_open(
-    "test/fixtures/test_poll.txt",
+    b"test/fixtures/test_poll.txt",
     @uv.OpenFlags::write_only(create=true),
     0o644,
     file => {
@@ -49,7 +49,7 @@ test "FsPoll" {
                 file,
                 () => {
                   try
-                    uv.fs_unlink("test/fixtures/test_poll.txt", () => (), e => {
+                    uv.fs_unlink(b"test/fixtures/test_poll.txt", () => (), e => {
                       errors.push(e)
                     })
                     |> ignore()

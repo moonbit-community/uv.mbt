@@ -17,14 +17,14 @@ test "Req/Fs" {
   let uv = @uv.Loop::new()
   let errors : Array[Error] = []
   let fs = uv.fs_open(
-    "test/fixtures/example.txt",
+    b"test/fixtures/example.txt",
     @uv.OpenFlags::read_only(),
     0o644,
     _ => (),
     e => errors.push(e),
   )
   @assert.t(fs.type_() is Fs)
-  @assert.t(fs.type_().name() is "fs")
+  @assert.t(fs.type_().name() is b"fs")
   uv.run(Default)
   uv.close()
 }

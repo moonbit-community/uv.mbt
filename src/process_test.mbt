@@ -59,8 +59,8 @@ test "spawn" {
     @uv.StdioContainer::inherit_file(@uv.stderr()),
   ]
   let options = @uv.ProcessOptions::new(
-    "moon",
-    ["moon", "version", "--json"],
+    b"moon",
+    [b"moon", b"version", b"--json"],
     stdio~,
     fn(child, exit_status, term_signal) {
       try {
@@ -89,7 +89,7 @@ test "spawn/stdin" {
   let buffer = StringBuilder::new()
   let mut error : Error? = None
   fn do_write(pipe : @uv.Pipe) -> Unit {
-    let content : Bytes = "hello, world\n"
+    let content : Bytes = b"hello, world\n"
     try
       pipe.write([content], () => pipe.close(() => ()), e => error = Some(e))
       |> ignore()
@@ -130,7 +130,7 @@ test "spawn/stdin" {
     @uv.StdioContainer::create_pipe(stdout_pipe, writable=true),
     @uv.StdioContainer::inherit_file(@uv.stderr()),
   ]
-  let options = @uv.ProcessOptions::new("cat", ["cat"], stdio~, fn(
+  let options = @uv.ProcessOptions::new(b"cat", [b"cat"], stdio~, fn(
     child,
     _,
     _,
