@@ -186,7 +186,7 @@ test "scandir" {
       while true {
         let dirent = scandir.next() catch {
           e => {
-            if not(e is EOF) {
+            if !(e is EOF) {
               error = Some(e)
             }
             break
@@ -195,7 +195,7 @@ test "scandir" {
         entries.push(dirent)
       }
     },
-    e => if not(e is EOF) { error = Some(e) },
+    e => if !(e is EOF) { error = Some(e) },
   )
   |> ignore()
   uv.run(Default)
@@ -268,7 +268,7 @@ test "stat" {
     stat => {
       try {
         @assert.t(stat.is_file())
-        @assert.t(not(stat.is_directory()))
+        @assert.t(!(stat.is_directory()))
         @assert.eq(stat.size(), 14)
       } catch {
         e => errors.push(e)
@@ -305,7 +305,7 @@ test "lstat" {
         // It should be a directory
         @assert.t(stat.is_directory())
         // It shouldn't be a regular file
-        @assert.t(not(stat.is_file()))
+        @assert.t(!(stat.is_file()))
       } catch {
         e => errors.push(e)
       }
@@ -343,7 +343,7 @@ test "fstat" {
           // It should be a regular file
           @assert.t(stat.is_file())
           // It shouldn't be a directory
-          @assert.t(not(stat.is_directory()))
+          @assert.t(!(stat.is_directory()))
           // Size should be greater than 0
           @assert.t(stat.size() > 0)
         } catch {
@@ -737,11 +737,11 @@ test "fs_lstat_sync" {
   // Use lstat to get info about the symlink itself
   let symlink_stat = uv.fs_lstat_sync(symlink_file)
   @assert.t(symlink_stat.is_symlink())
-  @assert.t(not(symlink_stat.is_file()))
+  @assert.t(!(symlink_stat.is_file()))
   // Compare with regular stat which follows the link
   let target_stat = uv.fs_stat_sync(symlink_file)
   @assert.t(target_stat.is_file())
-  @assert.t(not(target_stat.is_symlink()))
+  @assert.t(!(target_stat.is_symlink()))
   // Clean up
   uv.fs_unlink_sync(symlink_file)
   uv.close()

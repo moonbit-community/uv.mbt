@@ -37,7 +37,7 @@ test "spawn" {
         }
       },
       fn(pipe, e) {
-        if not(e is EOF) {
+        if !(e is EOF) {
           error = Some(e)
         }
         pipe.read_stop() catch {
@@ -109,7 +109,7 @@ test "spawn/stdin" {
         buffer.write_string(content)
       },
       fn(pipe, e) {
-        if not(e is EOF) {
+        if !(e is EOF) {
           error = Some(e)
         }
         pipe.read_stop() catch {
