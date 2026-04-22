@@ -141,7 +141,7 @@ jobs:
 
       - name: Install MoonBit dependencies
         run: |
-          moon install
+          moon check --deny-warn
 
       - name: Check formatting
         run: |
