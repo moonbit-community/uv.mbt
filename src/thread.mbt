@@ -183,14 +183,12 @@ pub fn CpuSet::count(self : CpuSet) -> Int {
   let self = self.0
   let mut count = 0
   for byte in self {
-    loop byte {
-      0 => ()
-      byte => {
-        if (byte & 1) != 0 {
-          count += 1
-        }
-        continue byte >> 1
+    let mut bits = byte
+    while bits != 0 {
+      if (bits & 1) != 0 {
+        count += 1
       }
+      bits = bits >> 1
     }
   }
   count
