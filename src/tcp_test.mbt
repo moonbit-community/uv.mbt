@@ -218,7 +218,7 @@ test "Tcp::close_reset" {
             }
           },
           (_, e) => {
-            if not(e is EOF) {
+            if !(e is EOF) {
               errors.push(e)
               client.read_stop() catch {
                 e => errors.push(e)
@@ -278,7 +278,7 @@ test "Tcp::close_reset" {
                   client.close(() => ())
                 },
                 (_, e) => {
-                  if not(e is ECONNRESET) {
+                  if !(e is ECONNRESET) {
                     errors.push(e)
                   }
                   client.read_stop() catch {
@@ -307,7 +307,7 @@ test "Tcp::close_reset" {
         }
       },
       e => {
-        if not(e is ECONNRESET) {
+        if !(e is ECONNRESET) {
           errors.push(e)
         }
         client.close(() => ())
