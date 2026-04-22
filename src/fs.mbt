@@ -3399,7 +3399,7 @@ pub fn AccessFlags::new(
   write? : Bool = false,
   execute? : Bool = false,
 ) -> AccessFlags {
-  if !(read) && !(write) && !(execute) {
+  if !read && !write && !execute {
     return _F_OK
   }
   let mut flags = 0

@@ -97,7 +97,7 @@ const PIPE_NO_TRUNCATE : UInt = 1U << 0
 ///|
 pub fn PipeBindFlags::new(truncate? : Bool = true) -> PipeBindFlags {
   let mut flags = 0U
-  if !(truncate) {
+  if !truncate {
     flags = flags | PIPE_NO_TRUNCATE
   }
   return flags
