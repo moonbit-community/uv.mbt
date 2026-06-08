@@ -42,7 +42,7 @@ pub fn version() -> Version {
     minor: uv_version_minor().reinterpret_as_int(),
     patch: uv_version_patch().reinterpret_as_int(),
     suffix: {
-      let buf = @buffer.new()
+      let buf = Buffer()
       let ptr = uv_version_suffix()
       for i = 0; ptr[i] != 0; i = i + 1 {
         buf.write_byte(ptr[i])
@@ -75,7 +75,7 @@ pub fn Version::suffix(self : Version) -> Bytes {
 ///|
 pub fn Version::to_bytes(_ : Version) -> Bytes {
   let ptr = uv_version_string()
-  let buffer = @buffer.new()
+  let buffer = Buffer()
   for i = 0; ptr[i] != 0; i = i + 1 {
     buffer.write_byte(ptr[i])
   }

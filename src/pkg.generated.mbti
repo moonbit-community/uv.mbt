@@ -1,6 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "tonyfettes/uv"
 
+import {
+  "moonbitlang/core/debug",
+}
+
 // Values
 pub const PriorityAboveNormal : Int = -7
 
@@ -235,10 +239,8 @@ pub(all) suberror Errno {
   ENODATA
   EUNATCH
   ENOEXEC
-}
+} derive(Eq, Hash)
 pub fn Errno::to_bytes(Self) -> Bytes
-pub impl Eq for Errno
-pub impl Hash for Errno
 pub impl Show for Errno
 
 // Types and methods
@@ -315,7 +317,7 @@ pub fn CpuInfo::cpu_times(Self) -> CpuTimes
 pub fn CpuInfo::model(Self) -> Bytes
 pub fn CpuInfo::speed(Self) -> Int
 
-type CpuSet
+type CpuSet derive(Eq)
 pub fn CpuSet::clear(Self, Int) -> Unit
 pub fn CpuSet::count(Self) -> Int
 pub fn CpuSet::intersect(Self, Self) -> Self
@@ -328,7 +330,6 @@ pub fn CpuSet::zero(Self) -> Unit
 pub impl BitAnd for CpuSet
 pub impl BitOr for CpuSet
 pub impl BitXOr for CpuSet
-pub impl Eq for CpuSet
 
 type CpuTimes
 pub fn CpuTimes::idle(Self) -> UInt64
@@ -394,8 +395,6 @@ type GetNameInfo
 pub impl ToReq for GetNameInfo
 
 pub(all) struct Gid(UInt64)
-#deprecated
-pub fn Gid::inner(Self) -> UInt64
 
 type Group
 pub fn Group::gid(Self) -> Gid
@@ -459,8 +458,7 @@ pub struct InterfaceAddress {
   is_internal : Bool
   address : Sockaddr
   netmask : Sockaddr
-}
-pub impl ToJson for InterfaceAddress
+} derive(ToJson)
 
 type Key
 pub fn[T] Key::get(Self) -> T?
@@ -684,13 +682,9 @@ type PhysAddr
 pub impl Show for PhysAddr
 pub impl ToJson for PhysAddr
 
-type Pid
+type Pid derive(Compare, Eq, Hash, @debug.Debug)
 pub fn Pid::of_int(Int) -> Self
 pub fn Pid::to_int(Self) -> Int
-pub impl Compare for Pid
-pub impl Eq for Pid
-pub impl Hash for Pid
-pub impl Show for Pid
 
 type Pipe
 pub fn Pipe::bind(Self, Bytes, PipeBindFlags) -> Unit raise Errno
@@ -993,8 +987,6 @@ pub fn Timer::stop(Self) -> Unit raise Errno
 pub impl ToHandle for Timer
 
 pub struct Timespec64(FixedArray[Int64])
-#deprecated
-pub fn Timespec64::inner(Self) -> FixedArray[Int64]
 pub fn Timespec64::nsec(Self) -> Int
 pub fn Timespec64::sec(Self) -> Int64
 
@@ -1004,8 +996,6 @@ pub struct Timeval {
 }
 
 pub struct Timeval64(FixedArray[Int64])
-#deprecated
-pub fn Timeval64::inner(Self) -> FixedArray[Int64]
 pub fn Timeval64::sec(Self) -> Int64
 pub fn Timeval64::usec(Self) -> Int
 
@@ -1064,8 +1054,6 @@ type UdpSend
 pub impl ToReq for UdpSend
 
 pub(all) struct Uid(UInt64)
-#deprecated
-pub fn Uid::inner(Self) -> UInt64
 
 type Utsname
 pub fn Utsname::machine(Self) -> BytesView
@@ -1091,50 +1079,50 @@ pub impl ToReq for Write
 
 // Traits
 pub trait Cancelable : ToReq {
-  cancel(Self) -> Unit raise Errno
+  fn cancel(Self) -> Unit raise Errno
 }
 
 pub trait Share {
-  share(Self) -> Self
+  fn share(Self) -> Self
 }
 
 pub trait ToHandle {
-  to_handle(Self) -> Handle
-  of_handle(Handle) -> Self
-  close(Self, () -> Unit) -> Unit
-  is_closing(Self) -> Bool
-  loop_(Self) -> Loop
-  fileno(Self) -> OsFd raise Errno
-  os_sock(Self) -> OsSock raise Errno
-  get_send_buffer_size(Self) -> Int raise Errno
-  set_send_buffer_size(Self, Int) -> Unit raise Errno
-  get_recv_buffer_size(Self) -> Int raise Errno
-  set_recv_buffer_size(Self, Int) -> Unit raise Errno
+  fn to_handle(Self) -> Handle
+  fn of_handle(Handle) -> Self
+  fn close(Self, () -> Unit) -> Unit
+  fn is_closing(Self) -> Bool
+  fn loop_(Self) -> Loop
+  fn fileno(Self) -> OsFd raise Errno
+  fn os_sock(Self) -> OsSock raise Errno
+  fn get_send_buffer_size(Self) -> Int raise Errno
+  fn set_send_buffer_size(Self, Int) -> Unit raise Errno
+  fn get_recv_buffer_size(Self) -> Int raise Errno
+  fn set_recv_buffer_size(Self, Int) -> Unit raise Errno
 }
 
 pub trait ToReq {
-  to_req(Self) -> Req
-  type_(Self) -> ReqType
+  fn to_req(Self) -> Req
+  fn type_(Self) -> ReqType
 }
 
 pub trait ToSockaddr : ToJson {
-  to_sockaddr(Self) -> Sockaddr
-  of_sockaddr(Sockaddr) -> Self?
-  ip_name(Self) -> Bytes raise Errno
+  fn to_sockaddr(Self) -> Sockaddr
+  fn of_sockaddr(Sockaddr) -> Self?
+  fn ip_name(Self) -> Bytes raise Errno
 }
 
 pub trait ToStream : ToHandle {
-  to_stream(Self) -> Stream
-  of_stream(Stream) -> Self
-  read_start(Self, (Self, Int) -> BytesView, (Self, Int, BytesView) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
-  read_stop(Self) -> Unit raise Errno
-  write(Self, Array[BytesView], () -> Unit, (Errno) -> Unit) -> Write raise Errno
-  try_write(Self, Array[BytesView], () -> Unit, (Errno) -> Unit) -> Write raise Errno
-  listen(Self, Int, (Self) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
-  is_readable(Self) -> Bool
-  is_writable(Self) -> Bool
-  shutdown(Self, () -> Unit, (Errno) -> Unit) -> Shutdown raise Errno
-  set_blocking(Self, Bool) -> Unit raise Errno
-  write_queue_size(Self) -> UInt64
+  fn to_stream(Self) -> Stream
+  fn of_stream(Stream) -> Self
+  fn read_start(Self, (Self, Int) -> BytesView, (Self, Int, BytesView) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
+  fn read_stop(Self) -> Unit raise Errno
+  fn write(Self, Array[BytesView], () -> Unit, (Errno) -> Unit) -> Write raise Errno
+  fn try_write(Self, Array[BytesView], () -> Unit, (Errno) -> Unit) -> Write raise Errno
+  fn listen(Self, Int, (Self) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno
+  fn is_readable(Self) -> Bool
+  fn is_writable(Self) -> Bool
+  fn shutdown(Self, () -> Unit, (Errno) -> Unit) -> Shutdown raise Errno
+  fn set_blocking(Self, Bool) -> Unit raise Errno
+  fn write_queue_size(Self) -> UInt64
 }
 

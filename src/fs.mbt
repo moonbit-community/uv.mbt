@@ -16,7 +16,7 @@
 type Fs
 
 ///|
-pub impl ToReq for Fs with to_req(self : Fs) -> Req = "%identity"
+pub impl ToReq for Fs with fn to_req(self : Fs) -> Req = "%identity"
 
 ///|
 extern "c" fn uv_fs_make() -> Fs = "moonbit_uv_fs_make"
@@ -2512,14 +2512,14 @@ extern "c" fn uv_dirent_make(n : Int) -> @c.Pointer[Dirent] = "moonbit_uv_dirent
 extern "c" fn uv_dirent_sizeof() -> UInt64 = "moonbit_uv_dirent_sizeof"
 
 ///|
-impl @sizeof.Sized for Dirent with size() -> @c.Size {
+impl @sizeof.Sized for Dirent with fn size() -> @c.Size {
   uv_dirent_sizeof()
 }
 
 ///|
-impl @pointer.Load for Dirent with load(pointer : @c.Pointer[Dirent]) -> Dirent {
+impl @pointer.Load for Dirent with fn load(pointer : @c.Pointer[Dirent]) -> Dirent {
   let name = uv_dirent_get_name(pointer)
-  let buffer = @buffer.new()
+  let buffer = Buffer()
   for i = 0; name[i] != 0; i = i + 1 {
     buffer.write_byte(name[i])
   }
@@ -3039,7 +3039,7 @@ pub fn Stat::is_symlink(self : Stat) -> Bool {
 
 ///|
 pub fn Stat::is_socket(self : Stat) -> Bool raise Errno {
-  if _S_IFSOCK == @uint64.max_value {
+  if _S_IFSOCK == @uint64.MAX_VALUE {
     raise ENOSYS
   }
   (self.mode() & _S_IFMT) == _S_IFSOCK
@@ -3058,7 +3058,7 @@ pub fn Stat::is_fifo(self : Stat) -> Bool {
 
 ///|
 pub fn Stat::is_block_device(self : Stat) -> Bool raise Errno {
-  if _S_IFBLK == @uint64.max_value {
+  if _S_IFBLK == @uint64.MAX_VALUE {
     raise ENOSYS
   }
   (self.mode() & _S_IFMT) == _S_IFBLK
@@ -3327,7 +3327,7 @@ pub fn Loop::fs_realpath(
       error_cb(Errno::of_int(status))
     } else {
       let ptr : @c.Pointer[Byte] = uv_fs_get_ptr(req).cast()
-      let buffer = @buffer.new()
+      let buffer = Buffer()
       for i = 0; ptr[i] != 0; i = i + 1 {
         buffer.write_byte(ptr[i])
       }
@@ -3358,7 +3358,7 @@ pub fn Loop::fs_realpath_sync(self : Loop, path : Bytes) -> Bytes raise Errno {
     raise Errno::of_int(status)
   }
   let ptr : @c.Pointer[Byte] = uv_fs_get_ptr(req).cast()
-  let buffer = @buffer.new()
+  let buffer = Buffer()
   for i = 0; ptr[i] != 0; i = i + 1 {
     buffer.write_byte(ptr[i])
   }
@@ -3399,7 +3399,7 @@ pub fn AccessFlags::new(
   write? : Bool = false,
   execute? : Bool = false,
 ) -> AccessFlags {
-  if not(read) && not(write) && not(execute) {
+  if !read && !write && !execute {
     return _F_OK
   }
   let mut flags = 0
@@ -4160,7 +4160,7 @@ pub fn Loop::fs_readlink(
       error_cb(Errno::of_int(status))
     } else {
       let ptr : @c.Pointer[Byte] = uv_fs_get_ptr(req).cast()
-      let buffer = @buffer.new()
+      let buffer = Buffer()
       for i = 0; ptr[i] != 0; i = i + 1 {
         buffer.write_byte(ptr[i])
       }
@@ -4226,7 +4226,7 @@ pub fn Loop::fs_readlink_sync(self : Loop, path : Bytes) -> Bytes raise Errno {
     raise Errno::of_int(status)
   }
   let ptr : @c.Pointer[Byte] = uv_fs_get_ptr(req).cast()
-  let buffer = @buffer.new()
+  let buffer = Buffer()
   for i = 0; ptr[i] != 0; i = i + 1 {
     buffer.write_byte(ptr[i])
   }

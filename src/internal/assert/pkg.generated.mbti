@@ -1,9 +1,13 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "tonyfettes/uv/internal/assert"
 
+import {
+  "moonbitlang/core/debug",
+}
+
 // Values
 #callsite(autofill(loc))
-pub fn[T : Eq + Show] eq(T, T, msg? : String, loc~ : SourceLoc) -> Unit raise
+pub fn[T : Eq + @debug.Debug] eq(T, T, msg? : String, loc~ : SourceLoc) -> Unit raise
 
 #callsite(autofill(loc))
 pub fn n(Bool, msg? : String, loc~ : SourceLoc) -> Unit raise

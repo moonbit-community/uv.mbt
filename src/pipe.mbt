@@ -22,20 +22,20 @@ pub fn Pipe::to_handle(self : Pipe) -> Handle = "%identity"
 pub fn Pipe::to_stream(self : Pipe) -> Stream = "%identity"
 
 ///|
-pub impl ToHandle for Pipe with to_handle(self) {
+pub impl ToHandle for Pipe with fn to_handle(self) {
   self.to_handle()
 }
 
 ///|
-pub impl ToHandle for Pipe with of_handle(self) = "%identity"
+pub impl ToHandle for Pipe with fn of_handle(self) = "%identity"
 
 ///|
-pub impl ToStream for Pipe with to_stream(self) {
+pub impl ToStream for Pipe with fn to_stream(self) {
   self.to_stream()
 }
 
 ///|
-pub impl ToStream for Pipe with of_stream(self) = "%identity"
+pub impl ToStream for Pipe with fn of_stream(self) = "%identity"
 
 ///|
 pub fn[Stream : ToStream] Pipe::write2(
@@ -97,7 +97,7 @@ const PIPE_NO_TRUNCATE : UInt = 1U << 0
 ///|
 pub fn PipeBindFlags::new(truncate? : Bool = true) -> PipeBindFlags {
   let mut flags = 0U
-  if not(truncate) {
+  if !truncate {
     flags = flags | PIPE_NO_TRUNCATE
   }
   return flags

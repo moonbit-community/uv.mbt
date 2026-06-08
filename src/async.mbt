@@ -33,10 +33,10 @@
 type Async
 
 ///|
-pub impl ToHandle for Async with to_handle(handle : Async) -> Handle = "%identity"
+pub impl ToHandle for Async with fn to_handle(handle : Async) -> Handle = "%identity"
 
 ///|
-pub impl ToHandle for Async with of_handle(handle : Handle) -> Async = "%identity"
+pub impl ToHandle for Async with fn of_handle(handle : Handle) -> Async = "%identity"
 
 ///|
 extern "c" fn uv_async_make() -> Async = "moonbit_uv_async_make"

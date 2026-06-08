@@ -41,10 +41,10 @@
 type Idle
 
 ///|
-pub impl ToHandle for Idle with to_handle(idle : Idle) -> Handle = "%identity"
+pub impl ToHandle for Idle with fn to_handle(idle : Idle) -> Handle = "%identity"
 
 ///|
-pub impl ToHandle for Idle with of_handle(handle : Handle) -> Idle = "%identity"
+pub impl ToHandle for Idle with fn of_handle(handle : Handle) -> Idle = "%identity"
 
 ///|
 extern "c" fn uv_idle_make() -> Idle = "moonbit_uv_idle_make"

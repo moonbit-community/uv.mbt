@@ -16,16 +16,16 @@
 type Tty
 
 ///|
-pub impl ToHandle for Tty with to_handle(tty : Tty) -> Handle = "%identity"
+pub impl ToHandle for Tty with fn to_handle(tty : Tty) -> Handle = "%identity"
 
 ///|
-pub impl ToHandle for Tty with of_handle(handle : Handle) -> Tty = "%identity"
+pub impl ToHandle for Tty with fn of_handle(handle : Handle) -> Tty = "%identity"
 
 ///|
-pub impl ToStream for Tty with to_stream(tty : Tty) -> Stream = "%identity"
+pub impl ToStream for Tty with fn to_stream(tty : Tty) -> Stream = "%identity"
 
 ///|
-pub impl ToStream for Tty with of_stream(stream : Stream) -> Tty = "%identity"
+pub impl ToStream for Tty with fn of_stream(stream : Stream) -> Tty = "%identity"
 
 ///|
 extern "c" fn uv_tty_make() -> Tty = "moonbit_uv_tty_make"
@@ -139,7 +139,7 @@ extern "c" fn uv_tty_get_vterm_state(state : Ref[TtyVtermState]) -> Int = "moonb
 
 ///|
 pub fn Tty::get_vterm_state() -> Unit raise Errno {
-  let state : Ref[TtyVtermState] = Ref::new(TtyVtermState::Unsupported)
+  let state : Ref[TtyVtermState] = Ref(TtyVtermState::Unsupported)
   let result = uv_tty_get_vterm_state(state)
   if result < 0 {
     raise Errno::of_int(result)

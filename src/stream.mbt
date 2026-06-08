@@ -19,12 +19,12 @@ type Stream
 pub fn Stream::to_handle(self : Stream) -> Handle = "%identity"
 
 ///|
-pub impl ToHandle for Stream with to_handle(self) {
+pub impl ToHandle for Stream with fn to_handle(self) {
   self.to_handle()
 }
 
 ///|
-pub impl ToHandle for Stream with of_handle(self) = "%identity"
+pub impl ToHandle for Stream with fn of_handle(self) = "%identity"
 
 ///|
 #owned(stream)
@@ -120,7 +120,7 @@ pub fn[Stream : ToStream] read_stop(stream : Stream) -> Unit raise Errno {
 type Write
 
 ///|
-pub impl ToReq for Write with to_req(self : Write) -> Req = "%identity"
+pub impl ToReq for Write with fn to_req(self : Write) -> Req = "%identity"
 
 ///|
 extern "c" fn uv_write_make() -> Write = "moonbit_uv_write_make"
@@ -318,33 +318,33 @@ pub fn Stream::try_write2(
 
 ///|
 pub trait ToStream: ToHandle {
-  to_stream(Self) -> Stream
-  of_stream(Stream) -> Self
-  read_start(
+  fn to_stream(Self) -> Stream
+  fn of_stream(Stream) -> Self
+  fn read_start(
     Self,
     (Self, Int) -> BytesView,
     (Self, Int, BytesView) -> Unit,
     (Self, Errno) -> Unit,
   ) -> Unit raise Errno = _
-  read_stop(Self) -> Unit raise Errno = _
-  write(Self, Array[BytesView], () -> Unit, (Errno) -> Unit) -> Write raise Errno = _
-  try_write(Self, Array[BytesView], () -> Unit, (Errno) -> Unit) -> Write raise Errno = _
-  listen(Self, Int, (Self) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno = _
-  is_readable(Self) -> Bool = _
-  is_writable(Self) -> Bool = _
-  shutdown(Self, () -> Unit, (Errno) -> Unit) -> Shutdown raise Errno = _
-  set_blocking(Self, Bool) -> Unit raise Errno = _
-  write_queue_size(Self) -> UInt64 = _
+  fn read_stop(Self) -> Unit raise Errno = _
+  fn write(Self, Array[BytesView], () -> Unit, (Errno) -> Unit) -> Write raise Errno = _
+  fn try_write(Self, Array[BytesView], () -> Unit, (Errno) -> Unit) -> Write raise Errno = _
+  fn listen(Self, Int, (Self) -> Unit, (Self, Errno) -> Unit) -> Unit raise Errno = _
+  fn is_readable(Self) -> Bool = _
+  fn is_writable(Self) -> Bool = _
+  fn shutdown(Self, () -> Unit, (Errno) -> Unit) -> Shutdown raise Errno = _
+  fn set_blocking(Self, Bool) -> Unit raise Errno = _
+  fn write_queue_size(Self) -> UInt64 = _
 }
 
 ///|
-pub impl ToStream for Stream with to_stream(self) = "%identity"
+pub impl ToStream for Stream with fn to_stream(self) = "%identity"
 
 ///|
-pub impl ToStream for Stream with of_stream(self) = "%identity"
+pub impl ToStream for Stream with fn of_stream(self) = "%identity"
 
 ///|
-impl ToStream with read_start(self, alloc_cb, read_cb, error_cb) {
+impl ToStream with fn read_start(self, alloc_cb, read_cb, error_cb) {
   // We are wrapping callbacks here, for two reasons:
   // 1. We need to downcast the `Handle`/`Stream` to concrete types.
   // 2. (Mutually) recursive indirect call will create a reference loop,
@@ -369,22 +369,22 @@ impl ToStream with read_start(self, alloc_cb, read_cb, error_cb) {
 }
 
 ///|
-impl ToStream with read_stop(self) {
+impl ToStream with fn read_stop(self) {
   self.to_stream().read_stop()
 }
 
 ///|
-impl ToStream with write(self, bufs, write_cb, error_cb) {
+impl ToStream with fn write(self, bufs, write_cb, error_cb) {
   self.to_stream().write(bufs, write_cb, error_cb)
 }
 
 ///|
-impl ToStream with try_write(self, bufs, write_cb, error_cb) {
+impl ToStream with fn try_write(self, bufs, write_cb, error_cb) {
   self.to_stream().try_write(bufs, write_cb, error_cb)
 }
 
 ///|
-impl ToStream with set_blocking(self, blocking) {
+impl ToStream with fn set_blocking(self, blocking) {
   let status = uv_stream_set_blocking(self.to_stream(), blocking)
   if status < 0 {
     raise Errno::of_int(status)
@@ -422,12 +422,12 @@ pub fn[Stream : ToStream] is_writable(stream : Stream) -> Bool {
 }
 
 ///|
-impl ToStream with is_readable(self) {
+impl ToStream with fn is_readable(self) {
   self.to_stream().is_readable()
 }
 
 ///|
-impl ToStream with is_writable(self) {
+impl ToStream with fn is_writable(self) {
   self.to_stream().is_writable()
 }
 
@@ -435,7 +435,7 @@ impl ToStream with is_writable(self) {
 type Shutdown
 
 ///|
-pub impl ToReq for Shutdown with to_req(self : Shutdown) -> Req = "%identity"
+pub impl ToReq for Shutdown with fn to_req(self : Shutdown) -> Req = "%identity"
 
 ///|
 extern "c" fn uv_shutdown_make() -> Shutdown = "moonbit_uv_shutdown_make"
@@ -481,7 +481,7 @@ pub fn[Stream : ToStream] shutdown(
 }
 
 ///|
-impl ToStream with shutdown(self, shutdown_cb, error_cb) {
+impl ToStream with fn shutdown(self, shutdown_cb, error_cb) {
   self.to_stream().shutdown(shutdown_cb, error_cb)
 }
 
@@ -504,7 +504,7 @@ pub fn[Stream : ToStream] listen(
 }
 
 ///|
-impl ToStream with listen(
+impl ToStream with fn listen(
   self : Self,
   backlog : Int,
   connection_cb : (Self) -> Unit,
@@ -543,7 +543,7 @@ pub fn[Server : ToStream, Client : ToStream] accept(
 struct Connect(Bytes)
 
 ///|
-pub impl ToReq for Connect with to_req(self : Connect) -> Req = "%identity"
+pub impl ToReq for Connect with fn to_req(self : Connect) -> Req = "%identity"
 
 ///|
 extern "c" fn uv_connect_make() -> Connect = "moonbit_uv_connect_make"
@@ -557,6 +557,6 @@ extern "c" fn uv_stream_set_blocking(stream : Stream, blocking : Bool) -> Int = 
 extern "c" fn uv_stream_get_write_queue_size(stream : Stream) -> UInt64 = "moonbit_uv_stream_get_write_queue_size"
 
 ///|
-impl ToStream with write_queue_size(self) {
+impl ToStream with fn write_queue_size(self) {
   uv_stream_get_write_queue_size(self.to_stream())
 }

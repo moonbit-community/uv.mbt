@@ -63,7 +63,7 @@ extern "c" fn uv_thread_self(thread : Thread) -> Int = "moonbit_uv_thread_self"
 extern "c" fn uv_thread_equal(thread : Thread, other : Thread) -> Int = "moonbit_uv_thread_equal"
 
 ///|
-pub impl Eq for Thread with equal(self : Thread, other : Thread) -> Bool {
+pub impl Eq for Thread with fn equal(self : Thread, other : Thread) -> Bool {
   return uv_thread_equal(self, other) != 0
 }
 
@@ -95,7 +95,7 @@ pub fn Thread::equal(self : Thread, other : Thread) -> Bool {
 }
 
 ///|
-pub impl Share for Thread with share(self : Thread) -> Thread {
+pub impl Share for Thread with fn share(self : Thread) -> Thread {
   let other = uv_thread_make()
   uv_thread_copy(self, other)
   return other
@@ -183,13 +183,9 @@ pub fn CpuSet::count(self : CpuSet) -> Int {
   let self = self.0
   let mut count = 0
   for byte in self {
-    loop byte {
-      0 => ()
-      byte => {
-        if (byte & 1) != 0 {
-          count += 1
-        }
-        continue byte >> 1
+    for b = byte; b != 0; b = b >> 1 {
+      if (b & 1) != 0 {
+        count += 1
       }
     }
   }
@@ -245,17 +241,17 @@ pub fn CpuSet::xor(self : CpuSet, other : CpuSet) -> CpuSet {
 }
 
 ///|
-pub impl BitAnd for CpuSet with land(self : CpuSet, other : CpuSet) -> CpuSet {
+pub impl BitAnd for CpuSet with fn land(self : CpuSet, other : CpuSet) -> CpuSet {
   return self.intersect(other)
 }
 
 ///|
-pub impl BitOr for CpuSet with lor(self : CpuSet, other : CpuSet) -> CpuSet {
+pub impl BitOr for CpuSet with fn lor(self : CpuSet, other : CpuSet) -> CpuSet {
   return self.union(other)
 }
 
 ///|
-pub impl BitXOr for CpuSet with lxor(self : CpuSet, other : CpuSet) -> CpuSet {
+pub impl BitXOr for CpuSet with fn lxor(self : CpuSet, other : CpuSet) -> CpuSet {
   return self.xor(other)
 }
 

@@ -49,7 +49,7 @@ pub fn Loop::queue_work(
 }
 
 ///|
-pub impl ToReq for Work with to_req(self : Work) -> Req = "%identity"
+pub impl ToReq for Work with fn to_req(self : Work) -> Req = "%identity"
 
 ///|
 pub impl Cancelable for Work

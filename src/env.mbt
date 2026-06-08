@@ -104,7 +104,7 @@ extern "c" fn uv_environ_get_value(
 ///|
 pub fn Environ::iter2(self : Environ) -> Iter2[Bytes, Bytes] {
   fn read_c_string(ptr : @c.Pointer[Byte]) -> Bytes {
-    let buf = @buffer.new()
+    let buf = Buffer()
     for i = 0; ptr[i] != 0; i = i + 1 {
       buf.write_byte(ptr[i])
     }

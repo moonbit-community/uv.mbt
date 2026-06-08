@@ -24,5 +24,5 @@ test "get_process_title" {
 
 ///|
 test "set_process_title" {
-  @uv.set_process_title("moonbit test")
+  @uv.set_process_title(b"moonbit test")
 }

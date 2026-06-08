@@ -128,7 +128,7 @@ pub fn Cond::timedwait(
 }
 
 ///|
-pub impl Share for Cond with share(self : Cond) -> Cond {
+pub impl Share for Cond with fn share(self : Cond) -> Cond {
   let other = uv_cond_make()
   uv_cond_copy(self, other)
   return other

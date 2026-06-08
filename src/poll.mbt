@@ -16,10 +16,10 @@
 type Poll
 
 ///|
-pub impl ToHandle for Poll with to_handle(poll : Poll) -> Handle = "%identity"
+pub impl ToHandle for Poll with fn to_handle(poll : Poll) -> Handle = "%identity"
 
 ///|
-pub impl ToHandle for Poll with of_handle(handle : Handle) -> Poll = "%identity"
+pub impl ToHandle for Poll with fn of_handle(handle : Handle) -> Poll = "%identity"
 
 ///|
 struct PollEvent(Int)
@@ -77,12 +77,12 @@ pub fn PollEvent::is_prioritized(self : PollEvent) -> Bool {
 }
 
 ///|
-pub impl BitOr for PollEvent with lor(self : PollEvent, other : PollEvent) -> PollEvent {
+pub impl BitOr for PollEvent with fn lor(self : PollEvent, other : PollEvent) -> PollEvent {
   self.0 | other.0
 }
 
 ///|
-pub impl BitAnd for PollEvent with land(self : PollEvent, other : PollEvent) -> PollEvent {
+pub impl BitAnd for PollEvent with fn land(self : PollEvent, other : PollEvent) -> PollEvent {
   self.0 & other.0
 }
 

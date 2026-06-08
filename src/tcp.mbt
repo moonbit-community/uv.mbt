@@ -16,16 +16,16 @@
 type Tcp
 
 ///|
-pub impl ToHandle for Tcp with to_handle(self : Tcp) -> Handle = "%identity"
+pub impl ToHandle for Tcp with fn to_handle(self : Tcp) -> Handle = "%identity"
 
 ///|
-pub impl ToHandle for Tcp with of_handle(self : Handle) -> Tcp = "%identity"
+pub impl ToHandle for Tcp with fn of_handle(self : Handle) -> Tcp = "%identity"
 
 ///|
-pub impl ToStream for Tcp with to_stream(self : Tcp) -> Stream = "%identity"
+pub impl ToStream for Tcp with fn to_stream(self : Tcp) -> Stream = "%identity"
 
 ///|
-pub impl ToStream for Tcp with of_stream(self : Stream) -> Tcp = "%identity"
+pub impl ToStream for Tcp with fn of_stream(self : Stream) -> Tcp = "%identity"
 
 ///|
 pub fn[Stream : ToStream] Tcp::write2(

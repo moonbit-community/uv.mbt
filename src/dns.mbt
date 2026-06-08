@@ -19,7 +19,7 @@ type GetAddrInfo
 extern "c" fn uv_getaddrinfo_make() -> GetAddrInfo = "moonbit_uv_getaddrinfo_make"
 
 ///|
-pub impl ToReq for GetAddrInfo with to_req(self : GetAddrInfo) -> Req = "%identity"
+pub impl ToReq for GetAddrInfo with fn to_req(self : GetAddrInfo) -> Req = "%identity"
 
 ///|
 type AddrInfoHints
@@ -266,7 +266,7 @@ fn AddrInfoResults::iterator(self : AddrInfoResults) -> Iter[AddrInfo] {
       let canonname = if canonname.is_null() {
         None
       } else {
-        let buffer = @buffer.new()
+        let buffer = Buffer()
         for i = 0; canonname[i] != 0; i = i + 1 {
           buffer.write_byte(canonname[i])
         }
@@ -359,7 +359,7 @@ type GetNameInfo
 extern "c" fn uv_getnameinfo_make() -> GetNameInfo = "moonbit_uv_getnameinfo_make"
 
 ///|
-pub impl ToReq for GetNameInfo with to_req(self : GetNameInfo) -> Req = "%identity"
+pub impl ToReq for GetNameInfo with fn to_req(self : GetNameInfo) -> Req = "%identity"
 
 ///|
 #owned(uv, req, getnameinfo_cb, addr)

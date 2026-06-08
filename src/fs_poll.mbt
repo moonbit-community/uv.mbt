@@ -16,10 +16,10 @@
 type FsPoll
 
 ///|
-pub impl ToHandle for FsPoll with to_handle(self) = "%identity"
+pub impl ToHandle for FsPoll with fn to_handle(self) = "%identity"
 
 ///|
-pub impl ToHandle for FsPoll with of_handle(handle : Handle) -> FsPoll = "%identity"
+pub impl ToHandle for FsPoll with fn of_handle(handle : Handle) -> FsPoll = "%identity"
 
 ///|
 extern "c" fn uv_fs_poll_make() -> FsPoll = "moonbit_uv_fs_poll_make"

@@ -16,7 +16,7 @@
 struct SockaddrIn(Bytes)
 
 ///|
-pub impl ToJson for SockaddrIn with to_json(self : SockaddrIn) -> Json {
+pub impl ToJson for SockaddrIn with fn to_json(self : SockaddrIn) -> Json {
   { "addr": self.addr(), "port": self.port() }
 }
 
@@ -91,7 +91,7 @@ pub fn InAddr::ntop(self : InAddr) -> Bytes raise Errno {
 }
 
 ///|
-pub impl ToJson for InAddr with to_json(self : InAddr) -> Json {
+pub impl ToJson for InAddr with fn to_json(self : InAddr) -> Json {
   wtf8_to_string(self.ntop()).to_json() catch {
     _ => self.to_bytes().to_array().to_json()
   }
@@ -103,7 +103,7 @@ extern "c" fn uv_in_addr_pton(src : Bytes, dst : Ref[InAddr]) -> Int = "moonbit_
 
 ///|
 pub fn InAddr::pton(src : Bytes) -> InAddr raise Errno {
-  let dst = Ref::new(InAddr(0))
+  let dst = Ref(InAddr(0))
   let status = uv_in_addr_pton(src, dst)
   if status < 0 {
     raise Errno::of_int(status)
@@ -156,7 +156,7 @@ pub extern "c" fn In6Addr::new(
 pub extern "c" fn In6Addr::to_bytes(self : In6Addr) -> Bytes = "moonbit_uv_in6_addr_to_bytes"
 
 ///|
-pub impl ToJson for In6Addr with to_json(self : In6Addr) -> Json {
+pub impl ToJson for In6Addr with fn to_json(self : In6Addr) -> Json {
   wtf8_to_string(self.ntop()).to_json() catch {
     _ => self.to_bytes().to_array().to_json()
   }
@@ -198,7 +198,7 @@ pub fn In6Addr::ntop(self : In6Addr) -> Bytes raise Errno {
 
 ///|
 pub fn In6Addr::pton(src : Bytes) -> In6Addr raise Errno {
-  let dst = Ref::new(In6Addr(0, 0))
+  let dst = Ref(In6Addr(0, 0))
   let status = uv_in6_addr_pton(src, dst)
   if status < 0 {
     raise Errno::of_int(status)
@@ -210,7 +210,7 @@ pub fn In6Addr::pton(src : Bytes) -> In6Addr raise Errno {
 struct SockaddrIn6(Bytes)
 
 ///|
-pub impl ToJson for SockaddrIn6 with to_json(self : SockaddrIn6) -> Json {
+pub impl ToJson for SockaddrIn6 with fn to_json(self : SockaddrIn6) -> Json {
   { "addr": self.addr(), "port": self.port(), "scope_id": self.scope_id() }
 }
 
@@ -228,7 +228,7 @@ extern "c" fn uv_sockaddr_make() -> Sockaddr = "moonbit_uv_sockaddr_make"
 extern "c" fn uv_sockaddr_family(addr : Sockaddr) -> Int = "moonbit_uv_sockaddr_family"
 
 ///|
-pub impl ToJson for Sockaddr with to_json(self : Sockaddr) -> Json {
+pub impl ToJson for Sockaddr with fn to_json(self : Sockaddr) -> Json {
   if SockaddrIn::of_sockaddr(self) is Some(self) {
     self.to_json()
   } else if SockaddrIn6::of_sockaddr(self) is Some(self) {
@@ -240,24 +240,24 @@ pub impl ToJson for Sockaddr with to_json(self : Sockaddr) -> Json {
 
 ///|
 pub trait ToSockaddr: ToJson {
-  to_sockaddr(self : Self) -> Sockaddr
-  of_sockaddr(self : Sockaddr) -> Self?
-  ip_name(self : Self) -> Bytes raise Errno
+  fn to_sockaddr(self : Self) -> Sockaddr
+  fn of_sockaddr(self : Sockaddr) -> Self?
+  fn ip_name(self : Self) -> Bytes raise Errno
 }
 
 ///|
-pub impl ToSockaddr for Sockaddr with to_sockaddr(self : Sockaddr) -> Sockaddr = "%identity"
+pub impl ToSockaddr for Sockaddr with fn to_sockaddr(self : Sockaddr) -> Sockaddr = "%identity"
 
 ///|
-pub impl ToSockaddr for Sockaddr with of_sockaddr(self : Sockaddr) -> Sockaddr? {
+pub impl ToSockaddr for Sockaddr with fn of_sockaddr(self : Sockaddr) -> Sockaddr? {
   Some(self)
 }
 
 ///|
-pub impl ToSockaddr for SockaddrIn with to_sockaddr(addr : SockaddrIn) -> Sockaddr = "%identity"
+pub impl ToSockaddr for SockaddrIn with fn to_sockaddr(addr : SockaddrIn) -> Sockaddr = "%identity"
 
 ///|
-pub impl ToSockaddr for SockaddrIn with of_sockaddr(addr : Sockaddr) -> SockaddrIn? {
+pub impl ToSockaddr for SockaddrIn with fn of_sockaddr(addr : Sockaddr) -> SockaddrIn? {
   if uv_sockaddr_family(addr) == _AF_INET {
     Some(addr.0)
   } else {
@@ -266,10 +266,10 @@ pub impl ToSockaddr for SockaddrIn with of_sockaddr(addr : Sockaddr) -> Sockaddr
 }
 
 ///|
-pub impl ToSockaddr for SockaddrIn6 with to_sockaddr(addr : SockaddrIn6) -> Sockaddr = "%identity"
+pub impl ToSockaddr for SockaddrIn6 with fn to_sockaddr(addr : SockaddrIn6) -> Sockaddr = "%identity"
 
 ///|
-pub impl ToSockaddr for SockaddrIn6 with of_sockaddr(addr : Sockaddr) -> SockaddrIn6? {
+pub impl ToSockaddr for SockaddrIn6 with fn of_sockaddr(addr : Sockaddr) -> SockaddrIn6? {
   if uv_sockaddr_family(addr) == _AF_INET6 {
     Some(addr.0)
   } else {

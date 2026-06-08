@@ -98,7 +98,7 @@ pub fn RwLock::wrunlock(self : RwLock) -> Unit {
 }
 
 ///|
-pub impl Share for RwLock with share(self : RwLock) -> RwLock {
+pub impl Share for RwLock with fn share(self : RwLock) -> RwLock {
   let other = uv_rwlock_make()
   uv_rwlock_copy(self, other)
   return other

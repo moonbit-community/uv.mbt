@@ -16,7 +16,7 @@
 type Random
 
 ///|
-pub impl ToReq for Random with to_req(self : Random) -> Req = "%identity"
+pub impl ToReq for Random with fn to_req(self : Random) -> Req = "%identity"
 
 ///|
 extern "c" fn uv_random_make() -> Random = "moonbit_uv_random_make"

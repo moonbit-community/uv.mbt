@@ -17,13 +17,13 @@ type Req
 
 ///|
 pub trait ToReq {
-  to_req(Self) -> Req
-  type_(self : Self) -> ReqType = _
+  fn to_req(Self) -> Req
+  fn type_(self : Self) -> ReqType = _
 }
 
 ///|
 pub trait Cancelable: ToReq {
-  cancel(Self) -> Unit raise Errno = _
+  fn cancel(Self) -> Unit raise Errno = _
 }
 
 ///|
@@ -31,7 +31,7 @@ pub trait Cancelable: ToReq {
 extern "c" fn uv_cancel(req : Req) -> Int = "moonbit_uv_cancel"
 
 ///|
-impl Cancelable with cancel(self : Self) -> Unit raise Errno {
+impl Cancelable with fn cancel(self : Self) -> Unit raise Errno {
   let result = uv_cancel(self.to_req())
   if result < 0 {
     raise Errno::of_int(result)
@@ -81,7 +81,7 @@ pub fn Req::type_(self : Req) -> ReqType {
 }
 
 ///|
-impl ToReq with type_(self : Self) -> ReqType {
+impl ToReq with fn type_(self : Self) -> ReqType {
   uv_req_get_type(self.to_req())
 }
 
@@ -91,7 +91,7 @@ extern "c" fn uv_req_type_name(req_type : ReqType) -> @c.Pointer[Byte] = "moonbi
 ///|
 pub fn ReqType::name(self : ReqType) -> Bytes {
   let ptr = uv_req_type_name(self)
-  let buf = @buffer.new()
+  let buf = Buffer()
   for i = 0; ptr[i] != 0; i = i + 1 {
     buf.write_byte(ptr[i])
   }

@@ -109,11 +109,11 @@ pub fn Mutex::unlock(self : Mutex) -> Unit {
 /// trait to create a new MoonBit object pointing to the same shared payload,
 /// incrementing the ARC safely.
 pub trait Share {
-  share(Self) -> Self
+  fn share(Self) -> Self
 }
 
 ///|
-pub impl Share for Mutex with share(self : Mutex) -> Mutex {
+pub impl Share for Mutex with fn share(self : Mutex) -> Mutex {
   let other = uv_mutex_make()
   uv_mutex_copy(self, other)
   return other

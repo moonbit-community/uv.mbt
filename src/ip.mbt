@@ -13,14 +13,14 @@
 // limitations under the License.
 
 ///|
-pub impl ToSockaddr for Sockaddr with ip_name(self : Sockaddr) -> Bytes raise Errno {
+pub impl ToSockaddr for Sockaddr with fn ip_name(self : Sockaddr) -> Bytes raise Errno {
   let self = self.to_sockaddr()
   let bytes = Bytes::make(_IF_NAMESIZE, 0)
   let status = uv_ip_name(self, bytes)
   if status < 0 {
     raise Errno::of_int(status)
   }
-  let buffer = @buffer.new()
+  let buffer = Buffer()
   for i = 0; bytes[i] != 0; i = i + 1 {
     buffer.write_byte(bytes[i])
   }
@@ -37,7 +37,7 @@ extern "c" fn uv_ip4_addr(ip : Bytes, port : Int, addr : SockaddrIn) -> Int = "m
 /// Parameters:
 ///
 /// * `ip` : The IPv4 address as a null-terminated byte string (e.g.,
-/// "127.0.0.1").
+/// b"127.0.0.1").
 /// * `port` : The port number for the socket address.
 ///
 /// Returns a `SockaddrIn` structure representing the IPv4 socket address that
@@ -46,7 +46,7 @@ extern "c" fn uv_ip4_addr(ip : Bytes, port : Int, addr : SockaddrIn) -> Int = "m
 /// Example:
 ///
 /// ```moonbit nocheck
-/// let addr = @uv.ip4_addr("127.0.0.1", 8080)
+/// let addr = @uv.ip4_addr(b"127.0.0.1", 8080)
 /// println(addr.ip_name())
 /// ```
 pub fn ip4_addr(ip : Bytes, port : Int) -> SockaddrIn raise Errno {
@@ -63,13 +63,13 @@ pub fn ip4_addr(ip : Bytes, port : Int) -> SockaddrIn raise Errno {
 extern "c" fn uv_ip4_name(addr : SockaddrIn, dst : Bytes) -> Int = "moonbit_uv_ip4_name"
 
 ///|
-pub impl ToSockaddr for SockaddrIn with ip_name(self : SockaddrIn) -> Bytes raise Errno {
+pub impl ToSockaddr for SockaddrIn with fn ip_name(self : SockaddrIn) -> Bytes raise Errno {
   let bytes = Bytes::make(_IF_NAMESIZE, 0)
   let status = uv_ip4_name(self, bytes)
   if status < 0 {
     raise Errno::of_int(status)
   }
-  let buffer = @buffer.new()
+  let buffer = Buffer()
   for i = 0; bytes[i] != 0; i = i + 1 {
     buffer.write_byte(bytes[i])
   }
@@ -95,13 +95,13 @@ pub fn ip6_addr(ip : Bytes, port : Int) -> SockaddrIn6 raise Errno {
 extern "c" fn uv_ip6_name(addr : SockaddrIn6, dst : Bytes) -> Int = "moonbit_uv_ip6_name"
 
 ///|
-pub impl ToSockaddr for SockaddrIn6 with ip_name(self : SockaddrIn6) -> Bytes raise Errno {
+pub impl ToSockaddr for SockaddrIn6 with fn ip_name(self : SockaddrIn6) -> Bytes raise Errno {
   let bytes = Bytes::make(_IF_NAMESIZE, 0)
   let status = uv_ip6_name(self, bytes)
   if status < 0 {
     raise Errno::of_int(status)
   }
-  let buffer = @buffer.new()
+  let buffer = Buffer()
   for i = 0; bytes[i] != 0; i = i + 1 {
     buffer.write_byte(bytes[i])
   }

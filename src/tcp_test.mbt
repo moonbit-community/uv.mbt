@@ -17,7 +17,7 @@ test "tcp" {
   let uv = @uv.Loop::new()
   let client_socket = @uv.Tcp::new(uv)
   let server_socket = @uv.Tcp::new(uv)
-  let addr = @uv.ip4_addr("127.0.0.1", 8544)
+  let addr = @uv.ip4_addr(b"127.0.0.1", 8544)
   let errors : Array[Error] = []
   server_socket.bind(addr, @uv.TcpBindFlags::new())
   fn server_close(error : Error?) {
@@ -48,7 +48,7 @@ test "tcp" {
           fn(_, _) { Bytes::make(32, 0)[:] },
           fn(_, nread, buf) {
             try {
-              @assert.eq(buf[:nread], "Request")
+              @assert.eq(buf[:nread], b"Request")
               server_client_socket.write(
                 [b"Response"],
                 () => server_stop_read(None),
@@ -101,7 +101,7 @@ test "tcp" {
         client_socket.read_start(
           fn(_, _) { Bytes::make(32, 0)[:] },
           fn(_, nread, buf) {
-            @assert.eq(buf[:nread], "Response") catch {
+            @assert.eq(buf[:nread], b"Response") catch {
               e => client_stop_read(Some(e))
             }
           },
@@ -132,9 +132,9 @@ test "tcp" {
 test "Tcp::getsockname" {
   let uv = Loop::new()
   let server = Tcp::new(uv)
-  let addr = ip4_addr("127.0.0.1", 0)
+  let addr = ip4_addr(b"127.0.0.1", 0)
   server.bind(addr, TcpBindFlags::new())
-  @assert.eq(server.getsockname().ip_name(), "127.0.0.1")
+  @assert.eq(server.getsockname().ip_name(), b"127.0.0.1")
   server.close(() => ())
   uv.run(Default)
   uv.close()
@@ -144,7 +144,7 @@ test "Tcp::getsockname" {
 test "Tcp::nodelay" {
   let uv = Loop::new()
   let server = Tcp::new(uv)
-  let addr = ip4_addr("127.0.0.1", 0)
+  let addr = ip4_addr(b"127.0.0.1", 0)
   server.bind(addr, TcpBindFlags::new())
   server.nodelay(true)
   server.close(() => ())
@@ -156,7 +156,7 @@ test "Tcp::nodelay" {
 test "Tcp::keepalive" {
   let uv = Loop::new()
   let server = Tcp::new(uv)
-  let addr = ip4_addr("127.0.0.1", 0)
+  let addr = ip4_addr(b"127.0.0.1", 0)
   server.bind(addr, TcpBindFlags::new())
   server.keepalive(true, delay=60U)
   server.close(() => ())
@@ -170,7 +170,7 @@ test "Tcp::keepalive_ex" {
   guard version.major() >= 1 && version.minor() >= 52 else { return }
   let uv = Loop::new()
   let server = Tcp::new(uv)
-  let addr = ip4_addr("127.0.0.1", 0)
+  let addr = ip4_addr(b"127.0.0.1", 0)
   server.bind(addr, TcpBindFlags::new())
   server.keepalive_ex(true, idle=60U, interval=10U, count=5U)
   server.close(() => ())
@@ -182,7 +182,7 @@ test "Tcp::keepalive_ex" {
 test "Tcp::close_reset" {
   let uv = Loop::new()
   let server = Tcp::new(uv)
-  let addr = ip4_addr("127.0.0.1", 8545)
+  let addr = ip4_addr(b"127.0.0.1", 8545)
   let errors : Array[Error] = []
   server.bind(addr, TcpBindFlags::new())
   server.listen(
@@ -201,7 +201,7 @@ test "Tcp::close_reset" {
           (_, _) => Bytes::make(32, 0)[:],
           (_, nread, buf) => {
             try {
-              @assert.eq(buf[:nread], "Hello")
+              @assert.eq(buf[:nread], b"Hello")
               client.close_reset(() => server.close(() => ())) catch {
                 e => {
                   errors.push(e)
@@ -218,7 +218,7 @@ test "Tcp::close_reset" {
             }
           },
           (_, e) => {
-            if not(e is EOF) {
+            if !(e is EOF) {
               errors.push(e)
               client.read_stop() catch {
                 e => errors.push(e)
@@ -278,7 +278,7 @@ test "Tcp::close_reset" {
                   client.close(() => ())
                 },
                 (_, e) => {
-                  if not(e is ECONNRESET) {
+                  if !(e is ECONNRESET) {
                     errors.push(e)
                   }
                   client.read_stop() catch {
@@ -307,7 +307,7 @@ test "Tcp::close_reset" {
         }
       },
       e => {
-        if not(e is ECONNRESET) {
+        if !(e is ECONNRESET) {
           errors.push(e)
         }
         client.close(() => ())
@@ -331,7 +331,7 @@ test "Tcp::close_reset" {
 test "Tcp::simultaneous_accepts" {
   let uv = Loop::new()
   let server = Tcp::new(uv)
-  let addr = ip4_addr("127.0.0.1", 0)
+  let addr = ip4_addr(b"127.0.0.1", 0)
   server.bind(addr, TcpBindFlags::new())
   server.simultaneous_accepts(true)
   server.simultaneous_accepts(false)

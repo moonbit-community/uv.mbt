@@ -13,13 +13,17 @@
 // limitations under the License.
 
 ///|
+priv struct MoonVersionItem {
+  name : String
+} derive(@json.FromJson)
+
+///|
+priv struct MoonVersion {
+  items : Array[MoonVersionItem]
+} derive(@json.FromJson)
+
+///|
 test "spawn" {
-  struct MoonVersionItem {
-    name : String
-  } derive(@json.FromJson)
-  struct MoonVersion {
-    items : Array[MoonVersionItem]
-  } derive(@json.FromJson)
   let uv = @uv.Loop::new()
   let mut error : Error? = None
   let stdout_pipe = @uv.Pipe::new(uv, ipc=false)
@@ -37,7 +41,7 @@ test "spawn" {
         }
       },
       fn(pipe, e) {
-        if not(e is EOF) {
+        if !(e is EOF) {
           error = Some(e)
         }
         pipe.read_stop() catch {
@@ -59,8 +63,8 @@ test "spawn" {
     @uv.StdioContainer::inherit_file(@uv.stderr()),
   ]
   let options = @uv.ProcessOptions::new(
-    "moon",
-    ["moon", "version", "--json"],
+    b"moon",
+    [b"moon", b"version", b"--json"],
     stdio~,
     fn(child, exit_status, term_signal) {
       try {
@@ -89,7 +93,7 @@ test "spawn/stdin" {
   let buffer = StringBuilder::new()
   let mut error : Error? = None
   fn do_write(pipe : @uv.Pipe) -> Unit {
-    let content : Bytes = "hello, world\n"
+    let content : Bytes = b"hello, world\n"
     try
       pipe.write([content], () => pipe.close(() => ()), e => error = Some(e))
       |> ignore()
@@ -109,7 +113,7 @@ test "spawn/stdin" {
         buffer.write_string(content)
       },
       fn(pipe, e) {
-        if not(e is EOF) {
+        if !(e is EOF) {
           error = Some(e)
         }
         pipe.read_stop() catch {
@@ -130,7 +134,7 @@ test "spawn/stdin" {
     @uv.StdioContainer::create_pipe(stdout_pipe, writable=true),
     @uv.StdioContainer::inherit_file(@uv.stderr()),
   ]
-  let options = @uv.ProcessOptions::new("cat", ["cat"], stdio~, fn(
+  let options = @uv.ProcessOptions::new(b"cat", [b"cat"], stdio~, fn(
     child,
     _,
     _,

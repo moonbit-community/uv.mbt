@@ -44,7 +44,7 @@ pub fn Lib::open(filename : Bytes) -> Lib raise DlError {
   let lib = uv_lib_make()
   if uv_dlopen(filename, lib) != 0 {
     let ptr = uv_dlerror(lib)
-    let buf = @buffer.new()
+    let buf = Buffer()
     for i = 0; ptr[i] != 0; i = i + 1 {
       buf.write_byte(ptr[i])
     }
@@ -55,7 +55,7 @@ pub fn Lib::open(filename : Bytes) -> Lib raise DlError {
 
 ///|
 pub fn[T] Lib::symbol(lib : Lib, name : Bytes) -> T? {
-  let ptr = Ref::new(@c.Pointer::null())
+  let ptr = Ref(@c.Pointer::null())
   if uv_dlsym(lib, name, ptr) != 0 {
     return None
   }

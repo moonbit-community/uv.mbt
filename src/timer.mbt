@@ -16,10 +16,10 @@
 type Timer
 
 ///|
-pub impl ToHandle for Timer with to_handle(self : Timer) -> Handle = "%identity"
+pub impl ToHandle for Timer with fn to_handle(self : Timer) -> Handle = "%identity"
 
 ///|
-pub impl ToHandle for Timer with of_handle(self : Handle) -> Timer = "%identity"
+pub impl ToHandle for Timer with fn of_handle(self : Handle) -> Timer = "%identity"
 
 ///|
 extern "c" fn uv_timer_make() -> Timer = "moonbit_uv_timer_make"

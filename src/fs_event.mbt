@@ -16,10 +16,10 @@
 type FsEvent
 
 ///|
-pub impl ToHandle for FsEvent with to_handle(self) = "%identity"
+pub impl ToHandle for FsEvent with fn to_handle(self) = "%identity"
 
 ///|
-pub impl ToHandle for FsEvent with of_handle(handle : Handle) -> FsEvent = "%identity"
+pub impl ToHandle for FsEvent with fn of_handle(handle : Handle) -> FsEvent = "%identity"
 
 ///|
 extern "c" fn uv_fs_event_make() -> FsEvent = "moonbit_uv_fs_event_make"
@@ -91,7 +91,7 @@ pub fn FsEvent::start(
     let filename = if filename.is_null() {
       None
     } else {
-      let buffer = @buffer.new()
+      let buffer = Buffer()
       for i = 0; filename[i] != 0; i = i + 1 {
         buffer.write_byte(filename[i])
       }

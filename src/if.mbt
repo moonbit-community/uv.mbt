@@ -22,12 +22,12 @@ let _IF_NAMESIZE : Int = uv_IF_NAMESIZE()
 struct IfIndex(UInt)
 
 ///|
-pub impl Show for IfIndex with output(self : IfIndex, logger : &Logger) -> Unit {
+pub impl Show for IfIndex with fn output(self : IfIndex, logger : &Logger) -> Unit {
   logger.write_string(self.0.to_string())
 }
 
 ///|
-pub impl ToJson for IfIndex with to_json(self : IfIndex) -> Json {
+pub impl ToJson for IfIndex with fn to_json(self : IfIndex) -> Json {
   return self.0.to_json()
 }
 
@@ -42,7 +42,7 @@ extern "c" fn uv_if_indextoname(
 ///|
 pub fn IfIndex::to_name(self : IfIndex) -> Bytes raise {
   let mut name : FixedArray[Byte] = FixedArray::make(_IF_NAMESIZE, 0)
-  let size : Ref[Int] = Ref::new(name.length())
+  let size : Ref[Int] = Ref(name.length())
   let mut status = uv_if_indextoname(self.0, name, size)
   if status == _ENOBUFS {
     name = FixedArray::make(size.val, 0)
@@ -80,7 +80,7 @@ pub fn IfIndex::to_iid(self : IfIndex) -> Bytes raise {
 struct PhysAddr(UInt64)
 
 ///|
-pub impl Show for PhysAddr with output(self : PhysAddr, logger : &Logger) -> Unit {
+pub impl Show for PhysAddr with fn output(self : PhysAddr, logger : &Logger) -> Unit {
   let b0 = (self.0 >> 40) & 0xff
   let b1 = (self.0 >> 32) & 0xff
   let b2 = (self.0 >> 24) & 0xff
@@ -101,7 +101,7 @@ pub impl Show for PhysAddr with output(self : PhysAddr, logger : &Logger) -> Uni
 }
 
 ///|
-pub impl ToJson for PhysAddr with to_json(self : PhysAddr) -> Json {
+pub impl ToJson for PhysAddr with fn to_json(self : PhysAddr) -> Json {
   return self.to_string().to_json()
 }
 
@@ -118,7 +118,7 @@ pub struct InterfaceAddress {
 extern "c" fn uv_interface_address_sizeof() -> UInt64 = "moonbit_uv_interface_address_sizeof"
 
 ///|
-impl @sizeof.Sized for InterfaceAddress with size() -> @c.Size {
+impl @sizeof.Sized for InterfaceAddress with fn size() -> @c.Size {
   uv_interface_address_sizeof()
 }
 
@@ -148,7 +148,7 @@ extern "c" fn uv_interface_address_netmask(
 ) -> Sockaddr = "moonbit_uv_interface_address_netmask"
 
 ///|
-impl @pointer.Load for InterfaceAddress with load(
+impl @pointer.Load for InterfaceAddress with fn load(
   self : @c.Pointer[InterfaceAddress],
 ) -> InterfaceAddress {
   return InterfaceAddress::{
@@ -175,8 +175,8 @@ extern "c" fn uv_free_interface_addresses(
 
 ///|
 pub fn interface_addresses() -> FixedArray[InterfaceAddress] raise {
-  let addresses = Ref::new(@c.Pointer::null())
-  let count : Ref[Int] = Ref::new(0)
+  let addresses = Ref(@c.Pointer::null())
+  let count : Ref[Int] = Ref(0)
   let status = uv_interface_addresses(addresses, count)
   if status < 0 {
     raise Errno::of_int(status)

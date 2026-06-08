@@ -67,7 +67,7 @@ pub fn Sem::trywait(self : Sem) -> Unit raise Errno {
 }
 
 ///|
-pub impl Share for Sem with share(self : Sem) -> Sem {
+pub impl Share for Sem with fn share(self : Sem) -> Sem {
   let other = uv_sem_make()
   uv_sem_copy(self, other)
   return other

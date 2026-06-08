@@ -19,13 +19,13 @@ pub extern "c" fn disable_stdio_inheritance() = "moonbit_uv_disable_stdio_inheri
 type Process
 
 ///|
-pub impl ToHandle for Process with to_handle(self : Process) -> Handle = "%identity"
+pub impl ToHandle for Process with fn to_handle(self : Process) -> Handle = "%identity"
 
 ///|
-pub impl ToHandle for Process with of_handle(handle) = "%identity"
+pub impl ToHandle for Process with fn of_handle(handle) = "%identity"
 
 ///|
-struct Pid(Int) derive(Show, Eq, Compare, Hash)
+struct Pid(Int) derive(Debug, Eq, Compare, Hash)
 
 ///|
 pub fn Pid::to_int(self : Pid) -> Int {

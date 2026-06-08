@@ -37,15 +37,13 @@ pub fn n(x : Bool, msg? : String, loc~ : SourceLoc) -> Unit raise {
 }
 
 ///|
-fn[T : Show] debug_string(t : T) -> String {
-  let buf = StringBuilder::new(size_hint=50)
-  t.output(buf)
-  buf.to_string()
+fn[T : Debug] debug_string(t : T) -> String {
+  repr(t)
 }
 
 ///|
 #callsite(autofill(loc))
-pub fn[T : Eq + Show] eq(
+pub fn[T : Eq + Debug] eq(
   a : T,
   b : T,
   msg? : String,

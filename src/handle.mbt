@@ -47,26 +47,26 @@ pub fn[Handle : ToHandle] is_closing(handle : Handle) -> Bool {
 
 ///|
 pub trait ToHandle {
-  to_handle(Self) -> Handle
-  of_handle(Handle) -> Self
-  close(Self, () -> Unit) -> Unit = _
-  is_closing(Self) -> Bool = _
-  loop_(Self) -> Loop = _
-  fileno(Self) -> OsFd raise Errno = _
-  os_sock(Self) -> OsSock raise Errno = _
-  get_send_buffer_size(Self) -> Int raise Errno = _
-  set_send_buffer_size(Self, Int) -> Unit raise Errno = _
-  get_recv_buffer_size(Self) -> Int raise Errno = _
-  set_recv_buffer_size(Self, Int) -> Unit raise Errno = _
+  fn to_handle(Self) -> Handle
+  fn of_handle(Handle) -> Self
+  fn close(Self, () -> Unit) -> Unit = _
+  fn is_closing(Self) -> Bool = _
+  fn loop_(Self) -> Loop = _
+  fn fileno(Self) -> OsFd raise Errno = _
+  fn os_sock(Self) -> OsSock raise Errno = _
+  fn get_send_buffer_size(Self) -> Int raise Errno = _
+  fn set_send_buffer_size(Self, Int) -> Unit raise Errno = _
+  fn get_recv_buffer_size(Self) -> Int raise Errno = _
+  fn set_recv_buffer_size(Self, Int) -> Unit raise Errno = _
 }
 
 ///|
-impl ToHandle with close(self, cb) {
+impl ToHandle with fn close(self, cb) {
   self.to_handle().close(cb)
 }
 
 ///|
-impl ToHandle with is_closing(self) {
+impl ToHandle with fn is_closing(self) {
   self.to_handle().is_closing()
 }
 
@@ -75,7 +75,7 @@ impl ToHandle with is_closing(self) {
 extern "c" fn uv_handle_loop(handle : Handle) -> Loop = "moonbit_uv_handle_loop"
 
 ///|
-impl ToHandle with loop_(self) {
+impl ToHandle with fn loop_(self) {
   uv_handle_loop(self.to_handle())
 }
 
@@ -147,7 +147,7 @@ pub fn OsFd::to_int(self : OsFd) -> Int raise Errno {
 extern "c" fn uv_fileno(handle : Handle, fd : OsFd) -> Int = "moonbit_uv_fileno"
 
 ///|
-impl ToHandle with fileno(self) {
+impl ToHandle with fn fileno(self) {
   let fd = uv_os_fd_make()
   let status = uv_fileno(self.to_handle(), fd)
   if status < 0 {
@@ -161,7 +161,7 @@ impl ToHandle with fileno(self) {
 extern "c" fn uv_handle_os_sock(handle : Handle, sock : OsSock) -> Int = "moonbit_uv_handle_os_sock"
 
 ///|
-impl ToHandle with os_sock(self : Self) -> OsSock raise Errno {
+impl ToHandle with fn os_sock(self : Self) -> OsSock raise Errno {
   let sock = uv_os_sock_make()
   let status = uv_handle_os_sock(self.to_handle(), sock)
   if status < 0 {
@@ -182,8 +182,8 @@ extern "c" fn uv_send_buffer_size(handle : Handle, size : Ref[Int]) -> Int = "mo
 extern "c" fn uv_recv_buffer_size(handle : Handle, size : Ref[Int]) -> Int = "moonbit_uv_recv_buffer_size"
 
 ///|
-impl ToHandle with get_send_buffer_size(self) {
-  let size = Ref::new(0)
+impl ToHandle with fn get_send_buffer_size(self) {
+  let size = Ref(0)
   let status = uv_send_buffer_size(self.to_handle(), size)
   if status < 0 {
     raise Errno::of_int(status)
@@ -192,16 +192,16 @@ impl ToHandle with get_send_buffer_size(self) {
 }
 
 ///|
-impl ToHandle with set_send_buffer_size(self, size) {
-  let status = uv_send_buffer_size(self.to_handle(), Ref::new(size))
+impl ToHandle with fn set_send_buffer_size(self, size) {
+  let status = uv_send_buffer_size(self.to_handle(), Ref(size))
   if status < 0 {
     raise Errno::of_int(status)
   }
 }
 
 ///|
-impl ToHandle with get_recv_buffer_size(self) {
-  let size = Ref::new(0)
+impl ToHandle with fn get_recv_buffer_size(self) {
+  let size = Ref(0)
   let status = uv_recv_buffer_size(self.to_handle(), size)
   if status < 0 {
     raise Errno::of_int(status)
@@ -210,8 +210,8 @@ impl ToHandle with get_recv_buffer_size(self) {
 }
 
 ///|
-impl ToHandle with set_recv_buffer_size(self, size) {
-  let status = uv_recv_buffer_size(self.to_handle(), Ref::new(size))
+impl ToHandle with fn set_recv_buffer_size(self, size) {
+  let status = uv_recv_buffer_size(self.to_handle(), Ref(size))
   if status < 0 {
     raise Errno::of_int(status)
   }

@@ -16,10 +16,10 @@
 type Udp
 
 ///|
-pub impl ToHandle for Udp with to_handle(self : Udp) -> Handle = "%identity"
+pub impl ToHandle for Udp with fn to_handle(self : Udp) -> Handle = "%identity"
 
 ///|
-pub impl ToHandle for Udp with of_handle(self : Handle) -> Udp = "%identity"
+pub impl ToHandle for Udp with fn of_handle(self : Handle) -> Udp = "%identity"
 
 ///|
 extern "c" fn uv_udp_make() -> Udp = "moonbit_uv_udp_make"
@@ -73,7 +73,7 @@ pub fn[Sockaddr : ToSockaddr] Udp::bind(
 type UdpSend
 
 ///|
-pub impl ToReq for UdpSend with to_req(self : UdpSend) -> Req = "%identity"
+pub impl ToReq for UdpSend with fn to_req(self : UdpSend) -> Req = "%identity"
 
 ///|
 extern "c" fn uv_udp_send_make() -> UdpSend = "moonbit_uv_udp_send_make"
@@ -530,7 +530,7 @@ pub fn[T : ToSockaddr] Udp::try_send2(
 ) -> Int raise Errno {
   let bufs_base : FixedArray[FixedArray[Bytes]] = FixedArray::makei(
     data.length(),
-    i => FixedArray::make(data[i].0.length(), ""),
+    i => FixedArray::make(data[i].0.length(), b""),
   )
   let bufs_offset = FixedArray::makei(data.length(), i => {
     FixedArray::make(data[i].0.length(), 0)

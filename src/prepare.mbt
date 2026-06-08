@@ -16,10 +16,10 @@
 type Prepare
 
 ///|
-pub impl ToHandle for Prepare with to_handle(prepare : Prepare) -> Handle = "%identity"
+pub impl ToHandle for Prepare with fn to_handle(prepare : Prepare) -> Handle = "%identity"
 
 ///|
-pub impl ToHandle for Prepare with of_handle(handle : Handle) -> Prepare = "%identity"
+pub impl ToHandle for Prepare with fn of_handle(handle : Handle) -> Prepare = "%identity"
 
 ///|
 extern "c" fn uv_prepare_make() -> Prepare = "moonbit_uv_prepare_make"

@@ -49,10 +49,10 @@
 type Check
 
 ///|
-pub impl ToHandle for Check with to_handle(check : Check) -> Handle = "%identity"
+pub impl ToHandle for Check with fn to_handle(check : Check) -> Handle = "%identity"
 
 ///|
-pub impl ToHandle for Check with of_handle(handle : Handle) -> Check = "%identity"
+pub impl ToHandle for Check with fn of_handle(handle : Handle) -> Check = "%identity"
 
 ///|
 extern "c" fn uv_check_make() -> Check = "moonbit_uv_check_make"

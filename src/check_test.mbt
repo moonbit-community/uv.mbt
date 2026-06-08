@@ -26,7 +26,7 @@ test "Check" {
     check.close(() => ())
   })
   uv.fs_open(
-    "test/fixtures/example.txt",
+    b"test/fixtures/example.txt",
     @uv.OpenFlags::read_only(),
     0o644,
     _ => (),

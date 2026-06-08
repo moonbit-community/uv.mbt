@@ -20,7 +20,7 @@ extern "c" fn strerror_r(err : Int, bytes : Bytes) = "moonbit_uv_strerror_r"
 fn strerror(errno : Int) -> Bytes {
   let bytes = Bytes::make(256, 0)
   strerror_r(errno, bytes)
-  let buffer = @buffer.new()
+  let buffer = Buffer()
   for byte in bytes {
     if byte == 0 {
       break
@@ -120,13 +120,13 @@ pub(all) suberror Errno {
 } derive(Eq, Hash)
 
 ///|
-let errno_messages : Map[Errno, Bytes] = Map::new()
+let errno_messages : Map[Errno, Bytes] = {}
 
 ///|
-let errno_errors : Map[Int, Errno] = Map::new()
+let errno_errors : Map[Int, Errno] = {}
 
 ///|
-let errno_values : Map[Errno, Int] = Map::new()
+let errno_values : Map[Errno, Int] = {}
 
 ///|
 fn init {
@@ -243,7 +243,7 @@ pub fn Errno::to_bytes(self : Errno) -> Bytes {
 }
 
 ///|
-pub impl Show for Errno with output(self : Errno, logger : &Logger) -> Unit {
+pub impl Show for Errno with fn output(self : Errno, logger : &Logger) -> Unit {
   logger.write_string(wtf8_to_string(self.to_bytes()))
 }
 

@@ -236,7 +236,7 @@ extern "c" fn uv_cpu_info(
 extern "c" fn uv_cpu_info_sizeof() -> UInt64 = "moonbit_uv_cpu_info_sizeof"
 
 ///|
-impl @sizeof.Sized for CpuInfo with size() -> @c.Size {
+impl @sizeof.Sized for CpuInfo with fn size() -> @c.Size {
   uv_cpu_info_sizeof()
 }
 
@@ -274,9 +274,9 @@ extern "c" fn uv_cpu_info_get_cpu_times_irq(
 ) -> UInt64 = "moonbit_uv_cpu_info_get_cpu_times_irq"
 
 ///|
-impl @pointer.Load for CpuInfo with load(self : @c.Pointer[CpuInfo]) -> CpuInfo {
+impl @pointer.Load for CpuInfo with fn load(self : @c.Pointer[CpuInfo]) -> CpuInfo {
   let model = {
-    let buffer = @buffer.new()
+    let buffer = Buffer()
     let pointer = uv_cpu_info_get_model(self)
     for i = 0; pointer[i] != 0; i = i + 1 {
       buffer.write_byte(pointer[i])
@@ -350,7 +350,7 @@ extern "c" fn uv_os_gethostname(name : Bytes, size : Ref[Int]) -> Int = "moonbit
 ///|
 pub fn os_gethostname() -> Bytes raise Errno {
   let mut buffer = Bytes::make(257, 0)
-  let length = Ref::new(buffer.length())
+  let length = Ref(buffer.length())
   let mut status = uv_os_gethostname(buffer, length)
   if status == _ENOBUFS {
     buffer = Bytes::make(length.val, 0)
@@ -370,7 +370,7 @@ extern "c" fn uv_uptime(uptime : Ref[Double]) -> Int = "moonbit_uv_uptime"
 
 ///|
 pub fn uptime() -> Double raise Errno {
-  let uptime : Ref[Double] = Ref::new(0.0)
+  let uptime : Ref[Double] = Ref(0.0)
   let status = uv_uptime(uptime)
   if status < 0 {
     raise Errno::of_int(status)
@@ -384,7 +384,7 @@ extern "c" fn uv_resident_set_memory(rss : Ref[UInt64]) -> Int = "moonbit_uv_res
 
 ///|
 pub fn resident_set_memory() -> UInt64 raise Errno {
-  let rss : Ref[UInt64] = Ref::new(0)
+  let rss : Ref[UInt64] = Ref(0)
   let status = uv_resident_set_memory(rss)
   if status < 0 {
     raise Errno::of_int(status)
@@ -418,7 +418,7 @@ extern "c" fn uv_os_getpriority(pid : Pid, priority : Ref[Int]) -> Int = "moonbi
 /// **Note**: On Windows, the returned priority will equal one of the
 /// `Priority` constants.
 pub fn os_getpriority(pid : Pid) -> Int raise Errno {
-  let priority : Ref[Int] = Ref::new(0)
+  let priority : Ref[Int] = Ref(0)
   let status = uv_os_getpriority(pid, priority)
   if status < 0 {
     raise Errno::of_int(status)
